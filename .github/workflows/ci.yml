@@ -1,0 +1,42 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [main, staging, develop]
+  pull_request:
+    branches: [main, staging, develop]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Quét bảo mật tĩnh độc lập với ngôn ngữ (Semgrep SAST)
+  security-scan:
+    name: Security & SAST Audit (Language Agnostic)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Run Semgrep SAST Scan
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/security-audit
+            p/secrets
+            p/owasp-top-ten
+        continue-on-error: true
+
+  # Placeholder cho Build & Test khi dự án chốt Tech Stack
+  # (Sẽ kích hoạt tương ứng: Go, Node.js/Next.js, Java Spring, Python FastAPI, ...)
+  build-and-test:
+    name: Build & Test Gatekeeper
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Codebase Verification
+        run: |
+          echo "Tech stack chưa được cấu hình. Bước kiểm tra mã nguồn tổng quát hoàn thành."
