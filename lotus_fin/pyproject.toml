@@ -1,0 +1,21 @@
+[build-system]
+requires = ["flit_core >=3.4,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "lotus_fin"
+authors = [
+    { name = "Lotus Fin Team", email = "dev@lotusfin.vn"}
+]
+description = "Financial Management, SME Cash Flow Core, and AI Key Report Pipeline built on Frappe Framework"
+requires-python = ">=3.10"
+readme = "README.md"
+dynamic = ["version"]
+dependencies = [
+    # "frappe~=15.0.0" # or v16
+]
+
+[project.urls]
+Homepage = "https://lotusfin.vn"
+Repository = "https://github.com/trungkienit25/lotus-fin"
+
