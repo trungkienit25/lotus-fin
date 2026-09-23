@@ -12,15 +12,6 @@ app_license = "MIT"
 app_include_css = "/assets/lotus_fin/css/lotus_fin.css"
 app_include_js = "/assets/lotus_fin/js/lotus_fin.js"
 
-# Includes in <head> for website theme
-# ------------------
-# web_include_css = "/assets/lotus_fin/css/lotus_fin.css"
-# web_include_js = "/assets/lotus_fin/js/lotus_fin.js"
-
-# Desk Notifications
-# ------------------
-# See frappe.core.notifications.get_notification_config
-
 # Document Events (Hooks for AI analysis & automation)
 # ---------------
 doc_events = {
@@ -43,6 +34,15 @@ scheduler_events = {
 	]
 }
 
+# Fixtures to sync configuration across environments
+# ---------------
+fixtures = [
+	{
+		"doctype": "Custom HTML Block",
+		"filters": [["name", "in", ["Lotus Fin AI Widget"]]]
+	}
+]
+
 # Desk Workspaces Configuration (Filtering allowed modules for Lotus Fin)
 # ------------------
 # Allowed core modules: Accounting, Buying, Selling, Assets, Subcontracting, Settings
@@ -55,4 +55,3 @@ ALLOWED_WORKSPACES = [
 	"Settings",
 	"Lotus Fin AI"
 ]
-
