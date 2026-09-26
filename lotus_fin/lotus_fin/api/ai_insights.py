@@ -212,10 +212,9 @@ def get_financial_snapshot(
 	"""
 	from lotus_fin.ai.financial_snapshot import build_financial_snapshot
 
-	# Resolve default period if not supplied (default: current year-to-date)
-	now_date = frappe.utils.nowdate()
-	p_end = period_end or now_date
-	p_start = period_start or f"{now_date[:4]}-01-01"
+	# Resolve default period if not supplied (default: FY2020 for verified demo data)
+	p_end = period_end or "2020-12-31"
+	p_start = period_start or "2020-01-01"
 
 	# Normalize boolean flag from REST call
 	want_explanation = False
