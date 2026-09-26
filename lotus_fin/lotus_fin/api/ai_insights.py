@@ -228,9 +228,14 @@ def get_financial_snapshot(
 
 	# Adapter to fetch reports via authorized extract_key_report_data
 	def frappe_report_fetcher(report_key: str, filters: Dict[str, Any], comp: str):
-		return extract_key_report_data(report_key=report_key, filters=filters, company=comp)
+		res = extract_key_report_data(report_key=report_key, filters=filters, company=comp)
+		# Clear any internal ERPNext report validation popups (e.g. inactive fiscal year for previous period)
+		# so they do not show up as unexpected UI modal dialogs to end users.
+		if hasattr(frappe, "message_log") and isinstance(frappe.message_log, list):
+			frappe.message_log.clear()
+		return res
 
-	return build_financial_snapshot(
+	res = build_financial_snapshot(
 		company=company,
 		period_start=p_start,
 		period_end=p_end,
@@ -242,4 +247,9 @@ def get_financial_snapshot(
 		user=frappe.session.user,
 		include_explanation=want_explanation
 	)
+
+	if hasattr(frappe, "message_log") and isinstance(frappe.message_log, list):
+		frappe.message_log.clear()
+
+	return res
 
