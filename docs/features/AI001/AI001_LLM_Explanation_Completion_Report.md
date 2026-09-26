@@ -107,3 +107,18 @@ OK
 - [x] **Safe Fallback:** Model failure (429/5xx/timeout) degrades cleanly to `status: UNAVAILABLE` without affecting deterministic metrics.
 - [x] **Observability:** Telemetry tracks prompt version, tokens, duration, and estimated cost with zero PII or raw secrets.
 - [x] **Git Branch Delivery:** Pushed to dedicated feature branch `feature/financial-health-analyst`.
+
+---
+
+## 7. Product Presentation Follow-up (AI001-05)
+
+**Date:** 2026-09-26  
+**Context:** Feature Productization & Financial Health Dedicated Workspace
+
+The successful completion of the LLM explanation engine (AI001-04) established backend algorithmic maturity, but demo evaluations demonstrated that **backend capability alone does not guarantee a strong product experience**. 
+
+Key productization lessons integrated:
+1. **Short modal dialogs underrepresent capability:** A simple pop-up dialog with 1-2 summary sentences created the misperception of a superficial chatbot wrapper. Moving to a dedicated company-level workspace (`financial-health`) reveals the multi-statement intelligence of the system.
+2. **Visual decomposition of AI output:** Structured narratives must visually separate **Facts**, **Interpretations**, **Limitations**, and **Recommended Next Checks**. Collapsing these into a single paragraph diminishes both auditability and trust.
+3. **Evidence inspectability:** Trust requires users to answer "Where did this number come from?" The UI now provides an Evidence drawer displaying ERPNext report names, query bounds, as-of timestamps, and SHA256 checksums.
+4. **Resilient deterministic value on model failure:** When external LLM APIs fail (`explanation.status = UNAVAILABLE`), the product interface preserves 100% of deterministic KPI cards, comparative tables, and source evidence.

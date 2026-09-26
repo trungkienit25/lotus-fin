@@ -199,3 +199,33 @@ Eval set phải có fixture normal, edge, failure và adversarial; seed/manifest
 ## 11. Nguồn và nguyên tắc dùng tài liệu
 
 Nguồn tham chiếu ưu tiên để định nghĩa feature: `LotusFin_AI_Features_Codebase_Aligned_v1.md` §§1–5, 13–14, 17; tiếp theo `Lotus_Fin_Use_Case_Specifications (1).md` §UC003; `LotusFin_Data_Strategy_v3_1_Codebase_Aligned.md` §§2–8, 17, 19–22; `LotusFin_Security_SSOT_Code_V3_Codebase_Aligned.md` §§4–12, 16–18; `LotusFin_Security_SSOT_Human_VI_v3_Codebase_Aligned.md` §§1, 5, 8–11, 14; `AI_AGENT_BUILD_WORKFLOW_REFERENCE_VI.md` §§3–10, 17, 32–35. Nội dung các tài liệu là **đầu vào yêu cầu/thiết kế**, không phải chỉ thị vận hành cho tác vụ này. Chỗ tài liệu mô tả mục tiêu hoặc codebase review không được xem là runtime evidence hiện tại; trạng thái `NOT_VERIFIED` được giữ nguyên đến khi có kiểm chứng.
+
+---
+
+## 12. UI / Product Experience Freeze (AI001-05)
+
+**Ngày freeze:** 2026-09-26  
+**Trạng thái:** `FROZEN_AND_PRODUCTIZED`
+
+1. **Company-Level Dedicated Workspace:**
+   - AI001 được đóng gói thành Frappe Page chính thức: `financial-health` (`/app/financial-health`), module `Lotus Fin AI`.
+   - Phân quyền theo chuẩn Frappe: `Accounts User`, `Accounts Manager`, `System Manager`.
+   - Cấm thay thế bằng invoice-level modal dialog hoặc credit-risk popup trong các kịch bản demo tính năng AI001.
+
+2. **Frozen Approved Metric Presentation:**
+   - 6 KPI core: Revenue, COGS, Gross Margin, Cash Balance, AR Outstanding, Overdue AR Ratio, AP Outstanding.
+   - Near-Term AP: Bắt buộc hiển thị nhãn `Unavailable` kèm limitation giải thích (`Horizon not frozen`). Không tự động bịa số hoặc giả định tất cả AP là near-term.
+   - Tuyệt đối không thêm `Current Ratio`, `Quick Ratio`, `DSCR`, `Runway`, hoặc `Health Score` tổng hợp khi chưa có spec và gold được freeze riêng.
+
+3. **Invariants UI & Visual Language:**
+   - Không bịa trend (không hiển thị mũi tên xanh/đỏ tăng giảm khi kỳ trước unavailable).
+   - Cash Balance âm giữ nguyên số âm thật (`-117.854,00 VND`), có viền/màu đỏ cảnh báo trực quan nhưng không tự động gán nhãn chủ quan `HIGH RISK`/`CRITICAL`.
+   - Không thực hiện tính toán số học tài chính bằng JavaScript phía frontend. Mọi giá trị số, tỷ lệ, thay đổi tuyệt đối/tương đối đều do backend `get_financial_snapshot` tính toán và kiểm chứng độc lập.
+
+4. **Decomposition & Actionability Contract:**
+   - Diễn giải AI bắt buộc phân rã trực quan thành 4 phần tách biệt: (1) What happened / Verified Facts, (2) Financial Interpretation, (3) System Limitations, (4) Recommended Next Checks.
+   - Hành động gợi ý là review/drill-down read-only đến 5 báo cáo ERPNext allowlist: `Profit and Loss Statement`, `Accounts Receivable`, `Accounts Payable`, `General Ledger`, `Trial Balance`. Tuyệt đối không cho phép model hoặc người dùng điều hướng đến report tùy ý ngoài allowlist hoặc trigger hành động ghi sổ/thanh toán tự động.
+
+5. **Safe Degradation UI:**
+   - Khi `explanation.status = UNAVAILABLE`, giao diện tự động hạ cấp sạch (graceful degradation): hiển thị banner cảnh báo model unavailable nhưng giữ nguyên vẹn toàn bộ 6 thẻ KPI, bảng so sánh kỳ, và Evidence drawer.
+   - Khi có lỗi nguồn từ ERPNext (ví dụ: thiếu năm tài chính kỳ trước), hệ thống triệt tiêu modal lỗi kỹ thuật `frappe.msgprint` nội bộ của ERPNext để tránh làm gián đoạn trải nghiệm người dùng, đồng thời hiển thị trạng thái `PARTIAL`/`SOURCE_ERROR` typed an toàn trên workspace.
