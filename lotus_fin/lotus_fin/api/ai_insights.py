@@ -1,5 +1,5 @@
 import warnings
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional, Union, List
 import frappe
 from frappe import _
 from frappe.permissions import has_permission
@@ -262,6 +262,7 @@ def get_ai002_cash_forecast(
 	currency: str = "VND",
 	correlation_id: Optional[str] = None,
 	include_explanation: Union[bool, int, str] = False,
+	cash_account_scope: Optional[Union[List[str], str]] = None,
 ) -> Dict[str, Any]:
 	"""
 	[AI-F002 Cash-flow Forecast Copilot - Whitelisted API Endpoint]
@@ -288,12 +289,28 @@ def get_ai002_cash_forecast(
 	elif isinstance(include_explanation, str):
 		want_explanation = include_explanation.strip().lower() in ["1", "true", "yes"]
 
+	# Parse cash_account_scope
+	scope_list: List[str] = []
+	if isinstance(cash_account_scope, list):
+		scope_list = [str(a).strip() for a in cash_account_scope if str(a).strip()]
+	elif isinstance(cash_account_scope, str) and cash_account_scope.strip():
+		import json
+		try:
+			parsed = json.loads(cash_account_scope)
+			if isinstance(parsed, list):
+				scope_list = [str(a).strip() for a in parsed if str(a).strip()]
+			else:
+				scope_list = [cash_account_scope.strip()]
+		except Exception:
+			scope_list = [cash_account_scope.strip()]
+
 	req = ForecastRequest(
 		company=company or "",
 		financial_as_of=as_of_date,
 		forecast_start=start_date,
 		forecast_end=end_date,
 		reporting_currency=currency,
+		cash_account_scope=scope_list,
 		coverage_scope=CoverageScope.TRADE_ONLY,
 		include_explanation=want_explanation,
 		correlation_id=correlation_id or "",
@@ -328,16 +345,20 @@ def get_ai002_cash_forecast(
 @frappe.whitelist()
 def get_ai002_evidence(
 	evidence_ref: str,
-	company: Optional[str] = None,
+	company: str,
 ) -> Dict[str, Any]:
 	"""
-	[AI-F002 Evidence Drilldown - CG-SEC-04]
+	[AI-F002 Evidence Drilldown - CG-SEC-04, Fix C]
 	Re-authorizes evidence document access on every drilldown / view action.
+	Requires non-empty company.
 	Fails closed with generic FORBIDDEN if unauthorized, cross-company, or nonexistent.
 	"""
 	from lotus_fin.security.access import verify_evidence_access, get_verified_company
 
-	verified_comp = get_verified_company(company) if company else None
+	if not company or not str(company).strip():
+		frappe.throw(_("FORBIDDEN"), exc=frappe.PermissionError)
+
+	verified_comp = get_verified_company(company)
 	verify_evidence_access(evidence_ref=evidence_ref, user=frappe.session.user, company=verified_comp)
 
 	parts = evidence_ref.split(":", 1)
@@ -353,4 +374,5 @@ def get_ai002_evidence(
 		"company": getattr(doc, "company", None),
 		"posting_date": str(getattr(doc, "posting_date", None) or getattr(doc, "transaction_date", None)),
 	}
+
 

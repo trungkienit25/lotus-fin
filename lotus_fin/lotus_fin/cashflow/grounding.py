@@ -7,14 +7,19 @@ from .models import ForecastResponse, ForecastStatus
 
 def _extract_amounts(text: str) -> Set[Decimal]:
     """
-    Extract numbers with optional thousand separators (comma or period) and optional decimals.
-    Ignore isolated small numbers like 1, 2, 3, 30 (often days or counts).
+    Extract all financial-like numeric tokens including:
+    0, 1, 12, 9999, 11,550,000, -450000, 0.00.
+    Does NOT ignore short numbers (Fix D).
+    Ignores numbers that are part of dates (YYYY-MM-DD or DD/MM/YYYY) or words.
     """
     amounts = set()
-    # Match numbers like 11,550,000 or -450,000 or 999999999
-    # Handle both 1,000,000 and 1.000.000 (common in VN)
-    pattern = r'(?<![A-Za-z0-9_])-?\b\d{1,3}(?:[,\.]\d{3})+(?:\.\d+)?\b|\b\d{5,}\b'
-    matches = re.findall(pattern, text)
+    # Mask out dates first so year/month/day aren't treated as standalone amounts
+    masked_text = re.sub(r'\b\d{4}-\d{2}-\d{2}\b', ' ', text)
+    masked_text = re.sub(r'\b\d{2}/\d{2}/\d{4}\b', ' ', masked_text)
+
+    # Match numbers with optional thousand separators, optional decimals, optional negative sign
+    pattern = r'(?<![A-Za-z0-9_])-?\b\d{1,3}(?:[,\.]\d{3})+(?:\.\d+)?\b|(?<![A-Za-z0-9_])-?\b\d+(?:\.\d+)?\b'
+    matches = re.findall(pattern, masked_text)
     for m in matches:
         cleaned = m.replace(",", "").replace(".", "")
         try:
@@ -22,6 +27,7 @@ def _extract_amounts(text: str) -> Set[Decimal]:
         except Exception:
             pass
     return amounts
+
 
 
 def _extract_dates(text: str) -> Set[str]:

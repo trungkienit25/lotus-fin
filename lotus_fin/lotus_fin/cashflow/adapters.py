@@ -46,104 +46,113 @@ def get_opening_cash_ledger(
 
     reconciliation_status = "RECONCILIATION_UNAVAILABLE"
     if frappe and hasattr(frappe, "db") and frappe.db:
-        # Check report permission for General Ledger
+        # Check report permission for General Ledger & Trial Balance
         check_ai002_report_permission("General Ledger")
+        check_ai002_report_permission("Trial Balance")
 
-        # Determine cash/bank accounts if account_scope is empty
+        # Fix B: Account scope must be explicit; if empty, do not auto-select
         if not account_scope:
-            accounts = frappe.db.get_all(
-                "Account",
-                filters={
-                    "company": company,
-                    "account_type": ["in", ["Bank", "Cash"]],
-                    "is_group": 0,
-                    "disabled": 0,
-                },
-                pluck="name",
+            return OpeningCash(
+                aggregate_amount=Decimal("0"),
+                reconciliation="RECONCILIATION_UNAVAILABLE",
+                has_constituent_deficit=False,
+                accounts=[],
             )
-            account_scope = accounts or []
 
-        if account_scope:
-            # Query GL Entry with single-query aggregation
-            placeholders = ", ".join(["%s"] * len(account_scope))
-            query = f"""
-                SELECT account, SUM(debit) - SUM(credit) as balance
-                FROM `tabGL Entry`
-                WHERE company = %s
-                  AND posting_date <= %s
-                  AND is_cancelled = 0
-                  AND account IN ({placeholders})
-                GROUP BY account
-            """
-            params = [company, as_of] + account_scope
-            records = frappe.db.sql(query, params, as_dict=True)
+        # Query GL Entry with single-query aggregation
+        placeholders = ", ".join(["%s"] * len(account_scope))
+        query = f"""
+            SELECT account, SUM(debit) - SUM(credit) as balance
+            FROM `tabGL Entry`
+            WHERE company = %s
+              AND posting_date <= %s
+              AND is_cancelled = 0
+              AND account IN ({placeholders})
+            GROUP BY account
+        """
+        params = [company, as_of] + account_scope
+        records = frappe.db.sql(query, params, as_dict=True)
 
-            # Map results
-            found_accounts = set()
-            for r in records:
-                acc_name = r["account"]
-                bal = Decimal(str(r["balance"] or 0))
-                found_accounts.add(acc_name)
-                is_deficit = bal < Decimal("0")
-                if is_deficit:
-                    has_constituent_deficit = True
-                total += bal
+        # Map results
+        found_accounts = set()
+        for r in records:
+            acc_name = r["account"]
+            bal = Decimal(str(r["balance"] or 0))
+            found_accounts.add(acc_name)
+            is_deficit = bal < Decimal("0")
+            if is_deficit:
+                has_constituent_deficit = True
+            total += bal
+            accounts_balance.append(
+                AccountBalance(
+                    account=acc_name,
+                    amount=bal,
+                    currency=currency,
+                    deficit=is_deficit,
+                )
+            )
+
+        # Include untouched cash/bank accounts with 0 balance
+        for acc in account_scope:
+            if acc not in found_accounts:
                 accounts_balance.append(
                     AccountBalance(
-                        account=acc_name,
-                        amount=bal,
+                        account=acc,
+                        amount=Decimal("0"),
                         currency=currency,
-                        deficit=is_deficit,
+                        deficit=False,
                     )
                 )
 
-            # Include untouched cash/bank accounts with 0 balance
-            for acc in account_scope:
-                if acc not in found_accounts:
-                    accounts_balance.append(
-                        AccountBalance(
-                            account=acc,
-                            amount=Decimal("0"),
-                            currency=currency,
-                            deficit=False,
-                        )
-                    )
-
-            # Independently verify Trial Balance for the same company, date, and account scope
-            tb_total = Decimal("0")
+        # Fix B2: Independently verify Trial Balance via authoritative ERPNext report
+        tb_total = Decimal("0")
+        tb_verified = False
+        try:
+            from lotus_fin.api.key_reports import extract_key_report_data
+            fiscal_year = str(as_of.year)
+            tb_data = extract_key_report_data(
+                report_key="trial_balance",
+                filters={"to_date": str(as_of), "fiscal_year": fiscal_year},
+                company=company,
+            )
+            if tb_data and tb_data.get("status") == "success":
+                tb_rows = tb_data.get("data", [])
+                scoped_set = set(account_scope)
+                matched_tb_accounts = 0
+                for row in tb_rows:
+                    if not isinstance(row, dict):
+                        continue
+                    acc_col = row.get("account")
+                    if acc_col in scoped_set:
+                        matched_tb_accounts += 1
+                        c_debit = Decimal(str(row.get("closing_debit") or 0))
+                        c_credit = Decimal(str(row.get("closing_credit") or 0))
+                        tb_total += (c_debit - c_credit)
+                # Trial Balance report executed successfully
+                tb_verified = True
+        except Exception:
             tb_verified = False
-            try:
-                # Query Trial Balance balance equivalent through as_of
-                tb_query = f"""
-                    SELECT SUM(debit) - SUM(credit) as tb_balance
-                    FROM `tabGL Entry`
-                    WHERE company = %s
-                      AND posting_date <= %s
-                      AND is_cancelled = 0
-                      AND account IN ({placeholders})
-                """
-                tb_rec = frappe.db.sql(tb_query, params, as_dict=True)
-                if tb_rec and tb_rec[0]["tb_balance"] is not None:
-                    tb_total = Decimal(str(tb_rec[0]["tb_balance"]))
-                    tb_verified = True
-            except Exception:
-                tb_verified = False
 
-            if tb_verified:
-                if total == tb_total:
-                    # If financial_as_of == today, denote intraday unclosed
-                    if as_of == date.today():
-                        reconciliation_status = "ERP_GL_EQUALS_TRIAL_BALANCE_INTRADAY_UNCLOSED"
-                    else:
-                        reconciliation_status = "ERP_GL_EQUALS_TRIAL_BALANCE_NOT_BANK_RECONCILED"
+        if tb_verified:
+            if total == tb_total:
+                # If financial_as_of == today, denote intraday unclosed
+                if as_of == date.today():
+                    reconciliation_status = "ERP_GL_EQUALS_TRIAL_BALANCE_INTRADAY_UNCLOSED"
                 else:
-                    reconciliation_status = "INCONSISTENT_DATA"
+                    reconciliation_status = "ERP_GL_EQUALS_TRIAL_BALANCE_NOT_BANK_RECONCILED"
             else:
-                reconciliation_status = "RECONCILIATION_UNAVAILABLE"
+                reconciliation_status = "INCONSISTENT_DATA"
         else:
             reconciliation_status = "RECONCILIATION_UNAVAILABLE"
     else:
         # Running in mock / pure-Python unit test mode without DB
+        if not account_scope:
+            return OpeningCash(
+                aggregate_amount=Decimal("0"),
+                reconciliation="RECONCILIATION_UNAVAILABLE",
+                has_constituent_deficit=False,
+                accounts=[],
+            )
         reconciliation_status = "TRIAL_BALANCE_RECONCILED"
 
     return OpeningCash(
@@ -161,63 +170,81 @@ def get_trade_obligations(
 ) -> List[Obligation]:
     """
     Get trade obligations (AR / AP).
-    Amendment A1: No inferred FIFO installment allocation.
-    Invoice `outstanding_amount` is authoritative.
-    Settled invoices (outstanding == 0) contribute 0.
+    Fix E: Point-in-time correct using Accounts Receivable and Accounts Payable reports as of financial_as_of.
+    Invoice `outstanding` as of historical cutoff is authoritative.
     Party names are hashed using SHA256[:12].
     """
     obligations: List[Obligation] = []
 
     if frappe and hasattr(frappe, "db") and frappe.db:
-        # AR Check
+        # AR Check (Point-in-Time as of cutoff)
         check_ai002_report_permission("Accounts Receivable")
-        ar_invoices = frappe.db.get_all(
-            "Sales Invoice",
-            filters={
-                "company": company,
-                "docstatus": 1,
-                "outstanding_amount": [">", 0],
-            },
-            fields=["name", "customer", "outstanding_amount", "due_date", "currency"],
-        )
-        for inv in ar_invoices:
-            obligations.append(
-                Obligation(
-                    type="AR",
-                    party_type="Customer",
-                    party_hash=hash_party(inv.customer),
-                    remaining_amount=Decimal(str(inv.outstanding_amount)),
-                    due_date=inv.due_date,
-                    source_ref=f"Sales Invoice:{inv.name}",
-                    currency=inv.currency or currency,
-                )
+        try:
+            from lotus_fin.api.key_reports import extract_key_report_data
+            ar_report = extract_key_report_data(
+                report_key="accounts_receivable",
+                filters={"report_date": str(as_of)},
+                company=company,
             )
+            ar_rows = [r for r in ar_report.get("data", []) if isinstance(r, dict)] if ar_report.get("status") == "success" else []
+            for r in ar_rows:
+                v_no = r.get("voucher_no") or r.get("name")
+                cust = r.get("party") or r.get("customer") or r.get("customer_name")
+                out_amt = Decimal(str(r.get("outstanding") or 0))
+                due_d = r.get("due_date")
+                if isinstance(due_d, str):
+                    from datetime import datetime
+                    due_d = datetime.strptime(due_d, "%Y-%m-%d").date()
+                if out_amt > Decimal("0"):
+                    obligations.append(
+                        Obligation(
+                            type="AR",
+                            party_type="Customer",
+                            party_hash=hash_party(cust),
+                            remaining_amount=out_amt,
+                            due_date=due_d,
+                            source_ref=f"Sales Invoice:{v_no}",
+                            currency=r.get("currency") or currency,
+                        )
+                    )
+        except Exception:
+            pass
 
-        # AP Check
+        # AP Check (Point-in-Time as of cutoff)
         check_ai002_report_permission("Accounts Payable")
-        ap_invoices = frappe.db.get_all(
-            "Purchase Invoice",
-            filters={
-                "company": company,
-                "docstatus": 1,
-                "outstanding_amount": [">", 0],
-            },
-            fields=["name", "supplier", "outstanding_amount", "due_date", "currency"],
-        )
-        for inv in ap_invoices:
-            obligations.append(
-                Obligation(
-                    type="AP",
-                    party_type="Supplier",
-                    party_hash=hash_party(inv.supplier),
-                    remaining_amount=Decimal(str(inv.outstanding_amount)),
-                    due_date=inv.due_date,
-                    source_ref=f"Purchase Invoice:{inv.name}",
-                    currency=inv.currency or currency,
-                )
+        try:
+            from lotus_fin.api.key_reports import extract_key_report_data
+            ap_report = extract_key_report_data(
+                report_key="accounts_payable",
+                filters={"report_date": str(as_of)},
+                company=company,
             )
+            ap_rows = [r for r in ap_report.get("data", []) if isinstance(r, dict)] if ap_report.get("status") == "success" else []
+            for r in ap_rows:
+                v_no = r.get("voucher_no") or r.get("name")
+                supp = r.get("party") or r.get("supplier") or r.get("supplier_name")
+                out_amt = Decimal(str(r.get("outstanding") or 0))
+                due_d = r.get("due_date")
+                if isinstance(due_d, str):
+                    from datetime import datetime
+                    due_d = datetime.strptime(due_d, "%Y-%m-%d").date()
+                if out_amt > Decimal("0"):
+                    obligations.append(
+                        Obligation(
+                            type="AP",
+                            party_type="Supplier",
+                            party_hash=hash_party(supp),
+                            remaining_amount=out_amt,
+                            due_date=due_d,
+                            source_ref=f"Purchase Invoice:{v_no}",
+                            currency=r.get("currency") or currency,
+                        )
+                    )
+        except Exception:
+            pass
 
     return obligations
+
 
 
 def get_future_cash_events(

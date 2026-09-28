@@ -205,5 +205,86 @@ class TestCashflowSecurityAndHardening(unittest.TestCase):
             self.assertNotIn("UNAUTHORIZED:FORBIDDEN-001", tool_result["evidence_refs"])
 
 
+    def test_evidence_access_missing_company_rejected(self):
+        """Fix C: verify_evidence_access raises PermissionError when company is missing or empty."""
+        from lotus_fin.security.access import verify_evidence_access
+        with self.assertRaises(Exception):
+            verify_evidence_access("GL Entry:GLE-001", user="test_user", company="")
+
+        with self.assertRaises(Exception):
+            verify_evidence_access("GL Entry:GLE-001", user="test_user", company=None)
+
+    def test_evidence_access_malformed_ref_rejected(self):
+        """Fix C: Evidence ref without colon or invalid format raises PermissionError."""
+        from lotus_fin.security.access import verify_evidence_access
+        with self.assertRaises(Exception):
+            verify_evidence_access("GLE-001-NO-COLON", user="test_user", company="AI002 Fixture 2026")
+
+    def test_evidence_access_arbitrary_doctype_rejected(self):
+        """Fix C: Arbitrary DocType outside allowlist is rejected with PermissionError."""
+        from lotus_fin.security.access import verify_evidence_access
+        with self.assertRaises(Exception):
+            verify_evidence_access("User:Administrator", user="test_user", company="AI002 Fixture 2026")
+
+        with self.assertRaises(Exception):
+            verify_evidence_access("DocType:Company", user="test_user", company="AI002 Fixture 2026")
+
+    def test_grounding_rejects_arbitrary_short_numbers(self):
+        """Fix D: Ungrounded short numbers such as 9999, 12, 1 VND must be rejected by grounding validator."""
+        from lotus_fin.cashflow.grounding import validate_grounding
+        from lotus_fin.cashflow.models import ForecastResponse, OpeningCash, AccountBalance
+
+        mock_resp = ForecastResponse(
+            status=ForecastStatus.PARTIAL,
+            verified_company="AI002 Fixture 2026",
+            financial_as_of=date(2026, 9, 26),
+            forecast_start=date(2026, 9, 27),
+            forecast_end=date(2026, 10, 26),
+            currency="VND",
+            opening_cash=OpeningCash(
+                aggregate_amount=Decimal("11550000"),
+                reconciliation="RECONCILED",
+                has_constituent_deficit=False,
+                accounts=[AccountBalance("Cash", Decimal("11550000"), "VND", False)],
+            ),
+        )
+
+        valid, violations = validate_grounding("Cash will be 9999 VND tomorrow", mock_resp)
+        self.assertFalse(valid)
+        self.assertTrue(any("9999" in v for v in violations))
+
+        valid, violations = validate_grounding("Cash balance is 1 VND", mock_resp)
+        self.assertFalse(valid)
+        self.assertTrue(any("1" in v for v in violations))
+
+        valid, violations = validate_grounding("Shortfall occurs on 2026-10-15", mock_resp)
+        self.assertFalse(valid)
+        self.assertTrue(any("date" in v for v in violations))
+
+    def test_grounding_accepts_supported_numbers(self):
+        """Fix D: Grounded numbers and dates pass validation."""
+        from lotus_fin.cashflow.grounding import validate_grounding
+        from lotus_fin.cashflow.models import ForecastResponse, OpeningCash, AccountBalance
+
+        mock_resp = ForecastResponse(
+            status=ForecastStatus.PARTIAL,
+            verified_company="AI002 Fixture 2026",
+            financial_as_of=date(2026, 9, 26),
+            forecast_start=date(2026, 9, 27),
+            forecast_end=date(2026, 10, 26),
+            currency="VND",
+            opening_cash=OpeningCash(
+                aggregate_amount=Decimal("11550000"),
+                reconciliation="RECONCILED",
+                has_constituent_deficit=False,
+                accounts=[AccountBalance("Cash", Decimal("11550000"), "VND", False)],
+            ),
+        )
+
+        valid, violations = validate_grounding("Opening cash balance is 11,550,000 VND as of 2026-09-26.", mock_resp)
+        self.assertTrue(valid)
+        self.assertEqual(len(violations), 0)
+
+
 if __name__ == "__main__":
     unittest.main()

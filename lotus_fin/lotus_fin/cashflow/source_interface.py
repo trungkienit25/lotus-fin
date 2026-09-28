@@ -28,7 +28,7 @@ class FutureEventSource(ABC):
 class FailClosedSource(FutureEventSource):
     """Production default: no verified production commitment source exists."""
 
-    source_mode: str = "LIVE_FAIL_CLOSED"
+    source_mode: str = "LIVE"
     provider_version: str = "v1"
 
     def get_confirmed_events(
@@ -67,13 +67,25 @@ class SyntheticFixtureSource(FutureEventSource):
         if not self.fixture_path or not os.path.exists(self.fixture_path):
             return []
 
-        with open(self.fixture_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
+        try:
+            with open(self.fixture_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+        except Exception:
+            return []
+
+        if not isinstance(data, dict):
+            return []
+
+        fixture_company = data.get("company")
+        # Fail-closed: missing company metadata or mismatching company returns no events
+        if not fixture_company or fixture_company != company:
+            return []
 
         events: List[CashEvent] = []
         raw_events = data.get("records") or data.get("direct_confirmed_commitments", [])
         for row in raw_events:
             row_company = row.get("company")
+            # If row has explicit company, it must match fixture_company and requested company
             if row_company and row_company != company:
                 continue
             ev_date = datetime.strptime(row["date"], "%Y-%m-%d").date()
@@ -99,3 +111,4 @@ class SyntheticFixtureSource(FutureEventSource):
                 )
 
         return events
+

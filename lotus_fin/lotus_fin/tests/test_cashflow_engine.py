@@ -59,6 +59,7 @@ class TestCashflowEnginePurePython(unittest.TestCase):
             forecast_start=self.start,
             forecast_end=self.end,
             reporting_currency="VND",
+            cash_account_scope=["Cash - A2F"],
             coverage_scope=CoverageScope.TRADE_ONLY,
         )
 
@@ -267,6 +268,111 @@ class TestCashflowEnginePurePython(unittest.TestCase):
                 self.assertIn("System Manager", roles)
         except ImportError:
             pass
+
+
+    def test_fixture_exact_company_returns_events(self):
+        """Fix A: SyntheticFixtureSource returns events when requested company matches fixture."""
+        source = SyntheticFixtureSource(self.fixture_path)
+        events = source.get_confirmed_events(
+            company="AI002 Fixture 2026",
+            start_date=self.start,
+            end_date=self.end,
+        )
+        self.assertEqual(len(events), 3)
+
+    def test_fixture_cross_company_returns_no_events(self):
+        """Fix A: SyntheticFixtureSource fails closed (returns empty) when company does not match."""
+        source = SyntheticFixtureSource(self.fixture_path)
+        events = source.get_confirmed_events(
+            company="UNRELATED_COMPANY",
+            start_date=self.start,
+            end_date=self.end,
+        )
+        self.assertEqual(len(events), 0)
+
+    def test_fixture_missing_company_metadata_fails_closed(self):
+        """Fix A: SyntheticFixtureSource fails closed when fixture has no company."""
+        import tempfile, json
+        with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".json") as tf:
+            json.dump([{"source_ref": "PE-1", "amount": 1000}], tf)
+            tpath = tf.name
+        try:
+            source = SyntheticFixtureSource(tpath)
+            events = source.get_confirmed_events(company="AI002 Fixture 2026", start_date=self.start, end_date=self.end)
+            self.assertEqual(len(events), 0)
+        finally:
+            os.remove(tpath)
+
+    def test_fixture_event_company_mismatch_fails_closed(self):
+        """Fix A: SyntheticFixtureSource drops events if row company does not match requested."""
+        import tempfile, json
+        with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".json") as tf:
+            json.dump({
+                "company": "AI002 Fixture 2026",
+                "events": [
+                    {
+                        "source_ref": "Payment Entry:PE-001",
+                        "company": "OTHER_COMPANY",
+                        "date": "2026-09-29",
+                        "direction": "inflow",
+                        "amount": 2000000,
+                    }
+                ]
+            }, tf)
+            tpath = tf.name
+        try:
+            source = SyntheticFixtureSource(tpath)
+            events = source.get_confirmed_events(company="AI002 Fixture 2026", start_date=self.start, end_date=self.end)
+            self.assertEqual(len(events), 0)
+        finally:
+            os.remove(tpath)
+
+    def test_live_mode_never_reads_fixture(self):
+        """Fix A: Live FailClosedSource never reads synthetic fixture."""
+        source = FailClosedSource()
+        self.assertEqual(source.source_mode, "LIVE")
+        events = source.get_confirmed_events("AI002 Fixture 2026", self.start, self.end)
+        self.assertEqual(len(events), 0)
+
+    def test_missing_cash_account_scope_fails_closed(self):
+        """Fix B: Empty account scope fails closed with MISSING_ACCOUNT_SCOPE."""
+        req = ForecastRequest(
+            company="AI002 Fixture 2026",
+            financial_as_of=self.as_of,
+            forecast_start=self.start,
+            forecast_end=self.end,
+            reporting_currency="VND",
+            cash_account_scope=[],  # Empty scope
+        )
+        valid, reason, _ = validate_forecast_request(req)
+        self.assertFalse(valid)
+        self.assertEqual(reason, ReasonCode.MISSING_ACCOUNT_SCOPE)
+
+    def test_negative_valid_balance_accepted(self):
+        """Fix B: Negative verified balance is validly represented."""
+        accounts = [AccountBalance(account="Overdraft - A2F", amount=Decimal("-5000000"), currency="VND", deficit=True)]
+        opening = OpeningCash(
+            aggregate_amount=Decimal("-5000000"),
+            reconciliation="ERP_GL_EQUALS_TRIAL_BALANCE_NOT_BANK_RECONCILED",
+            has_constituent_deficit=True,
+            accounts=accounts,
+        )
+        self.assertTrue(opening.has_constituent_deficit)
+        self.assertEqual(opening.aggregate_amount, Decimal("-5000000"))
+
+    def test_trial_balance_reconciled_when_gl_equals_tb(self):
+        """Fix B2: GL == TB -> RECONCILED status."""
+        from lotus_fin.cashflow.adapters import get_opening_cash_ledger
+        opening = get_opening_cash_ledger("AI002 Fixture 2026", self.as_of, account_scope=["Cash - A2F"])
+        self.assertIn(opening.reconciliation, ("TRIAL_BALANCE_RECONCILED", "ERP_GL_EQUALS_TRIAL_BALANCE_NOT_BANK_RECONCILED"))
+        self.assertIn(opening.aggregate_amount, (Decimal("0"), Decimal("11550000")))
+
+    def test_trial_balance_empty_scope_fails_closed(self):
+        """Fix B2: get_opening_cash_ledger returns RECONCILIATION_UNAVAILABLE when account_scope is empty."""
+        from lotus_fin.cashflow.adapters import get_opening_cash_ledger
+        opening = get_opening_cash_ledger("AI002 Fixture 2026", self.as_of, account_scope=[])
+        self.assertEqual(opening.reconciliation, "RECONCILIATION_UNAVAILABLE")
+        self.assertEqual(opening.aggregate_amount, Decimal("0"))
 
 
 if __name__ == "__main__":

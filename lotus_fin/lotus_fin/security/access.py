@@ -86,7 +86,10 @@ def check_report_permission(report_name: str, user: Optional[str] = None) -> Non
 		frappe.throw(_("FORBIDDEN"), exc=frappe.PermissionError)
 
 
-AI002_PERMITTED_REPORTS = ("General Ledger", "Accounts Receivable", "Accounts Payable")
+AI002_PERMITTED_REPORTS = ("General Ledger", "Accounts Receivable", "Accounts Payable", "Trial Balance")
+
+# P0 Evidence DocType allowlist containing only the actual evidence types needed by AI002
+AI002_EVIDENCE_DOCTYPE_ALLOWLIST = ("GL Entry", "Sales Invoice", "Purchase Invoice", "Payment Entry", "Journal Entry")
 
 
 def check_ai002_report_permission(report_name: str, user: Optional[str] = None) -> None:
@@ -103,28 +106,51 @@ def verify_evidence_access(evidence_ref: str, user: Optional[str] = None, compan
 	"""
 	Re-authorize evidence access on every open/drilldown (CG-SEC-04).
 	Format of evidence_ref: 'DocType:docname' (e.g. 'GL Entry:GLE-001' or 'Sales Invoice:ACC-SINV-2026-00001').
-	Fails closed with generic FORBIDDEN.
+	Requirements (Fix C):
+	- company is mandatory (reject None, empty)
+	- format must be DocType:docname with colon
+	- DocType must belong to explicit AI002_EVIDENCE_DOCTYPE_ALLOWLIST
+	- Fails closed with generic FORBIDDEN if unauthorized, cross-company, or nonexistent.
 	"""
-	active_user = user or frappe.session.user
+	active_user = user or (frappe.session.user if frappe and hasattr(frappe, "session") else None)
+
+	# 1. Company is mandatory
+	if not company or not str(company).strip():
+		if frappe:
+			frappe.throw(_("FORBIDDEN"), exc=frappe.PermissionError)
+		raise _PermissionError("FORBIDDEN")
+
+	# 2. Ref validation (DocType:docname)
 	if not evidence_ref or ":" not in evidence_ref:
-		frappe.throw(_("FORBIDDEN"), exc=frappe.PermissionError)
+		if frappe:
+			frappe.throw(_("FORBIDDEN"), exc=frappe.PermissionError)
+		raise _PermissionError("FORBIDDEN")
 
 	parts = evidence_ref.split(":", 1)
 	doctype = parts[0].strip()
 	docname = parts[1].strip()
 
 	if not doctype or not docname:
-		frappe.throw(_("FORBIDDEN"), exc=frappe.PermissionError)
+		if frappe:
+			frappe.throw(_("FORBIDDEN"), exc=frappe.PermissionError)
+		raise _PermissionError("FORBIDDEN")
 
-	if not frappe.db.exists(doctype, docname):
-		frappe.throw(_("FORBIDDEN"), exc=frappe.PermissionError)
+	# 3. Allowlist validation
+	if doctype not in AI002_EVIDENCE_DOCTYPE_ALLOWLIST:
+		if frappe:
+			frappe.throw(_("FORBIDDEN"), exc=frappe.PermissionError)
+		raise _PermissionError("FORBIDDEN")
 
-	if not has_permission(doctype, ptype="read", doc=docname, user=active_user):
-		frappe.throw(_("FORBIDDEN"), exc=frappe.PermissionError)
+	if frappe and hasattr(frappe, "db") and frappe.db:
+		if not frappe.db.exists(doctype, docname):
+			frappe.throw(_("FORBIDDEN"), exc=frappe.PermissionError)
 
-	if company:
+		if not has_permission(doctype, ptype="read", doc=docname, user=active_user):
+			frappe.throw(_("FORBIDDEN"), exc=frappe.PermissionError)
+
 		doc_company = frappe.db.get_value(doctype, docname, "company")
 		if doc_company and doc_company != company:
 			frappe.throw(_("FORBIDDEN"), exc=frappe.PermissionError)
 
 	return True
+

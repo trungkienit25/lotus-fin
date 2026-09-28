@@ -232,29 +232,51 @@ lotus_fin.cash_forecast.Controller = class Controller {
 
 		const request_token = ++this.request_generation;
 
-		frappe.call({
-			method: "lotus_fin.api.ai_insights.get_ai002_cash_forecast",
-			args: {
+		// Fetch explicit leaf cash/bank accounts for the selected company to populate cash_account_scope
+		frappe.db.get_list("Account", {
+			filters: {
 				company: company,
-				financial_as_of: as_of,
-				currency: "VND",
-				include_explanation: want_explanation,
+				account_type: ["in", ["Bank", "Cash"]],
+				is_group: 0,
+				disabled: 0
 			},
-			callback: function (r) {
-				// Race condition & company switch check: Discard stale responses
-				if (request_token !== me.request_generation) {
-					return;
+			fields: ["name"],
+			limit: 50
+		}).then(function (accounts) {
+			if (request_token !== me.request_generation) {
+				return;
+			}
+			const account_scope = (accounts || []).map(a => a.name);
+
+			frappe.call({
+				method: "lotus_fin.api.ai_insights.get_ai002_cash_forecast",
+				args: {
+					company: company,
+					financial_as_of: as_of,
+					currency: "VND",
+					include_explanation: want_explanation,
+					cash_account_scope: account_scope,
+				},
+				callback: function (r) {
+					// Race condition & company switch check: Discard stale responses
+					if (request_token !== me.request_generation) {
+						return;
+					}
+					if (r.exc) {
+						me.render_error("Server error executing cash forecast.");
+						return;
+					}
+					const resp = r.message;
+					if (resp && resp.verified_company && resp.verified_company !== me.company_field.get_value()) {
+						return;
+					}
+					me.data = resp;
+					me.render_dashboard(resp);
 				}
-				if (r.exc) {
-					me.render_error("Server error executing cash forecast.");
-					return;
-				}
-				const resp = r.message;
-				if (resp && resp.verified_company && resp.verified_company !== me.company_field.get_value()) {
-					return;
-				}
-				me.data = resp;
-				me.render_dashboard(resp);
+			});
+		}).catch(function () {
+			if (request_token === me.request_generation) {
+				me.render_error("Failed to load cash accounts for company.");
 			}
 		});
 	}

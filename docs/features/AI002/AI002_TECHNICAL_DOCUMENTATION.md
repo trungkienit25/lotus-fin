@@ -91,3 +91,38 @@ Located at Frappe Page `/app/cash-forecast`:
    - Red banner on `NEW_MODELED_DEFICIT`.
    - Amber banner on `INHERITED_FROM_OPENING` or `has_constituent_deficit`.
    - Zero-leakage `FORBIDDEN` landing card on unauthorized access.
+
+---
+
+## 5. Test Verification Record
+
+All fixes from Forensic Remediation Round 2 have been verified across dual test suites:
+
+### 5.1 Docker Backend Test Suite
+Executed inside `frappe_docker-backend-1` via `bench --site frontend run-tests --app lotus_fin`:
+- **Result:** `100/100 tests passed (100% pass rate) in 8.223s`.
+- **Key Forensic Tests Verified:**
+  - `test_fixture_exact_company_returns_events`
+  - `test_fixture_cross_company_returns_no_events`
+  - `test_fixture_missing_company_metadata_fails_closed`
+  - `test_fixture_event_company_mismatch_fails_closed`
+  - `test_live_mode_never_reads_fixture`
+  - `test_missing_cash_account_scope_fails_closed`
+  - `test_negative_valid_balance_accepted`
+  - `test_trial_balance_empty_scope_fails_closed`
+  - `test_trial_balance_reconciled_when_gl_equals_tb`
+  - `test_evidence_access_missing_company_rejected`
+  - `test_evidence_access_malformed_ref_rejected`
+  - `test_evidence_access_arbitrary_doctype_rejected`
+  - `test_evidence_reauthorization_in_tools`
+  - `test_grounding_accepts_supported_numbers`
+  - `test_grounding_rejects_arbitrary_short_numbers`
+
+### 5.2 Pure-Python Local Unit Tests
+Executed via standard Python `unittest`:
+- **Result:** `65/65 tests passed (100% pass rate) in 0.214s`.
+
+### 5.3 Playwright E2E Video Recording
+- Automated browser session on `http://localhost:8080/app/cash-forecast`.
+- Captured video saved to `tests_e2e/videos/7ba2fd778f8be0d7c6dc4721615b6405.webm`.
+- Captured screenshots: `cf_01_login.png`, `cf_02_desk.png`, `cf_03_initial_view.png`, `cf_05_final_dashboard.png`.

@@ -63,6 +63,7 @@ def tool_cash_forecast_get_evidence(forecast_response: ForecastResponse, user: O
     """
     cash_forecast.get_evidence: Returns verified evidence references.
     CG-SEC-04: Enforces server-side evidence re-authorization before returning any evidence ref.
+    Fails closed: refs without colon or failing reauthorization are excluded.
     """
     authorized_refs = []
     try:
@@ -74,16 +75,15 @@ def tool_cash_forecast_get_evidence(forecast_response: ForecastResponse, user: O
                     authorized_refs.append(ref)
                 except Exception:
                     continue
-            else:
-                authorized_refs.append(ref)
     except ImportError:
-        authorized_refs = list(forecast_response.evidence_refs)
+        authorized_refs = [ref for ref in forecast_response.evidence_refs if ":" in ref]
 
     return {
         "evidence_refs": authorized_refs,
         "assumptions": forecast_response.assumptions,
         "limitations": forecast_response.limitations,
     }
+
 
 
 def tool_cash_forecast_get_missing_inputs(forecast_response: ForecastResponse) -> Dict[str, Any]:
