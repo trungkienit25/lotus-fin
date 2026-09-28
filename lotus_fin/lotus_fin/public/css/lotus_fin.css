@@ -1,0 +1,363 @@
+/* Lotus Fin AI001 - Financial Health Workspace Styles */
+
+:root {
+	--lotus-primary: #1e88e5;
+	--lotus-primary-hover: #1565c0;
+	--lotus-primary-subtle: #f0f7ff;
+	--lotus-accent: #00897b;
+	--lotus-dark: #1e293b;
+	--lotus-muted: #64748b;
+	--lotus-border: #e2e8f0;
+	--lotus-card-bg: #ffffff;
+}
+
+/* Badge highlight for AI insights */
+.lotus-ai-badge {
+	display: inline-flex;
+	align-items: center;
+	padding: 2px 8px;
+	border-radius: 12px;
+	font-size: 11px;
+	font-weight: 600;
+	background-color: #e0f2fe;
+	color: #0369a1;
+	margin-left: 6px;
+}
+
+.lotus-ai-badge.warning {
+	background-color: #fef3c7;
+	color: #b45309;
+}
+
+.lotus-ai-badge.danger {
+	background-color: #fee2e2;
+	color: #b91c1c;
+}
+
+/* Financial Health Container */
+.lotus-financial-health-container {
+	padding: 16px 20px 40px 20px;
+	max-width: 1400px;
+	margin: 0 auto;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+	color: #1e293b;
+}
+
+/* Header & Filter Bar */
+.lotus-fh-header-card {
+	background: #ffffff;
+	border: 1px solid var(--lotus-border);
+	border-radius: 8px;
+	padding: 16px 20px;
+	margin-bottom: 20px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.lotus-brand-badge {
+	display: inline-block;
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.5px;
+	text-transform: uppercase;
+	color: #ffffff;
+	background: #1e88e5;
+	padding: 3px 8px;
+	border-radius: 4px;
+	margin-bottom: 6px;
+}
+
+.lotus-fh-title {
+	font-size: 22px;
+	font-weight: 700;
+	color: #0f172a;
+	margin: 0;
+	line-height: 1.2;
+}
+
+.lotus-fh-subtitle {
+	font-size: 13px;
+	color: #64748b;
+	margin-top: 4px;
+	margin-bottom: 0;
+}
+
+.lotus-meta-tag {
+	display: inline-flex;
+	align-items: center;
+	padding: 3px 10px;
+	border-radius: 12px;
+	font-size: 11px;
+	font-weight: 600;
+	background: #f1f5f9;
+	color: #334155;
+	border: 1px solid #e2e8f0;
+}
+
+.lotus-meta-tag.status-ok {
+	background: #ecfdf5;
+	color: #065f46;
+	border-color: #a7f3d0;
+}
+
+.lotus-meta-tag.status-warn {
+	background: #fffbeb;
+	color: #92400e;
+	border-color: #fde68a;
+}
+
+.lotus-meta-tag.status-error {
+	background: #fef2f2;
+	color: #991b1b;
+	border-color: #fecaca;
+}
+
+/* Notification & Limitation Banner */
+.lotus-banner {
+	display: flex;
+	align-items: flex-start;
+	padding: 12px 16px;
+	border-radius: 6px;
+	margin-bottom: 20px;
+	font-size: 13px;
+	line-height: 1.5;
+}
+
+.lotus-banner-warning {
+	background: #fffbeb;
+	border-left: 4px solid #f59e0b;
+	color: #92400e;
+}
+
+.lotus-banner-danger {
+	background: #fef2f2;
+	border-left: 4px solid #ef4444;
+	color: #991b1b;
+}
+
+.lotus-banner-info {
+	background: #eff6ff;
+	border-left: 4px solid #3b82f6;
+	color: #1e40af;
+}
+
+/* KPI Cards Grid */
+.lotus-kpi-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+	gap: 14px;
+	margin-bottom: 24px;
+}
+
+.lotus-kpi-card {
+	background: #ffffff;
+	border: 1px solid var(--lotus-border);
+	border-radius: 8px;
+	padding: 14px 16px;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+	position: relative;
+	transition: box-shadow 0.2s ease;
+}
+
+.lotus-kpi-card:hover {
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.lotus-kpi-label {
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	color: #64748b;
+	margin-bottom: 6px;
+}
+
+.lotus-kpi-value {
+	font-size: 20px;
+	font-weight: 700;
+	color: #0f172a;
+	line-height: 1.2;
+}
+
+.lotus-kpi-value.cash-negative {
+	color: #b91c1c;
+}
+
+.lotus-kpi-unit {
+	font-size: 12px;
+	font-weight: 500;
+	color: #64748b;
+	margin-left: 4px;
+}
+
+.lotus-kpi-subtext {
+	font-size: 11px;
+	color: #64748b;
+	margin-top: 8px;
+}
+
+.lotus-kpi-state-badge {
+	font-size: 10px;
+	font-weight: 600;
+	padding: 1px 6px;
+	border-radius: 4px;
+	text-transform: uppercase;
+	display: inline-block;
+}
+
+.lotus-kpi-state-available {
+	background: #dcfce7;
+	color: #166534;
+}
+
+.lotus-kpi-state-unavailable {
+	background: #f1f5f9;
+	color: #475569;
+}
+
+/* Sections */
+.lotus-section-card {
+	background: #ffffff;
+	border: 1px solid var(--lotus-border);
+	border-radius: 8px;
+	padding: 18px 20px;
+	margin-bottom: 24px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.lotus-section-title {
+	font-size: 15px;
+	font-weight: 700;
+	color: #0f172a;
+	margin-bottom: 12px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+/* Tables */
+.lotus-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 13px;
+}
+
+.lotus-table th {
+	background: #f8fafc;
+	color: #475569;
+	font-weight: 600;
+	text-align: left;
+	padding: 10px 12px;
+	border-bottom: 1px solid var(--lotus-border);
+	font-size: 12px;
+}
+
+.lotus-table td {
+	padding: 10px 12px;
+	border-bottom: 1px solid #f1f5f9;
+	color: #1e293b;
+}
+
+.lotus-table tr:last-child td {
+	border-bottom: none;
+}
+
+.lotus-table tr:hover td {
+	background: #f8fafc;
+}
+
+/* AI Analysis Cards */
+.lotus-ai-box {
+	background: #f8fafc;
+	border: 1px solid #e2e8f0;
+	border-radius: 6px;
+	padding: 14px;
+	margin-bottom: 12px;
+}
+
+.lotus-ai-box-title {
+	font-size: 12px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	margin-bottom: 8px;
+	display: flex;
+	align-items: center;
+}
+
+.lotus-ai-box.facts .lotus-ai-box-title { color: #0284c7; }
+.lotus-ai-box.interpretations .lotus-ai-box-title { color: #4f46e5; }
+.lotus-ai-box.limitations .lotus-ai-box-title { color: #d97706; }
+.lotus-ai-box.next-checks .lotus-ai-box-title { color: #059669; }
+
+.lotus-ai-list {
+	margin: 0;
+	padding-left: 18px;
+	font-size: 13px;
+	line-height: 1.6;
+	color: #334155;
+}
+
+.lotus-ai-list li {
+	margin-bottom: 4px;
+}
+
+/* Next checks quick buttons */
+.lotus-action-btn-group {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin-top: 12px;
+}
+
+.lotus-action-btn {
+	background: #ffffff;
+	border: 1px solid #cbd5e1;
+	border-radius: 6px;
+	padding: 6px 14px;
+	font-size: 12px;
+	font-weight: 600;
+	color: #1e293b;
+	cursor: pointer;
+	transition: all 0.15s ease;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.lotus-action-btn:hover {
+	background: #f8fafc;
+	border-color: #94a3b8;
+	color: #0f172a;
+}
+
+/* Evidence drawer / section */
+.lotus-evidence-item {
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-radius: 6px;
+	padding: 10px 14px;
+	margin-bottom: 8px;
+	font-size: 12px;
+}
+
+.lotus-code-badge {
+	font-family: monospace;
+	background: #f1f5f9;
+	padding: 2px 6px;
+	border-radius: 4px;
+	font-size: 11px;
+	color: #334155;
+}
+
+/* Staged Loader Skeleton */
+.lotus-skeleton {
+	background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+	background-size: 200% 100%;
+	animation: lotus-shimmer 1.5s infinite;
+	border-radius: 4px;
+}
+
+@keyframes lotus-shimmer {
+	0% { background-position: 200% 0; }
+	100% { background-position: -200% 0; }
+}
