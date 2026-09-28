@@ -374,6 +374,16 @@ class TestCashflowEnginePurePython(unittest.TestCase):
         self.assertEqual(opening.reconciliation, "RECONCILIATION_UNAVAILABLE")
         self.assertEqual(opening.aggregate_amount, Decimal("0"))
 
+    def test_trade_obligations_point_in_time_query(self):
+        """Fix E: Verify get_trade_obligations executes point-in-time report filters without exception."""
+        from lotus_fin.cashflow.adapters import get_trade_obligations
+        obs = get_trade_obligations("AI002 Fixture 2026", as_of=self.as_of)
+        self.assertIsInstance(obs, list)
+        for ob in obs:
+            self.assertIn(ob.type, ("AR", "AP"))
+            self.assertGreater(ob.remaining_amount, Decimal("0"))
+            self.assertTrue(ob.source_ref.startswith(("Sales Invoice:", "Purchase Invoice:")))
+
 
 if __name__ == "__main__":
     unittest.main()

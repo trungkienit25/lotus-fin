@@ -1,6 +1,6 @@
 # AI002-00B local fixture scripts
 
-**Technical reproduction guide only.** The current AI002 product/architecture/gate authority is [AI002 Master SSOT v1](../AI002_MASTER_SSOT_V1.md); the current machine oracle is [gold manifest](../AI002_GOLD_FIXTURE_MANIFEST.yaml). Older narrative in this README describes the 00B ERP transaction fixture and does not define current product decisions.
+**Technical reproduction guide only.** The current AI002 product/architecture/gate authority is [AI002 Master SSOT v1](../AI002_MASTER_SSOT_V1_2_1_REFINED.md); the current machine oracle is [gold manifest](../AI002_GOLD_FIXTURE_MANIFEST.yaml). Older narrative in this README describes the 00B ERP transaction fixture and does not define current product decisions.
 
 The 00C [direct commitment JSON](direct_confirmed_commitments.json) is an explicit **test-author declaration only**, not an ERPNext transaction, actual SME commitment or production source. [build_gold.py](build_gold.py) calculates both 30-day oracle cases with Decimal and no AI002 production engine import.
 

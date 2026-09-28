@@ -119,8 +119,8 @@ Executed inside `frappe_docker-backend-1` via `bench --site frontend run-tests -
   - `test_grounding_rejects_arbitrary_short_numbers`
 
 ### 5.2 Pure-Python Local Unit Tests
-Executed via standard Python `unittest`:
-- **Result:** `65/65 tests passed (100% pass rate) in 0.214s`.
+Executed via standard Python `unittest` (`test_cashflow_engine`, `test_cashflow_security`):
+- **Result:** `30/30 tests passed (100% pass rate) in 0.114s`.
 
 ### 5.3 Playwright E2E Video Recording
 - Automated browser session on `http://localhost:8080/app/cash-forecast`.

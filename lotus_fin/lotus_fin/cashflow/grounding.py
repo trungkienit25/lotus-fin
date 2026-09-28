@@ -17,13 +17,27 @@ def _extract_amounts(text: str) -> Set[Decimal]:
     masked_text = re.sub(r'\b\d{4}-\d{2}-\d{2}\b', ' ', text)
     masked_text = re.sub(r'\b\d{2}/\d{2}/\d{4}\b', ' ', masked_text)
 
-    # Match numbers with optional thousand separators, optional decimals, optional negative sign
-    pattern = r'(?<![A-Za-z0-9_])-?\b\d{1,3}(?:[,\.]\d{3})+(?:\.\d+)?\b|(?<![A-Za-z0-9_])-?\b\d+(?:\.\d+)?\b'
+    pattern = r'(?<![A-Za-z0-9_])-?\b\d{1,3}(?:[,\.]\d{3})+(?:[,\.]\d+)?\b|(?<![A-Za-z0-9_])-?\b\d+(?:[,\.]\d+)?\b'
     matches = re.findall(pattern, masked_text)
     for m in matches:
-        cleaned = m.replace(",", "").replace(".", "")
+        s = m.strip()
+        if ',' in s and '.' in s:
+            if s.rfind('.') > s.rfind(','):
+                s = s.replace(',', '')
+            else:
+                s = s.replace('.', '').replace(',', '.')
+        elif ',' in s:
+            parts = s.split(',')
+            if len(parts[-1]) == 3 and len(parts) > 1:
+                s = s.replace(',', '')
+            else:
+                s = s.replace(',', '.')
+        elif '.' in s:
+            parts = s.split('.')
+            if len(parts[-1]) == 3 and len(parts) > 1:
+                s = s.replace('.', '')
         try:
-            amounts.add(Decimal(cleaned))
+            amounts.add(Decimal(s))
         except Exception:
             pass
     return amounts

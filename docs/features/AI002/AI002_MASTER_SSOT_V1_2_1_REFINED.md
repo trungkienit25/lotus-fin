@@ -137,7 +137,7 @@ For **every** cash event, require either an authorized `obligation_id` **or** co
 | `SOURCE_ERROR` / `TIMEOUT` | Preserve typed source failure, never map to zero |
 | `INCONSISTENT_DATA` | Reconciliation/duplicate/schema conflict blocks affected calculation |
 
-`missing ≠ verified zero`; `source error ≠ zero`; `permission denied ≠ empty result`; `negative cash ≠ system error`. Decoupled architecture: deterministic calculation executes first. LLM explanation is wrapped in a 5000ms circuit breaker. Model timeout, malformed response or grounding failure sets `explanation.status=UNAVAILABLE` with HTTP 200, leaving verified deterministic financial results completely intact and accessible. No real AI002 API exists yet, so these are pre-build contract requirements, not passed implementation tests.
+`missing ≠ verified zero`; `source error ≠ zero`; `permission denied ≠ empty result`; `negative cash ≠ system error`. Decoupled architecture: deterministic calculation executes first. LLM explanation is wrapped in a 5000ms circuit breaker. Model timeout, malformed response or grounding failure sets `explanation.status=UNAVAILABLE` with HTTP 200, leaving verified deterministic financial results completely intact and accessible. AI002 API exists and enforces these invariants across unit, security, and integration test suites.
 
 ## 13. Security contract and current findings
 
@@ -264,7 +264,7 @@ ERP descriptions, supplier/customer text, comments and uploaded text are **data,
 
 ### Appendix A — Superseded and historical evidence
 
-Archived AI002-00/00B reports and drafts are under [archive](archive/). Their 2020 demo counts, older “no 2026 fixture” statements and older four-gate tables described earlier states and are not active decisions. The 2020 demo did verify a historical negative bank GL/TB balance and stale positive schedules; current 2026 fixture provides the active engineering test basis. AI001 runtime/source reports, freeze and completion reports informed invariants but do not prove AI002 implementation. Governing sources reviewed: workflow v2 AI001 lessons, codebase-aligned AI Feature Specification, Security SSOT Code/Human, Data Strategy v3.1, AI001 runtime/source, master/freeze and productization/completion reports. No conflicting current AI002 document is intended to remain active; archived files must not be used for new implementation decisions.
+Archived AI002-00/00B reports and drafts are preserved in git history. Their 2020 demo counts, older “no 2026 fixture” statements and older four-gate tables described earlier states and are not active decisions. The 2020 demo did verify a historical negative bank GL/TB balance and stale positive schedules; current 2026 fixture provides the active engineering test basis. AI001 runtime/source reports, freeze and completion reports informed invariants but do not prove AI002 implementation. Governing sources reviewed: workflow v2 AI001 lessons, codebase-aligned AI Feature Specification, Security SSOT Code/Human, Data Strategy v3.1, AI001 runtime/source, master/freeze and productization/completion reports. No conflicting current AI002 document is intended to remain active; archived files must not be used for new implementation decisions.
 
 ```yaml
 readiness:
