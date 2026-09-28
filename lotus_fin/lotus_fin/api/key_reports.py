@@ -3,6 +3,7 @@ from typing import Any, Dict, List, Optional
 import frappe
 from frappe import _
 from frappe.desk.query_report import run
+from lotus_fin.security.access import get_verified_company, check_report_permission
 
 # Danh sách ánh xạ các Key Reports tiêu chuẩn của ERPNext
 KEY_REPORTS_REGISTRY = {
@@ -22,6 +23,10 @@ KEY_REPORTS_REGISTRY = {
 	"profit_and_loss": {
 		"report_name": "Profit and Loss Statement",
 		"description": "Báo cáo kết quả hoạt động kinh doanh (Doanh thu, Giá vốn COGS, Chi phí, Lợi nhuận)."
+	},
+	"trial_balance": {
+		"report_name": "Trial Balance",
+		"description": "Bảng cân đối thử tổng hợp số dư Nợ/Có của toàn bộ hệ thống tài khoản kế toán."
 	},
 	"cash_flow": {
 		"report_name": "Cash Flow",
@@ -79,10 +84,11 @@ def extract_key_report_data(
 ) -> Dict[str, Any]:
 	"""
 	Trích xuất dữ liệu chuẩn hóa từ một Key Report của ERPNext để nạp cho Model AI hoặc Client.
+	Áp dụng server-side company authorization guard và report permission check.
 	
 	:param report_key: Khóa của báo cáo trong KEY_REPORTS_REGISTRY (ví dụ: 'general_ledger', 'sales_analytics')
 	:param filters: Bộ lọc đầu vào cho báo cáo (from_date, to_date, company, ...)
-	:param company: Tên công ty (mặc định lấy default company nếu None)
+	:param company: Tên công ty (untrusted param, validated server-side)
 	"""
 	if report_key not in KEY_REPORTS_REGISTRY:
 		frappe.throw(_(f"Report key '{report_key}' không tồn tại trong Lotus Fin Key Reports Registry."))
@@ -95,10 +101,17 @@ def extract_key_report_data(
 		filters = json.loads(filters)
 	elif filters is None:
 		filters = {}
+	else:
+		filters = dict(filters)
 
-	# Gán default company nếu chưa có trong filter
-	if "company" not in filters:
-		filters["company"] = company or frappe.defaults.get_user_default("Company") or frappe.db.get_single_value("Global Defaults", "default_company")
+	# 1. Server-side company authorization guard (INV-01, INV-02)
+	# filters['company'] or company param are both untrusted.
+	requested_company = filters.get("company") or company
+	verified_company = get_verified_company(requested_company)
+	filters["company"] = verified_company
+
+	# 2. Report permission check
+	check_report_permission(report_name)
 
 	try:
 		# Chạy report engine nội bộ của Frappe
@@ -111,6 +124,7 @@ def extract_key_report_data(
 			"status": "success",
 			"report_key": report_key,
 			"report_name": report_name,
+			"company": verified_company,
 			"total_rows": len(result_data),
 			"columns": columns,
 			"data": result_data,
@@ -121,6 +135,8 @@ def extract_key_report_data(
 		return {
 			"status": "error",
 			"report_key": report_key,
+			"report_name": report_name,
+			"company": verified_company,
 			"message": str(e)
 		}
 
@@ -133,31 +149,43 @@ def get_ai_training_dataset(
 ) -> Dict[str, Any]:
 	"""
 	Gói tổng hợp toàn bộ dữ liệu từ các Key Reports thành 1 Dataset hợp nhất
-	để nạp vào mô hình AI (Cash flow forecasting, Credit scoring, Inventory optimization).
+	để nạp vào mô hình AI. Áp dụng server-side company authorization guard.
 	"""
-	default_company = company or frappe.defaults.get_user_default("Company") or frappe.db.get_single_value("Global Defaults", "default_company")
-	base_filters = {"company": default_company}
+	verified_company = get_verified_company(company)
+	base_filters = {"company": verified_company}
 	if from_date:
 		base_filters["from_date"] = from_date
 	if to_date:
 		base_filters["to_date"] = to_date
 
 	dataset = {
-		"company": default_company,
+		"status": "success",
+		"company": verified_company,
 		"exported_at": frappe.utils.now(),
 		"modules": {}
 	}
 
 	for key, meta in KEY_REPORTS_REGISTRY.items():
 		try:
-			data = extract_key_report_data(report_key=key, filters=base_filters, company=default_company)
+			data = extract_key_report_data(report_key=key, filters=base_filters, company=verified_company)
 			if data.get("status") == "success":
 				dataset["modules"][key] = {
+					"status": "success",
 					"name": meta["report_name"],
-					"rows": data["data"]
+					"total_rows": data.get("total_rows", 0),
+					"rows": data.get("data", [])
+				}
+			else:
+				dataset["modules"][key] = {
+					"status": "error",
+					"name": meta["report_name"],
+					"error": data.get("message", "Unknown error")
 				}
 		except Exception as e:
-			dataset["modules"][key] = {"error": str(e)}
+			dataset["modules"][key] = {
+				"status": "error",
+				"name": meta["report_name"],
+				"error": str(e)
+			}
 
 	return dataset
-

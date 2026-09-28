@@ -189,3 +189,30 @@ node .gitnexus/run.cjs analyze --index-only
 └── 🚫 Manufacturing, Quality, Healthcare, Agriculture, Education...
 ```
 
+---
+
+## 🎨 5. AI Feature UI/Productization Lessons (Áp Dụng Cho AI001–AI007)
+
+Trong quá trình phát triển sản phẩm Lotus Fin từ backend engine lên tầng trải nghiệm người dùng (UX), đội ngũ kỹ thuật và AI Agent bắt buộc phải tuân thủ 10 nguyên tắc sau cho toàn bộ các tính năng AI (từ AI001 Financial Health đến AI002–AI007):
+
+1. **Không ẩn giấu trí tuệ nhân tạo đằng sau một nhãn duy nhất (Do not hide intelligence behind one label):**
+   Tuyệt đối không thu hẹp toàn bộ phân tích phức tạp của hệ thống thành một nhãn đơn giản như `GOOD / BAD / HIGH / HEALTHY` kèm một câu nói chung chung. Giao diện phải phản ánh các tầng thông tin có giá trị nghiệp vụ.
+2. **Phân rã trực quan: Dữ liệu thật, Nhận định, Giới hạn và Hành động tiếp theo (Separate Fact, Interpretation, Limitation, Next Action):**
+   Một kết quả phân tích AI đáng tin cậy phải được phân tách rõ ràng thành: (1) Số liệu thực tế đã kiểm chứng (Facts), (2) Nhận định chẩn đoán tài chính (Interpretations), (3) Ranh giới & giới hạn dữ liệu (Limitations), (4) Bước kiểm tra tiếp theo (Next Actions). Không gộp tất cả thành một đoạn văn xuôi.
+3. **Bằng chứng kiểm toán là một phần của trải nghiệm người dùng (Evidence is part of AI UX, not only backend audit):**
+   Người dùng và ban giám khảo cần trả lời được câu hỏi: *"Số liệu này lấy từ đâu?"*. Giao diện phải cung cấp tính năng mở ngăn kéo bằng chứng (Evidence Drawer) hiển thị tên báo cáo ERPNext, phạm vi ngày, timestamp và checksum an toàn.
+4. **Trạng thái thiếu dữ liệu một phần cần có giao diện chủ đích (Partial and unavailable states need intentional UI):**
+   Trong thực tế SME, dữ liệu thường không hoàn hảo (thiếu kỳ trước, thiếu định nghĩa kỳ hạn...). Không được che giấu hoặc bịa số 0; phải thể hiện nhãn `Unavailable` kèm lý do cụ thể trên UI.
+5. **Lỗi Model hoặc bên thứ ba phải bảo toàn giá trị số học xác định (Model failure must preserve deterministic value):**
+   Khi LLM API gặp sự cố (timeout, 429, 500), giao diện tự động hạ cấp sạch: giữ nguyên toàn bộ thẻ KPI, bảng đối chiếu kỳ và bằng chứng kế toán, chỉ hiển thị thông báo diễn giải AI tạm thời vắng mặt.
+6. **Không đánh tráo nhận diện tính năng trong kịch bản demo (Do not confuse feature identity in demo):**
+   Mỗi tính năng AI có phạm vi nghiệp vụ riêng biệt. Tính năng phân tích sức khỏe tài chính toàn công ty (AI001) phải chạy trên Workspace cấp Company, không được dùng pop-up kiểm tra rủi ro hóa đơn khách hàng (AI Credit Check) để thay thế cho demo AI001.
+7. **Demo phải bắt đầu từ bài toán/quyết định của người dùng (Demo should begin with the user decision/problem):**
+   Không mở đầu demo bằng các thuật ngữ kỹ thuật (Prompt tokens, Embeddings, Docker). Hãy bắt đầu từ câu hỏi của chủ doanh nghiệp: *"Vì sao doanh thu tăng mà tiền trong tài khoản lại âm? Áp lực công nợ đang nằm ở đâu?"*.
+8. **Không bịa biểu đồ hoặc điểm số để tỏ ra phức tạp (Do not fabricate charts/scores to make AI look complex):**
+   Tránh vẽ biểu đồ chuỗi thời gian khi backend chỉ có dữ liệu 1-2 kỳ. Một bảng so sánh chuẩn xác và trung thực có giá trị cao hơn nhiều so với biểu đồ giả lập. Không tự tạo "Financial Health Score (1-100)" khi chưa có chuẩn kế toán định nghĩa.
+9. **Giao diện sản phẩm phải tôn vinh trí tuệ tài chính, không phải hệ thống đường ống (Product UI should expose intelligence, not plumbing):**
+   Không hiển thị raw JSON, SQL queries, traceback lỗi hoặc thông số server ra màn hình người dùng thông thường. Sử dụng cơ chế công bố thông tin tăng dần (progressive disclosure).
+10. **Độ hoàn thiện backend và tác động trải nghiệm demo là hai thước đo chất lượng khác nhau (Backend maturity and demo impact are different quality dimensions):**
+    Một backend đạt 60/60 test pass nhưng nếu chỉ hiển thị ra một pop-up modal đơn điệu thì sản phẩm vẫn thất bại trong mắt khách hàng và ban giám khảo. Đầu tư vào UI workspace chuẩn chỉnh là điều kiện tiên quyết để thương mại hóa tính năng AI.
+
