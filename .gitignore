@@ -10,6 +10,16 @@
 .gitnexus
 .gitnexus/
 
+# Python & Cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Local Reference & Large Legacy Repos
+legacy/
+frappe_docker/
+
 # Logs & temp artifacts
 *.log
 brain/
