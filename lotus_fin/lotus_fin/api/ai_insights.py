@@ -252,3 +252,74 @@ def get_financial_snapshot(
 
 	return res
 
+
+@frappe.whitelist()
+def get_ai002_cash_forecast(
+	company: Optional[str] = None,
+	financial_as_of: Optional[str] = None,
+	forecast_start: Optional[str] = None,
+	forecast_end: Optional[str] = None,
+	currency: str = "VND",
+	correlation_id: Optional[str] = None,
+	include_explanation: Union[bool, int, str] = False,
+	use_fixture_source: bool = False,
+) -> Dict[str, Any]:
+	"""
+	[AI-F002 Cash-flow Forecast Copilot - Whitelisted API Endpoint]
+	Strict deterministic 30-day EOD cash forecast with bounded agentic AI explanation.
+	"""
+	from datetime import datetime, date, timedelta
+	from lotus_fin.cashflow.models import ForecastRequest, CoverageScope
+	from lotus_fin.cashflow.service import get_cash_forecast, response_to_dict
+	from lotus_fin.cashflow.source_interface import SyntheticFixtureSource, FailClosedSource
+
+	# Resolve dates
+	as_of_date = datetime.strptime(financial_as_of, "%Y-%m-%d").date() if financial_as_of else (date.today() - timedelta(days=1))
+	start_date = datetime.strptime(forecast_start, "%Y-%m-%d").date() if forecast_start else (as_of_date + timedelta(days=1))
+	end_date = datetime.strptime(forecast_end, "%Y-%m-%d").date() if forecast_end else (start_date + timedelta(days=29))
+
+	want_explanation = False
+	if isinstance(include_explanation, bool):
+		want_explanation = include_explanation
+	elif isinstance(include_explanation, (int, float)):
+		want_explanation = bool(include_explanation)
+	elif isinstance(include_explanation, str):
+		want_explanation = include_explanation.strip().lower() in ["1", "true", "yes"]
+
+	req = ForecastRequest(
+		company=company or "",
+		financial_as_of=as_of_date,
+		forecast_start=start_date,
+		forecast_end=end_date,
+		reporting_currency=currency,
+		coverage_scope=CoverageScope.TRADE_ONLY,
+		include_explanation=want_explanation,
+		correlation_id=correlation_id or "",
+	)
+
+	future_source = None
+	if use_fixture_source:
+		import os
+		# Resolve robustly whether running locally or inside docker container
+		candidate_paths = [
+			frappe.get_app_path("lotus_fin", "docs", "features", "AI002", "fixture_scripts", "direct_confirmed_commitments.json"),
+			os.path.abspath(os.path.join(frappe.get_app_path("lotus_fin"), "..", "docs", "features", "AI002", "fixture_scripts", "direct_confirmed_commitments.json")),
+			"/home/frappe/frappe-bench/apps/lotus_fin/docs/features/AI002/fixture_scripts/direct_confirmed_commitments.json",
+		]
+		fixture_path = None
+		for cp in candidate_paths:
+			if os.path.exists(cp):
+				fixture_path = cp
+				break
+		future_source = SyntheticFixtureSource(fixture_path)
+	else:
+		future_source = FailClosedSource()
+
+	response = get_cash_forecast(
+		request=req,
+		user=frappe.session.user,
+		future_event_source=future_source,
+	)
+
+	return response_to_dict(response)
+
