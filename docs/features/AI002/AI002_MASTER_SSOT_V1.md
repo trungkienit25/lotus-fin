@@ -1,17 +1,25 @@
-# AI002 Master SSOT v1 — Cash-flow Forecast Copilot
+# SUPERSEDED
+
+Current SSOT: [AI002_MASTER_SSOT_V1_2_1_REFINED.md](AI002_MASTER_SSOT_V1_2_1_REFINED.md)
+
+This file is retained for historical evidence only. It has been superseded by AI002 Master SSOT v1.2.1 Refined. Do not use it for current implementation decisions.
+
+---
+
+# AI002 Master SSOT v1 — Cash-flow Forecast Copilot (SUPERSEDED)
 
 ## 1. Document control
 
 ```yaml
 feature_id: AI-F002
 feature_name: Cash-flow Forecast Copilot
-document_role: SINGLE_SOURCE_OF_TRUTH
+document_role: SUPERSEDED_SOURCE_OF_TRUTH
 version: '1.2'
 date: '2026-09-28'
 repo_revision: ed8bb2bf706a5813aee0902946ae42a946eb9ef9
 runtime_site: frontend (local Docker test site)
-status: AI002_01_CONTRACT_FROZEN
-next_action: Start AI002-02 Forecast Data Foundation
+status: SUPERSEDED_BY_V1_2_1_REFINED
+next_action: See AI002_MASTER_SSOT_V1_2_1_REFINED.md
 supersedes:
   - AI002_RUNTIME_FACTS.md
   - AI002_DATA_SOURCE_MAP.md
@@ -25,7 +33,7 @@ supersedes:
   - AI002_DECISION_LOG_CONTRACT_FREEZE.md
 ```
 
-This is the sole current human-readable AI002 product and engineering authority. [The gold manifest](AI002_GOLD_FIXTURE_MANIFEST.yaml) is the sole machine-readable test oracle. Archived documents are evidence of earlier states, not concurrent contracts. Claim labels: **OBSERVED** = direct code/runtime/test output; **DERIVED** = arithmetic or inference from observed evidence; **FROZEN_P0_DEFAULT** = owner-authorized 00D engineering contract for the Vietnam demo, not a universal customer accounting policy; **NOT_VERIFIED** = missing production proof. Source precedence: current code/runtime, current controlled fixture, explicit current product decision, governing project SSOT, archived AI002 discovery, then historical AI001 evidence. A later statement without new evidence or approval does not win by date alone.
+This document is SUPERSEDED by [AI002_MASTER_SSOT_V1_2_1_REFINED.md](AI002_MASTER_SSOT_V1_2_1_REFINED.md). [The gold manifest](AI002_GOLD_FIXTURE_MANIFEST.yaml) remains the sole machine-readable test oracle. Archived documents are evidence of earlier states, not concurrent contracts. Claim labels: **OBSERVED** = direct code/runtime/test output; **DERIVED** = arithmetic or inference from observed evidence; **FROZEN_P0_DEFAULT** = owner-authorized 00D engineering contract for the Vietnam demo, not a universal customer accounting policy; **NOT_VERIFIED** = missing production proof. Source precedence: current code/runtime, current controlled fixture, explicit current product decision, governing project SSOT, archived AI002 discovery, then historical AI001 evidence. A later statement without new evidence or approval does not win by date alone.
 
 ## 2. Executive decision
 

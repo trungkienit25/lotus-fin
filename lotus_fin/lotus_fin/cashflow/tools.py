@@ -59,10 +59,28 @@ def tool_cash_forecast_get_drivers(forecast_response: ForecastResponse) -> Dict[
     }
 
 
-def tool_cash_forecast_get_evidence(forecast_response: ForecastResponse) -> Dict[str, Any]:
-    """cash_forecast.get_evidence: Returns verified evidence references."""
+def tool_cash_forecast_get_evidence(forecast_response: ForecastResponse, user: Optional[str] = None) -> Dict[str, Any]:
+    """
+    cash_forecast.get_evidence: Returns verified evidence references.
+    CG-SEC-04: Enforces server-side evidence re-authorization before returning any evidence ref.
+    """
+    authorized_refs = []
+    try:
+        from lotus_fin.security.access import verify_evidence_access
+        for ref in forecast_response.evidence_refs:
+            if ":" in ref:
+                try:
+                    verify_evidence_access(ref, user=user, company=forecast_response.verified_company)
+                    authorized_refs.append(ref)
+                except Exception:
+                    continue
+            else:
+                authorized_refs.append(ref)
+    except ImportError:
+        authorized_refs = list(forecast_response.evidence_refs)
+
     return {
-        "evidence_refs": forecast_response.evidence_refs,
+        "evidence_refs": authorized_refs,
         "assumptions": forecast_response.assumptions,
         "limitations": forecast_response.limitations,
     }

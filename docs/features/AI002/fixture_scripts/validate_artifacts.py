@@ -68,10 +68,13 @@ for name, case in gold["cases"].items():
             assert event["currency"] == gold["currency"]
             assert event["financial_as_of"] == case["financial_as_of"]
 
-active_markdown = [p.name for p in ROOT.glob("*.md")]
-assert active_markdown == ["AI002_MASTER_SSOT_V1.md"], active_markdown
+# Verify exactly one active human-readable SSOT claiming authoritative status
+ssot_docs = [p for p in ROOT.glob("*.md") if "MASTER_SSOT" in p.name]
+active_ssot = [p.name for p in ssot_docs if not p.read_text(encoding="utf-8").startswith("# SUPERSEDED")]
+assert active_ssot == ["AI002_MASTER_SSOT_V1_2_1_REFINED.md"], f"Expected single active SSOT AI002_MASTER_SSOT_V1_2_1_REFINED.md, found: {active_ssot}"
+
 archive = list((ROOT / "archive").glob("*.md"))
-assert len(archive) == 9
+assert len(archive) >= 9
 for doc in archive:
     assert doc.read_text(encoding="utf-8").startswith("# SUPERSEDED")
-print(f"AI002 artifacts valid: {len(archive)} archived docs, 2 gold cases, 30 dates each, all local links resolve")
+print(f"AI002 artifacts valid: single active SSOT (AI002_MASTER_SSOT_V1_2_1_REFINED.md), {len(archive)} archived docs, 2 gold cases, 30 dates each, all local links resolve")

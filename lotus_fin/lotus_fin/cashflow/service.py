@@ -82,29 +82,38 @@ def get_cash_forecast(
         return ForecastResponse(
             status=status,
             reason_code=reason_code,
-            verified_company=request.company,
+            verified_company="" if status == ForecastStatus.FORBIDDEN else request.company,
             financial_as_of=request.financial_as_of,
             forecast_start=request.forecast_start,
             forecast_end=request.forecast_end,
             currency=request.reporting_currency,
-            limitations=[error_msg or "Validation failed"],
+            limitations=[error_msg or ("Access Denied" if status == ForecastStatus.FORBIDDEN else "Validation failed")],
             correlation_id=correlation_id,
         )
 
-    # 2. Check Cache
+    # Resolve event source
+    source = future_event_source or FailClosedSource()
+    source_mode = getattr(source, "source_mode", "LIVE")
+    source_provider_ver = getattr(source, "provider_version", "v1")
+
+    # 2. Check Cache (Isolated by source_mode & horizon)
     cache_key = compute_cache_key(
         user_id=active_user,
         company=request.company,
         as_of=request.financial_as_of,
+        forecast_start=request.forecast_start,
+        forecast_end=request.forecast_end,
         account_scope=request.cash_account_scope,
         coverage_scope=request.coverage_scope.value,
+        source_mode=source_mode,
+        source_provider_version=source_provider_ver,
     )
     if not skip_cache:
         cached = get_cached_response(cache_key)
         if cached:
             return cached
 
-    flight_acquired = acquire_single_flight(f"{request.company}:{request.financial_as_of}")
+    flight_acquired = acquire_single_flight(f"{request.company}:{request.financial_as_of}:{source_mode}")
 
     try:
         # 3. Data Gathering (Opening cash & obligations)
@@ -240,7 +249,7 @@ def get_cash_forecast(
 
     finally:
         if flight_acquired:
-            release_single_flight(f"{request.company}:{request.financial_as_of}")
+            release_single_flight(f"{request.company}:{request.financial_as_of}:{source_mode}")
 
 
 def response_to_dict(response: ForecastResponse) -> Dict[str, Any]:

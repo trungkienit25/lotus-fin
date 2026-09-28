@@ -240,15 +240,17 @@ class TestCashflowEnginePurePython(unittest.TestCase):
         self.assertEqual(reason, ReasonCode.UNSUPPORTED_CURRENCY)
 
     def test_compound_cache_key_isolation(self):
-        """Cache keys differ when user, company, date, or scope differs."""
-        k1 = compute_cache_key("user1", "CompanyA", self.as_of, ["Acc1"], "TRADE_ONLY")
-        k2 = compute_cache_key("user2", "CompanyA", self.as_of, ["Acc1"], "TRADE_ONLY")
-        k3 = compute_cache_key("user1", "CompanyB", self.as_of, ["Acc1"], "TRADE_ONLY")
-        k4 = compute_cache_key("user1", "CompanyA", self.as_of, ["Acc1", "Acc2"], "TRADE_ONLY")
+        """Cache keys differ when user, company, date, scope, or source_mode differs."""
+        k1 = compute_cache_key("user1", "CompanyA", self.as_of, self.start, self.end, ["Acc1"], "TRADE_ONLY", source_mode="LIVE")
+        k2 = compute_cache_key("user2", "CompanyA", self.as_of, self.start, self.end, ["Acc1"], "TRADE_ONLY", source_mode="LIVE")
+        k3 = compute_cache_key("user1", "CompanyB", self.as_of, self.start, self.end, ["Acc1"], "TRADE_ONLY", source_mode="LIVE")
+        k4 = compute_cache_key("user1", "CompanyA", self.as_of, self.start, self.end, ["Acc1", "Acc2"], "TRADE_ONLY", source_mode="LIVE")
+        k5 = compute_cache_key("user1", "CompanyA", self.as_of, self.start, self.end, ["Acc1"], "TRADE_ONLY", source_mode="FIXTURE")
 
         self.assertNotEqual(k1, k2)
         self.assertNotEqual(k1, k3)
         self.assertNotEqual(k1, k4)
+        self.assertNotEqual(k1, k5)
 
     def test_cash_forecast_page_doc_exists_and_standard(self):
         """Contract check: Verify cash-forecast Page doc is registered in Frappe when running in Docker bench."""

@@ -12,16 +12,26 @@ def compute_cache_key(
     user_id: Optional[str],
     company: str,
     as_of: Any,
+    forecast_start: Any,
+    forecast_end: Any,
     account_scope: List[str],
     coverage_scope: str,
+    source_mode: str = "LIVE",
+    source_provider_version: str = "v1",
+    method_version: str = "STRICT_BASELINE_V1",
     version: str = "1.2.1",
 ) -> str:
     """
     CG-SEC-01 & CG-PERF-03: Compute SHA256 compound cache key.
-    Includes user_id, company, financial cutoff, account scope, and contract version.
+    Includes user_id, company, financial cutoff, forecast horizon, account scope,
+    coverage scope, source mode/version, and contract version.
     """
     scope_str = ",".join(sorted(account_scope or []))
-    raw = f"{user_id or 'anon'}:{company}:{as_of}:{scope_str}:{coverage_scope}:{version}"
+    raw = (
+        f"{user_id or 'anon'}:{company}:{as_of}:{forecast_start}:{forecast_end}:"
+        f"{scope_str}:{coverage_scope}:{source_mode}:{source_provider_version}:"
+        f"{method_version}:{version}"
+    )
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
 

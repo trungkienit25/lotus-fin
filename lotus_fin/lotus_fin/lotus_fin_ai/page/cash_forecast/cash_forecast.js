@@ -23,7 +23,7 @@ lotus_fin.cash_forecast.Controller = class Controller {
 		this.page = wrapper.page;
 		this.current_company = null;
 		this.financial_as_of = "2026-09-26";
-		this.use_fixture = false;
+		this.request_generation = 0;
 		this.data = null;
 		this.init();
 	}
@@ -51,9 +51,9 @@ lotus_fin.cash_forecast.Controller = class Controller {
 			default: frappe.defaults.get_user_default("Company") || frappe.defaults.get_global_default("company"),
 			change() {
 				const val = me.company_field.get_value();
-				if (val && val !== me.current_company) {
+				if (val !== me.current_company) {
 					me.current_company = val;
-					me.fetch_forecast();
+					me.on_company_change();
 				}
 			}
 		});
@@ -70,19 +70,7 @@ lotus_fin.cash_forecast.Controller = class Controller {
 			}
 		});
 
-		// 3. Test Fixture Toggle (for demo/eval)
-		this.fixture_field = this.page.add_field({
-			fieldname: "use_fixture",
-			label: __("Test Commitments"),
-			fieldtype: "Check",
-			default: 1,
-			change() {
-				me.use_fixture = Boolean(me.fixture_field.get_value());
-				me.fetch_forecast();
-			}
-		});
-
-		// 4. Primary Run Forecast Button
+		// 3. Primary Run Forecast Button
 		this.page.set_primary_action(__("Compute Forecast"), function () {
 			me.fetch_forecast(true);
 		}, "octicon octicon-sync");
@@ -218,15 +206,31 @@ lotus_fin.cash_forecast.Controller = class Controller {
 		this.fetch_forecast();
 	}
 
+	on_company_change() {
+		// Increment request generation to invalidate any in-flight requests
+		this.request_generation += 1;
+		// Clear prior-company data and DOM immediately
+		this.data = null;
+		$("#cf-alert-area").empty();
+		$("#cf-opening-amount").text("-- VND");
+		$("#cf-reconciliation-status").text("");
+		$("#cf-account-breakdown").empty();
+		$("#cf-points-tbody").html('<tr><td colspan="4" class="text-center text-muted py-3">Loading forecast for selected company...</td></tr>');
+		$("#cf-obligations-tbody").html('<tr><td colspan="5" class="text-center text-muted py-3">Loading obligations...</td></tr>');
+		$("#cf-copilot-content").html('<p class="text-muted">Loading financial copilot...</p>');
+		this.fetch_forecast();
+	}
+
 	fetch_forecast(want_explanation = false) {
 		const me = this;
 		const company = this.company_field.get_value();
 		const as_of = this.as_of_field.get_value() || "2026-09-26";
-		const use_fixture = Boolean(this.fixture_field.get_value());
 
 		if (!company) {
 			return;
 		}
+
+		const request_token = ++this.request_generation;
 
 		frappe.call({
 			method: "lotus_fin.api.ai_insights.get_ai002_cash_forecast",
@@ -235,15 +239,22 @@ lotus_fin.cash_forecast.Controller = class Controller {
 				financial_as_of: as_of,
 				currency: "VND",
 				include_explanation: want_explanation,
-				use_fixture_source: use_fixture
 			},
 			callback: function (r) {
+				// Race condition & company switch check: Discard stale responses
+				if (request_token !== me.request_generation) {
+					return;
+				}
 				if (r.exc) {
 					me.render_error("Server error executing cash forecast.");
 					return;
 				}
-				me.data = r.message;
-				me.render_dashboard(r.message);
+				const resp = r.message;
+				if (resp && resp.verified_company && resp.verified_company !== me.company_field.get_value()) {
+					return;
+				}
+				me.data = resp;
+				me.render_dashboard(resp);
 			}
 		});
 	}
@@ -252,18 +263,21 @@ lotus_fin.cash_forecast.Controller = class Controller {
 		const me = this;
 		const alertArea = $("#cf-alert-area").empty();
 
-		// Check FORBIDDEN
+		// Check FORBIDDEN (CG-SEC-01 / CG-SEC-04: generic denial, no company existence leakage)
 		if (resp.status === "FORBIDDEN" || (resp.reason_code && resp.reason_code === "UNAUTHORIZED_ACCESS")) {
 			alertArea.html(`
 				<div class="alert alert-danger p-3" style="border-radius: 6px;">
 					<h5 style="margin-top:0;">Access Denied (FORBIDDEN)</h5>
-					<p>You do not have permission to view cash forecasts for <b>${frappe.utils.escape_html(resp.verified_company || "selected company")}</b>.</p>
+					<p>You do not have permission to access cash forecast data for the requested resource.</p>
 					<button class="btn btn-sm btn-primary" onclick="frappe.set_route('Form', 'Company')">Switch Company</button>
 				</div>
 			`);
 			$("#cf-opening-amount").text("-- VND");
+			$("#cf-reconciliation-status").text("");
+			$("#cf-account-breakdown").empty();
 			$("#cf-points-tbody").html('<tr><td colspan="4" class="text-center text-muted py-3">Access forbidden.</td></tr>');
 			$("#cf-obligations-tbody").html('<tr><td colspan="5" class="text-center text-muted py-3">Access forbidden.</td></tr>');
+			$("#cf-copilot-content").html('<p class="text-muted">Access forbidden.</p>');
 			return;
 		}
 

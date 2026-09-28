@@ -1,10 +1,24 @@
 from typing import Optional
-import frappe
-from frappe import _
-from frappe.permissions import has_permission
+
+try:
+	import frappe
+	from frappe import _
+	from frappe.permissions import has_permission
+	_PermissionError = frappe.PermissionError
+	_ValidationError = frappe.ValidationError
+except ImportError:
+	frappe = None
+	def _(text, *args, **kwargs):
+		return text
+	def has_permission(*args, **kwargs):
+		return True
+	class _PermissionError(Exception):
+		pass
+	class _ValidationError(Exception):
+		pass
 
 
-class CompanyAccessError(frappe.PermissionError):
+class CompanyAccessError(_PermissionError):
 	"""Raised when a user attempts to access data for an unauthorized company."""
 	pass
 

@@ -10,6 +10,9 @@ from .models import CashEvent, CashEventDirection
 class FutureEventSource(ABC):
     """Abstract interface for confirmed future cash events."""
 
+    source_mode: str = "LIVE"
+    provider_version: str = "v1"
+
     @abstractmethod
     def get_confirmed_events(
         self,
@@ -24,6 +27,9 @@ class FutureEventSource(ABC):
 
 class FailClosedSource(FutureEventSource):
     """Production default: no verified production commitment source exists."""
+
+    source_mode: str = "LIVE_FAIL_CLOSED"
+    provider_version: str = "v1"
 
     def get_confirmed_events(
         self,
@@ -43,6 +49,9 @@ class SyntheticFixtureSource(FutureEventSource):
     Classification: SYNTHETIC_TEST_ONLY.
     Loads confirmed commitments from JSON fixture.
     """
+
+    source_mode: str = "FIXTURE"
+    provider_version: str = "v1_synthetic"
 
     def __init__(self, fixture_path: Optional[str] = None):
         self.fixture_path = fixture_path
@@ -64,6 +73,9 @@ class SyntheticFixtureSource(FutureEventSource):
         events: List[CashEvent] = []
         raw_events = data.get("records") or data.get("direct_confirmed_commitments", [])
         for row in raw_events:
+            row_company = row.get("company")
+            if row_company and row_company != company:
+                continue
             ev_date = datetime.strptime(row["date"], "%Y-%m-%d").date()
             if start_date <= ev_date <= end_date:
                 direction = CashEventDirection.INFLOW if row["direction"] == "inflow" else CashEventDirection.OUTFLOW
@@ -71,8 +83,8 @@ class SyntheticFixtureSource(FutureEventSource):
                 events.append(
                     CashEvent(
                         source_ref=row["source_ref"],
-                        source_kind=row["source_kind"],
-                        trust_state=row["trust_state"],
+                        source_kind="synthetic",
+                        trust_state="FIXTURE_DECLARATION_ONLY",
                         timing_basis=row["timing_basis"],
                         date=ev_date,
                         direction=direction,

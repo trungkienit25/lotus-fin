@@ -2,9 +2,10 @@
 
 ## Lotus Fin — AI-F002 Cash-flow Forecast Copilot
 
-**Status:** `READY_FOR_AI002_02`
+**Status:** `AI002_G4B_REMEDIATION_PASSED`
 
-The AI002-01 Contract Freeze review is **COMPLETED & FROZEN** (governed by `AI002_MASTER_SSOT_V1.md` v1.2 and `AI002_DECISION_LOG_CONTRACT_FREEZE.md`). Implementation is formally **AUTHORIZED** for Phase AI002-02 Forecast Data Foundation.
+The AI002-01 Contract Freeze review is **COMPLETED & FROZEN** (governed by `AI002_MASTER_SSOT_V1_2_1_REFINED.md` v1.2.1 and `AI002_DECISION_LOG_CONTRACT_FREEZE_REFINED.md`). G4B Remediation has been fully verified and passed (15/15 pure-Python, 86/86 Docker container tests).
+
 
 ---
 

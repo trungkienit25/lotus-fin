@@ -36,13 +36,36 @@ def validate_forecast_request(request: ForecastRequest, user: Optional[str] = No
     if request.reporting_currency != "VND":
         return False, ReasonCode.UNSUPPORTED_CURRENCY, "Only VND is supported for P0 TRADE_ONLY baseline."
 
-    # 4. Server-side company authorization check
+    # 4. Server-side company authorization and account scope validation
     # Only invoke live Frappe DB check when Frappe is initialized with an active database connection
-    if get_verified_company and frappe and hasattr(frappe, "db") and frappe.db:
-        try:
-            get_verified_company(company=request.company, user=user)
-        except Exception:
-            return False, ReasonCode.UNAUTHORIZED_ACCESS, "FORBIDDEN"
+    if frappe and hasattr(frappe, "db") and frappe.db:
+        if get_verified_company:
+            try:
+                get_verified_company(company=request.company, user=user)
+            except Exception:
+                return False, ReasonCode.UNAUTHORIZED_ACCESS, "FORBIDDEN"
+
+        # Validate explicit account scope if provided
+        if request.cash_account_scope:
+            for acc in request.cash_account_scope:
+                acc_data = frappe.db.get_value(
+                    "Account",
+                    acc,
+                    ["name", "company", "is_group", "disabled", "account_type", "account_currency"],
+                    as_dict=True,
+                )
+                if not acc_data:
+                    return False, ReasonCode.DATA_PIPELINE_ERROR, f"Account {acc} does not exist."
+                if acc_data.company != request.company:
+                    return False, ReasonCode.UNAUTHORIZED_ACCESS, "FORBIDDEN"
+                if acc_data.is_group:
+                    return False, ReasonCode.DATA_PIPELINE_ERROR, f"Account {acc} is a group account; only leaf accounts allowed."
+                if acc_data.disabled:
+                    return False, ReasonCode.DATA_PIPELINE_ERROR, f"Account {acc} is disabled."
+                if acc_data.account_type not in ["Bank", "Cash"]:
+                    return False, ReasonCode.DATA_PIPELINE_ERROR, f"Account {acc} must be of type Cash or Bank."
+                if acc_data.account_currency and acc_data.account_currency != request.reporting_currency:
+                    return False, ReasonCode.UNSUPPORTED_CURRENCY, f"Account {acc} currency {acc_data.account_currency} does not match {request.reporting_currency}."
 
     return True, None, None
 

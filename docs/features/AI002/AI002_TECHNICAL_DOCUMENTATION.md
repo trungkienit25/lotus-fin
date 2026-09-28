@@ -55,17 +55,29 @@ The Large Language Model (LLM) never computes, estimates, or alters financial nu
 
 ## 3. API Contract Reference
 
-### REST Endpoint
+### 3.1 Primary Forecast Endpoint
 `POST /api/method/lotus_fin.api.ai_insights.get_ai002_cash_forecast`
 
 #### Parameters:
-- `company` (str, required)
-- `financial_as_of` (str YYYY-MM-DD, optional, default: yesterday)
-- `forecast_start` (str YYYY-MM-DD, optional, default: financial_as_of + 1)
-- `forecast_end` (str YYYY-MM-DD, optional, default: forecast_start + 29)
-- `currency` (str, default: "VND")
-- `include_explanation` (bool, default: False)
-- `use_fixture_source` (bool, default: False)
+- `company` (str, required): The target company name (must be authorized).
+- `financial_as_of` (str YYYY-MM-DD, optional, default: yesterday): As-of snapshot date.
+- `forecast_start` (str YYYY-MM-DD, optional, default: financial_as_of + 1): Start date of forecast.
+- `forecast_end` (str YYYY-MM-DD, optional, default: forecast_start + 29): End date of forecast (exactly 30 days).
+- `currency` (str, default: "VND"): Supported reporting currency.
+- `cash_account_scope` (list[str] or comma-separated str, optional): Explicit list of leaf Cash/Bank accounts.
+- `include_explanation` (bool, default: False): Whether to invoke the bounded AI copilot.
+
+> [!IMPORTANT]
+> The public endpoint does **NOT** expose a `use_fixture_source` parameter. Fixture mode is only permissible in test environments via server-side flag (`frappe.flags.in_test` or `frappe.flags.ai002_use_fixture_source`), guaranteeing that production requests default fail-closed to `FailClosedSource()`.
+
+### 3.2 Evidence Drilldown Endpoint
+`POST /api/method/lotus_fin.api.ai_insights.get_ai002_evidence`
+
+#### Parameters:
+- `evidence_ref` (str, required): Document reference in format `DocType:Name` (e.g. `Sales Invoice:SINV-2026-0001`).
+- `company` (str, required): Company ownership token to be validated.
+
+Enforces server-side document read permissions (`frappe.has_permission(doctype, "read", docname)`) and verifies that the document's company matches the requested company.
 
 ---
 

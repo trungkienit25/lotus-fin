@@ -129,6 +129,7 @@ class Coverage:
 class Explanation:
     status: str  # OK / UNAVAILABLE
     reason: Optional[str] = None
+    error_code: Optional[str] = None
     facts: List[Dict[str, Any]] = field(default_factory=list)
     drivers: List[Dict[str, Any]] = field(default_factory=list)
     limitations: List[str] = field(default_factory=list)

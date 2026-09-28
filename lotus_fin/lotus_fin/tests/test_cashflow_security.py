@@ -1,4 +1,5 @@
 import unittest
+from datetime import date
 from decimal import Decimal
 from unittest.mock import MagicMock, patch
 
@@ -76,13 +77,132 @@ class TestCashflowSecurityAndHardening(unittest.TestCase):
         """Generic FORBIDDEN response preserves zero-leakage invariant."""
         request = ForecastRequest(
             company="",  # Missing company
-            financial_as_of="2026-09-26",
-            forecast_start="2026-09-27",
-            forecast_end="2026-10-26",
+            financial_as_of=date(2026, 9, 26),
+            forecast_start=date(2026, 9, 27),
+            forecast_end=date(2026, 10, 26),
         )
         response = get_cash_forecast(request)
         self.assertEqual(response.status, ForecastStatus.VALIDATION_ERROR)
         self.assertEqual(response.reason_code, ReasonCode.MISSING_COMPANY)
+
+    def test_generic_forbidden_sanitizes_verified_company(self):
+        """When request is FORBIDDEN, verified_company must be cleared/generic without leakage."""
+        with patch("lotus_fin.cashflow.service.validate_forecast_request") as mock_val:
+            mock_val.return_value = (False, ReasonCode.UNAUTHORIZED_ACCESS, "FORBIDDEN")
+            req = ForecastRequest(
+                company="Secret Confidential Corp",
+                financial_as_of=date(2026, 9, 26),
+                forecast_start=date(2026, 9, 27),
+                forecast_end=date(2026, 10, 26),
+            )
+            resp = get_cash_forecast(req, user="attacker@example.com")
+            self.assertEqual(resp.status, ForecastStatus.FORBIDDEN)
+            self.assertEqual(resp.reason_code, ReasonCode.UNAUTHORIZED_ACCESS)
+            self.assertEqual(resp.verified_company, "")  # Zero-leakage invariant
+            self.assertNotIn("Secret Confidential Corp", resp.limitations[0])
+
+    def test_numeric_and_adversarial_grounding_rejection(self):
+        """Grounding validator must reject hallucinated amounts, dates, unsupported currencies, and subjective risk ratings."""
+        from lotus_fin.cashflow.grounding import validate_grounding
+        from lotus_fin.cashflow.models import ForecastResponse, OpeningCash, AccountBalance
+
+        mock_resp = ForecastResponse(
+            status=ForecastStatus.PARTIAL,
+            verified_company="AI002 Fixture 2026",
+            financial_as_of=date(2026, 9, 26),
+            forecast_start=date(2026, 9, 27),
+            forecast_end=date(2026, 10, 26),
+            currency="VND",
+            opening_cash=OpeningCash(
+                aggregate_amount=Decimal("11550000"),
+                reconciliation="RECONCILED",
+                has_constituent_deficit=False,
+                accounts=[AccountBalance("Cash", Decimal("11550000"), "VND", False)],
+            ),
+        )
+
+        # 1. Hallucinated amount: 999999999
+        valid, violations = validate_grounding("Cash will be 999999999 VND tomorrow", mock_resp)
+        self.assertFalse(valid)
+        self.assertTrue(any("999999999" in v for v in violations))
+
+        # 2. Altered opening cash
+        valid, violations = validate_grounding("Opening cash balance is 50,000,000 VND.", mock_resp)
+        self.assertFalse(valid)
+
+        # 3. Unsupported risk claims
+        valid, violations = validate_grounding("The cash forecast shows this company is completely SAFE and LOW RISK.", mock_resp)
+        self.assertFalse(valid)
+        self.assertTrue(any("subjective risk" in v for v in violations))
+
+        # 4. Wrong currency
+        valid, violations = validate_grounding("Opening cash balance is 11,550,000 USD.", mock_resp)
+        self.assertFalse(valid)
+        self.assertTrue(any("currency" in v for v in violations))
+
+        # 5. Grounded factual statement passes
+        valid, violations = validate_grounding("Opening cash balance is 11,550,000 VND.", mock_resp)
+        self.assertTrue(valid)
+        self.assertEqual(len(violations), 0)
+
+    def test_model_failure_degradation(self):
+        """When LLM times out or errors, explanation.status must be UNAVAILABLE with typed error_code."""
+        from lotus_fin.cashflow.agent import explain_cash_forecast
+        from lotus_fin.cashflow.models import ForecastResponse, OpeningCash, AccountBalance
+
+        mock_resp = ForecastResponse(
+            status=ForecastStatus.PARTIAL,
+            verified_company="AI002 Fixture 2026",
+            financial_as_of=date(2026, 9, 26),
+            forecast_start=date(2026, 9, 27),
+            forecast_end=date(2026, 10, 26),
+            currency="VND",
+            opening_cash=OpeningCash(
+                aggregate_amount=Decimal("11550000"),
+                reconciliation="RECONCILED",
+                has_constituent_deficit=False,
+                accounts=[AccountBalance("Cash", Decimal("11550000"), "VND", False)],
+            ),
+        )
+
+        # Force exception in urllib call
+        with patch("urllib.request.urlopen", side_effect=Exception("Connection refused")):
+            expl = explain_cash_forecast(mock_resp, api_key="sk-test-key")
+            self.assertEqual(expl.status, "UNAVAILABLE")
+            self.assertEqual(expl.error_code, "PROVIDER_UNAVAILABLE")
+            # Facts must remain intact
+            self.assertTrue(len(expl.facts) > 0)
+            self.assertEqual(expl.drivers, [])
+
+        # Force timeout in urllib call
+        with patch("urllib.request.urlopen", side_effect=TimeoutError("Timed out")):
+            expl = explain_cash_forecast(mock_resp, api_key="sk-test-key")
+            self.assertEqual(expl.status, "UNAVAILABLE")
+            self.assertEqual(expl.error_code, "TIMEOUT")
+
+    def test_evidence_reauthorization_in_tools(self):
+        """Evidence refs tool enforces access reauthorization."""
+        from lotus_fin.cashflow.tools import tool_cash_forecast_get_evidence
+        from lotus_fin.cashflow.models import ForecastResponse
+
+        resp = ForecastResponse(
+            status=ForecastStatus.PARTIAL,
+            verified_company="AI002 Fixture 2026",
+            evidence_refs=["GL Entry:GLE-001", "Sales Invoice:ACC-SINV-2026-00001", "UNAUTHORIZED:FORBIDDEN-001"],
+        )
+
+        with patch("lotus_fin.security.access.verify_evidence_access") as mock_verify:
+            # First 2 succeed, 3rd fails
+            def side_effect(ref, user, company):
+                if "FORBIDDEN" in ref:
+                    raise PermissionError("FORBIDDEN")
+                return True
+            mock_verify.side_effect = side_effect
+
+            tool_result = tool_cash_forecast_get_evidence(resp, user="test_user")
+            self.assertIn("GL Entry:GLE-001", tool_result["evidence_refs"])
+            self.assertIn("Sales Invoice:ACC-SINV-2026-00001", tool_result["evidence_refs"])
+            self.assertNotIn("UNAUTHORIZED:FORBIDDEN-001", tool_result["evidence_refs"])
 
 
 if __name__ == "__main__":

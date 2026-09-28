@@ -134,6 +134,7 @@ def explain_cash_forecast(
         start_call = time.time()
         
         prompt_data = {
+            "company": forecast_response.verified_company,
             "opening_cash": str(forecast_response.opening_cash.aggregate_amount) if forecast_response.opening_cash else "0",
             "points_count": len(forecast_response.forecast_points),
             "shortfall_count": len(forecast_response.shortfall_events),
@@ -165,24 +166,69 @@ def explain_cash_forecast(
 
         with urllib.request.urlopen(req, timeout=CIRCUIT_BREAKER_TIMEOUT_SECONDS) as resp:
             data = json.loads(resp.read().decode("utf-8"))
-            content = data["choices"][0]["message"]["content"]
+            if "choices" not in data or not data["choices"]:
+                return Explanation(
+                    status="UNAVAILABLE",
+                    error_code="MALFORMED_OUTPUT",
+                    reason="Model returned empty or malformed output.",
+                    facts=facts,
+                    drivers=[],
+                    limitations=forecast_response.limitations,
+                    next_checks=next_checks,
+                )
+
+            content = data["choices"][0]["message"].get("content", "")
+            if not content or not content.strip():
+                return Explanation(
+                    status="UNAVAILABLE",
+                    error_code="MALFORMED_OUTPUT",
+                    reason="Model response content was empty.",
+                    facts=facts,
+                    drivers=[],
+                    limitations=forecast_response.limitations,
+                    next_checks=next_checks,
+                )
 
             # Grounding validation
             is_grounded, violations = validate_grounding(content, forecast_response)
-            if is_grounded:
-                drivers.append({
-                    "type": "INTERPRETATION",
-                    "statement": content.strip(),
-                })
-            else:
-                drivers.append({
-                    "type": "INTERPRETATION",
-                    "statement": "LLM response did not pass strict grounding validation; falling back to deterministic facts.",
-                })
+            if not is_grounded:
+                return Explanation(
+                    status="UNAVAILABLE",
+                    error_code="GROUNDING_VIOLATION",
+                    reason=f"Grounding validation failed: {'; '.join(violations)}",
+                    facts=facts,
+                    drivers=[],
+                    limitations=forecast_response.limitations,
+                    next_checks=next_checks,
+                )
 
-    except Exception:
-        # Circuit breaker triggered or network error: fail-safe
-        pass
+            drivers.append({
+                "type": "INTERPRETATION",
+                "statement": content.strip(),
+            })
+
+    except TimeoutError:
+        return Explanation(
+            status="UNAVAILABLE",
+            error_code="TIMEOUT",
+            reason="LLM response timed out under 5000ms circuit breaker.",
+            facts=facts,
+            drivers=[],
+            limitations=forecast_response.limitations,
+            next_checks=next_checks,
+        )
+    except Exception as exc:
+        err_type = type(exc).__name__
+        err_code = "TIMEOUT" if "timed out" in str(exc).lower() else "PROVIDER_UNAVAILABLE"
+        return Explanation(
+            status="UNAVAILABLE",
+            error_code=err_code,
+            reason=f"Model execution error ({err_type}). Deterministic financial truth preserved.",
+            facts=facts,
+            drivers=[],
+            limitations=forecast_response.limitations,
+            next_checks=next_checks,
+        )
 
     return Explanation(
         status="OK",

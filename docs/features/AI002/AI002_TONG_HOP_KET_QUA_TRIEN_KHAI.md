@@ -32,9 +32,17 @@ Toàn bộ các Phase từ **AI002-02 (Data Foundation)** đến **AI002-08 (Fea
      - **Tier 2 (Trade Obligations)**: Danh sách công nợ phải thu / phải trả với ngày đến hạn hợp đồng.
      - **Tier 3 (Copilot Sidebar)**: Sự thật sổ cái, phân tích AI và gợi ý hành động.
    - Xử lý mượt mà kịch bản `FORBIDDEN` (Landing page không rò rỉ thông tin) và `explanation.status=UNAVAILABLE` (giữ nguyên bảng số liệu sổ cái).
-5. **Hạ tầng kiểm thử kép (Dual-Mode Verification)**:
-   - Chạy 10/10 pure Python unit tests cục bộ.
-   - Chạy toàn bộ test suite trong Docker container: **81/81 tests PASS 100%** (bao gồm 67 test cũ + 14 test mới của AI002 + 15/15 AI001 evaluation scenarios).
+5. **Hạ tầng kiểm thử kép (Dual-Mode Verification) & G4B Remediation**:
+   - Chạy 15/15 pure Python unit tests cục bộ (`test_cashflow_engine.py` + `test_cashflow_security.py`).
+   - Chạy toàn bộ test suite trong Docker container: **86/86 tests PASS 100%** (bao gồm 67 test nền tảng + 19 test cashflow/security + 15/15 AI001 evaluation scenarios).
+   - Đã xử lý triệt để 7 nhóm lỗi kiểm toán G4B:
+     1. Khóa hoàn toàn Fixture Mode khỏi Public API và UI (chỉ cho phép qua server-side test flag).
+     2. Đối soát Trial Balance thực tế cho Opening Cash; kiểm tra gắt gao từng tài khoản (từ chối group account, disabled account, sai tiền tệ).
+     3. Generic FORBIDDEN không rò rỉ dữ liệu tenant (xóa sạch verified_company và sanitize limitations).
+     4. Cơ chế chống Stale Async Response trên Frontend khi chuyển đổi công ty (request generation token).
+     5. Tái thẩm quyền chứng cứ (verify_evidence_access) cho toàn bộ evidence refs.
+     6. Bộ kiểm tra căn cứ (Grounding Validator) phát hiện và loại bỏ số liệu/ngày tháng bịa đặt và tuyên bố rủi ro chủ quan; hạ cấp an toàn khi model lỗi (status="UNAVAILABLE", giữ nguyên số liệu tài chính).
+     7. Đồng bộ hóa SSOT duy nhất (`AI002_MASTER_SSOT_V1_2_1_REFINED.md`), đánh dấu toàn bộ văn bản cũ là SUPERSEDED.
 
 ---
 
@@ -44,26 +52,26 @@ Toàn bộ các Phase từ **AI002-02 (Data Foundation)** đến **AI002-08 (Fea
 - [`lotus_fin/lotus_fin/cashflow/__init__.py`](file:///e:/lotus-fin/lotus_fin/lotus_fin/cashflow/__init__.py): Khởi tạo module cashflow.
 - [`lotus_fin/lotus_fin/cashflow/models.py`](file:///e:/lotus-fin/lotus_fin/lotus_fin/cashflow/models.py): Hệ thống định nghĩa dữ liệu gõ chặt (Dataclasses + Enums + Decimal).
 - [`lotus_fin/lotus_fin/cashflow/engine.py`](file:///e:/lotus-fin/lotus_fin/lotus_fin/cashflow/engine.py): Động cơ tính toán dự báo tất định O(N) và shortfall state machine.
-- [`lotus_fin/lotus_fin/cashflow/adapters.py`](file:///e:/lotus-fin/lotus_fin/lotus_fin/cashflow/adapters.py): Các bộ chuyển đổi dữ liệu Sổ cái GL, Phải thu AR, Phải trả AP.
-- [`lotus_fin/lotus_fin/cashflow/source_interface.py`](file:///e:/lotus-fin/lotus_fin/lotus_fin/cashflow/source_interface.py): Giao diện nguồn cam kết tương lai (FailClosedSource & SyntheticFixtureSource).
-- [`lotus_fin/lotus_fin/cashflow/validation.py`](file:///e:/lotus-fin/lotus_fin/lotus_fin/cashflow/validation.py): Bộ tiền kiểm định hợp đồng, kỳ hạn 30 ngày và tiền tệ VND.
-- [`lotus_fin/lotus_fin/cashflow/cache.py`](file:///e:/lotus-fin/lotus_fin/lotus_fin/cashflow/cache.py): Bộ nhớ đệm SHA256 tổng hợp (Tenant isolation) và khóa đơn chuyến single-flight.
-- [`lotus_fin/lotus_fin/cashflow/agent.py`](file:///e:/lotus-fin/lotus_fin/lotus_fin/cashflow/agent.py): Copilot trợ lý giải thích giới hạn với circuit breaker 5s và stripping text.
-- [`lotus_fin/lotus_fin/cashflow/tools.py`](file:///e:/lotus-fin/lotus_fin/lotus_fin/cashflow/tools.py): 6 công cụ đọc dữ liệu định kiểu cho Agent.
-- [`lotus_fin/lotus_fin/cashflow/grounding.py`](file:///e:/lotus-fin/lotus_fin/lotus_fin/cashflow/grounding.py): Bộ thẩm định đối soát tính căn cứ của câu trả lời AI.
-- [`lotus_fin/lotus_fin/cashflow/service.py`](file:///e:/lotus-fin/lotus_fin/lotus_fin/cashflow/service.py): Điều phối luồng dự báo và chuyển đổi dữ liệu REST.
+- [`lotus_fin/lotus_fin/cashflow/adapters.py`](file:///e:/lotus-fin/lotus_fin/lotus_fin/cashflow/adapters.py): Các bộ chuyển đổi dữ liệu Sổ cái GL, Phải thu AR, Phải trả AP, tích hợp đối soát Trial Balance thực.
+- [`lotus_fin/lotus_fin/cashflow/source_interface.py`](file:///e:/lotus-fin/lotus_fin/lotus_fin/cashflow/source_interface.py): Giao diện nguồn cam kết tương lai (FailClosedSource & SyntheticFixtureSource với company filter nghiêm ngặt).
+- [`lotus_fin/lotus_fin/cashflow/validation.py`](file:///e:/lotus-fin/lotus_fin/lotus_fin/cashflow/validation.py): Bộ tiền kiểm định hợp đồng, kỳ hạn 30 ngày, tiền tệ VND và thẩm định tài khoản lá Cash/Bank.
+- [`lotus_fin/lotus_fin/cashflow/cache.py`](file:///e:/lotus-fin/lotus_fin/lotus_fin/cashflow/cache.py): Bộ nhớ đệm SHA256 tổng hợp (Tenant isolation, source_mode, versions) và khóa đơn chuyến single-flight.
+- [`lotus_fin/lotus_fin/cashflow/agent.py`](file:///e:/lotus-fin/lotus_fin/lotus_fin/cashflow/agent.py): Copilot trợ lý giải thích giới hạn với circuit breaker 5s, stripping text và taxonomy hạ cấp lỗi.
+- [`lotus_fin/lotus_fin/cashflow/tools.py`](file:///e:/lotus-fin/lotus_fin/lotus_fin/cashflow/tools.py): 6 công cụ đọc dữ liệu định kiểu cho Agent, tái thẩm quyền chứng cứ.
+- [`lotus_fin/lotus_fin/cashflow/grounding.py`](file:///e:/lotus-fin/lotus_fin/lotus_fin/cashflow/grounding.py): Bộ thẩm định đối soát số liệu/ngày tháng và tuyên bố rủi ro theo regex.
+- [`lotus_fin/lotus_fin/cashflow/service.py`](file:///e:/lotus-fin/lotus_fin/lotus_fin/cashflow/service.py): Điều phối luồng dự báo, generic FORBIDDEN redaction và khóa single-flight.
 - [`lotus_fin/lotus_fin/security/access.py`](file:///e:/lotus-fin/lotus_fin/lotus_fin/security/access.py): Bổ sung `AI002_PERMITTED_REPORTS`, kiểm tra quyền báo cáo và tái thẩm quyền chứng cứ `verify_evidence_access`.
 - [`lotus_fin/lotus_fin/ai/observability.py`](file:///e:/lotus-fin/lotus_fin/lotus_fin/ai/observability.py): Đăng ký các mã lỗi mới của AI002 vào bộ lọc an toàn Zero-PII.
-- [`lotus_fin/lotus_fin/api/ai_insights.py`](file:///e:/lotus-fin/lotus_fin/lotus_fin/api/ai_insights.py): Endpoint REST API `@frappe.whitelist() get_ai002_cash_forecast`.
-- [`lotus_fin/lotus_fin/lotus_fin_ai/page/cash_forecast/`](file:///e:/lotus-fin/lotus_fin/lotus_fin/lotus_fin_ai/page/cash_forecast/): Giao diện người dùng Frappe Page (`cash_forecast.js`, `cash_forecast.json`, `cash_forecast.py`).
+- [`lotus_fin/lotus_fin/api/ai_insights.py`](file:///e:/lotus-fin/lotus_fin/lotus_fin/api/ai_insights.py): Endpoint REST API `@frappe.whitelist() get_ai002_cash_forecast` và `get_ai002_evidence`.
+- [`lotus_fin/lotus_fin/lotus_fin_ai/page/cash_forecast/`](file:///e:/lotus-fin/lotus_fin/lotus_fin/lotus_fin_ai/page/cash_forecast/): Giao diện người dùng Frappe Page (`cash_forecast.js`, `cash_forecast.json`, `cash_forecast.py`) với request generation token và UI sạch fixture toggle.
 
 ### 2. Bộ kiểm thử tự động
-- [`lotus_fin/lotus_fin/tests/test_cashflow_engine.py`](file:///e:/lotus-fin/lotus_fin/lotus_fin/tests/test_cashflow_engine.py): Bộ test kiểm tra 2 ca vàng (Gold Oracle) và các trường hợp biên toán học.
-- [`lotus_fin/lotus_fin/tests/test_cashflow_security.py`](file:///e:/lotus-fin/lotus_fin/lotus_fin/tests/test_cashflow_security.py): Bộ test bảo mật kiểm tra PII Canary, cách ly tenant, Generic Forbidden.
+- [`lotus_fin/lotus_fin/tests/test_cashflow_engine.py`](file:///e:/lotus-fin/lotus_fin/lotus_fin/tests/test_cashflow_engine.py): Bộ test kiểm tra 2 ca vàng (Gold Oracle), shortfall logic, và Trial Balance reconciliation.
+- [`lotus_fin/lotus_fin/tests/test_cashflow_security.py`](file:///e:/lotus-fin/lotus_fin/lotus_fin/tests/test_cashflow_security.py): Bộ test bảo mật kiểm tra PII Canary, cách ly tenant, Generic Forbidden, grounding validation, và fixture isolation.
 
 ### 3. Tài liệu bàn giao & Báo cáo kỹ thuật
 - [`docs/features/AI002/AI002_TECHNICAL_DOCUMENTATION.md`](file:///e:/lotus-fin/docs/features/AI002/AI002_TECHNICAL_DOCUMENTATION.md): Kiến trúc, luồng dữ liệu, thuật toán tất định, hợp đồng API và UI.
-- [`docs/features/AI002/AI002_SECURITY_SELF_ASSESSMENT.md`](file:///e:/lotus-fin/docs/features/AI002/AI002_SECURITY_SELF_ASSESSMENT.md): Bảng ma trận bảo mật INV-01 đến CG-SEC-05, mô hình đe dọa và biện pháp khắc phục.
+- [`docs/features/AI002/AI002_SECURITY_SELF_ASSESSMENT.md`](file:///e:/lotus-fin/docs/features/AI002/AI002_SECURITY_SELF_ASSESSMENT.md): Bảng ma trận bảo mật INV-01 đến CG-SEC-05, P0 invariants, mô hình đe dọa và minh chứng kiểm thử.
 - [`docs/features/AI002/AI002_TONG_HOP_KET_QUA_TRIEN_KHAI.md`](file:///e:/lotus-fin/docs/features/AI002/AI002_TONG_HOP_KET_QUA_TRIEN_KHAI.md): Bản tổng hợp chi tiết theo chuẩn workflow.
 
 ---
@@ -80,12 +88,12 @@ Toàn bộ các Phase từ **AI002-02 (Data Foundation)** đến **AI002-08 (Fea
    - Bench site: frontend (Migrated & Synchronized)
 
 2. Test Execution in Container:
-   Ran 82 tests in 7.054s
+   Ran 86 tests in 10.008s
    Result: OK (0 failures, 0 errors)
    Evaluation: 15/15 scenarios pass (100%)
 
 3. Local Unit Tests:
-   Ran 11 pure-Python tests in 0.013s
-   Result: OK
+   Ran 15 pure-Python tests in 0.182s
+   Result: OK (0 failures, 0 errors)
 ======================================================================
 ```

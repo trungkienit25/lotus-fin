@@ -262,11 +262,13 @@ def get_ai002_cash_forecast(
 	currency: str = "VND",
 	correlation_id: Optional[str] = None,
 	include_explanation: Union[bool, int, str] = False,
-	use_fixture_source: bool = False,
 ) -> Dict[str, Any]:
 	"""
 	[AI-F002 Cash-flow Forecast Copilot - Whitelisted API Endpoint]
 	Strict deterministic 30-day EOD cash forecast with bounded agentic AI explanation.
+	Security & Invariant:
+	- Client requests cannot enable fixture mode. Production always uses FailClosedSource.
+	- Fixture mode is only permissible in automated test harnesses under frappe.flags.in_test or dev test config.
 	"""
 	from datetime import datetime, date, timedelta
 	from lotus_fin.cashflow.models import ForecastRequest, CoverageScope
@@ -297,10 +299,10 @@ def get_ai002_cash_forecast(
 		correlation_id=correlation_id or "",
 	)
 
-	future_source = None
-	if use_fixture_source:
+	# Production default: fail closed (fixture source is never enabled via client parameter)
+	future_source = FailClosedSource()
+	if getattr(frappe.flags, "in_test", False) or getattr(frappe.flags, "ai002_use_fixture_source", False):
 		import os
-		# Resolve robustly whether running locally or inside docker container
 		candidate_paths = [
 			frappe.get_app_path("lotus_fin", "docs", "features", "AI002", "fixture_scripts", "direct_confirmed_commitments.json"),
 			os.path.abspath(os.path.join(frappe.get_app_path("lotus_fin"), "..", "docs", "features", "AI002", "fixture_scripts", "direct_confirmed_commitments.json")),
@@ -311,9 +313,8 @@ def get_ai002_cash_forecast(
 			if os.path.exists(cp):
 				fixture_path = cp
 				break
-		future_source = SyntheticFixtureSource(fixture_path)
-	else:
-		future_source = FailClosedSource()
+		if fixture_path:
+			future_source = SyntheticFixtureSource(fixture_path)
 
 	response = get_cash_forecast(
 		request=req,
@@ -322,4 +323,34 @@ def get_ai002_cash_forecast(
 	)
 
 	return response_to_dict(response)
+
+
+@frappe.whitelist()
+def get_ai002_evidence(
+	evidence_ref: str,
+	company: Optional[str] = None,
+) -> Dict[str, Any]:
+	"""
+	[AI-F002 Evidence Drilldown - CG-SEC-04]
+	Re-authorizes evidence document access on every drilldown / view action.
+	Fails closed with generic FORBIDDEN if unauthorized, cross-company, or nonexistent.
+	"""
+	from lotus_fin.security.access import verify_evidence_access, get_verified_company
+
+	verified_comp = get_verified_company(company) if company else None
+	verify_evidence_access(evidence_ref=evidence_ref, user=frappe.session.user, company=verified_comp)
+
+	parts = evidence_ref.split(":", 1)
+	doctype = parts[0].strip()
+	docname = parts[1].strip()
+
+	doc = frappe.get_doc(doctype, docname)
+	return {
+		"status": "success",
+		"evidence_ref": evidence_ref,
+		"doctype": doctype,
+		"name": docname,
+		"company": getattr(doc, "company", None),
+		"posting_date": str(getattr(doc, "posting_date", None) or getattr(doc, "transaction_date", None)),
+	}
 
