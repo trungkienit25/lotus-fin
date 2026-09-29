@@ -1,5 +1,5 @@
 import warnings
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional, Union, List
 import frappe
 from frappe import _
 from frappe.permissions import has_permission
@@ -251,4 +251,229 @@ def get_financial_snapshot(
 		frappe.message_log.clear()
 
 	return res
+
+
+@frappe.whitelist()
+def get_ai002_cash_account_scope(company: Optional[str] = None) -> Dict[str, Any]:
+	"""
+	[AI-F002 Fix C/D - Server-side Approved Cash Account Scope]
+	Resolves the approved cash_account_scope for a company under the caller's
+	Account read permissions: a permission-aware, fully paginated read of leaf
+	Bank/Cash accounts, checked against the approved Company configuration
+	(`ai002_approved_cash_accounts`). The browser never supplies or truncates the
+	scope; it only displays what the server resolved, together with the approval
+	status and the count of existing-but-unapproved accounts.
+	- status RESOLVED: approved configuration valid and fully visible.
+	- status NEEDS_REVIEW: approved configuration missing/invalid/stale — the UI
+	  must block the forecast.
+	- Missing Account read permission or partial Account visibility raises a
+	  generic FORBIDDEN (no account or company names in the error).
+	"""
+	from lotus_fin.cashflow.adapters import (
+		resolve_cash_account_scope,
+		ObligationSourceError,
+	)
+
+	verified_comp = get_verified_company(company)
+	try:
+		res = resolve_cash_account_scope(verified_comp)
+	except ObligationPermissionError:
+		frappe.throw(_("FORBIDDEN"), exc=frappe.PermissionError)
+	except ObligationSourceError:
+		frappe.throw(_("Cash account scope could not be resolved."))
+	return {
+		"status": res["status"],
+		"approval": res["approval"],
+		"company": verified_comp,
+		"scope": res["scope"],
+		"unapproved_excluded": res["unapproved_excluded"],
+		"total_cash_bank_accounts": res["total_cash_bank_accounts"],
+		"count": res["count"],
+	}
+
+
+@frappe.whitelist()
+def get_ai002_cash_forecast(
+	company: Optional[str] = None,
+	financial_as_of: Optional[str] = None,
+	forecast_start: Optional[str] = None,
+	forecast_end: Optional[str] = None,
+	currency: str = "VND",
+	correlation_id: Optional[str] = None,
+	include_explanation: Union[bool, int, str] = False,
+	cash_account_scope: Optional[Union[List[str], str]] = None,
+) -> Dict[str, Any]:
+	"""
+	[AI-F002 Cash-flow Forecast Copilot - Whitelisted API Endpoint]
+	Strict deterministic 30-day EOD cash forecast with bounded agentic AI explanation.
+	Security & Invariant:
+	- Client requests cannot enable fixture mode. Production always uses FailClosedSource.
+	- Fixture mode is only permissible in automated test harnesses under frappe.flags.in_test or dev test config.
+	"""
+	from datetime import datetime, date, timedelta
+	from lotus_fin.cashflow.models import ForecastRequest, CoverageScope, ForecastStatus, ReasonCode
+	from lotus_fin.cashflow.service import get_cash_forecast, response_to_dict, build_fail_closed_response
+	from lotus_fin.cashflow.source_interface import SyntheticFixtureSource, FailClosedSource
+
+	def _typed_fail_closed(status: ForecastStatus, reason_code: ReasonCode, limitation: str) -> Dict[str, Any]:
+		return response_to_dict(
+			build_fail_closed_response(
+				request=req,
+				status=status,
+				reason_code=reason_code,
+				limitation=limitation,
+				correlation_id=req.correlation_id,
+				include_company=False,
+			)
+		)
+
+	# Resolve dates (malformed input is a typed VALIDATION_ERROR, not a raw 500)
+	try:
+		as_of_date = datetime.strptime(financial_as_of, "%Y-%m-%d").date() if financial_as_of else (date.today() - timedelta(days=1))
+		start_date = datetime.strptime(forecast_start, "%Y-%m-%d").date() if forecast_start else (as_of_date + timedelta(days=1))
+		end_date = datetime.strptime(forecast_end, "%Y-%m-%d").date() if forecast_end else (start_date + timedelta(days=29))
+	except ValueError:
+		req = ForecastRequest(
+			company=company or "",
+			financial_as_of=None,
+			forecast_start=None,
+			forecast_end=None,
+			reporting_currency=currency,
+			correlation_id=correlation_id or "",
+		)
+		return _typed_fail_closed(
+			ForecastStatus.VALIDATION_ERROR,
+			ReasonCode.HORIZON_MISMATCH,
+			"Invalid date format; expected YYYY-MM-DD.",
+		)
+
+	want_explanation = False
+	if isinstance(include_explanation, bool):
+		want_explanation = include_explanation
+	elif isinstance(include_explanation, (int, float)):
+		want_explanation = bool(include_explanation)
+	elif isinstance(include_explanation, str):
+		want_explanation = include_explanation.strip().lower() in ["1", "true", "yes"]
+
+	# Parse cash_account_scope
+	scope_list: List[str] = []
+	if isinstance(cash_account_scope, list):
+		scope_list = [str(a).strip() for a in cash_account_scope if str(a).strip()]
+	elif isinstance(cash_account_scope, str) and cash_account_scope.strip():
+		import json
+		try:
+			parsed = json.loads(cash_account_scope)
+			if isinstance(parsed, list):
+				scope_list = [str(a).strip() for a in parsed if str(a).strip()]
+			else:
+				scope_list = [cash_account_scope.strip()]
+		except Exception:
+			scope_list = [cash_account_scope.strip()]
+
+	req = ForecastRequest(
+		company=company or "",
+		financial_as_of=as_of_date,
+		forecast_start=start_date,
+		forecast_end=end_date,
+		reporting_currency=currency,
+		cash_account_scope=scope_list,
+		coverage_scope=CoverageScope.TRADE_ONLY,
+		include_explanation=want_explanation,
+		correlation_id=correlation_id or "",
+	)
+
+	# Fix D: server-side authoritative scope resolution when the client does not
+	# supply one. Company authorization is verified BEFORE any scope query
+	# (generic FORBIDDEN, no company/account name leakage); a resolution failure
+	# fails closed instead of degrading the scope.
+	if not scope_list and company and str(company).strip():
+		from lotus_fin.cashflow.service import resolve_request_scope
+		from lotus_fin.cashflow.adapters import ObligationPermissionError
+		try:
+			scope_res = resolve_request_scope(str(company).strip())
+		except ObligationPermissionError:
+			return _typed_fail_closed(
+				ForecastStatus.FORBIDDEN,
+				ReasonCode.UNAUTHORIZED_ACCESS,
+				"Access Denied",
+			)
+		except Exception:
+			return _typed_fail_closed(
+				ForecastStatus.SOURCE_ERROR,
+				ReasonCode.DATA_PIPELINE_ERROR,
+				"Cash account scope could not be resolved.",
+			)
+		if scope_res.get("status") == "RESOLVED" and scope_res.get("scope"):
+			req.cash_account_scope = list(scope_res["scope"])
+
+	# Production default: fail closed (fixture source is never enabled via client parameter)
+	future_source = FailClosedSource()
+	if getattr(frappe.flags, "in_test", False) or getattr(frappe.flags, "ai002_use_fixture_source", False):
+		import os
+		candidate_paths = [
+			frappe.get_app_path("lotus_fin", "docs", "features", "AI002", "fixture_scripts", "direct_confirmed_commitments.json"),
+			os.path.abspath(os.path.join(frappe.get_app_path("lotus_fin"), "..", "docs", "features", "AI002", "fixture_scripts", "direct_confirmed_commitments.json")),
+			"/home/frappe/frappe-bench/apps/lotus_fin/docs/features/AI002/fixture_scripts/direct_confirmed_commitments.json",
+		]
+		fixture_path = None
+		for cp in candidate_paths:
+			if os.path.exists(cp):
+				fixture_path = cp
+				break
+		if fixture_path:
+			future_source = SyntheticFixtureSource(fixture_path)
+
+	try:
+		response = get_cash_forecast(
+			request=req,
+			user=frappe.session.user,
+			future_event_source=future_source,
+		)
+	except Exception:
+		# Defense-in-depth: the deterministic service owns typed failures; an
+		# unexpected exception must still never surface a raw traceback to the
+		# client. Return a typed fail-closed response with no financial payload.
+		frappe.log_error("AI002 cash forecast unexpected failure")
+		return _typed_fail_closed(
+			ForecastStatus.SOURCE_ERROR,
+			ReasonCode.DATA_PIPELINE_ERROR,
+			"Cash forecast could not be computed from the underlying sources.",
+		)
+
+	return response_to_dict(response)
+
+
+@frappe.whitelist()
+def get_ai002_evidence(
+	evidence_ref: str,
+	company: str,
+) -> Dict[str, Any]:
+	"""
+	[AI-F002 Evidence Drilldown - CG-SEC-04, Fix C]
+	Re-authorizes evidence document access on every drilldown / view action.
+	Requires non-empty company.
+	Fails closed with generic FORBIDDEN if unauthorized, cross-company, or nonexistent.
+	"""
+	from lotus_fin.security.access import verify_evidence_access, get_verified_company
+
+	if not company or not str(company).strip():
+		frappe.throw(_("FORBIDDEN"), exc=frappe.PermissionError)
+
+	verified_comp = get_verified_company(company)
+	verify_evidence_access(evidence_ref=evidence_ref, user=frappe.session.user, company=verified_comp)
+
+	parts = evidence_ref.split(":", 1)
+	doctype = parts[0].strip()
+	docname = parts[1].strip()
+
+	doc = frappe.get_doc(doctype, docname)
+	return {
+		"status": "success",
+		"evidence_ref": evidence_ref,
+		"doctype": doctype,
+		"name": docname,
+		"company": getattr(doc, "company", None),
+		"posting_date": str(getattr(doc, "posting_date", None) or getattr(doc, "transaction_date", None)),
+	}
+
 
