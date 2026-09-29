@@ -88,13 +88,16 @@ lotus_fin.cash_forecast.Controller = class Controller {
 							<span class="text-muted ml-2" style="font-size: 13px;">Timezone: Asia/Ho_Chi_Minh | Horizon: 30 Calendar Days</span>
 						</div>
 						<div id="cf-verification-badge">
-							<span class="badge badge-success" style="background-color: #2f855a; color: white; padding: 6px 12px;">Ledger Truth Verified</span>
+							<span class="badge badge-secondary" style="padding: 6px 12px;">Awaiting Data</span>
 						</div>
 					</div>
 				</div>
 
 				<!-- Alert Containers (Account Imbalance / Shortfall / Forbidden) -->
 				<div id="cf-alert-area"></div>
+
+				<!-- Server-resolved account scope banner (Fix C) -->
+				<div id="cf-scope-status" class="mb-3"></div>
 
 				<!-- Main 3-Tier Dashboard Grid -->
 				<div class="row">
@@ -212,9 +215,11 @@ lotus_fin.cash_forecast.Controller = class Controller {
 		// Clear prior-company data and DOM immediately
 		this.data = null;
 		$("#cf-alert-area").empty();
+		$("#cf-scope-status").empty();
 		$("#cf-opening-amount").text("-- VND");
 		$("#cf-reconciliation-status").text("");
 		$("#cf-account-breakdown").empty();
+		$("#cf-verification-badge").empty();
 		$("#cf-points-tbody").html('<tr><td colspan="4" class="text-center text-muted py-3">Loading forecast for selected company...</td></tr>');
 		$("#cf-obligations-tbody").html('<tr><td colspan="5" class="text-center text-muted py-3">Loading obligations...</td></tr>');
 		$("#cf-copilot-content").html('<p class="text-muted">Loading financial copilot...</p>');
@@ -232,53 +237,96 @@ lotus_fin.cash_forecast.Controller = class Controller {
 
 		const request_token = ++this.request_generation;
 
-		// Fetch explicit leaf cash/bank accounts for the selected company to populate cash_account_scope
-		frappe.db.get_list("Account", {
-			filters: {
-				company: company,
-				account_type: ["in", ["Bank", "Cash"]],
-				is_group: 0,
-				disabled: 0
-			},
-			fields: ["name"],
-			limit: 50
-		}).then(function (accounts) {
+		// Fix C: the server resolves the authoritative account scope (leaf
+		// Bank/Cash accounts, restricted cash excluded). The browser never
+		// supplies, truncates or caps the scope.
+		frappe.call({
+			method: "lotus_fin.api.ai_insights.get_ai002_cash_account_scope",
+			args: { company: company }
+		}).then(function (r) {
 			if (request_token !== me.request_generation) {
+				// Stale scope response after company/request change: discard
 				return;
 			}
-			const account_scope = (accounts || []).map(a => a.name);
+			if (r.exc) {
+				me.render_error("Failed to resolve the cash account scope.");
+				return;
+			}
+			const scope = r.message;
+			if (!scope || scope.status !== "RESOLVED" || !Array.isArray(scope.scope) || scope.scope.length === 0) {
+				// Fail closed: never run the forecast with an incomplete/unverifiable account set
+				me.render_scope_needs_review(scope || {});
+				return;
+			}
+			me.render_scope_banner(scope);
 
-			frappe.call({
+			return frappe.call({
 				method: "lotus_fin.api.ai_insights.get_ai002_cash_forecast",
 				args: {
 					company: company,
 					financial_as_of: as_of,
 					currency: "VND",
-					include_explanation: want_explanation,
-					cash_account_scope: account_scope,
-				},
-				callback: function (r) {
-					// Race condition & company switch check: Discard stale responses
-					if (request_token !== me.request_generation) {
-						return;
-					}
-					if (r.exc) {
-						me.render_error("Server error executing cash forecast.");
-						return;
-					}
-					const resp = r.message;
-					if (resp && resp.verified_company && resp.verified_company !== me.company_field.get_value()) {
-						return;
-					}
-					me.data = resp;
-					me.render_dashboard(resp);
+					include_explanation: want_explanation
 				}
+			}).then(function (r2) {
+				// Race condition & company switch check: Discard stale responses
+				if (request_token !== me.request_generation) {
+					return;
+				}
+				if (r2.exc) {
+					me.render_error("Server error executing cash forecast.");
+					return;
+				}
+				const resp = r2.message;
+				if (resp && resp.verified_company && resp.verified_company !== me.company_field.get_value()) {
+					return;
+				}
+				me.data = resp;
+				me.render_dashboard(resp);
 			});
 		}).catch(function () {
 			if (request_token === me.request_generation) {
-				me.render_error("Failed to load cash accounts for company.");
+				me.render_error("Failed to load cash forecast data.");
 			}
 		});
+	}
+
+	render_scope_banner(scope) {
+		const el = $("#cf-scope-status").empty();
+		const count = (scope.count !== undefined && scope.count !== null)
+			? scope.count
+			: (scope.scope ? scope.scope.length : 0);
+		const approval = scope.approval || "APPROVED";
+		let html = '<span class="badge badge-success" style="font-size: 12px; background-color: #2f855a; color: white; padding: 4px 10px;">' +
+			'Cash Scope: ' + count + ' approved account(s) — ' + approval + '</span>';
+		if (scope.unapproved_excluded && scope.unapproved_excluded.length > 0) {
+			html += ' <span class="badge badge-warning" style="font-size: 12px; padding: 4px 10px;">' +
+				scope.unapproved_excluded.length + ' unapproved account(s) excluded</span>';
+		}
+		el.html(html);
+	}
+
+	render_scope_needs_review(scope) {
+		const approval = scope.approval || "MISSING_CONFIG";
+		const reasons = {
+			MISSING_CONFIG: "No approved cash/bank account scope is configured for this company.",
+			INVALID_CONFIG: "The approved cash/bank account scope configuration is empty or malformed.",
+			STALE_CONFIG: "The approved cash/bank account scope references accounts that no longer exist or are no longer enabled leaf Bank/Cash accounts."
+		};
+		const reason = reasons[approval] || "The approved cash/bank account scope could not be confirmed.";
+		$("#cf-scope-status").html(
+			'<div class="alert alert-warning p-3" style="border-radius: 6px;">' +
+			'<strong>Cash Account Scope Needs Review (' + approval + ')</strong><br/>' +
+			reason + ' The forecast is blocked until a finance administrator approves the ' +
+			'account scope on the Company record.</div>'
+		);
+		$("#cf-opening-amount").text("-- VND");
+		$("#cf-reconciliation-status").text("");
+		$("#cf-account-breakdown").empty();
+		$("#cf-verification-badge").html('<span class="badge" style="background-color: #b7791f; color: white; padding: 6px 12px;">Scope Needs Review</span>');
+		$("#cf-points-tbody").html('<tr><td colspan="4" class="text-center text-muted py-3">Forecast blocked: account scope needs review.</td></tr>');
+		$("#cf-obligations-tbody").html('<tr><td colspan="5" class="text-center text-muted py-3">Forecast blocked: account scope needs review.</td></tr>');
+		$("#cf-copilot-content").html('<p class="text-muted">Resolve the cash account scope to enable the forecast.</p>');
 	}
 
 	render_dashboard(resp) {
@@ -297,11 +345,65 @@ lotus_fin.cash_forecast.Controller = class Controller {
 			$("#cf-opening-amount").text("-- VND");
 			$("#cf-reconciliation-status").text("");
 			$("#cf-account-breakdown").empty();
+			$("#cf-verification-badge").empty();
 			$("#cf-points-tbody").html('<tr><td colspan="4" class="text-center text-muted py-3">Access forbidden.</td></tr>');
 			$("#cf-obligations-tbody").html('<tr><td colspan="5" class="text-center text-muted py-3">Access forbidden.</td></tr>');
 			$("#cf-copilot-content").html('<p class="text-muted">Access forbidden.</p>');
 			return;
 		}
+
+		// Typed failure states (SSOT §12): never present financial numbers as verified
+		if (resp.status === "SOURCE_ERROR" || resp.status === "TIMEOUT") {
+			alertArea.html(`
+				<div class="alert alert-danger p-3" style="border-radius: 6px;">
+					<h5 style="margin-top:0;">Financial Data Source Error</h5>
+					<p>A required data source (AR / AP / Trial Balance) failed or could not be read.
+					No forecast was computed — source failures are never reported as zero.</p>
+					<p class="text-muted mb-0" style="font-size: 12px;">${(resp.limitations && resp.limitations[0]) || "Financial data source unavailable."}</p>
+				</div>
+			`);
+			$("#cf-opening-amount").text("-- VND");
+			$("#cf-reconciliation-status").text("");
+			$("#cf-account-breakdown").empty();
+			$("#cf-verification-badge").html('<span class="badge" style="background-color: #c53030; color: white; padding: 6px 12px;">Source Data Error</span>');
+			$("#cf-points-tbody").html('<tr><td colspan="4" class="text-center text-muted py-3">Forecast blocked: source data error.</td></tr>');
+			$("#cf-obligations-tbody").html('<tr><td colspan="5" class="text-center text-muted py-3">Forecast blocked: source data error.</td></tr>');
+			$("#cf-copilot-content").html('<p class="text-muted">Resolve the data source error and retry.</p>');
+			return;
+		}
+
+		if (resp.status === "INSUFFICIENT_DATA" || resp.status === "INCONSISTENT_DATA") {
+			const isInconsistent = resp.status === "INCONSISTENT_DATA";
+			alertArea.html(`
+				<div class="alert ${isInconsistent ? 'alert-danger' : 'alert-warning'} p-3" style="border-radius: 6px;">
+					<h5 style="margin-top:0;">${isInconsistent ? "Ledger Data Inconsistent" : "Opening Cash Not Verified"}</h5>
+					<p>${isInconsistent
+						? "The General Ledger could not be reconciled with the independent Trial Balance for the authorized account set. The forecast is blocked."
+						: "Opening cash reconciliation evidence is unavailable, so no forecast point or shortfall can be computed from it."}</p>
+					<p class="text-muted mb-0" style="font-size: 12px;">${(resp.limitations && resp.limitations[0]) || ""}</p>
+				</div>
+			`);
+			if (resp.opening_cash) {
+				$("#cf-opening-amount").text(`${format_currency(resp.opening_cash.aggregate_amount)} ${resp.currency}`);
+				$("#cf-reconciliation-status").text(resp.opening_cash.reconciliation);
+			}
+			$("#cf-verification-badge").html(isInconsistent
+				? '<span class="badge" style="background-color: #c53030; color: white; padding: 6px 12px;">Ledger Inconsistent</span>'
+				: '<span class="badge" style="background-color: #b7791f; color: white; padding: 6px 12px;">Ledger Unverified</span>');
+			$("#cf-points-tbody").html('<tr><td colspan="4" class="text-center text-muted py-3">Forecast blocked: opening cash not verified.</td></tr>');
+			$("#cf-obligations-tbody").html('<tr><td colspan="5" class="text-center text-muted py-3">Forecast blocked: opening cash not verified.</td></tr>');
+			$("#cf-copilot-content").html('<p class="text-muted">Reconcile the ledger, then recompute the forecast.</p>');
+			return;
+		}
+
+		// Dynamic verification badge (Fix B): "verified" is claimed only when the
+		// opening cash actually reconciled with the independent Trial Balance.
+		const recon = resp.opening_cash ? resp.opening_cash.reconciliation : null;
+		const isLedgerVerified = recon === "ERP_GL_EQUALS_TRIAL_BALANCE_NOT_BANK_RECONCILED"
+			|| recon === "ERP_GL_EQUALS_TRIAL_BALANCE_INTRADAY_UNCLOSED";
+		$("#cf-verification-badge").html(isLedgerVerified
+			? '<span class="badge badge-success" style="background-color: #2f855a; color: white; padding: 6px 12px;">Ledger Truth Verified</span>'
+			: '<span class="badge" style="background-color: #b7791f; color: white; padding: 6px 12px;">Ledger Unverified</span>');
 
 		// Check Shortfall Alerts
 		if (resp.shortfall_events && resp.shortfall_events.length > 0) {

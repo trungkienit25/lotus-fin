@@ -40,6 +40,10 @@ fixtures = [
 	{
 		"doctype": "Custom HTML Block",
 		"filters": [["name", "in", ["Lotus Fin AI Widget"]]]
+	},
+	{
+		"doctype": "Custom Field",
+		"filters": [["name", "in", ["Company-ai002_approved_cash_accounts"]]]
 	}
 ]
 

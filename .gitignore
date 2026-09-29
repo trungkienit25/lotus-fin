@@ -19,6 +19,15 @@ output/
 temp/
 */temp/
 
+# Python build artifacts (never commit)
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Local data dumps & scratch areas (never commit)
+data/
+/lotus-fin/
+
 # OS & IDE
 .DS_Store
 Thumbs.db

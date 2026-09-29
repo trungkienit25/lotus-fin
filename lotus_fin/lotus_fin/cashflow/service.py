@@ -18,6 +18,10 @@ from .adapters import (
     get_opening_cash_ledger,
     get_trade_obligations,
     get_future_cash_events,
+    resolve_cash_account_scope,
+    ObligationSourceError,
+    ObligationPermissionError,
+    VERIFIED_RECONCILIATION_STATUSES,
 )
 from .engine import compute_forecast
 from .source_interface import FutureEventSource, FailClosedSource
@@ -31,11 +35,88 @@ from .cache import (
 
 try:
     import frappe
+    from lotus_fin.security.access import get_verified_company
     from lotus_fin.ai.observability import log_ai002_event
 except ImportError:
     frappe = None
+    get_verified_company = None
     def log_ai002_event(**kwargs):
         return {}
+
+
+def build_fail_closed_response(
+    request: ForecastRequest,
+    status: ForecastStatus,
+    reason_code: ReasonCode,
+    limitation: str,
+    correlation_id: str,
+    include_company: bool = False,
+) -> ForecastResponse:
+    """
+    Build a typed fail-closed response with NO financial payload
+    (no opening cash, obligations, events, points or shortfall).
+    Used for FORBIDDEN / SOURCE_ERROR / TIMEOUT outcomes per SSOT §12.
+    """
+    return ForecastResponse(
+        status=status,
+        reason_code=reason_code,
+        verified_company=request.company if include_company else "",
+        financial_as_of=request.financial_as_of,
+        accounting_timezone="Asia/Ho_Chi_Minh",
+        forecast_start=request.forecast_start,
+        forecast_end=request.forecast_end,
+        currency=request.reporting_currency,
+        limitations=[limitation],
+        correlation_id=correlation_id,
+    )
+
+
+def resolve_request_scope(company: str, user: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Fix D (round 5): verify company authorization BEFORE any account-scope query,
+    then resolve the approved scope under the caller's Account read permissions.
+    Raises ObligationPermissionError (generic "Access Denied" — no company or
+    account names) when the caller is not authorized for the company or cannot
+    read the Account doctype/records, and ObligationSourceError when the
+    authorized scope cannot be resolved.
+    """
+    if get_verified_company is None:
+        raise ObligationSourceError("Authorization primitives are unavailable.")
+    try:
+        verified_company = get_verified_company(company, user=user)
+    except Exception as e:
+        raise ObligationPermissionError("Access Denied") from e
+    try:
+        return resolve_cash_account_scope(verified_company, user=user)
+    except ObligationPermissionError:
+        # Preserve the typed permission failure (mapped to generic FORBIDDEN upstream)
+        raise
+    except Exception as e:
+        raise ObligationSourceError(
+            "Cash account scope could not be resolved."
+        ) from e
+
+
+def _resolve_active_user(user: Optional[str]) -> str:
+    active_user = user
+    if not active_user and frappe:
+        try:
+            if hasattr(frappe, "session") and frappe.session and hasattr(frappe.session, "user") and frappe.session.user:
+                active_user = frappe.session.user
+        except Exception:
+            active_user = None
+    return active_user or "Administrator"
+
+
+def _telemetry_source_status(source: Any, cash_events: List[Any]) -> str:
+    """
+    SSOT §10: an authorized, successful, correctly scoped empty read may be
+    VERIFIED_ZERO_RECORDS; a fail-closed default source with no verified
+    production connector is NOT_AVAILABLE — never a verified zero.
+    """
+    if isinstance(source, FailClosedSource):
+        return "NOT_AVAILABLE"
+    return "VERIFIED" if cash_events else "VERIFIED_ZERO_RECORDS"
 
 
 def get_cash_forecast(
@@ -50,23 +131,17 @@ def get_cash_forecast(
     - Zero-is-not-error invariant
     - Server-side authorization & validation
     - O(N) in-memory Decimal running sum
-    - Fail-closed behavior
+    - Fail-closed behavior:
+        * AR/AP source errors -> typed SOURCE_ERROR (never zero/empty-leg)
+        * AR/AP permission denial -> generic FORBIDDEN
+        * unverified opening cash reconciliation -> no forecast points/shortfall
     - If no confirmed future cash events exist, returns FORECAST_UNAVAILABLE with reason_code NO_CONFIRMED_SETTLEMENT_EVENTS
+    - Fail-closed and error responses are never cached; a later call re-reads the sources
     """
     start_time = time.time()
     correlation_id = request.correlation_id or str(uuid.uuid4())
     request.correlation_id = correlation_id
-    
-    # Safe user resolution across both web requests and standalone script/test execution
-    active_user = user
-    if not active_user and frappe:
-        try:
-            if hasattr(frappe, "session") and frappe.session and hasattr(frappe.session, "user") and frappe.session.user:
-                active_user = frappe.session.user
-        except Exception:
-            active_user = None
-    if not active_user:
-        active_user = "Administrator"
+    active_user = _resolve_active_user(user)
 
     # 1. Validation & Server Authorization
     is_valid, reason_code, error_msg = validate_forecast_request(request, user=active_user)
@@ -116,21 +191,91 @@ def get_cash_forecast(
     flight_acquired = acquire_single_flight(f"{request.company}:{request.financial_as_of}:{source_mode}")
 
     try:
-        # 3. Data Gathering (Opening cash & obligations)
-        opening_cash = get_opening_cash_ledger(
-            company=request.company,
-            as_of=request.financial_as_of,
-            account_scope=request.cash_account_scope,
-            currency=request.reporting_currency,
-        )
+        # 3. Data Gathering (Opening cash & obligations) — typed fail-closed errors
+        try:
+            opening_cash = get_opening_cash_ledger(
+                company=request.company,
+                as_of=request.financial_as_of,
+                account_scope=request.cash_account_scope,
+                currency=request.reporting_currency,
+            )
 
-        obligations = get_trade_obligations(
-            company=request.company,
-            as_of=request.financial_as_of,
-            currency=request.reporting_currency,
-        )
+            obligations = get_trade_obligations(
+                company=request.company,
+                as_of=request.financial_as_of,
+                currency=request.reporting_currency,
+            )
+        except ObligationPermissionError:
+            # SSOT §12: permission denied is generic FORBIDDEN with no financial payload
+            log_ai002_event(
+                event_type="ai002_forecast_rejected",
+                correlation_id=correlation_id,
+                status=ForecastStatus.FORBIDDEN.value,
+                error_class="PermissionError",
+                latency_ms=(time.time() - start_time) * 1000,
+            )
+            return build_fail_closed_response(
+                request=request,
+                status=ForecastStatus.FORBIDDEN,
+                reason_code=ReasonCode.UNAUTHORIZED_ACCESS,
+                limitation="Access Denied",
+                correlation_id=correlation_id,
+                include_company=False,
+            )
+        except ObligationSourceError as e:
+            # SSOT §12: preserve typed source failure, never map to zero;
+            # error text carries no party/invoice/amount. Not cached.
+            log_ai002_event(
+                event_type="ai002_forecast_rejected",
+                correlation_id=correlation_id,
+                status=ForecastStatus.SOURCE_ERROR.value,
+                error_class="SourceError",
+                latency_ms=(time.time() - start_time) * 1000,
+            )
+            return build_fail_closed_response(
+                request=request,
+                status=ForecastStatus.SOURCE_ERROR,
+                reason_code=ReasonCode.DATA_PIPELINE_ERROR,
+                limitation=f"Financial data source unavailable: {e}",
+                correlation_id=correlation_id,
+                include_company=True,
+            )
 
-        # 4. Future settlement events
+        # 4. Fix B gate: opening cash must be verified against the independent
+        # Trial Balance BEFORE any response branch — including the no-events
+        # FORECAST_UNAVAILABLE baseline. Unverified financial data is never
+        # returned or cached as a valid result.
+        if opening_cash.reconciliation not in VERIFIED_RECONCILIATION_STATUSES:
+            if opening_cash.reconciliation == "INCONSISTENT_DATA":
+                status = ForecastStatus.INCONSISTENT_DATA
+                limitation = (
+                    "Opening cash GL could not be reconciled with the independent "
+                    "Trial Balance for the authorized account set; forecast computation is blocked."
+                )
+            else:
+                status = ForecastStatus.INSUFFICIENT_DATA
+                limitation = (
+                    "Opening cash reconciliation evidence is unavailable; "
+                    "forecast computation is blocked."
+                )
+            log_ai002_event(
+                event_type="ai002_forecast_rejected",
+                correlation_id=correlation_id,
+                status=status.value,
+                error_class="ReconciliationError",
+                latency_ms=(time.time() - start_time) * 1000,
+            )
+            # Not cached: a later call re-reads and may succeed
+            return build_fail_closed_response(
+                request=request,
+                status=status,
+                reason_code=ReasonCode.DATA_PIPELINE_ERROR,
+                limitation=limitation,
+                correlation_id=correlation_id,
+                include_company=True,
+            )
+
+        # 5. Future settlement events
         source = future_event_source or FailClosedSource()
         cash_events = get_future_cash_events(
             company=request.company,
@@ -141,7 +286,7 @@ def get_cash_forecast(
             financial_as_of=request.financial_as_of,
         )
 
-        # 5. Contractual Rule: If no confirmed future cash events -> FORECAST_UNAVAILABLE
+        # 6. Contractual Rule: If no confirmed future cash events -> FORECAST_UNAVAILABLE
         limitations: List[str] = [
             "Future event source is synthetic fixture-only or unverified, not a verified production connector",
             "Business obligation coverage incomplete (TRADE_ONLY scope)",
@@ -185,7 +330,7 @@ def get_cash_forecast(
                 event_type="ai002_forecast_completed",
                 correlation_id=correlation_id,
                 status=ForecastStatus.FORECAST_UNAVAILABLE.value,
-                source_status="VERIFIED_ZERO",
+                source_status=_telemetry_source_status(source, cash_events),
                 coverage_scope="TRADE_ONLY",
                 record_count=len(obligations),
                 latency_ms=(time.time() - start_time) * 1000,
@@ -193,7 +338,7 @@ def get_cash_forecast(
             set_cached_response(cache_key, response)
             return response
 
-        # 6. Compute Deterministic Running Sum
+        # 7. Compute Deterministic Running Sum (opening cash is verified above)
         forecast_points, shortfall_events = compute_forecast(
             opening_cash=opening_cash,
             cash_events=cash_events,
@@ -229,7 +374,7 @@ def get_cash_forecast(
             correlation_id=correlation_id,
         )
 
-        # 7. Optional bounded AI Copilot explanation
+        # 8. Optional bounded AI Copilot explanation
         if request.include_explanation:
             from .agent import explain_cash_forecast
             response.explanation = explain_cash_forecast(response)
@@ -238,7 +383,7 @@ def get_cash_forecast(
             event_type="ai002_forecast_completed",
             correlation_id=correlation_id,
             status=ForecastStatus.PARTIAL.value,
-            source_status="OK",
+            source_status=_telemetry_source_status(source, cash_events),
             coverage_scope="TRADE_ONLY",
             record_count=len(cash_events),
             latency_ms=(time.time() - start_time) * 1000,

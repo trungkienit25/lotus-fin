@@ -1,6 +1,7 @@
 from datetime import date, timedelta
 from typing import Optional, Tuple
 from .models import ForecastRequest, ReasonCode, CoverageScope
+from .adapters import resolve_cash_account_scope, ObligationPermissionError
 
 try:
     import frappe
@@ -49,7 +50,22 @@ def validate_forecast_request(request: ForecastRequest, user: Optional[str] = No
             except Exception:
                 return False, ReasonCode.UNAUTHORIZED_ACCESS, "FORBIDDEN"
 
-        # Validate explicit account scope
+        # Round 5: the client-supplied scope must EXACTLY match the approved
+        # company scope. Unapproved/restricted accounts can never enter and
+        # approved accounts cannot be silently dropped by the client.
+        try:
+            scope_res = resolve_cash_account_scope(request.company, user=user)
+        except ObligationPermissionError:
+            return False, ReasonCode.UNAUTHORIZED_ACCESS, "FORBIDDEN"
+        except Exception:
+            return False, ReasonCode.DATA_PIPELINE_ERROR, "Approved cash account scope could not be verified."
+        if scope_res.get("status") != "RESOLVED" or not scope_res.get("scope"):
+            return False, ReasonCode.DATA_PIPELINE_ERROR, "Approved cash account scope is not configured for this company."
+        if set(request.cash_account_scope) != set(scope_res["scope"]):
+            return False, ReasonCode.DATA_PIPELINE_ERROR, "cash_account_scope does not match the approved scope for this company."
+
+        # Validate explicit account scope (defense in depth on top of the
+        # approved-scope equality check)
         for acc in request.cash_account_scope:
             acc_data = frappe.db.get_value(
                 "Account",

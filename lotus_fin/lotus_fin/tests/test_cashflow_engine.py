@@ -2,6 +2,7 @@ import unittest
 import os
 from datetime import date, timedelta
 from decimal import Decimal
+from unittest.mock import patch
 
 from lotus_fin.cashflow.models import (
     ForecastRequest,
@@ -52,7 +53,24 @@ class TestCashflowEnginePurePython(unittest.TestCase):
         """
         Gold Case 1: Strict baseline with no confirmed future events.
         Expected: FORECAST_UNAVAILABLE, reason NO_CONFIRMED_SETTLEMENT_EVENTS, forecast_points empty.
+        Adapter evidence is injected explicitly: the no-DB runtime path now fails
+        closed, so a service-level run must be driven by verified fixture inputs
+        instead of silently-zeroed adapters.
         """
+        verified_opening = OpeningCash(
+            aggregate_amount=Decimal("11550000"),
+            reconciliation="ERP_GL_EQUALS_TRIAL_BALANCE_NOT_BANK_RECONCILED",
+            has_constituent_deficit=False,
+            accounts=[
+                AccountBalance(
+                    account="Cash - A2F",
+                    amount=Decimal("11550000"),
+                    currency="VND",
+                    deficit=False,
+                )
+            ],
+        )
+
         request = ForecastRequest(
             company="AI002 Fixture 2026",
             financial_as_of=self.as_of,
@@ -63,13 +81,19 @@ class TestCashflowEnginePurePython(unittest.TestCase):
             coverage_scope=CoverageScope.TRADE_ONLY,
         )
 
-        # Mocking opening cash to gold fixture value: 11,550,000 VND
-        response = get_cash_forecast(
-            request=request,
-            user="Administrator",
-            future_event_source=FailClosedSource(),
-            skip_cache=True,
-        )
+        with patch(
+            "lotus_fin.cashflow.service.validate_forecast_request",
+            return_value=(True, None, None),
+        ), patch(
+            "lotus_fin.cashflow.service.get_opening_cash_ledger",
+            return_value=verified_opening,
+        ), patch("lotus_fin.cashflow.service.get_trade_obligations", return_value=[]):
+            response = get_cash_forecast(
+                request=request,
+                user="Administrator",
+                future_event_source=FailClosedSource(),
+                skip_cache=True,
+            )
 
         self.assertEqual(response.status, ForecastStatus.FORECAST_UNAVAILABLE)
         self.assertEqual(response.reason_code, ReasonCode.NO_CONFIRMED_SETTLEMENT_EVENTS)
@@ -360,12 +384,23 @@ class TestCashflowEnginePurePython(unittest.TestCase):
         self.assertTrue(opening.has_constituent_deficit)
         self.assertEqual(opening.aggregate_amount, Decimal("-5000000"))
 
-    def test_trial_balance_reconciled_when_gl_equals_tb(self):
-        """Fix B2: GL == TB -> RECONCILED status."""
+    def test_no_db_opening_cash_is_never_reconciled(self):
+        """Fix B: Without a Frappe DB there is no ledger evidence, so the adapter
+        must never fabricate a reconciled label (old behavior returned
+        TRIAL_BALANCE_RECONCILED with 0 VND in mock mode)."""
         from lotus_fin.cashflow.adapters import get_opening_cash_ledger
-        opening = get_opening_cash_ledger("AI002 Fixture 2026", self.as_of, account_scope=["Cash - A2F"])
-        self.assertIn(opening.reconciliation, ("TRIAL_BALANCE_RECONCILED", "ERP_GL_EQUALS_TRIAL_BALANCE_NOT_BANK_RECONCILED"))
-        self.assertIn(opening.aggregate_amount, (Decimal("0"), Decimal("11550000")))
+        with patch("lotus_fin.cashflow.adapters.frappe", None):
+            opening = get_opening_cash_ledger("AI002 Fixture 2026", self.as_of, account_scope=["Cash - A2F"])
+        self.assertEqual(opening.reconciliation, "RECONCILIATION_UNAVAILABLE")
+        self.assertEqual(opening.aggregate_amount, Decimal("0"))
+
+    def test_no_db_trade_obligations_fail_closed(self):
+        """Fix A: Without a Frappe DB, reading trade obligations must raise a typed
+        error — returning [] would falsely claim a verified zero."""
+        from lotus_fin.cashflow.adapters import get_trade_obligations, ObligationSourceError
+        with patch("lotus_fin.cashflow.adapters.frappe", None):
+            with self.assertRaises(ObligationSourceError):
+                get_trade_obligations("AI002 Fixture 2026", as_of=self.as_of)
 
     def test_trial_balance_empty_scope_fails_closed(self):
         """Fix B2: get_opening_cash_ledger returns RECONCILIATION_UNAVAILABLE when account_scope is empty."""
@@ -374,15 +409,28 @@ class TestCashflowEnginePurePython(unittest.TestCase):
         self.assertEqual(opening.reconciliation, "RECONCILIATION_UNAVAILABLE")
         self.assertEqual(opening.aggregate_amount, Decimal("0"))
 
-    def test_trade_obligations_point_in_time_query(self):
-        """Fix E: Verify get_trade_obligations executes point-in-time report filters without exception."""
-        from lotus_fin.cashflow.adapters import get_trade_obligations
-        obs = get_trade_obligations("AI002 Fixture 2026", as_of=self.as_of)
-        self.assertIsInstance(obs, list)
-        for ob in obs:
-            self.assertIn(ob.type, ("AR", "AP"))
-            self.assertGreater(ob.remaining_amount, Decimal("0"))
-            self.assertTrue(ob.source_ref.startswith(("Sales Invoice:", "Purchase Invoice:")))
+    def test_no_db_service_fails_closed_typed(self):
+        """Fix A: A no-DB service run must return a typed SOURCE_ERROR response —
+        the old path silently zeroed AR/AP and returned FORECAST_UNAVAILABLE."""
+        request = ForecastRequest(
+            company="AI002 Fixture 2026",
+            financial_as_of=self.as_of,
+            forecast_start=self.start,
+            forecast_end=self.end,
+            reporting_currency="VND",
+            cash_account_scope=["Cash - A2F"],
+        )
+        # Force the no-DB adapter path deterministically in any environment;
+        # request validation is exercised separately (approved-scope check)
+        with patch(
+            "lotus_fin.cashflow.service.validate_forecast_request",
+            return_value=(True, None, None),
+        ), patch("lotus_fin.cashflow.adapters.frappe", None):
+            response = get_cash_forecast(request, user="Administrator", skip_cache=True)
+        self.assertEqual(response.status, ForecastStatus.SOURCE_ERROR)
+        self.assertEqual(response.reason_code, ReasonCode.DATA_PIPELINE_ERROR)
+        self.assertEqual(len(response.forecast_points), 0)
+        self.assertEqual(len(response.obligations), 0)
 
 
 if __name__ == "__main__":
