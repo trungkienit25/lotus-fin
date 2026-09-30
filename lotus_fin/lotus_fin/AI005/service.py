@@ -266,8 +266,15 @@ class FinancingService:
 # FRAPPE WHITELISTED ENDPOINTS
 # ==========================================================
 
+def frappe_whitelisted(func):
+    if HAS_FRAPPE and hasattr(frappe, "whitelist"):
+        return frappe.whitelist()(func)
+    return func
+
+
 _service_instance = FinancingService()
 
+@frappe_whitelisted
 def ask_copilot(company: str, query: str) -> Dict[str, Any]:
     """
     Whitelisted Copilot NLU endpoint for Natural Language Financing Requests.
@@ -285,6 +292,7 @@ def ask_copilot(company: str, query: str) -> Dict[str, Any]:
     )
 
 
+@frappe_whitelisted
 def match_financing(
     company: str,
     amount: float,
@@ -317,6 +325,7 @@ def match_financing(
     )
 
 
+@frappe_whitelisted
 def simulate_what_if(
     company: str,
     sales_change_pct: float = 0.0,

@@ -24,9 +24,29 @@ class TestAccessAndReports(unittest.TestCase):
 	def setUpClass(cls):
 		frappe.init(site="frontend")
 		frappe.connect()
-		cls.demo_company = "Name (Demo)"
-		cls.empty_company = "Name"
+		demo_comp = frappe.db.get_value("GL Entry", {}, "company") or frappe.db.get_value("Company", {"name": ["like", "%Demo%"]}, "name")
+		empty_comp = frappe.db.get_value("Company", {"name": ["not like", "%Demo%"]}, "name")
+		cls.demo_company = demo_comp or "Lotus-fin (Demo)"
+		cls.empty_company = empty_comp or "Lotus-fin"
 		cls.test_user = "longmac321@gmail.com"
+
+		sample_date = frappe.db.get_value("GL Entry", {"company": cls.demo_company}, "posting_date")
+		cls.demo_year = str(sample_date)[:4] if sample_date else "2020"
+		cls.p_start = f"{cls.demo_year}-01-01"
+		cls.p_end = f"{cls.demo_year}-12-31"
+
+		if not frappe.db.exists("User", cls.test_user):
+			u = frappe.get_doc({
+				"doctype": "User",
+				"email": cls.test_user,
+				"first_name": "Test User",
+				"enabled": 1,
+				"roles": [{"role": "Accounts User"}]
+			})
+			u.flags.ignore_permissions = True
+			u.flags.ignore_password_policy = True
+			u.insert()
+			frappe.db.commit()
 
 	def setUp(self):
 		frappe.set_user("Administrator")
@@ -208,7 +228,7 @@ class TestAccessAndReports(unittest.TestCase):
 
 	def test_get_financial_snapshot_endpoint_structure(self):
 		"""get_financial_snapshot returns structured FinancialSnapshot and EvidenceRefs."""
-		res = get_financial_snapshot(company=self.demo_company, period_start="2020-01-01", period_end="2020-12-31")
+		res = get_financial_snapshot(company=self.demo_company, period_start=self.p_start, period_end=self.p_end)
 		self.assertEqual(res["status"], "OK")
 		self.assertEqual(res["company"], self.demo_company)
 		self.assertEqual(res["feature_id"], "AI001")
@@ -218,8 +238,8 @@ class TestAccessAndReports(unittest.TestCase):
 		self.assertEqual(res["explanation"]["status"], "UNAVAILABLE")
 
 	def test_get_financial_snapshot_live_gold_reconciliation(self):
-		"""Verify live ERPNext report execution matches known gold exactly for Name (Demo) FY2020."""
-		res = get_financial_snapshot(company=self.demo_company, period_start="2020-01-01", period_end="2020-12-31")
+		"""Verify live ERPNext report execution matches known gold exactly for demo period."""
+		res = get_financial_snapshot(company=self.demo_company, period_start=self.p_start, period_end=self.p_end)
 		self.assertEqual(res["status"], "OK")
 
 		metrics = {m["metric_id"]: m["value"] for m in res["metrics"]}
@@ -234,30 +254,31 @@ class TestAccessAndReports(unittest.TestCase):
 		# Verify exact evidence refs filters
 		ev_map = {e["source_name"]: e["filters"] for e in res["evidence_refs"]}
 		self.assertIn("report_date", ev_map["Accounts Receivable"])
-		self.assertEqual(ev_map["Accounts Receivable"]["report_date"], "2020-12-31")
+		self.assertEqual(ev_map["Accounts Receivable"]["report_date"], self.p_end)
 		self.assertIn("report_date", ev_map["Accounts Payable"])
-		self.assertEqual(ev_map["Accounts Payable"]["report_date"], "2020-12-31")
+		self.assertEqual(ev_map["Accounts Payable"]["report_date"], self.p_end)
 		self.assertIn("period_start_date", ev_map["Profit and Loss Statement"])
 		self.assertIn("fiscal_year", ev_map["Trial Balance"])
 
 	def test_get_financial_snapshot_as_of_prior_to_period_end_rule(self):
 		"""When as_of is prior to period_end, report boundaries are restricted to as_of date."""
+		as_of_dt = f"{self.demo_year}-03-31"
 		res = get_financial_snapshot(
 			company=self.demo_company,
-			period_start="2020-01-01",
-			period_end="2020-12-31",
-			as_of="2020-03-31T00:00:00Z"
+			period_start=self.p_start,
+			period_end=self.p_end,
+			as_of=f"{as_of_dt}T00:00:00Z"
 		)
 		self.assertEqual(res["status"], "OK")
 		ev_map = {e["source_name"]: e["filters"] for e in res["evidence_refs"]}
-		self.assertEqual(ev_map["Accounts Receivable"]["report_date"], "2020-03-31")
-		self.assertEqual(ev_map["Accounts Payable"]["report_date"], "2020-03-31")
-		self.assertEqual(ev_map["Profit and Loss Statement"]["period_end_date"], "2020-03-31")
-		self.assertEqual(ev_map["Trial Balance"]["to_date"], "2020-03-31")
+		self.assertEqual(ev_map["Accounts Receivable"]["report_date"], as_of_dt)
+		self.assertEqual(ev_map["Accounts Payable"]["report_date"], as_of_dt)
+		self.assertEqual(ev_map["Profit and Loss Statement"]["period_end_date"], as_of_dt)
+		self.assertEqual(ev_map["Trial Balance"]["to_date"], as_of_dt)
 
 	def test_get_financial_snapshot_near_term_ap_status(self):
 		"""near_term_ap metric is present with UNAVAILABLE status and frozen limitation."""
-		res = get_financial_snapshot(company=self.demo_company, period_start="2020-01-01", period_end="2020-12-31")
+		res = get_financial_snapshot(company=self.demo_company, period_start=self.p_start, period_end=self.p_end)
 		self.assertEqual(res["status"], "OK")
 		metrics = {m["metric_id"]: m for m in res["metrics"]}
 		self.assertIn("near_term_ap", metrics)
@@ -269,8 +290,8 @@ class TestAccessAndReports(unittest.TestCase):
 		"""When comparison=PREVIOUS_PERIOD, comparison block is returned with accurate deltas."""
 		res = get_financial_snapshot(
 			company=self.demo_company,
-			period_start="2020-01-01",
-			period_end="2020-12-31",
+			period_start=self.p_start,
+			period_end=self.p_end,
 			comparison="PREVIOUS_PERIOD"
 		)
 		self.assertEqual(res["status"], "OK")
@@ -278,7 +299,8 @@ class TestAccessAndReports(unittest.TestCase):
 		comp = res["comparison"]
 		self.assertEqual(comp["status"], "AVAILABLE")
 		self.assertEqual(comp["type"], "PREVIOUS_PERIOD")
-		self.assertEqual(comp["previous_period"], {"start": "2019-01-01", "end": "2019-12-31"})
+		prev_year = str(int(self.demo_year) - 1)
+		self.assertEqual(comp["previous_period"], {"start": f"{prev_year}-01-01", "end": f"{prev_year}-12-31"})
 		self.assertIn("revenue", comp["metrics"])
 		self.assertIn("cash_balance", comp["metrics"])
 		self.assertIn("ar_outstanding", comp["metrics"])
@@ -288,8 +310,8 @@ class TestAccessAndReports(unittest.TestCase):
 		"""Whitelisted get_financial_snapshot supports include_explanation=True."""
 		res = get_financial_snapshot(
 			company=self.demo_company,
-			period_start="2020-01-01",
-			period_end="2020-12-31",
+			period_start=self.p_start,
+			period_end=self.p_end,
 			include_explanation=True
 		)
 		self.assertEqual(res["status"], "OK")

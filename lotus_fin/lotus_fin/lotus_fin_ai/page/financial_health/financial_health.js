@@ -59,17 +59,17 @@ lotus_fin.financial_health.Controller = class Controller {
 			}
 		});
 
-		// 2. Period preset / year
+		const curYear = frappe.datetime.get_today().slice(0, 4);
 		this.period_field = this.page.add_field({
 			fieldname: "fiscal_year_preset",
 			label: __("Period"),
 			fieldtype: "Select",
 			options: [
+				{ label: "Current Year (" + curYear + ")", value: "CURRENT_YEAR" },
 				{ label: "FY2020 (2020-01-01 to 2020-12-31)", value: "FY2020" },
-				{ label: "Current Year (" + frappe.datetime.get_today().slice(0, 4) + ")", value: "CURRENT_YEAR" },
 				{ label: "FY2025 (2025-01-01 to 2025-12-31)", value: "FY2025" }
 			],
-			default: "FY2020",
+			default: "CURRENT_YEAR",
 			change() {
 				me.apply_period_preset(me.period_field.get_value());
 				me.fetch_financial_health();
@@ -96,7 +96,10 @@ lotus_fin.financial_health.Controller = class Controller {
 			me.fetch_financial_health(true);
 		}, "octicon octicon-sync");
 
-		this.apply_period_preset("FY2020");
+		this.apply_period_preset("CURRENT_YEAR");
+		if (this.period_field) {
+			this.period_field.set_value("CURRENT_YEAR");
+		}
 	}
 
 	apply_period_preset(preset) {
@@ -259,6 +262,10 @@ lotus_fin.financial_health.Controller = class Controller {
 		if (!company) {
 			this.render_error("VALIDATION_ERROR", __("Please select a company."));
 			return;
+		}
+
+		if (this.period_field && this.period_field.get_value()) {
+			this.apply_period_preset(this.period_field.get_value());
 		}
 
 		this.show_loading();
