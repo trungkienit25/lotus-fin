@@ -2,8 +2,8 @@
 
 ## 1. Document control
 
-- Ngày điều tra: 2026-09-29; cập nhật xác thực 2026-09-30 tại §29–30. Trạng thái: **PRE-BUILD FINDING / NOT CONTRACT FROZEN**. Chủ đích: evidence collector; không có AI003 production code.
-- Workspace hiện tại: `E:\lotus-fin`, commit `030ccc3c46bd6e22443c1a008818954829a6ec3b`, branch `feature/cash-flow-forecast-copilot`; remediation AI001/AI002 và test hiện là working-tree changes, tài liệu AI003 chưa theo dõi. Các mục §4–18 là điều tra lịch sử trên commit `70bd6e8`; §19–28 là v2 reassessment lịch sử; §29 là unit/runtime preparation, §30 là kết quả Work verification mới nhất.
+- Ngày điều tra: 2026-09-29; cập nhật xác thực 2026-09-30 tại §29–33. Trạng thái: **PRE-BUILD FINDING / NOT CONTRACT FROZEN**. Chủ đích: evidence collector; không có AI003 production code.
+- Workspace hiện tại: `E:\lotus-fin`, revision `c6f4cd1`; foundation remediation và tài liệu trước đó đã commit. Các mục §4–18 là điều tra lịch sử trên commit `70bd6e8`; §19–28 là v2 reassessment lịch sử; §29–31 là các vòng verification trước; §32 là vòng foundation verification; §33 là kết quả Work pre-build evaluation mới nhất. Runtime kiểm chứng là isolated site `ai003-verify.localhost`; không suy từ kết quả này rằng site `frontend` đã được migrate.
 - Thứ tự chứng cứ: runtime hiện tại > test hiện tại > đọc mã hiện tại > báo cáo cũ > giả định. `NOT_VERIFIED` nghĩa là chưa có chứng cứ, không nghĩa là âm tính.
 - GitNexus index lúc bắt đầu trỏ tới `f743acf...` (sau HEAD 9 commit), thiếu FTS; truy vấn `snapshot`/`forecast` trả rỗng. `impact build_financial_snapshot` thấy caller `get_financial_snapshot`, risk LOW; `impact extract_key_report_data` thấy AI001 fetcher, `predict_cashflow`, `get_ai_training_dataset`, risk LOW; `impact get_verified_company` thấy 7 caller, risk MEDIUM. `impact get_cash_forecast` trả `UNKNOWN`/target not found. Các verdict này **không** xác nhận blast radius của workspace hiện tại; đã đối chiếu bằng mã nguồn. Không chỉnh sửa hàm/lớp nào. `node .gitnexus/run.cjs analyze --index-only` thất bại ở parse phase vì toàn bộ worker khởi động lỗi; index vẫn stale, không được coi là graph check sạch.
 
@@ -659,8 +659,54 @@ An independent preflight finding, **WV-02**, shows that an uninitialized ERPNext
 
 **Next action per workflow v3:** Zcode/Antigravity repairs WV-01 and WV-02 in AI001/AI002 source boundaries, with tests for real Frappe v16 footer, malformed rows, missing Party Type and cross-leg data. Work then re-runs unit and isolated-site oracle/security/temporal checks. Chat reviews the resulting evidence, rule thresholds and candidate scope before contract freeze; AI003 implementation remains later.
 
-## 31. Work recheck after Antigravity remediation — 2026-09-30 (latest authority)
+## 31. Work recheck after Antigravity remediation — 2026-09-30 (see §32 for latest authority)
 
 See [`evidence/AI003_WORK_RECHECK_2026-09-30.md`](evidence/AI003_WORK_RECHECK_2026-09-30.md). Work independently re-ran 182 local and 218 Docker tests; all passed. Isolated-site AI001 AR/AP/revenue/cash and AI002 AR/AP obligations now match the independent 2026-09-26 voucher/GL oracle. The Frappe list footer and normal Party Type path are working.
 
 Two fail-closed gaps remain: **WR-01** allows unverified dict summary markers to be silently skipped, including an all-summary payload that becomes verified zero; **WR-02** lets AI001 count a positive AR/AP row with no voucher/provenance. The Antigravity report's `REMEDIATED & DEEPLY VERIFIED` describes its checks but is not a Work gate PASS. Work verification remains **NOT_PASS**; G1 `PARTIAL`, G2 `PARTIAL`, G3/G4A `BLOCKED`, G4B `NOT_APPLICABLE_YET`, contract freeze `NOT_READY`. Antigravity/Zcode fixes WR-01/02, then Work re-tests before Chat considers contract authority.
+
+## 32. Work verifies Zcode WR-01/WR-02 — 2026-09-30 (see §33 for candidate v0.2 evaluation)
+
+Evidence: [`evidence/AI003_WR01_WR02_WORK_VERIFIED_2026-09-30.md`](evidence/AI003_WR01_WR02_WORK_VERIFIED_2026-09-30.md). Work independently ran **197 local tests and 233 Docker tests**, all passed. Live poisoned AR probes reject fake summaries and voucher-less positive rows. Two-cutoff AI001 numeric and AI002 obligation replay matches the independent voucher/GL oracle. **WR-01 and WR-02 are VERIFIED FIXED; foundation remediation PASS within this checked scope.**
+
+Work rebuilt the local image from `c6f4cd1` and aligned all six application services; tests and live replay still passed after container recreation. Database/site volumes were preserved. COGS and verified future settlement remain unavailable as intended. AI003 source-contract/gold/threshold/security evidence is still incomplete: G1 `PARTIAL`, G2 `PARTIAL`, G3/G4A `BLOCKED`, G4B `NOT_APPLICABLE_YET`, **contract freeze NOT_READY**.
+
+**Next owner: ChatGPT Chat**, to complete the candidate contract for at most `AR_OVERDUE_SPIKE` and `AP_DUE_CLUSTER`, with explicit baseline/window/denominator/severity and financial approval requirements. Work then verifies gold and remaining security/temporal cases against that contract; Chat decides freeze only after all pre-build gates pass. No current finding requires another WR-01/WR-02 remediation loop.
+
+## 33. Independent pre-build evaluation of candidate v0.2 — 2026-09-30 (latest authority)
+
+Authority supplied by Chat: [`AI003_CANDIDATE_CONTRACT_v0.2.md`](AI003_CANDIDATE_CONTRACT_v0.2.md) and [`AI003_WORK_PREBUILD_EVALUATION_PROMPT_v0.2.md`](AI003_WORK_PREBUILD_EVALUATION_PROMPT_v0.2.md). Full evidence: [`evidence/AI003_PREBUILD_EVALUATION_2026-09-30.md`](evidence/AI003_PREBUILD_EVALUATION_2026-09-30.md); per-field feasibility: [`AI003_CONTRACT_FEASIBILITY_v0.2.md`](AI003_CONTRACT_FEASIBILITY_v0.2.md); independent source/symbolic gold: [`AI003_GOLD_MANIFEST.yaml`](AI003_GOLD_MANIFEST.yaml).
+
+On unchanged revision `c6f4cd13c677e167ac645d4d0c48d236383c4fac`, Work created synthetic Gold/Empty companies only on `ai003-verify.localhost` and recorded 70 distinct cases: 53 live source/reusable-primitive probes, 17 specification-only cases. Six checks remain unmet; these are not six independent bugs. No production code or AI003 implementation was changed. WR-01/WR-02 retain their scoped VERIFIED FIXED status.
+
+AR and AP source arithmetic, partial/paid invoices, allocated/unallocated credits and inclusive AP +1/+7/+8/+30/+31 boundaries are independently verified. AR due-exact is not overdue. Future-posted AR/AP leaves historical input unchanged; backdate/cancel/amend restates input and changes evidence checksum. Document evidence reauthorization, cross-company denial and bounded explanation fallback passed. Unallocated credits are not automatically allocations merely because return_against is set; credit/netting policy remains open.
+
+**New concrete findings:** PB-SEC-01 (HIGH) — actual AR report is denied by Frappe Custom Role, but reusable report guard still permits it and AI002 cache returns the same cached financial payload; PB-DATA-01 — AR missing due-date/overdue information still produces AVAILABLE ratio; PB-DATA-02 — exact duplicate AR/AP row can double-count input. AP null due date and durable report/derived evidence replay need explicit candidate design/coverage rules; business policy/threshold approval remains pending. These are candidate-created verification findings, not a reversal of the earlier scoped WR fix.
+
+| Gate | Latest assessment |
+| --- | --- |
+| G1 Runtime | PASS for the isolated verification runtime; no production-site deployment claim. |
+| G2 Contract | PARTIAL — field mapping, netting/identity/zero/precision/status/replay and financial approvals open. |
+| G3 Data & Method | BLOCKED — source quality defects and unapproved rule policy; numeric source gold exists. |
+| G4A Security/Evaluation | BLOCKED — reproduced report/cache authorization defect; absence of an AI003 endpoint is not the blocker. |
+| G4B | NOT_APPLICABLE_YET. |
+| Contract freeze | NOT_READY. |
+
+**Next owner: ChatGPT Chat**, as explicitly required by the supplied Work prompt: review concrete reproductions and contract decisions first, then approve focused foundation remediation for Antigravity/Zcode. Work re-tests approved changes and affected gold; only Chat decides freeze after all pre-build gates pass.
+
+## 34. Independent Verification Lead round — 2026-09-30 (latest authority)
+
+IVL re-verified the foundation remediation and the three open pre-build defects at unchanged revision `c6f4cd1` on `ai003-verify.localhost`. Evidence: [`AI003_IVL_REMEDIATION_VERIFICATION_2026-09-30.md`](AI003_IVL_REMEDIATION_VERIFICATION_2026-09-30.md) (focused remediation verification), [`evidence/AI003_IVL_GOLD_CLOSURE_2026-09-30.md`](evidence/AI003_IVL_GOLD_CLOSURE_2026-09-30.md) (gold closure), [`AI003_IVL_CONTRACT_SEMANTICS_REVIEW_v0.2.md`](AI003_IVL_CONTRACT_SEMANTICS_REVIEW_v0.2.md) (contract semantics + conflicts), [`AI003_BUSINESS_POLICY_DECISION_SHEET.md`](AI003_BUSINESS_POLICY_DECISION_SHEET.md) (approval surface), [`AI003_CONTRACT_FREEZE_DECISION_PACKAGE.md`](AI003_CONTRACT_FREEZE_DECISION_PACKAGE.md) (decision package for Chat).
+
+Independently confirmed this round:
+
+- Runtime/source/migration sync: image `sha256:220e4f5d…` matches §32 rebuild; container source hashes equal HEAD `c6f4cd1`; scope column and `Asia/Ho_Chi_Minh` verified. Impact analysis: 67 passing §33 cases remain valid (unchanged revision); only the three defects, regression suites and gold oracle were re-run.
+- **PB-SEC-01 reproduced independently** (own probe, not Work's script): Custom Role `Accounts Receivable → Accounts Manager` makes `Report.is_permitted()` deny and direct report run refuse, while `check_ai002_report_permission` passes and the AI002 cache returns the identical forecast ID with 10 obligations and opening cash. Regrant restores. Root cause confirmed at `security/access.py:check_report_permission` (generic `query_report.has_permission` instead of report-specific permission).
+- **PB-DATA-01 reproduced**: missing due-date/overdue fields on a positive AR row leave the ratio AVAILABLE at −0.0177 (overdue basis collapses to the credit row).
+- **PB-DATA-02 reproduced both legs**: exact duplicate AR row → 640,000 vs 565,000; exact duplicate AP row → 8 vs 7 obligations with repeated `source_ref`.
+- **Gold closure**: independent voucher/Payment-Ledger oracle re-run matches the manifest at both cutoffs (650,000/0; 565,000/65,000; AP 1,400,000/1,950,000 and 275,000/975,000) and was re-verified after probe cleanup. Numeric gold is stable; policy artifacts stay PENDING_APPROVAL.
+- **Evidence replay design**: isolated harness proved `DYNAMIC_AUTHORIZED_REPLAY + SAVED_HASH_COMPARISON` produces MATCH / RESTATED / UNAVAILABLE / FORBIDDEN correctly, using the authoritative report permission primitive; snapshot ID/hash never acts as an authorization token. No production replay endpoint was built; durable REPORT_SNAPSHOT storage remains a Chat design choice.
+- Probe hygiene: probe users/roles/permissions removed and asserted absent; four cancelled transient invoices and one temp Customer remain as documented residue with zero numeric impact (gold re-run proven); Work may purge them in the next fixture pass.
+- Version conflict recorded: the verification mandate references candidate contract **v0.3**, but only **v0.2** exists. Nothing invented; Chat must issue the authoritative next contract version.
+
+Gate assessment re-confirmed: G1 `PASS` for the isolated verification runtime only; G2 `PARTIAL`; G3 `BLOCKED` (PB-DATA-01/02 + unapproved policy); G4A `BLOCKED` (PB-SEC-01, independently reproduced); G4B `NOT_APPLICABLE_YET`; **CONTRACT FREEZE NOT_READY**. Next owner: **ChatGPT Chat** — decide the seven contract conflicts, approve the focused remediation scope for PB-SEC-01/PB-DATA-01/PB-DATA-02, and process the eight-row Business Policy Decision Sheet; then Antigravity/Zcode implements approved changes, Work re-tests, and only Chat decides freeze.

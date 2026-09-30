@@ -1,0 +1,1467 @@
+{
+  "revision": "c6f4cd1",
+  "site": "ai003-verify.localhost",
+  "cases": [
+    {
+      "case_id": "NUMERIC_2026-09-20",
+      "expected": {
+        "total_ar": "650000.0",
+        "overdue_ar": "0",
+        "ar_ratio": "0E+1",
+        "ap_short": "1400000.0",
+        "ap_horizon": "1950000.0",
+        "ap_ratio": "0.7179487179487179487179487179"
+      },
+      "actual": {
+        "ar_total": 650000.0,
+        "ar_ratio": 0.0,
+        "ap_short": "1400000.0",
+        "ap_horizon": "1950000.0"
+      },
+      "result": "PASS",
+      "source_hash": "b53b0c04210244f9efb36ce58246643d6b512debc51edc6f2162c0fef52cedfe"
+    },
+    {
+      "case_id": "NUMERIC_2026-09-26",
+      "expected": {
+        "total_ar": "565000.0",
+        "overdue_ar": "65000.0",
+        "ar_ratio": "0.1150442477876106194690265487",
+        "ap_short": "275000.0",
+        "ap_horizon": "975000.0",
+        "ap_ratio": "0.2820512820512820512820512821"
+      },
+      "actual": {
+        "ar_total": 565000.0,
+        "ar_ratio": 0.115,
+        "ap_short": "275000.0",
+        "ap_horizon": "975000.0"
+      },
+      "result": "PASS",
+      "source_hash": "f43de2e6a769d228cb4971a4742a6cbb2c4a812790756a9819392c7706116372"
+    },
+    {
+      "case_id": "AR_MALFORMED_AMOUNT",
+      "expected": "SOURCE_INVALID/INCONCLUSIVE",
+      "actual": {
+        "metric": "ar_outstanding",
+        "status": "UNAVAILABLE",
+        "value": null
+      },
+      "result": "PASS"
+    },
+    {
+      "case_id": "AR_MISSING_VOUCHER",
+      "expected": "SOURCE_INVALID/INCONCLUSIVE",
+      "actual": {
+        "metric": "ar_outstanding",
+        "status": "UNAVAILABLE",
+        "value": null
+      },
+      "result": "PASS"
+    },
+    {
+      "case_id": "AR_MISSING_DUE_DATE",
+      "expected": "SOURCE_INVALID/INCONCLUSIVE",
+      "actual": {
+        "metric": "overdue_ar_ratio",
+        "status": "AVAILABLE",
+        "value": -0.0177
+      },
+      "result": "FAIL"
+    },
+    {
+      "case_id": "AR_DUPLICATE",
+      "expected": "SOURCE_INVALID/INCONCLUSIVE",
+      "actual": {
+        "metric": "ar_outstanding",
+        "status": "AVAILABLE",
+        "value": 640000.0
+      },
+      "result": "FAIL"
+    },
+    {
+      "case_id": "AR_SUMMARY_DICT",
+      "expected": "SOURCE_INVALID/INCONCLUSIVE",
+      "actual": {
+        "metric": "ar_outstanding",
+        "status": "UNAVAILABLE",
+        "value": null
+      },
+      "result": "PASS"
+    },
+    {
+      "case_id": "AR_EMPTY",
+      "expected": "ZERO_VERIFIED",
+      "actual": {
+        "metric": "ar_outstanding",
+        "status": "AVAILABLE",
+        "value": 0.0
+      },
+      "result": "PASS"
+    },
+    {
+      "case_id": "AP_NULL_DUE",
+      "expected": "AI003 must mark incomplete or detect exact duplicate; source adapter may expose typed context",
+      "actual": {
+        "count": 7,
+        "null_due_count": 1,
+        "source_refs": [
+          "Purchase Invoice:ACC-PINV-2026-00006",
+          "Purchase Invoice:ACC-PINV-2026-00007",
+          "Purchase Invoice:ACC-PINV-2026-00008",
+          "Purchase Invoice:ACC-PINV-2026-00009",
+          "Purchase Invoice:ACC-PINV-2026-00010",
+          "Purchase Invoice:ACC-PINV-2026-00011",
+          "Purchase Invoice:ACC-PINV-2026-00012"
+        ]
+      },
+      "result": "FAIL",
+      "assessment": "SUPPORTED_WITH_CHANGE; no AI003 evaluator exists"
+    },
+    {
+      "case_id": "AP_DUPLICATE",
+      "expected": "AI003 must mark incomplete or detect exact duplicate; source adapter may expose typed context",
+      "actual": {
+        "count": 8,
+        "null_due_count": 0,
+        "source_refs": [
+          "Purchase Invoice:ACC-PINV-2026-00006",
+          "Purchase Invoice:ACC-PINV-2026-00007",
+          "Purchase Invoice:ACC-PINV-2026-00008",
+          "Purchase Invoice:ACC-PINV-2026-00009",
+          "Purchase Invoice:ACC-PINV-2026-00010",
+          "Purchase Invoice:ACC-PINV-2026-00011",
+          "Purchase Invoice:ACC-PINV-2026-00012",
+          "Purchase Invoice:ACC-PINV-2026-00006"
+        ]
+      },
+      "result": "FAIL",
+      "assessment": "SUPPORTED_WITH_CHANGE; no AI003 evaluator exists"
+    },
+    {
+      "case_id": "FUTURE_POSTING",
+      "expected": {
+        "value": 565000.0,
+        "source_hash": "82241e33ce81c3d33bc922d2066ead63e1546359cd3b41cc50053e224dcb8525"
+      },
+      "actual": {
+        "value": 565000.0,
+        "source_hash": "82241e33ce81c3d33bc922d2066ead63e1546359cd3b41cc50053e224dcb8525"
+      },
+      "result": "PASS"
+    },
+    {
+      "case_id": "BACKDATED_RESTATEMENT",
+      "expected": 688000.0,
+      "actual": {
+        "value": 688000.0,
+        "hash_changed": true,
+        "evidence_before": [
+          "82241e33ce81c3d3"
+        ],
+        "evidence_after": [
+          "f71324b211598d69"
+        ]
+      },
+      "result": "PASS"
+    },
+    {
+      "case_id": "CANCEL_RESTATEMENT",
+      "expected": 565000.0,
+      "actual": {
+        "value": 565000.0,
+        "hash_changed_from_backdated": true
+      },
+      "result": "PASS"
+    },
+    {
+      "case_id": "CORRECTION_RESTATEMENT",
+      "expected": 689000.0,
+      "actual": {
+        "value": 689000.0
+      },
+      "result": "PASS"
+    },
+    {
+      "case_id": "COMPANY_AUTHORIZED",
+      "expected": "AI003 Gold 2026",
+      "actual": "AI003 Gold 2026",
+      "result": "PASS"
+    },
+    {
+      "case_id": "COMPANY_DENIED",
+      "expected": "FORBIDDEN",
+      "actual": {
+        "exception": "CompanyAccessError",
+        "message": "FORBIDDEN"
+      },
+      "result": "PASS"
+    },
+    {
+      "case_id": "COMPANY_NONEXISTENT",
+      "expected": "FORBIDDEN",
+      "actual": {
+        "exception": "CompanyAccessError",
+        "message": "FORBIDDEN"
+      },
+      "result": "PASS"
+    },
+    {
+      "case_id": "EVIDENCE_AUTHORIZED",
+      "expected": "success",
+      "actual": "success",
+      "result": "PASS"
+    },
+    {
+      "case_id": "EVIDENCE_CROSS_COMPANY",
+      "expected": "FORBIDDEN",
+      "actual": {
+        "exception": "PermissionError",
+        "message": "FORBIDDEN"
+      },
+      "result": "PASS"
+    },
+    {
+      "case_id": "EVIDENCE_ARBITRARY_DOCTYPE",
+      "expected": "FORBIDDEN",
+      "actual": {
+        "exception": "PermissionError",
+        "message": "FORBIDDEN"
+      },
+      "result": "PASS"
+    },
+    {
+      "case_id": "EVIDENCE_SNAPSHOT_NOT_TOKEN",
+      "expected": "FORBIDDEN",
+      "actual": {
+        "exception": "PermissionError",
+        "message": "FORBIDDEN"
+      },
+      "result": "PASS"
+    },
+    {
+      "case_id": "ARBITRARY_REPORT",
+      "expected": "FORBIDDEN",
+      "actual": {
+        "exception": "PermissionError",
+        "message": "FORBIDDEN"
+      },
+      "result": "PASS"
+    },
+    {
+      "case_id": "CACHE_POPULATED",
+      "expected": "same forecast ID on cache hit with real source read",
+      "actual": {
+        "first": "FORECAST_UNAVAILABLE",
+        "hit_same_id": true,
+        "cache_entries": 1
+      },
+      "result": "PASS"
+    },
+    {
+      "case_id": "CACHE_CROSS_COMPANY",
+      "expected": "FORBIDDEN without financial payload",
+      "actual": {
+        "status": "FORBIDDEN",
+        "obligations": 0,
+        "opening_cash": false
+      },
+      "result": "PASS"
+    },
+    {
+      "case_id": "REPORT_ROLE_REVOKED_PREFLIGHT",
+      "expected": false,
+      "actual": false,
+      "result": "PASS",
+      "custom_roles": [
+        "Accounts Manager"
+      ]
+    },
+    {
+      "case_id": "REPORT_DIRECT_RUN_REVOKED",
+      "expected": "source error without data",
+      "actual": {
+        "status": "error",
+        "has_data": false
+      },
+      "result": "PASS"
+    },
+    {
+      "case_id": "REPORT_GUARD_REVOKED",
+      "expected": "FORBIDDEN",
+      "actual": {
+        "returned": "None"
+      },
+      "result": "FAIL"
+    },
+    {
+      "case_id": "CACHE_REPORT_REVOKE",
+      "expected": "FORBIDDEN without obligations/opening_cash/points",
+      "actual": {
+        "status": "FORECAST_UNAVAILABLE",
+        "same_cached_id": true,
+        "obligations": 10,
+        "opening_cash_present": true
+      },
+      "result": "FAIL"
+    },
+    {
+      "case_id": "CACHE_REPORT_REGRANT",
+      "expected": "FORECAST_UNAVAILABLE",
+      "actual": "FORECAST_UNAVAILABLE",
+      "result": "PASS"
+    },
+    {
+      "case_id": "EVIDENCE_COMPANY_STILL_ALLOWED",
+      "expected": "AI003 Gold 2026",
+      "actual": "AI003 Gold 2026",
+      "result": "PASS"
+    },
+    {
+      "case_id": "EVIDENCE_DOCUMENT_DENIED",
+      "expected": "FORBIDDEN",
+      "actual": {
+        "exception": "PermissionError",
+        "message": "FORBIDDEN"
+      },
+      "result": "PASS"
+    },
+    {
+      "case_id": "EVIDENCE_DOCUMENT_REGRANT",
+      "expected": "success",
+      "actual": "success",
+      "result": "PASS"
+    },
+    {
+      "case_id": "EVIDENCE_ROLE_REVOKED",
+      "expected": "FORBIDDEN",
+      "actual": {
+        "exception": "CompanyAccessError",
+        "message": "FORBIDDEN"
+      },
+      "result": "PASS"
+    },
+    {
+      "case_id": "PROBE_USER_ROLLBACK",
+      "expected": "absent",
+      "actual": false,
+      "result": "PASS"
+    },
+    {
+      "case_id": "SYMBOLIC_T_warning_below",
+      "expected": false,
+      "actual": false,
+      "result": "PASS",
+      "policy_status": "TEST_ONLY_POLICY",
+      "production_finding": null,
+      "production_severity": null,
+      "notes": "Candidate comparator >= still requires Chat approval; chosen only for specification harness"
+    },
+    {
+      "case_id": "SYMBOLIC_T_warning_equal",
+      "expected": true,
+      "actual": true,
+      "result": "PASS",
+      "policy_status": "TEST_ONLY_POLICY",
+      "production_finding": null,
+      "production_severity": null,
+      "notes": "Candidate comparator >= still requires Chat approval; chosen only for specification harness"
+    },
+    {
+      "case_id": "SYMBOLIC_T_warning_above",
+      "expected": true,
+      "actual": true,
+      "result": "PASS",
+      "policy_status": "TEST_ONLY_POLICY",
+      "production_finding": null,
+      "production_severity": null,
+      "notes": "Candidate comparator >= still requires Chat approval; chosen only for specification harness"
+    },
+    {
+      "case_id": "SYMBOLIC_T_high_below",
+      "expected": false,
+      "actual": false,
+      "result": "PASS",
+      "policy_status": "TEST_ONLY_POLICY",
+      "production_finding": null,
+      "production_severity": null,
+      "notes": "Candidate comparator >= still requires Chat approval; chosen only for specification harness"
+    },
+    {
+      "case_id": "SYMBOLIC_T_high_equal",
+      "expected": true,
+      "actual": true,
+      "result": "PASS",
+      "policy_status": "TEST_ONLY_POLICY",
+      "production_finding": null,
+      "production_severity": null,
+      "notes": "Candidate comparator >= still requires Chat approval; chosen only for specification harness"
+    },
+    {
+      "case_id": "SYMBOLIC_T_high_above",
+      "expected": true,
+      "actual": true,
+      "result": "PASS",
+      "policy_status": "TEST_ONLY_POLICY",
+      "production_finding": null,
+      "production_severity": null,
+      "notes": "Candidate comparator >= still requires Chat approval; chosen only for specification harness"
+    },
+    {
+      "case_id": "SYMBOLIC_A_min_below",
+      "expected": false,
+      "actual": false,
+      "result": "PASS",
+      "policy_status": "TEST_ONLY_POLICY",
+      "production_finding": null,
+      "production_severity": null,
+      "notes": "Candidate comparator >= still requires Chat approval; chosen only for specification harness"
+    },
+    {
+      "case_id": "SYMBOLIC_A_min_equal",
+      "expected": true,
+      "actual": true,
+      "result": "PASS",
+      "policy_status": "TEST_ONLY_POLICY",
+      "production_finding": null,
+      "production_severity": null,
+      "notes": "Candidate comparator >= still requires Chat approval; chosen only for specification harness"
+    },
+    {
+      "case_id": "SYMBOLIC_A_min_above",
+      "expected": true,
+      "actual": true,
+      "result": "PASS",
+      "policy_status": "TEST_ONLY_POLICY",
+      "production_finding": null,
+      "production_severity": null,
+      "notes": "Candidate comparator >= still requires Chat approval; chosen only for specification harness"
+    },
+    {
+      "case_id": "SYMBOLIC_D_min_below",
+      "expected": false,
+      "actual": false,
+      "result": "PASS",
+      "policy_status": "TEST_ONLY_POLICY",
+      "production_finding": null,
+      "production_severity": null,
+      "notes": "Candidate comparator >= still requires Chat approval; chosen only for specification harness"
+    },
+    {
+      "case_id": "SYMBOLIC_D_min_equal",
+      "expected": true,
+      "actual": true,
+      "result": "PASS",
+      "policy_status": "TEST_ONLY_POLICY",
+      "production_finding": null,
+      "production_severity": null,
+      "notes": "Candidate comparator >= still requires Chat approval; chosen only for specification harness"
+    },
+    {
+      "case_id": "SYMBOLIC_D_min_above",
+      "expected": true,
+      "actual": true,
+      "result": "PASS",
+      "policy_status": "TEST_ONLY_POLICY",
+      "production_finding": null,
+      "production_severity": null,
+      "notes": "Candidate comparator >= still requires Chat approval; chosen only for specification harness"
+    },
+    {
+      "case_id": "SYMBOLIC_N_min_below",
+      "expected": false,
+      "actual": false,
+      "result": "PASS",
+      "policy_status": "TEST_ONLY_POLICY",
+      "production_finding": null,
+      "production_severity": null,
+      "notes": "Candidate comparator >= still requires Chat approval; chosen only for specification harness"
+    },
+    {
+      "case_id": "SYMBOLIC_N_min_equal",
+      "expected": true,
+      "actual": true,
+      "result": "PASS",
+      "policy_status": "TEST_ONLY_POLICY",
+      "production_finding": null,
+      "production_severity": null,
+      "notes": "Candidate comparator >= still requires Chat approval; chosen only for specification harness"
+    },
+    {
+      "case_id": "SYMBOLIC_N_min_above",
+      "expected": true,
+      "actual": true,
+      "result": "PASS",
+      "policy_status": "TEST_ONLY_POLICY",
+      "production_finding": null,
+      "production_severity": null,
+      "notes": "Candidate comparator >= still requires Chat approval; chosen only for specification harness"
+    },
+    {
+      "case_id": "POLICY_PENDING",
+      "expected": {
+        "evaluation_status": "POLICY_PENDING",
+        "finding": null,
+        "severity": null
+      },
+      "actual": {
+        "evaluation_status": "POLICY_PENDING",
+        "finding": null,
+        "severity": null
+      },
+      "result": "PASS",
+      "assessment": "specification-only; no AI003 endpoint exists"
+    }
+  ],
+  "gold": {
+    "2026-09-20": {
+      "company": "AI003 Gold 2026",
+      "as_of": "2026-09-20",
+      "total_ar": "650000.0",
+      "overdue_ar": "0",
+      "ar_ratio": "0E+1",
+      "ap_short": "1400000.0",
+      "ap_horizon": "1950000.0",
+      "ap_ratio": "0.7179487179487179487179487179",
+      "ar_positive_residual": "650000.0",
+      "ar_unallocated_credit": "0",
+      "ap_unallocated_credit": "0",
+      "ap_total_positive": "2850000.0",
+      "ap_overdue": "0",
+      "ap_due_today": "0",
+      "residuals": [
+        {
+          "doctype": "Sales Invoice",
+          "voucher": "ACC-SINV-2026-00006",
+          "due_date": "2026-09-25",
+          "gross": "100000.0",
+          "is_return": 0,
+          "return_against": null,
+          "residual": "100000.0"
+        },
+        {
+          "doctype": "Sales Invoice",
+          "voucher": "ACC-SINV-2026-00007",
+          "due_date": "2026-09-26",
+          "gross": "200000.0",
+          "is_return": 0,
+          "return_against": null,
+          "residual": "200000.0"
+        },
+        {
+          "doctype": "Sales Invoice",
+          "voucher": "ACC-SINV-2026-00008",
+          "due_date": "2026-09-27",
+          "gross": "300000.0",
+          "is_return": 0,
+          "return_against": null,
+          "residual": "300000.0"
+        },
+        {
+          "doctype": "Sales Invoice",
+          "voucher": "ACC-SINV-2026-00009",
+          "due_date": "2026-09-24",
+          "gross": "50000.0",
+          "is_return": 0,
+          "return_against": null,
+          "residual": "50000.0"
+        },
+        {
+          "doctype": "Purchase Invoice",
+          "voucher": "ACC-PINV-2026-00006",
+          "due_date": "2026-09-27",
+          "gross": "100000.0",
+          "is_return": 0,
+          "return_against": null,
+          "residual": "100000.0"
+        },
+        {
+          "doctype": "Purchase Invoice",
+          "voucher": "ACC-PINV-2026-00007",
+          "due_date": "2026-10-03",
+          "gross": "200000.0",
+          "is_return": 0,
+          "return_against": null,
+          "residual": "200000.0"
+        },
+        {
+          "doctype": "Purchase Invoice",
+          "voucher": "ACC-PINV-2026-00008",
+          "due_date": "2026-10-04",
+          "gross": "300000.0",
+          "is_return": 0,
+          "return_against": null,
+          "residual": "300000.0"
+        },
+        {
+          "doctype": "Purchase Invoice",
+          "voucher": "ACC-PINV-2026-00009",
+          "due_date": "2026-10-26",
+          "gross": "400000.0",
+          "is_return": 0,
+          "return_against": null,
+          "residual": "400000.0"
+        },
+        {
+          "doctype": "Purchase Invoice",
+          "voucher": "ACC-PINV-2026-00010",
+          "due_date": "2026-10-27",
+          "gross": "500000.0",
+          "is_return": 0,
+          "return_against": null,
+          "residual": "500000.0"
+        },
+        {
+          "doctype": "Purchase Invoice",
+          "voucher": "ACC-PINV-2026-00011",
+          "due_date": "2026-09-25",
+          "gross": "600000.0",
+          "is_return": 0,
+          "return_against": null,
+          "residual": "600000.0"
+        },
+        {
+          "doctype": "Purchase Invoice",
+          "voucher": "ACC-PINV-2026-00012",
+          "due_date": "2026-09-26",
+          "gross": "700000.0",
+          "is_return": 0,
+          "return_against": null,
+          "residual": "700000.0"
+        },
+        {
+          "doctype": "Purchase Invoice",
+          "voucher": "ACC-PINV-2026-00013",
+          "due_date": "2026-09-29",
+          "gross": "50000.0",
+          "is_return": 0,
+          "return_against": null,
+          "residual": "50000.0"
+        }
+      ],
+      "source_refs": [
+        "Sales Invoice:ACC-SINV-2026-00006",
+        "Sales Invoice:ACC-SINV-2026-00007",
+        "Sales Invoice:ACC-SINV-2026-00008",
+        "Sales Invoice:ACC-SINV-2026-00009",
+        "Purchase Invoice:ACC-PINV-2026-00006",
+        "Purchase Invoice:ACC-PINV-2026-00007",
+        "Purchase Invoice:ACC-PINV-2026-00008",
+        "Purchase Invoice:ACC-PINV-2026-00009",
+        "Purchase Invoice:ACC-PINV-2026-00010",
+        "Purchase Invoice:ACC-PINV-2026-00011",
+        "Purchase Invoice:ACC-PINV-2026-00012",
+        "Purchase Invoice:ACC-PINV-2026-00013"
+      ],
+      "source_hash": "b53b0c04210244f9efb36ce58246643d6b512debc51edc6f2162c0fef52cedfe",
+      "source_records": [
+        {
+          "doctype": "Sales Invoice",
+          "name": "ACC-SINV-2026-00006",
+          "posting_date": "2026-09-01",
+          "due_date": "2026-09-25",
+          "grand_total": 100000.0,
+          "is_return": 0,
+          "return_against": null,
+          "currency": "VND"
+        },
+        {
+          "doctype": "Sales Invoice",
+          "name": "ACC-SINV-2026-00007",
+          "posting_date": "2026-09-01",
+          "due_date": "2026-09-26",
+          "grand_total": 200000.0,
+          "is_return": 0,
+          "return_against": null,
+          "currency": "VND"
+        },
+        {
+          "doctype": "Sales Invoice",
+          "name": "ACC-SINV-2026-00008",
+          "posting_date": "2026-09-01",
+          "due_date": "2026-09-27",
+          "grand_total": 300000.0,
+          "is_return": 0,
+          "return_against": null,
+          "currency": "VND"
+        },
+        {
+          "doctype": "Sales Invoice",
+          "name": "ACC-SINV-2026-00009",
+          "posting_date": "2026-09-01",
+          "due_date": "2026-09-24",
+          "grand_total": 50000.0,
+          "is_return": 0,
+          "return_against": null,
+          "currency": "VND"
+        },
+        {
+          "doctype": "Purchase Invoice",
+          "name": "ACC-PINV-2026-00006",
+          "posting_date": "2026-09-01",
+          "due_date": "2026-09-27",
+          "grand_total": 100000.0,
+          "is_return": 0,
+          "return_against": null,
+          "currency": "VND"
+        },
+        {
+          "doctype": "Purchase Invoice",
+          "name": "ACC-PINV-2026-00007",
+          "posting_date": "2026-09-01",
+          "due_date": "2026-10-03",
+          "grand_total": 200000.0,
+          "is_return": 0,
+          "return_against": null,
+          "currency": "VND"
+        },
+        {
+          "doctype": "Purchase Invoice",
+          "name": "ACC-PINV-2026-00008",
+          "posting_date": "2026-09-01",
+          "due_date": "2026-10-04",
+          "grand_total": 300000.0,
+          "is_return": 0,
+          "return_against": null,
+          "currency": "VND"
+        },
+        {
+          "doctype": "Purchase Invoice",
+          "name": "ACC-PINV-2026-00009",
+          "posting_date": "2026-09-01",
+          "due_date": "2026-10-26",
+          "grand_total": 400000.0,
+          "is_return": 0,
+          "return_against": null,
+          "currency": "VND"
+        },
+        {
+          "doctype": "Purchase Invoice",
+          "name": "ACC-PINV-2026-00010",
+          "posting_date": "2026-09-01",
+          "due_date": "2026-10-27",
+          "grand_total": 500000.0,
+          "is_return": 0,
+          "return_against": null,
+          "currency": "VND"
+        },
+        {
+          "doctype": "Purchase Invoice",
+          "name": "ACC-PINV-2026-00011",
+          "posting_date": "2026-09-01",
+          "due_date": "2026-09-25",
+          "grand_total": 600000.0,
+          "is_return": 0,
+          "return_against": null,
+          "currency": "VND"
+        },
+        {
+          "doctype": "Purchase Invoice",
+          "name": "ACC-PINV-2026-00012",
+          "posting_date": "2026-09-01",
+          "due_date": "2026-09-26",
+          "grand_total": 700000.0,
+          "is_return": 0,
+          "return_against": null,
+          "currency": "VND"
+        },
+        {
+          "doctype": "Purchase Invoice",
+          "name": "ACC-PINV-2026-00013",
+          "posting_date": "2026-09-01",
+          "due_date": "2026-09-29",
+          "grand_total": 50000.0,
+          "is_return": 0,
+          "return_against": null,
+          "currency": "VND"
+        }
+      ],
+      "payment_allocations": [],
+      "payment_ledger": [
+        {
+          "voucher_type": "Sales Invoice",
+          "voucher_no": "ACC-SINV-2026-00006",
+          "against_voucher_type": "Sales Invoice",
+          "against_voucher_no": "ACC-SINV-2026-00006",
+          "amount": 100000.0,
+          "posting_date": "2026-09-01",
+          "account": "Debtors - A3G"
+        },
+        {
+          "voucher_type": "Sales Invoice",
+          "voucher_no": "ACC-SINV-2026-00007",
+          "against_voucher_type": "Sales Invoice",
+          "against_voucher_no": "ACC-SINV-2026-00007",
+          "amount": 200000.0,
+          "posting_date": "2026-09-01",
+          "account": "Debtors - A3G"
+        },
+        {
+          "voucher_type": "Sales Invoice",
+          "voucher_no": "ACC-SINV-2026-00008",
+          "against_voucher_type": "Sales Invoice",
+          "against_voucher_no": "ACC-SINV-2026-00008",
+          "amount": 300000.0,
+          "posting_date": "2026-09-01",
+          "account": "Debtors - A3G"
+        },
+        {
+          "voucher_type": "Sales Invoice",
+          "voucher_no": "ACC-SINV-2026-00009",
+          "against_voucher_type": "Sales Invoice",
+          "against_voucher_no": "ACC-SINV-2026-00009",
+          "amount": 50000.0,
+          "posting_date": "2026-09-01",
+          "account": "Debtors - A3G"
+        },
+        {
+          "voucher_type": "Purchase Invoice",
+          "voucher_no": "ACC-PINV-2026-00006",
+          "against_voucher_type": "Purchase Invoice",
+          "against_voucher_no": "ACC-PINV-2026-00006",
+          "amount": 100000.0,
+          "posting_date": "2026-09-01",
+          "account": "Creditors - A3G"
+        },
+        {
+          "voucher_type": "Purchase Invoice",
+          "voucher_no": "ACC-PINV-2026-00007",
+          "against_voucher_type": "Purchase Invoice",
+          "against_voucher_no": "ACC-PINV-2026-00007",
+          "amount": 200000.0,
+          "posting_date": "2026-09-01",
+          "account": "Creditors - A3G"
+        },
+        {
+          "voucher_type": "Purchase Invoice",
+          "voucher_no": "ACC-PINV-2026-00008",
+          "against_voucher_type": "Purchase Invoice",
+          "against_voucher_no": "ACC-PINV-2026-00008",
+          "amount": 300000.0,
+          "posting_date": "2026-09-01",
+          "account": "Creditors - A3G"
+        },
+        {
+          "voucher_type": "Purchase Invoice",
+          "voucher_no": "ACC-PINV-2026-00009",
+          "against_voucher_type": "Purchase Invoice",
+          "against_voucher_no": "ACC-PINV-2026-00009",
+          "amount": 400000.0,
+          "posting_date": "2026-09-01",
+          "account": "Creditors - A3G"
+        },
+        {
+          "voucher_type": "Purchase Invoice",
+          "voucher_no": "ACC-PINV-2026-00010",
+          "against_voucher_type": "Purchase Invoice",
+          "against_voucher_no": "ACC-PINV-2026-00010",
+          "amount": 500000.0,
+          "posting_date": "2026-09-01",
+          "account": "Creditors - A3G"
+        },
+        {
+          "voucher_type": "Purchase Invoice",
+          "voucher_no": "ACC-PINV-2026-00011",
+          "against_voucher_type": "Purchase Invoice",
+          "against_voucher_no": "ACC-PINV-2026-00011",
+          "amount": 600000.0,
+          "posting_date": "2026-09-01",
+          "account": "Creditors - A3G"
+        },
+        {
+          "voucher_type": "Purchase Invoice",
+          "voucher_no": "ACC-PINV-2026-00012",
+          "against_voucher_type": "Purchase Invoice",
+          "against_voucher_no": "ACC-PINV-2026-00012",
+          "amount": 700000.0,
+          "posting_date": "2026-09-01",
+          "account": "Creditors - A3G"
+        },
+        {
+          "voucher_type": "Purchase Invoice",
+          "voucher_no": "ACC-PINV-2026-00013",
+          "against_voucher_type": "Purchase Invoice",
+          "against_voucher_no": "ACC-PINV-2026-00013",
+          "amount": 50000.0,
+          "posting_date": "2026-09-01",
+          "account": "Creditors - A3G"
+        }
+      ],
+      "ar_netting_policy": "Observed AI001 net residual; positive-only/credit policy requires approval",
+      "ap_netting_policy": "positive obligation residual; posted allocated credits reduce invoice once; unallocated credits separate"
+    },
+    "2026-09-26": {
+      "company": "AI003 Gold 2026",
+      "as_of": "2026-09-26",
+      "total_ar": "565000.0",
+      "overdue_ar": "65000.0",
+      "ar_ratio": "0.1150442477876106194690265487",
+      "ap_short": "275000.0",
+      "ap_horizon": "975000.0",
+      "ap_ratio": "0.2820512820512820512820512821",
+      "ar_positive_residual": "575000.0",
+      "ar_unallocated_credit": "-10000.0",
+      "ap_unallocated_credit": "-10000.0",
+      "ap_total_positive": "2775000.0",
+      "ap_overdue": "600000.0",
+      "ap_due_today": "700000.0",
+      "residuals": [
+        {
+          "doctype": "Sales Invoice",
+          "voucher": "ACC-SINV-2026-00006",
+          "due_date": "2026-09-25",
+          "gross": "100000.0",
+          "is_return": 0,
+          "return_against": null,
+          "residual": "75000.0"
+        },
+        {
+          "doctype": "Sales Invoice",
+          "voucher": "ACC-SINV-2026-00007",
+          "due_date": "2026-09-26",
+          "gross": "200000.0",
+          "is_return": 0,
+          "return_against": null,
+          "residual": "200000.0"
+        },
+        {
+          "doctype": "Sales Invoice",
+          "voucher": "ACC-SINV-2026-00008",
+          "due_date": "2026-09-27",
+          "gross": "300000.0",
+          "is_return": 0,
+          "return_against": null,
+          "residual": "300000.0"
+        },
+        {
+          "doctype": "Sales Invoice",
+          "voucher": "ACC-SINV-2026-00009",
+          "due_date": "2026-09-24",
+          "gross": "50000.0",
+          "is_return": 0,
+          "return_against": null,
+          "residual": "0.0"
+        },
+        {
+          "doctype": "Sales Invoice",
+          "voucher": "ACC-SINV-2026-00010",
+          "due_date": "2026-09-25",
+          "gross": "-10000.0",
+          "is_return": 1,
+          "return_against": "ACC-SINV-2026-00006",
+          "residual": "-10000.0"
+        },
+        {
+          "doctype": "Purchase Invoice",
+          "voucher": "ACC-PINV-2026-00006",
+          "due_date": "2026-09-27",
+          "gross": "100000.0",
+          "is_return": 0,
+          "return_against": null,
+          "residual": "75000.0"
+        },
+        {
+          "doctype": "Purchase Invoice",
+          "voucher": "ACC-PINV-2026-00007",
+          "due_date": "2026-10-03",
+          "gross": "200000.0",
+          "is_return": 0,
+          "return_against": null,
+          "residual": "200000.0"
+        },
+        {
+          "doctype": "Purchase Invoice",
+          "voucher": "ACC-PINV-2026-00008",
+          "due_date": "2026-10-04",
+          "gross": "300000.0",
+          "is_return": 0,
+          "return_against": null,
+          "residual": "300000.0"
+        },
+        {
+          "doctype": "Purchase Invoice",
+          "voucher": "ACC-PINV-2026-00009",
+          "due_date": "2026-10-26",
+          "gross": "400000.0",
+          "is_return": 0,
+          "return_against": null,
+          "residual": "400000.0"
+        },
+        {
+          "doctype": "Purchase Invoice",
+          "voucher": "ACC-PINV-2026-00010",
+          "due_date": "2026-10-27",
+          "gross": "500000.0",
+          "is_return": 0,
+          "return_against": null,
+          "residual": "500000.0"
+        },
+        {
+          "doctype": "Purchase Invoice",
+          "voucher": "ACC-PINV-2026-00011",
+          "due_date": "2026-09-25",
+          "gross": "600000.0",
+          "is_return": 0,
+          "return_against": null,
+          "residual": "600000.0"
+        },
+        {
+          "doctype": "Purchase Invoice",
+          "voucher": "ACC-PINV-2026-00012",
+          "due_date": "2026-09-26",
+          "gross": "700000.0",
+          "is_return": 0,
+          "return_against": null,
+          "residual": "700000.0"
+        },
+        {
+          "doctype": "Purchase Invoice",
+          "voucher": "ACC-PINV-2026-00013",
+          "due_date": "2026-09-29",
+          "gross": "50000.0",
+          "is_return": 0,
+          "return_against": null,
+          "residual": "0.0"
+        },
+        {
+          "doctype": "Purchase Invoice",
+          "voucher": "ACC-PINV-2026-00014",
+          "due_date": "2026-09-27",
+          "gross": "-10000.0",
+          "is_return": 1,
+          "return_against": "ACC-PINV-2026-00006",
+          "residual": "-10000.0"
+        }
+      ],
+      "source_refs": [
+        "Sales Invoice:ACC-SINV-2026-00006",
+        "Sales Invoice:ACC-SINV-2026-00007",
+        "Sales Invoice:ACC-SINV-2026-00008",
+        "Sales Invoice:ACC-SINV-2026-00009",
+        "Sales Invoice:ACC-SINV-2026-00010",
+        "Purchase Invoice:ACC-PINV-2026-00006",
+        "Purchase Invoice:ACC-PINV-2026-00007",
+        "Purchase Invoice:ACC-PINV-2026-00008",
+        "Purchase Invoice:ACC-PINV-2026-00009",
+        "Purchase Invoice:ACC-PINV-2026-00010",
+        "Purchase Invoice:ACC-PINV-2026-00011",
+        "Purchase Invoice:ACC-PINV-2026-00012",
+        "Purchase Invoice:ACC-PINV-2026-00013",
+        "Purchase Invoice:ACC-PINV-2026-00014"
+      ],
+      "source_hash": "f43de2e6a769d228cb4971a4742a6cbb2c4a812790756a9819392c7706116372",
+      "source_records": [
+        {
+          "doctype": "Sales Invoice",
+          "name": "ACC-SINV-2026-00006",
+          "posting_date": "2026-09-01",
+          "due_date": "2026-09-25",
+          "grand_total": 100000.0,
+          "is_return": 0,
+          "return_against": null,
+          "currency": "VND"
+        },
+        {
+          "doctype": "Sales Invoice",
+          "name": "ACC-SINV-2026-00007",
+          "posting_date": "2026-09-01",
+          "due_date": "2026-09-26",
+          "grand_total": 200000.0,
+          "is_return": 0,
+          "return_against": null,
+          "currency": "VND"
+        },
+        {
+          "doctype": "Sales Invoice",
+          "name": "ACC-SINV-2026-00008",
+          "posting_date": "2026-09-01",
+          "due_date": "2026-09-27",
+          "grand_total": 300000.0,
+          "is_return": 0,
+          "return_against": null,
+          "currency": "VND"
+        },
+        {
+          "doctype": "Sales Invoice",
+          "name": "ACC-SINV-2026-00009",
+          "posting_date": "2026-09-01",
+          "due_date": "2026-09-24",
+          "grand_total": 50000.0,
+          "is_return": 0,
+          "return_against": null,
+          "currency": "VND"
+        },
+        {
+          "doctype": "Sales Invoice",
+          "name": "ACC-SINV-2026-00010",
+          "posting_date": "2026-09-23",
+          "due_date": "2026-09-25",
+          "grand_total": -10000.0,
+          "is_return": 1,
+          "return_against": "ACC-SINV-2026-00006",
+          "currency": "VND"
+        },
+        {
+          "doctype": "Sales Invoice",
+          "name": "ACC-SINV-2026-00011",
+          "posting_date": "2026-09-24",
+          "due_date": "2026-09-25",
+          "grand_total": -5000.0,
+          "is_return": 1,
+          "return_against": "ACC-SINV-2026-00006",
+          "currency": "VND"
+        },
+        {
+          "doctype": "Purchase Invoice",
+          "name": "ACC-PINV-2026-00006",
+          "posting_date": "2026-09-01",
+          "due_date": "2026-09-27",
+          "grand_total": 100000.0,
+          "is_return": 0,
+          "return_against": null,
+          "currency": "VND"
+        },
+        {
+          "doctype": "Purchase Invoice",
+          "name": "ACC-PINV-2026-00007",
+          "posting_date": "2026-09-01",
+          "due_date": "2026-10-03",
+          "grand_total": 200000.0,
+          "is_return": 0,
+          "return_against": null,
+          "currency": "VND"
+        },
+        {
+          "doctype": "Purchase Invoice",
+          "name": "ACC-PINV-2026-00008",
+          "posting_date": "2026-09-01",
+          "due_date": "2026-10-04",
+          "grand_total": 300000.0,
+          "is_return": 0,
+          "return_against": null,
+          "currency": "VND"
+        },
+        {
+          "doctype": "Purchase Invoice",
+          "name": "ACC-PINV-2026-00009",
+          "posting_date": "2026-09-01",
+          "due_date": "2026-10-26",
+          "grand_total": 400000.0,
+          "is_return": 0,
+          "return_against": null,
+          "currency": "VND"
+        },
+        {
+          "doctype": "Purchase Invoice",
+          "name": "ACC-PINV-2026-00010",
+          "posting_date": "2026-09-01",
+          "due_date": "2026-10-27",
+          "grand_total": 500000.0,
+          "is_return": 0,
+          "return_against": null,
+          "currency": "VND"
+        },
+        {
+          "doctype": "Purchase Invoice",
+          "name": "ACC-PINV-2026-00011",
+          "posting_date": "2026-09-01",
+          "due_date": "2026-09-25",
+          "grand_total": 600000.0,
+          "is_return": 0,
+          "return_against": null,
+          "currency": "VND"
+        },
+        {
+          "doctype": "Purchase Invoice",
+          "name": "ACC-PINV-2026-00012",
+          "posting_date": "2026-09-01",
+          "due_date": "2026-09-26",
+          "grand_total": 700000.0,
+          "is_return": 0,
+          "return_against": null,
+          "currency": "VND"
+        },
+        {
+          "doctype": "Purchase Invoice",
+          "name": "ACC-PINV-2026-00013",
+          "posting_date": "2026-09-01",
+          "due_date": "2026-09-29",
+          "grand_total": 50000.0,
+          "is_return": 0,
+          "return_against": null,
+          "currency": "VND"
+        },
+        {
+          "doctype": "Purchase Invoice",
+          "name": "ACC-PINV-2026-00014",
+          "posting_date": "2026-09-23",
+          "due_date": "2026-09-27",
+          "grand_total": -10000.0,
+          "is_return": 1,
+          "return_against": "ACC-PINV-2026-00006",
+          "currency": "VND"
+        },
+        {
+          "doctype": "Purchase Invoice",
+          "name": "ACC-PINV-2026-00015",
+          "posting_date": "2026-09-24",
+          "due_date": "2026-09-27",
+          "grand_total": -5000.0,
+          "is_return": 1,
+          "return_against": "ACC-PINV-2026-00006",
+          "currency": "VND"
+        }
+      ],
+      "payment_allocations": [
+        {
+          "payment": "ACC-PAY-2026-00005",
+          "posting_date": "2026-09-22",
+          "reference_doctype": "Sales Invoice",
+          "reference_name": "ACC-SINV-2026-00006",
+          "allocated_amount": 20000.0
+        },
+        {
+          "payment": "ACC-PAY-2026-00006",
+          "posting_date": "2026-09-22",
+          "reference_doctype": "Sales Invoice",
+          "reference_name": "ACC-SINV-2026-00009",
+          "allocated_amount": 50000.0
+        },
+        {
+          "payment": "ACC-PAY-2026-00007",
+          "posting_date": "2026-09-22",
+          "reference_doctype": "Purchase Invoice",
+          "reference_name": "ACC-PINV-2026-00006",
+          "allocated_amount": 20000.0
+        },
+        {
+          "payment": "ACC-PAY-2026-00008",
+          "posting_date": "2026-09-22",
+          "reference_doctype": "Purchase Invoice",
+          "reference_name": "ACC-PINV-2026-00013",
+          "allocated_amount": 50000.0
+        }
+      ],
+      "payment_ledger": [
+        {
+          "voucher_type": "Sales Invoice",
+          "voucher_no": "ACC-SINV-2026-00006",
+          "against_voucher_type": "Sales Invoice",
+          "against_voucher_no": "ACC-SINV-2026-00006",
+          "amount": 100000.0,
+          "posting_date": "2026-09-01",
+          "account": "Debtors - A3G"
+        },
+        {
+          "voucher_type": "Sales Invoice",
+          "voucher_no": "ACC-SINV-2026-00007",
+          "against_voucher_type": "Sales Invoice",
+          "against_voucher_no": "ACC-SINV-2026-00007",
+          "amount": 200000.0,
+          "posting_date": "2026-09-01",
+          "account": "Debtors - A3G"
+        },
+        {
+          "voucher_type": "Sales Invoice",
+          "voucher_no": "ACC-SINV-2026-00008",
+          "against_voucher_type": "Sales Invoice",
+          "against_voucher_no": "ACC-SINV-2026-00008",
+          "amount": 300000.0,
+          "posting_date": "2026-09-01",
+          "account": "Debtors - A3G"
+        },
+        {
+          "voucher_type": "Sales Invoice",
+          "voucher_no": "ACC-SINV-2026-00009",
+          "against_voucher_type": "Sales Invoice",
+          "against_voucher_no": "ACC-SINV-2026-00009",
+          "amount": 50000.0,
+          "posting_date": "2026-09-01",
+          "account": "Debtors - A3G"
+        },
+        {
+          "voucher_type": "Purchase Invoice",
+          "voucher_no": "ACC-PINV-2026-00006",
+          "against_voucher_type": "Purchase Invoice",
+          "against_voucher_no": "ACC-PINV-2026-00006",
+          "amount": 100000.0,
+          "posting_date": "2026-09-01",
+          "account": "Creditors - A3G"
+        },
+        {
+          "voucher_type": "Purchase Invoice",
+          "voucher_no": "ACC-PINV-2026-00007",
+          "against_voucher_type": "Purchase Invoice",
+          "against_voucher_no": "ACC-PINV-2026-00007",
+          "amount": 200000.0,
+          "posting_date": "2026-09-01",
+          "account": "Creditors - A3G"
+        },
+        {
+          "voucher_type": "Purchase Invoice",
+          "voucher_no": "ACC-PINV-2026-00008",
+          "against_voucher_type": "Purchase Invoice",
+          "against_voucher_no": "ACC-PINV-2026-00008",
+          "amount": 300000.0,
+          "posting_date": "2026-09-01",
+          "account": "Creditors - A3G"
+        },
+        {
+          "voucher_type": "Purchase Invoice",
+          "voucher_no": "ACC-PINV-2026-00009",
+          "against_voucher_type": "Purchase Invoice",
+          "against_voucher_no": "ACC-PINV-2026-00009",
+          "amount": 400000.0,
+          "posting_date": "2026-09-01",
+          "account": "Creditors - A3G"
+        },
+        {
+          "voucher_type": "Purchase Invoice",
+          "voucher_no": "ACC-PINV-2026-00010",
+          "against_voucher_type": "Purchase Invoice",
+          "against_voucher_no": "ACC-PINV-2026-00010",
+          "amount": 500000.0,
+          "posting_date": "2026-09-01",
+          "account": "Creditors - A3G"
+        },
+        {
+          "voucher_type": "Purchase Invoice",
+          "voucher_no": "ACC-PINV-2026-00011",
+          "against_voucher_type": "Purchase Invoice",
+          "against_voucher_no": "ACC-PINV-2026-00011",
+          "amount": 600000.0,
+          "posting_date": "2026-09-01",
+          "account": "Creditors - A3G"
+        },
+        {
+          "voucher_type": "Purchase Invoice",
+          "voucher_no": "ACC-PINV-2026-00012",
+          "against_voucher_type": "Purchase Invoice",
+          "against_voucher_no": "ACC-PINV-2026-00012",
+          "amount": 700000.0,
+          "posting_date": "2026-09-01",
+          "account": "Creditors - A3G"
+        },
+        {
+          "voucher_type": "Purchase Invoice",
+          "voucher_no": "ACC-PINV-2026-00013",
+          "against_voucher_type": "Purchase Invoice",
+          "against_voucher_no": "ACC-PINV-2026-00013",
+          "amount": 50000.0,
+          "posting_date": "2026-09-01",
+          "account": "Creditors - A3G"
+        },
+        {
+          "voucher_type": "Payment Entry",
+          "voucher_no": "ACC-PAY-2026-00005",
+          "against_voucher_type": "Sales Invoice",
+          "against_voucher_no": "ACC-SINV-2026-00006",
+          "amount": -20000.0,
+          "posting_date": "2026-09-22",
+          "account": "Debtors - A3G"
+        },
+        {
+          "voucher_type": "Payment Entry",
+          "voucher_no": "ACC-PAY-2026-00006",
+          "against_voucher_type": "Sales Invoice",
+          "against_voucher_no": "ACC-SINV-2026-00009",
+          "amount": -50000.0,
+          "posting_date": "2026-09-22",
+          "account": "Debtors - A3G"
+        },
+        {
+          "voucher_type": "Payment Entry",
+          "voucher_no": "ACC-PAY-2026-00007",
+          "against_voucher_type": "Purchase Invoice",
+          "against_voucher_no": "ACC-PINV-2026-00006",
+          "amount": -20000.0,
+          "posting_date": "2026-09-22",
+          "account": "Creditors - A3G"
+        },
+        {
+          "voucher_type": "Payment Entry",
+          "voucher_no": "ACC-PAY-2026-00008",
+          "against_voucher_type": "Purchase Invoice",
+          "against_voucher_no": "ACC-PINV-2026-00013",
+          "amount": -50000.0,
+          "posting_date": "2026-09-22",
+          "account": "Creditors - A3G"
+        },
+        {
+          "voucher_type": "Sales Invoice",
+          "voucher_no": "ACC-SINV-2026-00010",
+          "against_voucher_type": "Sales Invoice",
+          "against_voucher_no": "ACC-SINV-2026-00010",
+          "amount": -10000.0,
+          "posting_date": "2026-09-23",
+          "account": "Debtors - A3G"
+        },
+        {
+          "voucher_type": "Purchase Invoice",
+          "voucher_no": "ACC-PINV-2026-00014",
+          "against_voucher_type": "Purchase Invoice",
+          "against_voucher_no": "ACC-PINV-2026-00014",
+          "amount": -10000.0,
+          "posting_date": "2026-09-23",
+          "account": "Creditors - A3G"
+        },
+        {
+          "voucher_type": "Sales Invoice",
+          "voucher_no": "ACC-SINV-2026-00011",
+          "against_voucher_type": "Sales Invoice",
+          "against_voucher_no": "ACC-SINV-2026-00006",
+          "amount": -5000.0,
+          "posting_date": "2026-09-24",
+          "account": "Debtors - A3G"
+        },
+        {
+          "voucher_type": "Purchase Invoice",
+          "voucher_no": "ACC-PINV-2026-00015",
+          "against_voucher_type": "Purchase Invoice",
+          "against_voucher_no": "ACC-PINV-2026-00006",
+          "amount": -5000.0,
+          "posting_date": "2026-09-24",
+          "account": "Creditors - A3G"
+        }
+      ],
+      "ar_netting_policy": "Observed AI001 net residual; positive-only/credit policy requires approval",
+      "ap_netting_policy": "positive obligation residual; posted allocated credits reduce invoice once; unallocated credits separate"
+    },
+    "delta_pp": "11.50442477876106194690265487"
+  },
+  "errors": [],
+  "environment": {
+    "frappe": "16.34.0",
+    "erpnext": "16.35.0",
+    "timezone": "Asia/Ho_Chi_Minh",
+    "company": "AI003 Gold 2026",
+    "currency": "VND",
+    "migration_column": true
+  },
+  "fixture_refs": {
+    "AR_BEFORE": "ACC-SINV-2026-00006",
+    "AR_EXACT": "ACC-SINV-2026-00007",
+    "AR_AFTER": "ACC-SINV-2026-00008",
+    "AR_PAID": "ACC-SINV-2026-00009",
+    "AP_D1": "ACC-PINV-2026-00006",
+    "AP_D7": "ACC-PINV-2026-00007",
+    "AP_D8": "ACC-PINV-2026-00008",
+    "AP_D30": "ACC-PINV-2026-00009",
+    "AP_D31": "ACC-PINV-2026-00010",
+    "AP_OVERDUE": "ACC-PINV-2026-00011",
+    "AP_TODAY": "ACC-PINV-2026-00012",
+    "AP_PAID": "ACC-PINV-2026-00013"
+  },
+  "source_hashes": {
+    "AR": "82241e33ce81c3d33bc922d2066ead63e1546359cd3b41cc50053e224dcb8525",
+    "AP": "bb56a1995da661120a48aa52a4b2d47e5ef8b00f627e2153f0ad0be71e3304c3"
+  },
+  "temporal_evidence_before": [
+    "82241e33ce81c3d3"
+  ],
+  "temporal_refs": [
+    "ACC-SINV-2026-00013",
+    "ACC-SINV-2026-00013-1"
+  ]
+}
