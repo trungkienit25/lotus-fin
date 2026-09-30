@@ -86,9 +86,26 @@ def check_report_permission(report_name: str, user: Optional[str] = None) -> Non
 		frappe.throw(_("FORBIDDEN"), exc=frappe.PermissionError)
 
 
-AI002_PERMITTED_REPORTS = ("General Ledger", "Accounts Receivable", "Accounts Payable", "Trial Balance")
+def get_company_accounting_currency(company: Optional[str]) -> Optional[str]:
+    """
+    AI003 foundation remediation (Bucket C): server-authoritative accounting
+    currency for a company, read from Company.default_currency.
 
-# P0 Evidence DocType allowlist containing only the actual evidence types needed by AI002
+    Returns None when the currency cannot be determined — callers must fail
+    closed (typed VALIDATION_ERROR), never relabel metrics in a client-chosen
+    currency. No FX conversion is performed anywhere.
+    """
+    if frappe is None or not hasattr(frappe, "db") or not frappe.db:
+        return None
+    if not company or not str(company).strip():
+        return None
+    currency = frappe.db.get_value("Company", str(company).strip(), "default_currency")
+    if currency is None or not str(currency).strip():
+        return None
+    return str(currency).strip()
+
+
+AI002_PERMITTED_REPORTS = ("General Ledger", "Accounts Receivable", "Accounts Payable", "Trial Balance")# P0 Evidence DocType allowlist containing only the actual evidence types needed by AI002
 AI002_EVIDENCE_DOCTYPE_ALLOWLIST = ("GL Entry", "Sales Invoice", "Purchase Invoice", "Payment Entry", "Journal Entry")
 
 

@@ -1,0 +1,13 @@
+services:
+  backend:
+    image: lotus-fin:ai003-local
+  frontend:
+    image: lotus-fin:ai003-local
+  queue-long:
+    image: lotus-fin:ai003-local
+  queue-short:
+    image: lotus-fin:ai003-local
+  scheduler:
+    image: lotus-fin:ai003-local
+  websocket:
+    image: lotus-fin:ai003-local

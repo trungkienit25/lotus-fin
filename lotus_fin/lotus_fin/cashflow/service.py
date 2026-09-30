@@ -29,6 +29,7 @@ from .cache import (
     compute_cache_key,
     get_cached_response,
     set_cached_response,
+    evict_cached_response,
     acquire_single_flight,
     release_single_flight,
 )
@@ -119,6 +120,30 @@ def _telemetry_source_status(source: Any, cash_events: List[Any]) -> str:
     return "VERIFIED" if cash_events else "VERIFIED_ZERO_RECORDS"
 
 
+def _reauthorize_cached_resources(user: Optional[str]) -> bool:
+    """
+    AI003 foundation remediation (Bucket D): a cache hit must never bypass
+    resource/report reauthorization. Request validation re-runs on every call,
+    but report-level permissions are otherwise only enforced inside the report
+    adapters during computation — which a cache hit short-circuits. Re-check
+    the AI002 report allowlist permission for the caller before any cached
+    financial data is returned.
+    """
+    if frappe is None:
+        # Non-Frappe unit environment: request validation already ran.
+        return True
+    try:
+        from lotus_fin.security.access import AI002_PERMITTED_REPORTS, check_ai002_report_permission
+    except ImportError:
+        return True
+    try:
+        for report_name in AI002_PERMITTED_REPORTS:
+            check_ai002_report_permission(report_name, user=user)
+        return True
+    except Exception:
+        return False
+
+
 def get_cash_forecast(
     request: ForecastRequest,
     user: Optional[str] = None,
@@ -186,7 +211,27 @@ def get_cash_forecast(
     if not skip_cache:
         cached = get_cached_response(cache_key)
         if cached:
-            return cached
+            # Bucket D: reauthorize the underlying resources on every cache hit.
+            # Permission changes inside the TTL must yield FORBIDDEN with no
+            # cached financial payload, and the stale entry is evicted.
+            if _reauthorize_cached_resources(active_user):
+                return cached
+            evict_cached_response(cache_key)
+            log_ai002_event(
+                event_type="ai002_forecast_rejected",
+                correlation_id=correlation_id,
+                status=ForecastStatus.FORBIDDEN.value,
+                error_class="PermissionError",
+                latency_ms=(time.time() - start_time) * 1000,
+            )
+            return build_fail_closed_response(
+                request=request,
+                status=ForecastStatus.FORBIDDEN,
+                reason_code=ReasonCode.UNAUTHORIZED_ACCESS,
+                limitation="Access Denied",
+                correlation_id=correlation_id,
+                include_company=False,
+            )
 
     flight_acquired = acquire_single_flight(f"{request.company}:{request.financial_as_of}:{source_mode}")
 

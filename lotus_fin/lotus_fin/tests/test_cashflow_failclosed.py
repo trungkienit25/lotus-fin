@@ -808,7 +808,7 @@ class TestAccountScopeResolution(unittest.TestCase):
         with patch("lotus_fin.cashflow.validation.frappe") as frappe_mock, patch(
             "lotus_fin.cashflow.validation.resolve_cash_account_scope",
             return_value={"status": "RESOLVED", "approval": "APPROVED", "scope": ["Cash - A2F"], "unapproved_excluded": []},
-        ):
+        ), patch("lotus_fin.cashflow.validation.get_verified_company", return_value=COMPANY):
             frappe_mock.db.get_value.return_value = SimpleNamespace(
                 name="Cash - A2F",
                 company=COMPANY,
@@ -829,7 +829,7 @@ class TestAccountScopeResolution(unittest.TestCase):
         with patch("lotus_fin.cashflow.validation.frappe") as frappe_mock, patch(
             "lotus_fin.cashflow.validation.resolve_cash_account_scope",
             return_value={"status": "RESOLVED", "approval": "APPROVED", "scope": ["Cash - A2F"], "unapproved_excluded": []},
-        ):
+        ), patch("lotus_fin.cashflow.validation.get_verified_company", return_value=COMPANY):
             request = make_request(scope=["Cash - A2F", "Ghost - A2F"])
             valid, reason, msg = validate_forecast_request(request, user="tester")
 
@@ -841,10 +841,11 @@ class TestAccountScopeResolution(unittest.TestCase):
         with patch("lotus_fin.cashflow.validation.frappe"), patch(
             "lotus_fin.cashflow.validation.resolve_cash_account_scope",
             side_effect=ObligationPermissionError("Access Denied"),
-        ):
+        ) as scope_mock, patch("lotus_fin.cashflow.validation.get_verified_company", return_value=COMPANY):
             request = make_request()
             valid, reason, msg = validate_forecast_request(request, user="tester")
 
+        scope_mock.assert_called_once()
         self.assertFalse(valid)
         self.assertEqual(reason, ReasonCode.UNAUTHORIZED_ACCESS)
         self.assertEqual(msg, "FORBIDDEN")
@@ -853,7 +854,7 @@ class TestAccountScopeResolution(unittest.TestCase):
         with patch("lotus_fin.cashflow.validation.frappe"), patch(
             "lotus_fin.cashflow.validation.resolve_cash_account_scope",
             return_value={"status": "NEEDS_REVIEW", "approval": "MISSING_CONFIG", "scope": [], "unapproved_excluded": ["Cash - A2F"]},
-        ):
+        ), patch("lotus_fin.cashflow.validation.get_verified_company", return_value=COMPANY):
             request = make_request()
             valid, reason, msg = validate_forecast_request(request, user="tester")
 

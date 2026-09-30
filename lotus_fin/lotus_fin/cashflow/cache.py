@@ -45,6 +45,15 @@ def get_cached_response(cache_key: str) -> Optional[Any]:
     return entry["data"]
 
 
+def evict_cached_response(cache_key: str) -> None:
+    """
+    AI003 foundation remediation (Bucket D): remove a cached response when a
+    cache-hit reauthorization fails, so revoked permissions can never keep
+    serving cached financial data.
+    """
+    _CACHE_STORE.pop(cache_key, None)
+
+
 def set_cached_response(cache_key: str, data: Any) -> None:
     _CACHE_STORE[cache_key] = {
         "timestamp": time.time(),

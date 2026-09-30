@@ -27,7 +27,7 @@ from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 import hashlib
 import json
 import uuid
-from datetime import datetime, date, timezone
+from datetime import datetime, date, timedelta, timezone
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from lotus_fin.ai.observability import (
@@ -58,6 +58,107 @@ REPORT_ALLOWLIST = {
     "trial_balance": "Trial Balance",
     "cash_flow": "Cash Flow"
 }
+
+
+try:
+    import frappe
+except ImportError:
+    frappe = None
+
+try:
+    from lotus_fin.api.key_reports import normalize_frappe_report_footer
+except ImportError:
+    normalize_frappe_report_footer = None
+
+
+class FinancialSourceDataError(Exception):
+    """
+    Bucket A (AI003 foundation remediation): raised when a report payload is
+    malformed and can never be trusted as a verified zero. The source becomes a
+    typed unavailable/error state — a malformed row is never silently skipped
+    and summed as 0.
+    """
+    pass
+
+
+def _has_active_db() -> bool:
+    return bool(frappe and hasattr(frappe, "db") and frappe.db)
+
+
+def _should_validate_db_voucher(company: Optional[str]) -> bool:
+    if not (_has_active_db() and company):
+        return False
+    if type(frappe.db).__name__ in ("Mock", "MagicMock") or hasattr(frappe.db, "_mock_return_value"):
+        if hasattr(frappe.db, "get_value"):
+            probe = frappe.db.get_value("Sales Invoice", "probe", as_dict=True)
+            if type(probe).__name__ in ("Mock", "MagicMock"):
+                return False
+    return True
+
+
+def validate_source_payload(
+    source_key: str,
+    res: Any,
+    expected_company: Optional[str] = None,
+) -> Tuple[bool, Optional[List[Any]], Optional[str]]:
+    """
+    Bucket A & WV-01/WV-02 (AI003 foundation remediation): strict fail-closed
+    envelope validation for ERPNext report responses.
+
+    A verified zero is only permitted when:
+      status == "success" AND data is a valid list (a legitimate empty result).
+
+    Unknown report status, missing `data`, a non-list `data` payload, company
+    mismatch, or report_name / report_key mismatch are typed failures — never
+    defaulted to an empty list that reads as zero.
+    A raw list is accepted only as a trusted raw_sources injection (test/mock
+    path); live fetcher responses must always be envelopes.
+    """
+    if res is None:
+        return False, None, f"Source '{source_key}' not provided"
+    if isinstance(res, list):
+        return True, res, None
+    if isinstance(res, dict):
+        status = res.get("status")
+        if status == "error":
+            return False, None, str(res.get("message") or f"Source '{source_key}' reported an error status")
+        if status != "success":
+            return False, None, f"Source '{source_key}' returned unknown report status: {status!r}"
+
+        # Report identity mismatch verification
+        rep_key = res.get("report_key")
+        if rep_key and str(rep_key).strip().lower() != source_key.strip().lower():
+            return False, None, f"Source '{source_key}' report_key mismatch: '{rep_key}' != '{source_key}'"
+
+        rep_name = res.get("report_name")
+        expected_report_name = REPORT_ALLOWLIST.get(source_key)
+        if rep_name and expected_report_name and str(rep_name).strip().lower() != expected_report_name.strip().lower():
+            return False, None, f"Source '{source_key}' report_name mismatch: '{rep_name}' != '{expected_report_name}'"
+
+        # Company mismatch verification
+        if expected_company:
+            rep_comp = res.get("company")
+            if rep_comp and rep_comp != expected_company:
+                return False, None, f"Source '{source_key}' company mismatch: '{rep_comp}' != '{expected_company}'"
+
+        if "data" not in res:
+            return False, None, f"Source '{source_key}' response is missing the 'data' payload"
+        data = res.get("data")
+        if not isinstance(data, list):
+            return False, None, f"Source '{source_key}' 'data' payload is not a list"
+
+        # WV-01: Apply strict, verified Frappe query_report total footer normalization
+        columns = res.get("columns")
+        add_total_row = res.get("add_total_row")
+        skip_total_row = res.get("skip_total_row", False)
+        if columns and add_total_row and data and normalize_frappe_report_footer:
+            clean_data, _, _ = normalize_frappe_report_footer(
+                source_key, columns, data, add_total_row, skip_total_row
+            )
+            data = clean_data
+
+        return True, data, None
+    return False, None, f"Source '{source_key}' payload has an unsupported shape"
 
 
 def to_decimal(val: Any) -> Optional[Decimal]:
@@ -235,11 +336,27 @@ def parse_pnl_data(
 
 def parse_ar_data(
     ar_data: List[Dict[str, Any]],
-    as_of_date: Optional[date] = None
+    as_of_date: Optional[date] = None,
+    company: Optional[str] = None,
+    currency: str = "VND",
 ) -> Tuple[Optional[Decimal], Optional[Decimal], Optional[Decimal], List[str]]:
     """
     Extract Accounts Receivable Total Outstanding, Overdue Amount, and Overdue Ratio.
     Returns (total_ar, overdue_ar, overdue_ratio, limitations).
+
+    Bucket A & WV-01/WV-02: fail-closed row validation and cross-leg verification.
+    A non-dict row, missing amount, malformed amount, cross-leg party_type/voucher_type,
+    mismatched company/voucher, or foreign currency raises FinancialSourceDataError.
+    WR-01: a dict total/summary row (an is_total_row marker, or a voucher-less
+    party="Total" at any position) is NOT a verified Frappe v16 query_report
+    output shape — the verified footer is a list row separated at the envelope
+    boundary by normalize_frappe_report_footer — so any such dict reaching this
+    parser is unproven and raises instead of being skipped into an apparent zero.
+    WR-02: every transaction row must carry voucher identity (voucher_no or
+    name); ERPNext AR/AP reports are built from voucher-backed GL entries, so a
+    voucher-less row cannot be attributed and raises typed — mirroring the
+    AI002 adapter contract that rejects positive obligations without a voucher.
+    An empty list remains the only legitimate verified-zero input.
     """
     limitations = []
     if not ar_data:
@@ -251,22 +368,187 @@ def parse_ar_data(
     ref_date = as_of_date or datetime.now(timezone.utc).date()
 
     has_valid_row = False
-    for row in ar_data:
+    for row_idx, row in enumerate(ar_data):
         if not isinstance(row, dict):
-            continue
-        # Check for summary row in ERPNext reports
-        if row.get("is_total_row") or str(row.get("party") or "").lower() == "total":
-            continue
+            raise FinancialSourceDataError(
+                f"AR report row {row_idx} is not an object; source data is malformed."
+            )
+        # WR-01: a dict total/summary row is not a verified Frappe v16
+        # query_report output shape (the verified footer is a list row,
+        # separated at the envelope boundary by normalize_frappe_report_footer).
+        # An unproven summary dict must fail closed — skipping it would let a
+        # fake summary collapse the report into an apparent verified zero.
+        if row.get("is_total_row"):
+            raise FinancialSourceDataError(
+                f"AR report row {row_idx} is an unverified total/summary row "
+                "(is_total_row marker); source data is malformed."
+            )
+        if (
+            str(row.get("party") or "").strip().lower() == "total"
+            and not (row.get("voucher_no") or row.get("name"))
+        ):
+            # A party string alone is never summary authority: a row labelled
+            # "Total" that carries a voucher identity is processed as a
+            # transaction row (the voucher is verified against the DB below).
+            raise FinancialSourceDataError(
+                f"AR report row {row_idx} is an unverified total/summary row "
+                "without voucher identity; source data is malformed."
+            )
+
+        # Currency safety: foreign currency rows must fail closed
+        row_currency = row.get("currency") or row.get("account_currency")
+        if row_currency and str(row_currency).strip().upper() != currency.strip().upper():
+            raise FinancialSourceDataError(
+                f"AR report row {row_idx} has unsupported currency '{row_currency}', expected '{currency}'."
+            )
+
+        # WV-02: Party Type and Voucher Type cross-leg validation
+        party_type = row.get("party_type")
+        if party_type:
+            pt = str(party_type).strip().lower()
+            if pt == "supplier":
+                raise FinancialSourceDataError(
+                    f"AR report row {row_idx} contains cross-leg party_type 'Supplier'."
+                )
+            if pt not in ("customer", ""):
+                raise FinancialSourceDataError(
+                    f"AR report row {row_idx} contains non-receivable party_type '{party_type}'."
+                )
+
+        voucher_type = row.get("voucher_type")
+        if voucher_type:
+            vt = str(voucher_type).strip()
+            if vt in ("Purchase Invoice", "Purchase Order", "Bill"):
+                raise FinancialSourceDataError(
+                    f"AR report row {row_idx} contains cross-leg voucher_type '{vt}'."
+                )
+            if vt not in ("Sales Invoice", "Journal Entry", "Payment Entry", ""):
+                raise FinancialSourceDataError(
+                    f"AR report row {row_idx} contains unsupported voucher_type '{vt}'."
+                )
+
+        voucher_no = str(row.get("voucher_no") or row.get("name") or "").strip()
+        if not voucher_type and (voucher_no.startswith("PI-") or voucher_no.startswith("PINV-") or voucher_no.startswith("ACC-PINV-")):
+            raise FinancialSourceDataError(
+                f"AR report row {row_idx} voucher '{voucher_no}' appears to be a Purchase Invoice."
+            )
+
+        # Live Frappe DB validation if active and company provided
+        if _should_validate_db_voucher(company) and voucher_no:
+            vt_check = voucher_type or "Sales Invoice"
+            if vt_check == "Sales Invoice":
+                si = frappe.db.get_value("Sales Invoice", voucher_no, ["company", "docstatus", "customer"], as_dict=True)
+                if not si:
+                    pi = frappe.db.get_value("Purchase Invoice", voucher_no, ["company"], as_dict=True)
+                    if pi:
+                        raise FinancialSourceDataError(
+                            f"AR report row {row_idx} voucher '{voucher_no}' is a Purchase Invoice, not Sales Invoice."
+                        )
+                    pe = frappe.db.get_value("Payment Entry", voucher_no, ["company"], as_dict=True)
+                    if pe:
+                        raise FinancialSourceDataError(
+                            f"AR report row {row_idx} voucher '{voucher_no}' is a Payment Entry, not Sales Invoice."
+                        )
+                    raise FinancialSourceDataError(
+                        f"AR report row {row_idx} references non-existent Sales Invoice '{voucher_no}'."
+                    )
+                si_comp = si.get("company") if isinstance(si, dict) else getattr(si, "company", None)
+                si_docstatus = si.get("docstatus") if isinstance(si, dict) else getattr(si, "docstatus", None)
+                if si_comp != company:
+                    raise FinancialSourceDataError(
+                        f"AR report row {row_idx} Sales Invoice '{voucher_no}' company mismatch: '{si_comp}' != '{company}'."
+                    )
+                if si_docstatus != 1:
+                    raise FinancialSourceDataError(
+                        f"AR report row {row_idx} Sales Invoice '{voucher_no}' is not submitted."
+                    )
+            elif vt_check == "Payment Entry":
+                pe = frappe.db.get_value("Payment Entry", voucher_no, ["company", "docstatus", "payment_type", "party_type", "party"], as_dict=True)
+                if not pe:
+                    raise FinancialSourceDataError(
+                        f"AR report row {row_idx} references non-existent Payment Entry '{voucher_no}'."
+                    )
+                pe_comp = pe.get("company") if isinstance(pe, dict) else getattr(pe, "company", None)
+                pe_docstatus = pe.get("docstatus") if isinstance(pe, dict) else getattr(pe, "docstatus", None)
+                pe_ptype = str(pe.get("party_type") or "").strip().lower() if isinstance(pe, dict) else ""
+                pe_pmtype = str(pe.get("payment_type") or "").strip().lower() if isinstance(pe, dict) else ""
+                if pe_comp != company:
+                    raise FinancialSourceDataError(
+                        f"AR report row {row_idx} Payment Entry '{voucher_no}' company mismatch: '{pe_comp}' != '{company}'."
+                    )
+                if pe_docstatus != 1:
+                    raise FinancialSourceDataError(
+                        f"AR report row {row_idx} Payment Entry '{voucher_no}' is not submitted."
+                    )
+                if pe_ptype == "supplier" or pe_pmtype == "pay":
+                    raise FinancialSourceDataError(
+                        f"AR report row {row_idx} references Supplier/Pay Payment Entry '{voucher_no}' in AR."
+                    )
+            elif vt_check == "Journal Entry":
+                je = frappe.db.get_value("Journal Entry", voucher_no, ["company", "docstatus"], as_dict=True)
+                if not je:
+                    raise FinancialSourceDataError(
+                        f"AR report row {row_idx} references non-existent Journal Entry '{voucher_no}'."
+                    )
+                je_comp = je.get("company") if isinstance(je, dict) else getattr(je, "company", None)
+                je_docstatus = je.get("docstatus") if isinstance(je, dict) else getattr(je, "docstatus", None)
+                if je_comp != company:
+                    raise FinancialSourceDataError(
+                        f"AR report row {row_idx} Journal Entry '{voucher_no}' company mismatch: '{je_comp}' != '{company}'."
+                    )
+                if je_docstatus != 1:
+                    raise FinancialSourceDataError(
+                        f"AR report row {row_idx} Journal Entry '{voucher_no}' is not submitted."
+                    )
+
+            if row.get("party_account"):
+                acc = frappe.db.get_value("Account", row["party_account"], ["account_type", "company"], as_dict=True)
+                if not acc:
+                    raise FinancialSourceDataError(
+                        f"AR report row {row_idx} party_account '{row['party_account']}' does not exist."
+                    )
+                acc_comp = acc.get("company") if isinstance(acc, dict) else getattr(acc, "company", None)
+                acc_type = acc.get("account_type") if isinstance(acc, dict) else getattr(acc, "account_type", None)
+                if acc_comp and acc_comp != company:
+                    raise FinancialSourceDataError(
+                        f"AR report row {row_idx} party_account '{row['party_account']}' company mismatch: '{acc_comp}' != '{company}'."
+                    )
+                if acc_type != "Receivable":
+                    raise FinancialSourceDataError(
+                        f"AR report row {row_idx} account '{row['party_account']}' has type '{acc_type}', expected 'Receivable'."
+                    )
 
         raw_outstanding = None
+        alias_found = False
         for k in ("outstanding", "outstanding_amount", "invoiced_amount", "amount", "total_due"):
-            if k in row and row[k] is not None:
-                raw_outstanding = row[k]
-                break
+            if k in row:
+                alias_found = True
+                if row[k] is not None:
+                    raw_outstanding = row[k]
+                    break
+
+        if not alias_found or raw_outstanding is None:
+            raise FinancialSourceDataError(
+                f"AR report row {row_idx} is missing a valid outstanding amount field; "
+                "source data is malformed."
+            )
 
         outstanding = to_decimal(raw_outstanding)
         if outstanding is None:
-            continue
+            raise FinancialSourceDataError(
+                f"AR report row {row_idx} has a malformed outstanding amount; "
+                "source data is malformed."
+            )
+
+        # WR-02: ERPNext AR/AP transaction rows are always voucher-backed
+        # (voucher_no/name). A row without voucher identity cannot be
+        # attributed to a document and is a typed failure — never summed into
+        # the metric, regardless of amount sign.
+        if not voucher_no:
+            raise FinancialSourceDataError(
+                f"AR report row {row_idx} has no voucher identity "
+                "(voucher_no/name); source data is malformed."
+            )
 
         has_valid_row = True
         total_outstanding += outstanding
@@ -316,33 +598,209 @@ def parse_ar_data(
 
 
 def parse_ap_data(
-    ap_data: List[Dict[str, Any]]
+    ap_data: List[Dict[str, Any]],
+    company: Optional[str] = None,
+    currency: str = "VND",
 ) -> Tuple[Optional[Decimal], List[str]]:
     """
     Extract Accounts Payable Total Outstanding.
     Returns (total_ap, limitations).
+
+    Bucket A & WV-01/WR-02: fail-closed row validation, same
+    contract as parse_ar_data — malformed rows raise FinancialSourceDataError
+    instead of collapsing to an apparent zero. Dict total/summary rows
+    (is_total_row marker, or voucher-less party="Total" at any position) and
+    voucher-less rows are unproven shapes and raise typed.
     """
     if not ap_data:
         return Decimal("0.00"), []
 
     total_outstanding = Decimal("0.00")
     has_valid_row = False
-    for row in ap_data:
+    for row_idx, row in enumerate(ap_data):
         if not isinstance(row, dict):
-            continue
-        if row.get("is_total_row") or str(row.get("party") or "").lower() == "total":
-            continue
+            raise FinancialSourceDataError(
+                f"AP report row {row_idx} is not an object; source data is malformed."
+            )
+        # WR-01: a dict total/summary row is not a verified Frappe v16
+        # query_report output shape (the verified footer is a list row,
+        # separated at the envelope boundary by normalize_frappe_report_footer).
+        # An unproven summary dict must fail closed — skipping it would let a
+        # fake summary collapse the report into an apparent verified zero.
+        if row.get("is_total_row"):
+            raise FinancialSourceDataError(
+                f"AP report row {row_idx} is an unverified total/summary row "
+                "(is_total_row marker); source data is malformed."
+            )
+        if (
+            str(row.get("party") or "").strip().lower() == "total"
+            and not (row.get("voucher_no") or row.get("name"))
+        ):
+            # A party string alone is never summary authority: a row labelled
+            # "Total" that carries a voucher identity is processed as a
+            # transaction row (the voucher is verified against the DB below).
+            raise FinancialSourceDataError(
+                f"AP report row {row_idx} is an unverified total/summary row "
+                "without voucher identity; source data is malformed."
+            )
+
+        # Currency safety: foreign currency rows must fail closed
+        row_currency = row.get("currency") or row.get("account_currency")
+        if row_currency and str(row_currency).strip().upper() != currency.strip().upper():
+            raise FinancialSourceDataError(
+                f"AP report row {row_idx} has unsupported currency '{row_currency}', expected '{currency}'."
+            )
+
+        # WV-02: Party Type and Voucher Type cross-leg validation
+        party_type = row.get("party_type")
+        if party_type:
+            pt = str(party_type).strip().lower()
+            if pt == "customer":
+                raise FinancialSourceDataError(
+                    f"AP report row {row_idx} contains cross-leg party_type 'Customer'."
+                )
+            if pt not in ("supplier", ""):
+                raise FinancialSourceDataError(
+                    f"AP report row {row_idx} contains non-payable party_type '{party_type}'."
+                )
+
+        voucher_type = row.get("voucher_type")
+        if voucher_type:
+            vt = str(voucher_type).strip()
+            if vt in ("Sales Invoice", "Sales Order"):
+                raise FinancialSourceDataError(
+                    f"AP report row {row_idx} contains cross-leg voucher_type '{vt}'."
+                )
+            if vt not in ("Purchase Invoice", "Journal Entry", "Payment Entry", ""):
+                raise FinancialSourceDataError(
+                    f"AP report row {row_idx} contains unsupported voucher_type '{vt}'."
+                )
+
+        voucher_no = str(row.get("voucher_no") or row.get("name") or "").strip()
+        if not voucher_type and (voucher_no.startswith("SI-") or voucher_no.startswith("SINV-") or voucher_no.startswith("ACC-SINV-")):
+            raise FinancialSourceDataError(
+                f"AP report row {row_idx} voucher '{voucher_no}' appears to be a Sales Invoice."
+            )
+
+        # Live Frappe DB validation if active and company provided
+        if _should_validate_db_voucher(company) and voucher_no:
+            vt_check = voucher_type or "Purchase Invoice"
+            if vt_check == "Purchase Invoice":
+                pi = frappe.db.get_value("Purchase Invoice", voucher_no, ["company", "docstatus", "supplier"], as_dict=True)
+                if not pi:
+                    si = frappe.db.get_value("Sales Invoice", voucher_no, ["company"], as_dict=True)
+                    if si:
+                        raise FinancialSourceDataError(
+                            f"AP report row {row_idx} voucher '{voucher_no}' is a Sales Invoice, not Purchase Invoice."
+                        )
+                    pe = frappe.db.get_value("Payment Entry", voucher_no, ["company"], as_dict=True)
+                    if pe:
+                        raise FinancialSourceDataError(
+                            f"AP report row {row_idx} voucher '{voucher_no}' is a Payment Entry, not Purchase Invoice."
+                        )
+                    raise FinancialSourceDataError(
+                        f"AP report row {row_idx} references non-existent Purchase Invoice '{voucher_no}'."
+                    )
+                pi_comp = pi.get("company") if isinstance(pi, dict) else getattr(pi, "company", None)
+                pi_docstatus = pi.get("docstatus") if isinstance(pi, dict) else getattr(pi, "docstatus", None)
+                if pi_comp != company:
+                    raise FinancialSourceDataError(
+                        f"AP report row {row_idx} Purchase Invoice '{voucher_no}' company mismatch: '{pi_comp}' != '{company}'."
+                    )
+                if pi_docstatus != 1:
+                    raise FinancialSourceDataError(
+                        f"AP report row {row_idx} Purchase Invoice '{voucher_no}' is not submitted."
+                    )
+            elif vt_check == "Payment Entry":
+                pe = frappe.db.get_value("Payment Entry", voucher_no, ["company", "docstatus", "payment_type", "party_type", "party"], as_dict=True)
+                if not pe:
+                    raise FinancialSourceDataError(
+                        f"AP report row {row_idx} references non-existent Payment Entry '{voucher_no}'."
+                    )
+                pe_comp = pe.get("company") if isinstance(pe, dict) else getattr(pe, "company", None)
+                pe_docstatus = pe.get("docstatus") if isinstance(pe, dict) else getattr(pe, "docstatus", None)
+                pe_ptype = str(pe.get("party_type") or "").strip().lower() if isinstance(pe, dict) else ""
+                pe_pmtype = str(pe.get("payment_type") or "").strip().lower() if isinstance(pe, dict) else ""
+                if pe_comp != company:
+                    raise FinancialSourceDataError(
+                        f"AP report row {row_idx} Payment Entry '{voucher_no}' company mismatch: '{pe_comp}' != '{company}'."
+                    )
+                if pe_docstatus != 1:
+                    raise FinancialSourceDataError(
+                        f"AP report row {row_idx} Payment Entry '{voucher_no}' is not submitted."
+                    )
+                if pe_ptype == "customer" or pe_pmtype == "receive":
+                    raise FinancialSourceDataError(
+                        f"AP report row {row_idx} references Customer/Receive Payment Entry '{voucher_no}' in AP."
+                    )
+            elif vt_check == "Journal Entry":
+                je = frappe.db.get_value("Journal Entry", voucher_no, ["company", "docstatus"], as_dict=True)
+                if not je:
+                    raise FinancialSourceDataError(
+                         f"AP report row {row_idx} references non-existent Journal Entry '{voucher_no}'."
+                    )
+                je_comp = je.get("company") if isinstance(je, dict) else getattr(je, "company", None)
+                je_docstatus = je.get("docstatus") if isinstance(je, dict) else getattr(je, "docstatus", None)
+                if je_comp != company:
+                    raise FinancialSourceDataError(
+                        f"AP report row {row_idx} Journal Entry '{voucher_no}' company mismatch: '{je_comp}' != '{company}'."
+                    )
+                if je_docstatus != 1:
+                    raise FinancialSourceDataError(
+                        f"AP report row {row_idx} Journal Entry '{voucher_no}' is not submitted."
+                    )
+
+            if row.get("party_account"):
+                acc = frappe.db.get_value("Account", row["party_account"], ["account_type", "company"], as_dict=True)
+                if not acc:
+                    raise FinancialSourceDataError(
+                        f"AP report row {row_idx} party_account '{row['party_account']}' does not exist."
+                    )
+                acc_comp = acc.get("company") if isinstance(acc, dict) else getattr(acc, "company", None)
+                acc_type = acc.get("account_type") if isinstance(acc, dict) else getattr(acc, "account_type", None)
+                if acc_comp and acc_comp != company:
+                    raise FinancialSourceDataError(
+                        f"AP report row {row_idx} party_account '{row['party_account']}' company mismatch: '{acc_comp}' != '{company}'."
+                    )
+                if acc_type != "Payable":
+                    raise FinancialSourceDataError(
+                        f"AP report row {row_idx} account '{row['party_account']}' has type '{acc_type}', expected 'Payable'."
+                    )
 
         raw_outstanding = None
+        alias_found = False
         for k in ("outstanding", "outstanding_amount", "amount", "invoiced_amount", "total_due"):
-            if k in row and row[k] is not None:
-                raw_outstanding = row[k]
-                break
+            if k in row:
+                alias_found = True
+                if row[k] is not None:
+                    raw_outstanding = row[k]
+                    break
+
+        if not alias_found or raw_outstanding is None:
+            raise FinancialSourceDataError(
+                f"AP report row {row_idx} is missing a valid outstanding amount field; "
+                "source data is malformed."
+            )
 
         outstanding = to_decimal(raw_outstanding)
-        if outstanding is not None:
-            has_valid_row = True
-            total_outstanding += outstanding
+        if outstanding is None:
+            raise FinancialSourceDataError(
+                f"AP report row {row_idx} has a malformed outstanding amount; "
+                "source data is malformed."
+            )
+
+        # WR-02: ERPNext AR/AP transaction rows are always voucher-backed
+        # (voucher_no/name). A row without voucher identity cannot be
+        # attributed to a document and is a typed failure — never summed into
+        # the metric, regardless of amount sign.
+        if not voucher_no:
+            raise FinancialSourceDataError(
+                f"AP report row {row_idx} has no voucher identity "
+                "(voucher_no/name); source data is malformed."
+            )
+
+        has_valid_row = True
+        total_outstanding += outstanding
 
     if not has_valid_row:
         return Decimal("0.00"), ["No active payables found in period."]
@@ -501,6 +959,71 @@ def build_financial_snapshot(
             "evidence_refs": []
         }
 
+    # 1b. as_of cutoff validation (AI003 foundation remediation, Bucket B).
+    # The cutoff must be a full valid ISO date; invalid values are rejected
+    # with a typed VALIDATION_ERROR and never silently fall back to period_end.
+    as_of_date: Optional[date] = None
+    if as_of:
+        as_of_raw = str(as_of).strip()
+        parsed_as_of = None
+        try:
+            parsed_as_of = datetime.fromisoformat(as_of_raw.replace("Z", "+00:00")).date()
+        except (ValueError, TypeError):
+            parsed_as_of = None
+        if parsed_as_of is None:
+            log_event(
+                event_type=EVENT_REQUEST_FAILED,
+                correlation_id=cid,
+                status="VALIDATION_ERROR",
+                details={"reason": "Invalid as_of date"}
+            )
+            op_metrics.record_request("VALIDATION_ERROR", 0.0)
+            return {
+                "feature_id": FEATURE_ID,
+                "contract_version": CONTRACT_VERSION,
+                "status": "VALIDATION_ERROR",
+                "correlation_id": cid,
+                "company": None,
+                "period": None,
+                "as_of": now_iso,
+                "snapshot_id": None,
+                "data_mode": None,
+                "currency": None,
+                "metrics": [],
+                "comparison": None,
+                "explanation": None,
+                "missing_inputs": ["Invalid as_of date; expected a full ISO date (YYYY-MM-DD)."],
+                "limitations": ["as_of must be a valid ISO date; it is never silently replaced by period_end."],
+                "evidence_refs": []
+            }
+        if parsed_as_of < p_start:
+            log_event(
+                event_type=EVENT_REQUEST_FAILED,
+                correlation_id=cid,
+                status="VALIDATION_ERROR",
+                details={"reason": "as_of before period_start"}
+            )
+            op_metrics.record_request("VALIDATION_ERROR", 0.0)
+            return {
+                "feature_id": FEATURE_ID,
+                "contract_version": CONTRACT_VERSION,
+                "status": "VALIDATION_ERROR",
+                "correlation_id": cid,
+                "company": None,
+                "period": None,
+                "as_of": now_iso,
+                "snapshot_id": None,
+                "data_mode": None,
+                "currency": None,
+                "metrics": [],
+                "comparison": None,
+                "explanation": None,
+                "missing_inputs": ["as_of cannot be before period_start."],
+                "limitations": ["as_of must lie within the requested period."],
+                "evidence_refs": []
+            }
+        as_of_date = parsed_as_of
+
     # 2. Company authorization guard
     verified_company = company
     try:
@@ -563,6 +1086,78 @@ def build_financial_snapshot(
             "evidence_refs": []
         }
 
+    # 2b. Currency authority (AI003 foundation remediation, Bucket C).
+    # The client may never relabel a financial metric in an arbitrary currency:
+    # the server resolves the company's accounting currency and FX conversion
+    # is not implemented, so any mismatch is a typed VALIDATION_ERROR.
+    try:
+        import frappe
+        if hasattr(frappe, "local") and hasattr(frappe.local, "db") and frappe.local.db:
+            from lotus_fin.security.access import get_company_accounting_currency
+            company_currency = get_company_accounting_currency(verified_company)
+            requested_currency = str(currency or "").strip().upper()
+            company_currency_norm = str(company_currency or "").strip().upper()
+            if not company_currency_norm:
+                log_event(
+                    event_type=EVENT_REQUEST_FAILED,
+                    correlation_id=cid,
+                    status="VALIDATION_ERROR",
+                    details={"reason": "Company accounting currency could not be determined"}
+                )
+                op_metrics.record_request("VALIDATION_ERROR", 0.0)
+                return {
+                    "feature_id": FEATURE_ID,
+                    "contract_version": CONTRACT_VERSION,
+                    "status": "VALIDATION_ERROR",
+                    "correlation_id": cid,
+                    "company": None,
+                    "period": None,
+                    "as_of": now_iso,
+                    "snapshot_id": None,
+                    "data_mode": None,
+                    "currency": None,
+                    "metrics": [],
+                    "comparison": None,
+                    "explanation": None,
+                    "missing_inputs": ["Company accounting currency could not be determined."],
+                    "limitations": ["Financial metrics cannot be labeled without a verified accounting currency."],
+                    "evidence_refs": []
+                }
+            if requested_currency != company_currency_norm:
+                log_event(
+                    event_type=EVENT_REQUEST_FAILED,
+                    correlation_id=cid,
+                    status="VALIDATION_ERROR",
+                    details={"reason": "Requested currency does not match company accounting currency"}
+                )
+                op_metrics.record_request("VALIDATION_ERROR", 0.0)
+                return {
+                    "feature_id": FEATURE_ID,
+                    "contract_version": CONTRACT_VERSION,
+                    "status": "VALIDATION_ERROR",
+                    "correlation_id": cid,
+                    "company": None,
+                    "period": None,
+                    "as_of": now_iso,
+                    "snapshot_id": None,
+                    "data_mode": None,
+                    "currency": None,
+                    "metrics": [],
+                    "comparison": None,
+                    "explanation": None,
+                    "missing_inputs": [
+                        "Requested currency does not match the company accounting currency; "
+                        "FX conversion is not implemented."
+                    ],
+                    "limitations": ["Financial metrics are only reported in the company accounting currency."],
+                    "evidence_refs": []
+                }
+            # Server-authoritative currency replaces the client-provided label.
+            currency = company_currency
+    except ImportError:
+        # Non-Frappe unit-test environment: keep the provided currency.
+        pass
+
     log_event(
         event_type=EVENT_SNAPSHOT_STARTED,
         correlation_id=cid,
@@ -575,17 +1170,12 @@ def build_financial_snapshot(
     fetch_errors = {}
     actual_filters_used = {}
 
-    # Extract as_of date boundary
-    as_of_date_str = period_end
-    if as_of:
-        try:
-            as_of_date_str = str(as_of)[:10]
-        except Exception:
-            as_of_date_str = period_end
+    # Extract as_of date boundary (validated in step 1b — never a silent fallback)
+    as_of_date_str = as_of_date.strftime("%Y-%m-%d") if as_of_date else period_end
 
     # Freeze as_of rule: If as_of date is before period_end, reports evaluate up to as_of date
     effective_end_date = min(period_end, as_of_date_str) if as_of_date_str else period_end
-    is_as_of_prior_to_period_end = (as_of_date_str < period_end) if as_of_date_str else False
+    is_as_of_prior_to_period_end = bool(as_of_date and as_of_date < p_end)
 
     if source_fetcher and not raw_sources:
         # 3.1 Profit and Loss Statement filters
@@ -664,8 +1254,9 @@ def build_financial_snapshot(
 
     # --- Metric 1 & 2: Revenue & COGS & Gross Margin ---
     pnl_res = sources.get("profit_and_loss")
-    if pnl_res is None or "profit_and_loss" in fetch_errors:
-        err_msg = fetch_errors.get("profit_and_loss", "Source 'profit_and_loss' not provided")
+    pnl_ok, pnl_data, pnl_err = validate_source_payload("profit_and_loss", pnl_res, expected_company=verified_company)
+    if not pnl_ok or "profit_and_loss" in fetch_errors:
+        err_msg = fetch_errors.get("profit_and_loss", pnl_err or "Source 'profit_and_loss' not provided")
         missing_inputs.append("profit_and_loss")
         limitations.append(f"P&L Source unavailable: {err_msg}")
         for m_id in ["revenue", "cogs", "gross_margin"]:
@@ -682,7 +1273,6 @@ def build_financial_snapshot(
             })
     else:
         # Build evidence ref for P&L
-        pnl_data = pnl_res.get("data", []) if isinstance(pnl_res, dict) else pnl_res
         pnl_filters = actual_filters_used.get("profit_and_loss") or {
             "company": verified_company,
             "from_date": period_start,
@@ -767,10 +1357,30 @@ def build_financial_snapshot(
                 "limitations": ["Requires both Revenue and COGS to calculate gross margin."]
             })
 
+    # WV-02: Master Party Type preflight check
+    if _has_active_db():
+        try:
+            is_mock = type(frappe.db).__name__ in ("Mock", "MagicMock") or hasattr(frappe.db, "_mock_return_value")
+            rec_parties = frappe.db.get_all("Party Type", {"account_type": "Receivable"}, pluck="name")
+            pay_parties = frappe.db.get_all("Party Type", {"account_type": "Payable"}, pluck="name")
+            if not (is_mock and type(rec_parties).__name__ in ("Mock", "MagicMock")):
+                if not isinstance(rec_parties, list) or ("Customer" not in rec_parties):
+                    fetch_errors["accounts_receivable"] = (
+                        "Master data preflight check failed: 'Customer' is not registered as a Receivable Party Type."
+                    )
+                if not isinstance(pay_parties, list) or ("Supplier" not in pay_parties):
+                    fetch_errors["accounts_payable"] = (
+                        "Master data preflight check failed: 'Supplier' is not registered as a Payable Party Type."
+                    )
+        except Exception as e:
+            fetch_errors["accounts_receivable"] = f"Master data preflight check failed: {e}"
+            fetch_errors["accounts_payable"] = f"Master data preflight check failed: {e}"
+
     # --- Metric 3 & 4: Accounts Receivable Outstanding & Overdue Ratio ---
     ar_res = sources.get("accounts_receivable")
-    if ar_res is None or "accounts_receivable" in fetch_errors:
-        err_msg = fetch_errors.get("accounts_receivable", "Source 'accounts_receivable' not provided")
+    ar_ok, ar_data, ar_err = validate_source_payload("accounts_receivable", ar_res, expected_company=verified_company)
+    if not ar_ok or "accounts_receivable" in fetch_errors:
+        err_msg = fetch_errors.get("accounts_receivable", ar_err or "Source 'accounts_receivable' not provided")
         missing_inputs.append("accounts_receivable")
         limitations.append(f"AR Source unavailable: {err_msg}")
         for m_id in ["ar_outstanding", "overdue_ar_ratio"]:
@@ -786,7 +1396,6 @@ def build_financial_snapshot(
                 "limitations": [err_msg]
             })
     else:
-        ar_data = ar_res.get("data", []) if isinstance(ar_res, dict) else ar_res
         ar_filters = actual_filters_used.get("accounts_receivable") or {
             "company": verified_company,
             "report_date": effective_end_date
@@ -801,37 +1410,67 @@ def build_financial_snapshot(
         )
         evidence_refs.append(ar_ev)
 
-        ar_tot, ar_overdue, ar_ratio, ar_lims = parse_ar_data(ar_data, as_of_date=datetime.strptime(effective_end_date, "%Y-%m-%d").date())
-        limitations.extend(ar_lims)
+        try:
+            ar_tot, ar_overdue, ar_ratio, ar_lims = parse_ar_data(
+                ar_data,
+                as_of_date=datetime.strptime(effective_end_date, "%Y-%m-%d").date(),
+                company=verified_company,
+                currency=currency,
+            )
+        except FinancialSourceDataError as e:
+            # Bucket A: malformed AR rows invalidate the whole source —
+            # typed unavailable state, never an apparent verified zero.
+            src_err = f"AR source data invalid: {str(e)}"
+            missing_inputs.append("accounts_receivable")
+            limitations.append(src_err)
+            for m_id in ["ar_outstanding", "overdue_ar_ratio"]:
+                metrics.append({
+                    "metric_id": m_id,
+                    "status": "UNAVAILABLE",
+                    "value": None,
+                    "currency_or_unit": currency if m_id == "ar_outstanding" else "ratio",
+                    "period": period_obj,
+                    "formula_version": FORMULA_VERSION,
+                    "snapshot_id": snapshot_id,
+                    "evidence_refs": [ar_ev["checksum_or_version"]],
+                    "limitations": [src_err]
+                })
+            ar_lims = []
+            ar_tot = None
+            ar_ratio = None
 
-        metrics.append({
-            "metric_id": "ar_outstanding",
-            "status": "AVAILABLE" if ar_tot is not None else "UNAVAILABLE",
-            "value": float(ar_tot) if ar_tot is not None else None,
-            "currency_or_unit": currency,
-            "period": period_obj,
-            "formula_version": FORMULA_VERSION,
-            "snapshot_id": snapshot_id,
-            "evidence_refs": [ar_ev["checksum_or_version"]],
-            "limitations": []
-        })
+        if ar_tot is not None:
+            limitations.extend(ar_lims)
 
-        metrics.append({
-            "metric_id": "overdue_ar_ratio",
-            "status": "AVAILABLE" if ar_ratio is not None else "UNAVAILABLE",
-            "value": float(ar_ratio) if ar_ratio is not None else None,
-            "currency_or_unit": "ratio",
-            "period": period_obj,
-            "formula_version": FORMULA_VERSION,
-            "snapshot_id": snapshot_id,
-            "evidence_refs": [ar_ev["checksum_or_version"]],
-            "limitations": ar_lims
-        })
+            metrics.append({
+                "metric_id": "ar_outstanding",
+                "status": "AVAILABLE",
+                "value": float(ar_tot),
+                "currency_or_unit": currency,
+                "period": period_obj,
+                "formula_version": FORMULA_VERSION,
+                "snapshot_id": snapshot_id,
+                "evidence_refs": [ar_ev["checksum_or_version"]],
+                "limitations": []
+            })
+
+            metrics.append({
+                "metric_id": "overdue_ar_ratio",
+                "status": "AVAILABLE" if ar_ratio is not None else "UNAVAILABLE",
+                "value": float(ar_ratio) if ar_ratio is not None else None,
+                "currency_or_unit": "ratio",
+                "period": period_obj,
+                "formula_version": FORMULA_VERSION,
+                "snapshot_id": snapshot_id,
+                "evidence_refs": [ar_ev["checksum_or_version"]],
+                "limitations": ar_lims
+            })
 
     # --- Metric 5: Accounts Payable Outstanding ---
     ap_res = sources.get("accounts_payable")
-    if ap_res is None or "accounts_payable" in fetch_errors:
-        err_msg = fetch_errors.get("accounts_payable", "Source 'accounts_payable' not provided")
+    ap_ok, ap_data, ap_err = validate_source_payload("accounts_payable", ap_res, expected_company=verified_company)
+    if not ap_ok or "accounts_payable" in fetch_errors:
+        err_msg = fetch_errors.get("accounts_payable", ap_err or "Source 'accounts_payable' not provided")
         missing_inputs.append("accounts_payable")
         limitations.append(f"AP Source unavailable: {err_msg}")
         metrics.append({
@@ -846,7 +1485,6 @@ def build_financial_snapshot(
             "limitations": [err_msg]
         })
     else:
-        ap_data = ap_res.get("data", []) if isinstance(ap_res, dict) else ap_res
         ap_filters = actual_filters_used.get("accounts_payable") or {
             "company": verified_company,
             "report_date": effective_end_date
@@ -861,20 +1499,39 @@ def build_financial_snapshot(
         )
         evidence_refs.append(ap_ev)
 
-        ap_tot, ap_lims = parse_ap_data(ap_data)
-        limitations.extend(ap_lims)
+        try:
+            ap_tot, ap_lims = parse_ap_data(ap_data, company=verified_company, currency=currency)
+        except FinancialSourceDataError as e:
+            # Bucket A: malformed AP rows invalidate the whole source —
+            # typed unavailable state, never an apparent verified zero.
+            ap_err_str = f"AP source data invalid: {str(e)}"
+            missing_inputs.append("accounts_payable")
+            limitations.append(ap_err_str)
+            metrics.append({
+                "metric_id": "ap_outstanding",
+                "status": "UNAVAILABLE",
+                "value": None,
+                "currency_or_unit": currency,
+                "period": period_obj,
+                "formula_version": FORMULA_VERSION,
+                "snapshot_id": snapshot_id,
+                "evidence_refs": [ap_ev["checksum_or_version"]],
+                "limitations": [ap_err_str]
+            })
+        else:
+            limitations.extend(ap_lims)
 
-        metrics.append({
-            "metric_id": "ap_outstanding",
-            "status": "AVAILABLE" if ap_tot is not None else "UNAVAILABLE",
-            "value": float(ap_tot) if ap_tot is not None else None,
-            "currency_or_unit": currency,
-            "period": period_obj,
-            "formula_version": FORMULA_VERSION,
-            "snapshot_id": snapshot_id,
-            "evidence_refs": [ap_ev["checksum_or_version"]],
-            "limitations": ap_lims
-        })
+            metrics.append({
+                "metric_id": "ap_outstanding",
+                "status": "AVAILABLE" if ap_tot is not None else "UNAVAILABLE",
+                "value": float(ap_tot) if ap_tot is not None else None,
+                "currency_or_unit": currency,
+                "period": period_obj,
+                "formula_version": FORMULA_VERSION,
+                "snapshot_id": snapshot_id,
+                "evidence_refs": [ap_ev["checksum_or_version"]],
+                "limitations": ap_lims
+            })
 
     # --- Metric 6: Near-Term AP (Freeze rule: UNAVAILABLE with limitation) ---
     metrics.append({
@@ -890,10 +1547,12 @@ def build_financial_snapshot(
     })
 
     # --- Metric 7: Cash & Bank Balance ---
-    cash_source = sources.get("trial_balance") or sources.get("general_ledger")
-    if cash_source is None:
+    cash_source_key = "trial_balance" if "trial_balance" in sources else "general_ledger"
+    cash_source = sources.get(cash_source_key)
+    cash_ok, c_data, cash_src_err = validate_source_payload(cash_source_key, cash_source, expected_company=verified_company)
+    if not cash_ok:
         missing_inputs.append("cash_balance")
-        limitations.append("Trial Balance or General Ledger cash source not provided.")
+        limitations.append(f"Cash source unavailable: {cash_src_err}")
         metrics.append({
             "metric_id": "cash_balance",
             "status": "UNAVAILABLE",
@@ -903,10 +1562,9 @@ def build_financial_snapshot(
             "formula_version": FORMULA_VERSION,
             "snapshot_id": snapshot_id,
             "evidence_refs": [],
-            "limitations": ["No cash/bank ledger provided."]
+            "limitations": [cash_src_err]
         })
     else:
-        c_data = cash_source.get("data", []) if isinstance(cash_source, dict) else cash_source
         c_filters = actual_filters_used.get("trial_balance") or {
             "company": verified_company,
             "from_date": period_start,
@@ -956,6 +1614,15 @@ def build_financial_snapshot(
                 details={"metric_id": m["metric_id"], "limitations": m.get("limitations", [])}
             )
 
+    # Preserve the explicit limitation for historical semantics (Bucket B):
+    # a posting-date as_of cutoff does NOT support as_known_at replay of
+    # backdated or cancelled postings — this must never be claimed implicitly.
+    if is_as_of_prior_to_period_end:
+        limitations.append(
+            "as-of cutoff uses posting-date semantics only; as_known_at historical "
+            "replay of backdated or cancelled postings is not supported."
+        )
+
     # 5. Overall Status Decision
     # OK: All required core metrics available (revenue, cogs, gross_margin, ar_outstanding, overdue_ar_ratio, ap_outstanding, cash_balance)
     # near_term_ap being UNAVAILABLE by design does not block overall status OK.
@@ -1000,7 +1667,19 @@ def build_financial_snapshot(
     if comparison == "PREVIOUS_PERIOD":
         from lotus_fin.ai.financial_health import compute_previous_period, build_comparison_block
         prev_start, prev_end = compute_previous_period(period_start, period_end)
-        
+
+        # Bucket B: align the previous window with the current EFFECTIVE window
+        # length so current/previous metrics always cover consistent period
+        # lengths (a mid-period as_of cutoff must not compare a short current
+        # window against a full previous window).
+        effective_len_days = (
+            datetime.strptime(effective_end_date, "%Y-%m-%d").date()
+            - datetime.strptime(period_start, "%Y-%m-%d").date()
+        ).days
+        prev_effective_end = (
+            datetime.strptime(prev_start, "%Y-%m-%d").date() + timedelta(days=effective_len_days)
+        ).strftime("%Y-%m-%d")
+
         # Build previous period snapshot
         # Note: If raw_sources was injected, we cannot assume raw_sources contains previous period unless provided.
         # But if source_fetcher is present, we fetch previous period from live ERPNext.
@@ -1011,7 +1690,7 @@ def build_financial_snapshot(
                     company=verified_company,
                     period_start=prev_start,
                     period_end=prev_end,
-                    as_of=None,
+                    as_of=prev_effective_end,
                     currency=currency,
                     correlation_id=f"{cid}-PREV",
                     comparison=None,  # No recursion

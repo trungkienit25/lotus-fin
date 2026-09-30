@@ -107,14 +107,53 @@ def predict_cashflow(days_ahead: int = 30, company: Optional[str] = None) -> Dic
 
 	# 4. Filter data rows specifically for verified_company
 	# Note: Query report results contain summary rows (e.g. list/dict with totals)
-	ar_rows = [row for row in ar_data.get("data", []) if isinstance(row, dict)]
-	ap_rows = [row for row in ap_data.get("data", []) if isinstance(row, dict)]
+	# AI003 foundation remediation (Bucket A): malformed rows and non-numeric
+	# amounts fail closed with a typed error — a malformed row is never
+	# silently skipped and summed as zero.
+	def _strict_outstanding_total(rows: Any, source_key: str):
+		from decimal import Decimal, InvalidOperation
 
-	# Compute totals
-	total_receivable = sum([row.get("outstanding", 0.0) or 0.0 for row in ar_rows])
-	total_payable = sum([row.get("outstanding", 0.0) or 0.0 for row in ap_rows])
+		if not isinstance(rows, list):
+			return None, f"{source_key} response has no valid data payload"
+		total = Decimal("0")
+		for idx, row in enumerate(rows):
+			if not isinstance(row, dict):
+				return None, f"{source_key} row {idx} is malformed; source data is invalid"
+			raw = row.get("outstanding", row.get("outstanding_amount"))
+			if raw is None:
+				return None, f"{source_key} row {idx} has no valid outstanding amount; source data is invalid"
+			try:
+				total += Decimal(str(raw))
+			except (InvalidOperation, TypeError, ValueError):
+				return None, f"{source_key} row {idx} has a malformed outstanding amount; source data is invalid"
+		return total, None
 
-	net_predicted_change = total_receivable - total_payable
+	ar_rows = ar_data.get("data", [])
+	ap_rows = ap_data.get("data", [])
+
+	total_receivable, ar_err = _strict_outstanding_total(ar_rows, "accounts_receivable")
+	if ar_err:
+		return {
+			"status": "error",
+			"deprecated": True,
+			"warning": "AR-AP difference is deprecated as cashflow logic.",
+			"company": verified_company,
+			"source_error": "accounts_receivable",
+			"message": f"Accounts Receivable source data invalid: {ar_err}"
+		}
+
+	total_payable, ap_err = _strict_outstanding_total(ap_rows, "accounts_payable")
+	if ap_err:
+		return {
+			"status": "error",
+			"deprecated": True,
+			"warning": "AR-AP difference is deprecated as cashflow logic.",
+			"company": verified_company,
+			"source_error": "accounts_payable",
+			"message": f"Accounts Payable source data invalid: {ap_err}"
+		}
+
+	net_predicted_change = float(total_receivable - total_payable)
 
 	return {
 		"status": "success",
@@ -123,8 +162,8 @@ def predict_cashflow(days_ahead: int = 30, company: Optional[str] = None) -> Dic
 		"company": verified_company,
 		"days_ahead": int(days_ahead),
 		"summary": {
-			"predicted_inflow": total_receivable,
-			"predicted_outflow": total_payable,
+			"predicted_inflow": float(total_receivable),
+			"predicted_outflow": float(total_payable),
 			"net_cash_change": net_predicted_change,
 			"liquidity_risk": "LOW" if net_predicted_change >= 0 else "WARNING"
 		},
@@ -302,6 +341,7 @@ def get_ai002_cash_forecast(
 	correlation_id: Optional[str] = None,
 	include_explanation: Union[bool, int, str] = False,
 	cash_account_scope: Optional[Union[List[str], str]] = None,
+	finance_book: Optional[str] = None,
 ) -> Dict[str, Any]:
 	"""
 	[AI-F002 Cash-flow Forecast Copilot - Whitelisted API Endpoint]
@@ -309,6 +349,8 @@ def get_ai002_cash_forecast(
 	Security & Invariant:
 	- Client requests cannot enable fixture mode. Production always uses FailClosedSource.
 	- Fixture mode is only permissible in automated test harnesses under frappe.flags.in_test or dev test config.
+	- finance_book is explicitly NOT_SUPPORTED (AI003 foundation remediation, Bucket C):
+	  a supplied value is validated into a typed failure, never silently ignored.
 	"""
 	from datetime import datetime, date, timedelta
 	from lotus_fin.cashflow.models import ForecastRequest, CoverageScope, ForecastStatus, ReasonCode
@@ -378,6 +420,7 @@ def get_ai002_cash_forecast(
 		reporting_currency=currency,
 		cash_account_scope=scope_list,
 		coverage_scope=CoverageScope.TRADE_ONLY,
+		finance_book=finance_book if finance_book and str(finance_book).strip() else None,
 		include_explanation=want_explanation,
 		correlation_id=correlation_id or "",
 	)
