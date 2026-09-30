@@ -10,7 +10,19 @@ app_license = "MIT"
 
 # include js, css files in header of desk.html
 app_include_css = "/assets/lotus_fin/css/lotus_fin.css"
-app_include_js = "/assets/lotus_fin/js/lotus_fin.js"
+app_include_js = [
+	"/assets/lotus_fin/js/lotus_fin.js",
+	"/assets/lotus_fin/js/financial_health/api_client.js",
+	"/assets/lotus_fin/js/financial_health/layout_template.js",
+	"/assets/lotus_fin/js/financial_health/filter_widget.js",
+	"/assets/lotus_fin/js/financial_health/event_handler.js",
+	"/assets/lotus_fin/js/financial_health/metrics_widget.js",
+	"/assets/lotus_fin/js/financial_health/comparison_widget.js",
+	"/assets/lotus_fin/js/financial_health/narrative_widget.js",
+	"/assets/lotus_fin/js/financial_health/simulator_widget.js",
+	"/assets/lotus_fin/js/financial_health/copilot_widget.js",
+	"/assets/lotus_fin/js/financial_health/evidence_widget.js"
+]
 
 # Document Events (Hooks for AI analysis & automation)
 # ---------------
