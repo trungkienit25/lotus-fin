@@ -361,3 +361,115 @@
 	0% { background-position: 200% 0; }
 	100% { background-position: -200% 0; }
 }
+
+/* AI004 & AI005 What-If Simulation & Financing Advisor Styles */
+.lotus-sim-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	gap: 16px;
+	margin-bottom: 16px;
+}
+
+.lotus-sim-control {
+	background: #f8fafc;
+	border: 1px solid #e2e8f0;
+	border-radius: 6px;
+	padding: 12px;
+}
+
+.lotus-sim-label {
+	font-size: 12px;
+	font-weight: 600;
+	color: #334155;
+	margin-bottom: 6px;
+	display: flex;
+	justify-content: space-between;
+}
+
+.lotus-sim-input {
+	width: 100%;
+	padding: 6px 10px;
+	font-size: 13px;
+	border: 1px solid #cbd5e1;
+	border-radius: 4px;
+	background: #ffffff;
+}
+
+.lotus-sim-btn {
+	background: #00897b;
+	color: #ffffff;
+	border: none;
+	border-radius: 6px;
+	padding: 8px 18px;
+	font-weight: 600;
+	font-size: 13px;
+	cursor: pointer;
+	transition: background 0.15s ease;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.lotus-sim-btn:hover {
+	background: #00695c;
+}
+
+/* AI Copilot Prompt & Matching Cards */
+.lotus-copilot-input-box {
+	display: flex;
+	gap: 10px;
+	margin-bottom: 12px;
+}
+
+.lotus-copilot-input {
+	flex: 1;
+	padding: 10px 14px;
+	font-size: 13px;
+	border: 1px solid #cbd5e1;
+	border-radius: 6px;
+	background: #ffffff;
+}
+
+.lotus-quick-pill {
+	display: inline-block;
+	background: #f1f5f9;
+	color: #0284c7;
+	border: 1px solid #e0f2fe;
+	border-radius: 12px;
+	padding: 3px 10px;
+	font-size: 11px;
+	margin-right: 6px;
+	margin-bottom: 8px;
+	cursor: pointer;
+	font-weight: 500;
+	transition: all 0.15s ease;
+}
+
+.lotus-quick-pill:hover {
+	background: #e0f2fe;
+	color: #0369a1;
+}
+
+.lotus-product-card {
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	padding: 14px;
+	margin-bottom: 12px;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.lotus-product-card.top-recommended {
+	border-left: 4px solid #00897b;
+	background: #f0fdf4;
+}
+
+.lotus-score-badge {
+	background: #00897b;
+	color: #ffffff;
+	padding: 2px 8px;
+	border-radius: 10px;
+	font-size: 11px;
+	font-weight: 700;
+}
+
