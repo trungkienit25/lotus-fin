@@ -125,6 +125,12 @@ class LotusPluginRegistry:
         except Exception as e:
             _logger.warning(f"Could not auto-register FinancingPlugin: {e}")
 
+        try:
+            from lotus_fin.modules.f002_cashflow.plugin import CashflowPlugin
+            self.register(CashflowPlugin())
+        except Exception as e:
+            _logger.warning(f"Could not auto-register CashflowPlugin: {e}")
+
 
 # Singleton registry instance
 plugin_registry = LotusPluginRegistry()

@@ -1,5 +1,5 @@
 """
-Lotus Fin AI001 - Observability, Structured Logging & Tracing Infrastructure.
+Lotus Fin AI001 & AI002 - Observability, Structured Logging & Tracing Infrastructure.
 
 Compliant with:
 - AI001 Feature Freeze (Observability & Logging, §7)
@@ -8,7 +8,7 @@ Compliant with:
 Guarantees:
 1. Pure JSON structured audit events with correlation_id.
 2. Pseudonymous user_id hashing (SHA256[:12]).
-3. Zero PII, no raw monetary rows, invoice details, party names or secrets logged.
+3. Log metadata is allowlisted; raw amounts, document text and party names are dropped.
 4. Bounded in-memory operational metrics collector for latency, requests by status,
    source errors, and KPI unavailable counts.
 5. Lightweight execution span tracer.
@@ -20,6 +20,7 @@ from datetime import datetime, timezone
 import hashlib
 import json
 import logging
+import re
 import time
 from typing import Any, Dict, List, Optional
 
@@ -39,6 +40,37 @@ EVENT_REQUEST_FAILED = "ai001_request_failed"
 
 _logger = logging.getLogger("lotus_fin.ai001")
 
+_SAFE_TOKEN = re.compile(r"^[A-Za-z0-9_.-]{1,64}$")
+_SAFE_DETAILS_ENUMS = {
+    "source_status": {
+        "OK", "PARTIAL", "MISSING", "SOURCE_ERROR", "TIMEOUT", "FORBIDDEN",
+        "VERIFIED_ZERO", "UNAVAILABLE", "INSUFFICIENT_DATA", "FORECAST_UNAVAILABLE", "INCONSISTENT_DATA"
+    },
+    "coverage_scope": {"TRADE_ONLY", "OPERATING_CORE", "COMPREHENSIVE"},
+    "model_status": {"AVAILABLE", "UNAVAILABLE", "TIMEOUT", "ERROR"},
+    "error_class": {"PermissionError", "ValidationError", "TimeoutError", "SourceError", "InconsistentData"},
+}
+
+
+def _safe_token(value: Any, fallback: str) -> str:
+    return value if isinstance(value, str) and _SAFE_TOKEN.fullmatch(value) else fallback
+
+
+def _safe_details(details: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+    """Keep only typed operational metadata; unknown keys fail closed."""
+    if not isinstance(details, dict):
+        return {}
+    safe = {}
+    for key, allowed in _SAFE_DETAILS_ENUMS.items():
+        value = details.get(key)
+        if isinstance(value, str) and value in allowed:
+            safe[key] = value
+    for key in ("record_count", "latency_ms"):
+        value = details.get(key)
+        if isinstance(value, (int, float)) and not isinstance(value, bool) and 0 <= value <= 86_400_000:
+            safe[key] = value
+    return safe
+
 
 def hash_user_id(user: Optional[str]) -> Optional[str]:
     """Safely hash user identifier into a 12-char pseudonymous digest."""
@@ -55,22 +87,23 @@ def log_event(
     duration_ms: Optional[float] = None,
     status: Optional[str] = None,
     details: Optional[Dict[str, Any]] = None,
-    level: int = logging.INFO
+    level: int = logging.INFO,
+    feature_id: str = "AI001",
 ) -> Dict[str, Any]:
     """
     Emits a structured JSON audit event log.
-    Ensures ZERO raw financial amounts or PII are leaked.
+    Drops unrecognized detail fields and hashes company/user identifiers.
     """
     event = {
         "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
-        "feature_id": "AI001",
-        "event_type": event_type,
-        "correlation_id": correlation_id,
-        "company": company,
+        "feature_id": feature_id if feature_id in {"AI001", "AI002"} else "UNKNOWN",
+        "event_type": _safe_token(event_type, "unclassified_event"),
+        "correlation_id": _safe_token(correlation_id, "invalid_correlation_id"),
+        "company_id_hash": hash_user_id(company),
         "user_id_hash": hash_user_id(user),
         "duration_ms": round(duration_ms, 2) if duration_ms is not None else None,
-        "status": status,
-        "details": details or {}
+        "status": _safe_token(status, "UNSPECIFIED") if status is not None else None,
+        "details": _safe_details(details),
     }
 
     try:
@@ -81,6 +114,35 @@ def log_event(
         pass
 
     return event
+
+
+def log_ai002_event(
+    *,
+    event_type: str,
+    correlation_id: str,
+    status: str,
+    source_status: Optional[str] = None,
+    coverage_scope: Optional[str] = None,
+    model_status: Optional[str] = None,
+    error_class: Optional[str] = None,
+    record_count: Optional[int] = None,
+    latency_ms: Optional[float] = None,
+) -> Dict[str, Any]:
+    """Typed AI002 audit boundary with no raw company, document or details input."""
+    return log_event(
+        event_type=event_type,
+        correlation_id=correlation_id,
+        status=status,
+        details={
+            "source_status": source_status,
+            "coverage_scope": coverage_scope,
+            "model_status": model_status,
+            "error_class": error_class,
+            "record_count": record_count,
+            "latency_ms": latency_ms,
+        },
+        feature_id="AI002",
+    )
 
 
 class MetricsCollector:
@@ -164,3 +226,4 @@ def trace_span(
             user=user,
             duration_ms=duration_ms
         )
+

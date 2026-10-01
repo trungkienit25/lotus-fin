@@ -17,6 +17,12 @@ from lotus_fin.api.events import (
     evaluate_sme_financial_health,
 )
 
+from lotus_fin.api.cashflow_api import (
+    get_ai002_cash_account_scope,
+    get_ai002_cash_forecast,
+    get_ai002_evidence,
+)
+
 __all__ = [
     "on_sales_invoice_submit",
     "on_payment_entry_submit",
@@ -25,6 +31,9 @@ __all__ = [
     "predict_cashflow",
     "analyze_invoice_risk",
     "get_financial_snapshot",
+    "get_ai002_cash_account_scope",
+    "get_ai002_cash_forecast",
+    "get_ai002_evidence",
 ]
 
 

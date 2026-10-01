@@ -96,6 +96,9 @@ case "$1" in
                 "lotus_fin.tests.test_financial_health"
                 "lotus_fin.tests.test_explanation"
                 "lotus_fin.tests.test_ai004_scenario"
+                "lotus_fin.tests.test_cashflow_engine"
+                "lotus_fin.tests.test_cashflow_failclosed"
+                "lotus_fin.tests.test_cashflow_security"
                 "lotus_fin.tests.test_plugin_subsystem"
             )
             for s in "${suites[@]}"; do
