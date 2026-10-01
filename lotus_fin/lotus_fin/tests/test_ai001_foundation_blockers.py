@@ -17,7 +17,7 @@ Oracle: docs/features/AI003/evidence/final_foundation_probe.py —
 import os
 import sys
 import unittest
-from datetime import date
+from datetime import date, datetime
 from decimal import Decimal
 from unittest.mock import MagicMock, call, patch
 
@@ -161,6 +161,88 @@ class TestPBDATA01OverdueBasis(unittest.TestCase):
         self.assertEqual(total, Decimal("100.00"))
         self.assertIsNone(overdue)
         self.assertIsNone(ratio)
+
+    def test_due_date_as_string_counts_full_outstanding(self):
+        total, overdue, ratio, lims = parse_ar_data(
+            _row_with_basis({"due_date": "2026-09-01"}), as_of_date=AS_OF
+        )
+        self.assertEqual(
+            (total, overdue, ratio, lims),
+            (Decimal("100.00"), Decimal("100.00"), Decimal("1.0000"), []),
+        )
+
+    def test_due_date_as_date_object_counts_full_outstanding(self):
+        total, overdue, ratio, lims = parse_ar_data(
+            _row_with_basis({"due_date": date(2026, 9, 1)}), as_of_date=AS_OF
+        )
+        self.assertEqual(
+            (total, overdue, ratio, lims),
+            (Decimal("100.00"), Decimal("100.00"), Decimal("1.0000"), []),
+        )
+
+    def test_due_date_as_datetime_object_counts_full_outstanding(self):
+        """PB-DATA-01-DATETIME: a datetime due_date must be normalized to a
+        date before the as-of comparison — no TypeError, overdue verified."""
+        total, overdue, ratio, lims = parse_ar_data(
+            _row_with_basis({"due_date": datetime(2026, 9, 1)}), as_of_date=AS_OF
+        )
+        self.assertEqual(
+            (total, overdue, ratio, lims),
+            (Decimal("100.00"), Decimal("100.00"), Decimal("1.0000"), []),
+        )
+
+    def test_datetime_due_date_oracle_retest_repro(self):
+        """Exact independent-retest repro: datetime(2026, 9, 20) against
+        as_of date(2026, 9, 26) — previously TypeError, now verified overdue."""
+        total, overdue, ratio, lims = parse_ar_data(
+            [{"voucher_no": "SI-RETEST", "outstanding": 100, "due_date": datetime(2026, 9, 20)}],
+            as_of_date=date(2026, 9, 26),
+        )
+        self.assertEqual(
+            (total, overdue, ratio, lims),
+            (Decimal("100.00"), Decimal("100.00"), Decimal("1.0000"), []),
+        )
+
+    def test_datetime_due_date_after_as_of_not_overdue(self):
+        total, overdue, ratio, lims = parse_ar_data(
+            [{"voucher_no": "SI-RETEST", "outstanding": 100, "due_date": datetime(2026, 9, 27)}],
+            as_of_date=date(2026, 9, 26),
+        )
+        self.assertEqual(
+            (total, overdue, ratio, lims),
+            (Decimal("100.00"), Decimal("0.00"), Decimal("0.0000"), []),
+        )
+
+    def test_snapshot_with_datetime_due_date_does_not_leak_typeerror(self):
+        """Public snapshot: a datetime due_date must not leak a TypeError and
+        must verify overdue (total 100, ratio 1.0, overall OK)."""
+        snapshot = build_financial_snapshot(
+            company="Name (Demo)",
+            period_start="2026-01-01",
+            period_end="2026-12-31",
+            raw_sources={
+                "profit_and_loss": {"status": "success", "data": GOLD_PNL},
+                "trial_balance": {"status": "success", "data": GOLD_TB},
+                "accounts_receivable": {
+                    "status": "success",
+                    "data": [
+                        {
+                            "party": "A",
+                            "voucher_no": "SI-RETEST",
+                            "outstanding": 100.0,
+                            "due_date": datetime(2026, 9, 20),
+                        }
+                    ],
+                },
+                "accounts_payable": {"status": "success", "data": []},
+            },
+        )
+        metrics = {m["metric_id"]: m for m in snapshot["metrics"]}
+        self.assertEqual(metrics["ar_outstanding"]["status"], "AVAILABLE")
+        self.assertEqual(metrics["ar_outstanding"]["value"], 100.0)
+        self.assertEqual(metrics["overdue_ar_ratio"]["status"], "AVAILABLE")
+        self.assertEqual(metrics["overdue_ar_ratio"]["value"], 1.0)
+        self.assertEqual(snapshot["status"], "OK")
 
     def test_valid_explicit_overdue_amount(self):
         total, overdue, ratio, lims = parse_ar_data(

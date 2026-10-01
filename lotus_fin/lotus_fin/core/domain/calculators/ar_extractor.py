@@ -86,8 +86,14 @@ def _resolve_overdue_basis(
     row_due = None
     if due_date_str is not None and str(due_date_str).strip() != "":
         try:
-            if isinstance(due_date_str, (datetime, date)):
-                row_due = due_date_str if isinstance(due_date_str, date) else due_date_str.date()
+            # PB-DATA-01-DATETIME: datetime is a subclass of date, so the
+            # datetime branch must come first — otherwise the object stays a
+            # datetime and the as-of comparison below raises
+            # TypeError: datetime.datetime vs datetime.date.
+            if isinstance(due_date_str, datetime):
+                row_due = due_date_str.date()
+            elif isinstance(due_date_str, date):
+                row_due = due_date_str
             else:
                 row_due = datetime.strptime(str(due_date_str)[:10], "%Y-%m-%d").date()
         except Exception:
