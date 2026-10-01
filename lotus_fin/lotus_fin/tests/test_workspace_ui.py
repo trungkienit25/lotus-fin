@@ -31,9 +31,29 @@ class TestFinancialHealthWorkspaceContract(unittest.TestCase):
 	def setUpClass(cls):
 		frappe.init(site="frontend")
 		frappe.connect()
-		cls.demo_company = "Name (Demo)"
-		cls.empty_company = "Name"
+		demo_comp = frappe.db.get_value("GL Entry", {}, "company") or frappe.db.get_value("Company", {"name": ["like", "%Demo%"]}, "name")
+		empty_comp = frappe.db.get_value("Company", {"name": ["not like", "%Demo%"]}, "name")
+		cls.demo_company = demo_comp or "Lotus-fin (Demo)"
+		cls.empty_company = empty_comp or "Lotus-fin"
 		cls.test_user = "longmac321@gmail.com"
+
+		sample_date = frappe.db.get_value("GL Entry", {"company": cls.demo_company}, "posting_date")
+		cls.demo_year = str(sample_date)[:4] if sample_date else "2020"
+		cls.p_start = f"{cls.demo_year}-01-01"
+		cls.p_end = f"{cls.demo_year}-12-31"
+
+		if not frappe.db.exists("User", cls.test_user):
+			u = frappe.get_doc({
+				"doctype": "User",
+				"email": cls.test_user,
+				"first_name": "Test User",
+				"enabled": 1,
+				"roles": [{"role": "Accounts User"}]
+			})
+			u.flags.ignore_permissions = True
+			u.flags.ignore_password_policy = True
+			u.insert()
+			frappe.db.commit()
 
 	def setUp(self):
 		frappe.set_user("Administrator")
@@ -58,7 +78,7 @@ class TestFinancialHealthWorkspaceContract(unittest.TestCase):
 
 	def test_authorized_company_loads_full_metrics(self):
 		"""A. Authorized company loads complete snapshot contract."""
-		res = get_financial_snapshot(company=self.demo_company, period_start="2020-01-01", period_end="2020-12-31")
+		res = get_financial_snapshot(company=self.demo_company, period_start=self.p_start, period_end=self.p_end)
 		self.assertEqual(res["status"], "OK")
 		self.assertEqual(res["company"], self.demo_company)
 		self.assertIsInstance(res["metrics"], list)
@@ -66,16 +86,18 @@ class TestFinancialHealthWorkspaceContract(unittest.TestCase):
 
 	def test_unauthorized_company_forbidden_no_leak(self):
 		"""B. Unauthorized user requesting company returns FORBIDDEN with zero leaked metrics."""
+		add_user_permission("Company", self.empty_company, self.test_user)
+		frappe.db.commit()
 		frappe.set_user(self.test_user)
-		res = get_financial_snapshot(company=self.demo_company, period_start="2020-01-01", period_end="2020-12-31")
+		res = get_financial_snapshot(company=self.demo_company, period_start=self.p_start, period_end=self.p_end)
 		self.assertEqual(res["status"], "FORBIDDEN")
 		self.assertIsNone(res["company"])
 		self.assertEqual(len(res["metrics"]), 0)
 		self.assertEqual(len(res["evidence_refs"]), 0)
 
 	def test_fy2020_runtime_gold_values(self):
-		"""C, D, E. Known gold reconciliation for FY2020: negative cash, 100% overdue AR."""
-		res = get_financial_snapshot(company=self.demo_company, period_start="2020-01-01", period_end="2020-12-31")
+		"""C, D, E. Known gold reconciliation for demo period: negative cash, 100% overdue AR."""
+		res = get_financial_snapshot(company=self.demo_company, period_start=self.p_start, period_end=self.p_end)
 		m_map = {m["metric_id"]: m["value"] for m in res["metrics"]}
 
 		# Exact gold values
@@ -90,7 +112,7 @@ class TestFinancialHealthWorkspaceContract(unittest.TestCase):
 
 	def test_near_term_ap_and_previous_period_unavailable_handling(self):
 		"""F, G. near_term_ap and previous period unavailable handling."""
-		res = get_financial_snapshot(company=self.demo_company, period_start="2020-01-01", period_end="2020-12-31")
+		res = get_financial_snapshot(company=self.demo_company, period_start=self.p_start, period_end=self.p_end)
 		m_map = {m["metric_id"]: m for m in res["metrics"]}
 		self.assertEqual(m_map["near_term_ap"]["status"], "UNAVAILABLE")
 		self.assertIsNone(m_map["near_term_ap"]["value"])
@@ -101,8 +123,8 @@ class TestFinancialHealthWorkspaceContract(unittest.TestCase):
 		# Available
 		res_exp = get_financial_snapshot(
 			company=self.demo_company,
-			period_start="2020-01-01",
-			period_end="2020-12-31",
+			period_start=self.p_start,
+			period_end=self.p_end,
 			include_explanation=True
 		)
 		self.assertEqual(res_exp["explanation"]["status"], "AVAILABLE")
@@ -113,8 +135,8 @@ class TestFinancialHealthWorkspaceContract(unittest.TestCase):
 		# Degraded: without include_explanation
 		res_no_exp = get_financial_snapshot(
 			company=self.demo_company,
-			period_start="2020-01-01",
-			period_end="2020-12-31",
+			period_start=self.p_start,
+			period_end=self.p_end,
 			include_explanation=False
 		)
 		self.assertEqual(res_no_exp["explanation"]["status"], "UNAVAILABLE")
@@ -124,7 +146,7 @@ class TestFinancialHealthWorkspaceContract(unittest.TestCase):
 
 	def test_evidence_refs_mapping_and_sanitization(self):
 		"""J, K. EvidenceRef mapping to correct reports, checksums, and XSS sanitization."""
-		res = get_financial_snapshot(company=self.demo_company, period_start="2020-01-01", period_end="2020-12-31")
+		res = get_financial_snapshot(company=self.demo_company, period_start=self.p_start, period_end=self.p_end)
 		sources = {ev["source_name"]: ev for ev in res["evidence_refs"]}
 		self.assertIn("Profit and Loss Statement", sources)
 		self.assertIn("Accounts Receivable", sources)

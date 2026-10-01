@@ -875,7 +875,7 @@ class TestWV02MasterDataAndVoucherSafety(unittest.TestCase):
         }
 
         row = {"party": "Cust A", "voucher_type": "Payment Entry", "voucher_no": "ACC-PAY-001", "outstanding": 100}
-        with patch("lotus_fin.ai.financial_snapshot.frappe", fake_frappe):
+        with patch("lotus_fin.core.domain.calculators.ar_extractor.frappe", fake_frappe):
             with self.assertRaises(FinancialSourceDataError) as ctx:
                 parse_ar_data([row], company="Target Co")
             self.assertIn("Supplier/Pay Payment Entry", str(ctx.exception))
@@ -899,7 +899,7 @@ class TestWV02MasterDataAndVoucherSafety(unittest.TestCase):
         fake_frappe.db.get_value.return_value = None
 
         row = {"party": "Cust A", "voucher_type": "Payment Entry", "voucher_no": "ACC-PAY-999", "outstanding": 100}
-        with patch("lotus_fin.ai.financial_snapshot.frappe", fake_frappe):
+        with patch("lotus_fin.core.domain.calculators.ar_extractor.frappe", fake_frappe):
             with self.assertRaises(FinancialSourceDataError) as ctx:
                 parse_ar_data([row], company="Target Co")
             self.assertIn("non-existent Payment Entry", str(ctx.exception))
@@ -930,7 +930,7 @@ class TestWV02MasterDataAndVoucherSafety(unittest.TestCase):
         fake_frappe.db.get_value.side_effect = mock_get_value
 
         row = {"party": "Cust A", "voucher_no": "SINV-001", "party_account": "Missing Acc", "outstanding": 100}
-        with patch("lotus_fin.ai.financial_snapshot.frappe", fake_frappe):
+        with patch("lotus_fin.core.domain.calculators.ar_extractor.frappe", fake_frappe):
             with self.assertRaises(FinancialSourceDataError) as ctx:
                 parse_ar_data([row], company="Target Co")
             self.assertIn("does not exist", str(ctx.exception))
@@ -957,7 +957,7 @@ class TestWV02MasterDataAndVoucherSafety(unittest.TestCase):
                 return {"company": "Wrong Co", "account_type": "Receivable"}
             return None
         fake_frappe.db.get_value.side_effect = mock_get_value_co_mismatch
-        with patch("lotus_fin.ai.financial_snapshot.frappe", fake_frappe):
+        with patch("lotus_fin.core.domain.calculators.ar_extractor.frappe", fake_frappe):
             with self.assertRaises(FinancialSourceDataError) as ctx:
                 parse_ar_data([row], company="Target Co")
             self.assertIn("company mismatch", str(ctx.exception))
@@ -970,7 +970,7 @@ class TestWV02MasterDataAndVoucherSafety(unittest.TestCase):
                 return {"company": "Target Co", "account_type": "Payable"}
             return None
         fake_frappe.db.get_value.side_effect = mock_get_value_type_mismatch
-        with patch("lotus_fin.ai.financial_snapshot.frappe", fake_frappe):
+        with patch("lotus_fin.core.domain.calculators.ar_extractor.frappe", fake_frappe):
             with self.assertRaises(FinancialSourceDataError) as ctx:
                 parse_ar_data([row], company="Target Co")
             self.assertIn("expected 'Receivable'", str(ctx.exception))

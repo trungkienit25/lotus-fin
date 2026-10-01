@@ -1,5 +1,5 @@
 """
-Lotus Fin AI001 - Observability, Structured Logging & Tracing Infrastructure.
+Lotus Fin AI001 & AI002 - Observability, Structured Logging & Tracing Infrastructure.
 
 Compliant with:
 - AI001 Feature Freeze (Observability & Logging, §7)
@@ -226,3 +226,4 @@ def trace_span(
             user=user,
             duration_ms=duration_ms
         )
+
