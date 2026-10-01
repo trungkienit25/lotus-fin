@@ -2,6 +2,11 @@ from datetime import date
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from typing import Any, Dict, List, Optional, Tuple
 
+from lotus_fin.core.domain.calculators.observation_reconciliation import (
+    reconcile_observations,
+    content_signature,
+    observation_identity,
+)
 from lotus_fin.core.domain.errors import FinancialSourceDataError
 
 try:
@@ -49,12 +54,16 @@ def parse_ap_data(
     instead of collapsing to an apparent zero. Dict total/summary rows
     (is_total_row marker, or voucher-less party="Total" at any position) and
     voucher-less rows are unproven shapes and raise typed.
+    PB-DATA-02: rows are reconciled by voucher observation identity before
+    summation — exact duplicates count once (with an audit note), distinct
+    contents need an allocation discriminator (payment terms / account / due
+    date) to stay separate, and conflicting contents without a discriminator
+    raise typed.
     """
     if not ap_data:
         return Decimal("0.00"), []
 
-    total_outstanding = Decimal("0.00")
-    has_valid_row = False
+    prepared: List[Tuple[Dict[str, Any], Decimal]] = []
     for row_idx, row in enumerate(ap_data):
         if not isinstance(row, dict):
             raise FinancialSourceDataError(
@@ -237,13 +246,32 @@ def parse_ap_data(
                 "(voucher_no/name); source data is malformed."
             )
 
+        prepared.append((row, outstanding))
+
+    # PB-DATA-02: reconcile observations by voucher identity before any
+    # summation — exact duplicates count once, conflicting contents fail closed.
+    kept_rows, dup_notes = reconcile_observations(
+        [entry[0] for entry in prepared], "AP report", FinancialSourceDataError
+    )
+    prepared_by_key = {
+        (observation_identity(entry[0]), content_signature(entry[0])): entry[1]
+        for entry in prepared
+    }
+
+    total_outstanding = Decimal("0.00")
+    has_valid_row = False
+    for row in kept_rows:
         has_valid_row = True
-        total_outstanding += outstanding
+        total_outstanding += prepared_by_key[
+            (observation_identity(row), content_signature(row))
+        ]
+
+    limitations: List[str] = list(dup_notes)
 
     if not has_valid_row:
         return Decimal("0.00"), ["No active payables found in period."]
 
-    return total_outstanding.quantize(Decimal("0.01")), []
+    return total_outstanding.quantize(Decimal("0.01")), limitations
 
 
 def parse_cash_balance(

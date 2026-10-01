@@ -2,12 +2,27 @@ from datetime import datetime, date, timezone
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from typing import Any, Dict, List, Optional, Tuple
 
+from lotus_fin.core.domain.calculators.observation_reconciliation import (
+    reconcile_observations,
+    content_signature,
+    observation_identity,
+)
 from lotus_fin.core.domain.errors import FinancialSourceDataError
 
 try:
     import frappe
 except ImportError:
     frappe = None
+
+# PB-DATA-01 sentinel: the row carries no verified overdue basis (no explicit
+# overdue column and no parseable due date) — its overdue state is unknown,
+# never a fabricated zero.
+_OVERDUE_BASIS_UNKNOWN = object()
+
+_OVERDUE_BASIS_INCONCLUSIVE_NOTE = (
+    "Overdue basis missing or malformed for one or more receivable rows; "
+    "overdue amount and ratio are inconclusive."
+)
 
 
 def _to_decimal(val: Any) -> Optional[Decimal]:
@@ -35,6 +50,58 @@ def _should_validate_db_voucher(company: Optional[str]) -> bool:
     return True
 
 
+def _resolve_overdue_basis(
+    row: Dict[str, Any],
+    outstanding: Decimal,
+    ref_date: date,
+) -> Any:
+    """
+    PB-DATA-01: resolve one row's overdue basis explicitly.
+
+    1. An explicit, parseable `overdue_amount`/`overdue` column is the
+       report's authoritative overdue value (any sign).
+    2. Otherwise a parseable `due_date` gives the due-date basis: the full
+       outstanding amount counts as overdue only when strictly before the
+       as-of date (due-exact is not overdue).
+    3. A missing or malformed basis on a row with a non-zero outstanding
+       leaves the overdue state UNKNOWN — the affected metric becomes typed
+       unavailable instead of reporting a fabricated zero. A zero-outstanding
+       row cannot be overdue, so a missing basis is a known zero for it.
+    """
+    raw_overdue = None
+    for k in ("overdue_amount", "overdue"):
+        if k in row and row[k] is not None:
+            raw_overdue = row[k]
+            break
+
+    if raw_overdue is not None:
+        explicit = _to_decimal(raw_overdue)
+        if explicit is None:
+            # An explicit authoritative column that cannot be parsed is a
+            # malformed basis, not an absent one.
+            return _OVERDUE_BASIS_UNKNOWN
+        return explicit
+
+    due_date_str = row.get("due_date")
+    row_due = None
+    if due_date_str is not None and str(due_date_str).strip() != "":
+        try:
+            if isinstance(due_date_str, (datetime, date)):
+                row_due = due_date_str if isinstance(due_date_str, date) else due_date_str.date()
+            else:
+                row_due = datetime.strptime(str(due_date_str)[:10], "%Y-%m-%d").date()
+        except Exception:
+            row_due = None
+
+    if row_due is None:
+        if outstanding != Decimal("0.00"):
+            return _OVERDUE_BASIS_UNKNOWN
+        return Decimal("0.00")
+    if row_due < ref_date:
+        return outstanding
+    return Decimal("0.00")
+
+
 def parse_ar_data(
     ar_data: List[Dict[str, Any]],
     as_of_date: Optional[date] = None,
@@ -57,6 +124,15 @@ def parse_ar_data(
     name); ERPNext AR/AP reports are built from voucher-backed GL entries, so a
     voucher-less row cannot be attributed and raises typed — mirroring the
     AI002 adapter contract that rejects positive obligations without a voucher.
+    PB-DATA-01: overdue amount/ratio are only computed from a verified basis
+    (explicit overdue column or parseable past due date); rows with an unknown
+    basis make the overdue metric typed unavailable — never a fabricated zero
+    — while a valid total remains available independently.
+    PB-DATA-02: rows are reconciled by voucher observation identity before
+    summation — exact duplicates count once (with an audit note), distinct
+    contents need an allocation discriminator (payment terms / account / due
+    date) to stay separate, and conflicting contents without a discriminator
+    raise typed.
     An empty list remains the only legitimate verified-zero input.
     """
     limitations = []
@@ -64,11 +140,9 @@ def parse_ar_data(
         # Valid empty AR (no outstanding debtors)
         return Decimal("0.00"), Decimal("0.00"), Decimal("0.00"), []
 
-    total_outstanding = Decimal("0.00")
-    total_overdue = Decimal("0.00")
     ref_date = as_of_date or datetime.now(timezone.utc).date()
+    prepared: List[Tuple[Dict[str, Any], Decimal, Any]] = []
 
-    has_valid_row = False
     for row_idx, row in enumerate(ar_data):
         if not isinstance(row, dict):
             raise FinancialSourceDataError(
@@ -251,36 +325,48 @@ def parse_ar_data(
                 "(voucher_no/name); source data is malformed."
             )
 
+        prepared.append((row, outstanding, _resolve_overdue_basis(row, outstanding, ref_date)))
+
+    # PB-DATA-02: reconcile observations by voucher identity before any
+    # summation — exact duplicates count once, conflicting contents fail closed.
+    kept_rows, dup_notes = reconcile_observations(
+        [entry[0] for entry in prepared], "AR report", FinancialSourceDataError
+    )
+    prepared_by_key = {
+        (observation_identity(entry[0]), content_signature(entry[0])): (entry[1], entry[2])
+        for entry in prepared
+    }
+
+    total_outstanding = Decimal("0.00")
+    total_overdue = Decimal("0.00")
+    has_valid_row = False
+    basis_unknown = False
+    for row in kept_rows:
+        outstanding, overdue_value = prepared_by_key[
+            (observation_identity(row), content_signature(row))
+        ]
         has_valid_row = True
         total_outstanding += outstanding
-
-        # Determine overdue status:
-        raw_overdue = None
-        for k in ("overdue_amount", "overdue"):
-            if k in row and row[k] is not None:
-                raw_overdue = row[k]
-                break
-
-        overdue = _to_decimal(raw_overdue)
-        if overdue is not None:
-            total_overdue += overdue
+        if overdue_value is _OVERDUE_BASIS_UNKNOWN:
+            basis_unknown = True
         else:
-            # Option B: Calculate from due_date
-            due_date_str = row.get("due_date")
-            if due_date_str:
-                try:
-                    if isinstance(due_date_str, (datetime, date)):
-                        row_due = due_date_str if isinstance(due_date_str, date) else due_date_str.date()
-                    else:
-                        row_due = datetime.strptime(str(due_date_str)[:10], "%Y-%m-%d").date()
+            total_overdue += overdue_value
 
-                    if row_due < ref_date:
-                        total_overdue += outstanding
-                except Exception:
-                    pass
+    limitations.extend(dup_notes)
 
     if not has_valid_row:
         return Decimal("0.00"), Decimal("0.00"), Decimal("0.00"), ["No active receivables found in period."]
+
+    # PB-DATA-01: missing != zero — an unknown overdue basis makes the
+    # overdue amount/ratio typed unavailable while the valid total stays.
+    if basis_unknown:
+        limitations.append(_OVERDUE_BASIS_INCONCLUSIVE_NOTE)
+        return (
+            total_outstanding.quantize(Decimal("0.01")),
+            None,
+            None,
+            limitations
+        )
 
     # Calculate Overdue Ratio = total_overdue / total_outstanding
     if total_outstanding > Decimal("0.00"):

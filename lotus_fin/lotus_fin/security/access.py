@@ -69,21 +69,49 @@ def get_verified_company(company: Optional[str] = None, user: Optional[str] = No
 def check_report_permission(report_name: str, user: Optional[str] = None) -> None:
 	"""
 	Verify that the user has permission to access the specified Report.
-	
+
+	PB-SEC-01: the previous primitive (`frappe.desk.query_report.has_permission`)
+	only checks DocType-level read access on the Report document and ignores
+	report-specific restrictions (Custom Role "allowed report" / report roles),
+	so a revoked report stayed callable. The authoritative ERPNext semantics
+	are `Report.is_permitted()`, and they must be evaluated FOR THE CHECKED
+	USER: when the checked user differs from the ambient session user (e.g.
+	Administrator authorizing on behalf of someone), the check runs under a
+	scoped user context that is always restored.
+
 	:param report_name: Name of the ERPNext/Frappe report (e.g., 'General Ledger').
 	:param user: User to check permission for (defaults to current session user).
 	:raises frappe.PermissionError: If report does not exist or user lacks access.
 	"""
-	active_user = user or frappe.session.user
+	if frappe is None:
+		# Fail closed: report authorization cannot be evaluated outside Frappe.
+		raise _PermissionError("FORBIDDEN")
+
+	session_user = None
+	if hasattr(frappe, "session") and frappe.session:
+		session_user = getattr(frappe.session, "user", None)
+	active_user = user or session_user
+	if not active_user:
+		# No checked user can be established — never authorize anonymously.
+		raise _PermissionError("FORBIDDEN")
 
 	if not frappe.db.exists("Report", report_name):
 		frappe.throw(_("FORBIDDEN"), exc=frappe.PermissionError)
 
 	report_doc = frappe.get_doc("Report", report_name)
-	from frappe.desk.query_report import has_permission as report_has_perm
-
-	if not report_has_perm(report_doc, user=active_user):
+	if not _report_permitted_for(report_doc, active_user, session_user):
 		frappe.throw(_("FORBIDDEN"), exc=frappe.PermissionError)
+
+
+def _report_permitted_for(report_doc, active_user: str, session_user: Optional[str]) -> bool:
+	"""PB-SEC-01: evaluate the authoritative report permission as the checked user."""
+	if session_user == active_user:
+		return bool(report_doc.is_permitted())
+	frappe.set_user(active_user)
+	try:
+		return bool(report_doc.is_permitted())
+	finally:
+		frappe.set_user(session_user)
 
 
 def get_company_accounting_currency(company: Optional[str]) -> Optional[str]:
