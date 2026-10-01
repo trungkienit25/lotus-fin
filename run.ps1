@@ -53,6 +53,7 @@ function Invoke-SyncApp {
     docker exec --user root $BackendContainer rm -rf /home/frappe/frappe-bench/apps/lotus_fin
     docker cp $LocalApp "${BackendContainer}:/home/frappe/frappe-bench/apps/lotus_fin"
     docker exec --user root $BackendContainer chown -R frappe:frappe /home/frappe/frappe-bench/apps/lotus_fin
+    docker exec $BackendContainer bash -c 'grep -q lotus_fin /home/frappe/frappe-bench/sites/apps.txt || echo lotus_fin >> /home/frappe/frappe-bench/sites/apps.txt'
     docker exec $BackendContainer pip install -e /home/frappe/frappe-bench/apps/lotus_fin
     docker exec $BackendContainer bench --site frontend install-app lotus_fin
     docker exec $BackendContainer bench build --app lotus_fin
