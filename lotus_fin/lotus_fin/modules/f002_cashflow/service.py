@@ -237,18 +237,22 @@ def get_cash_forecast(
 
     try:
         # 3. Data Gathering (Opening cash & obligations) — typed fail-closed errors
+        # PB-SEC-01: fresh-path report authorization evaluates the checked
+        # user, mirroring the cache-hit reauthorization contract.
         try:
             opening_cash = get_opening_cash_ledger(
                 company=request.company,
                 as_of=request.financial_as_of,
                 account_scope=request.cash_account_scope,
                 currency=request.reporting_currency,
+                user=active_user,
             )
 
             obligations = get_trade_obligations(
                 company=request.company,
                 as_of=request.financial_as_of,
                 currency=request.reporting_currency,
+                user=active_user,
             )
         except ObligationPermissionError:
             # SSOT §12: permission denied is generic FORBIDDEN with no financial payload

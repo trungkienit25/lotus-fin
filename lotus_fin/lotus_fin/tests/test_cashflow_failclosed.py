@@ -160,7 +160,9 @@ class TestObligationFailClosed(unittest.TestCase):
         result, error, _, perm_mock = self._run(perm_side_effect=Exception("FORBIDDEN"))
         self.assertIsNone(result)
         self.assertIsInstance(error, ObligationPermissionError)
-        perm_mock.assert_called_once_with("Accounts Receivable")
+        # PB-SEC-01: the guard call carries the checked user explicitly
+        # (user=None resolves to the ambient session user upstream).
+        perm_mock.assert_called_once_with("Accounts Receivable", user=None)
 
     def test_malformed_row_missing_outstanding_raises_typed(self):
         payload = {"status": "success", "company": COMPANY, "data": [{"voucher_no": "SINV-0001", "party": "X"}]}

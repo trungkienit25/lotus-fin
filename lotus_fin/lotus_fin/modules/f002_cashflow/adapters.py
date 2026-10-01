@@ -11,6 +11,11 @@ from .models import (
     CashEvent,
 )
 from .source_interface import FutureEventSource, FailClosedSource
+from lotus_fin.core.domain.calculators.observation_reconciliation import (
+    reconcile_observations,
+    content_signature,
+    observation_identity,
+)
 
 
 class ObligationSourceError(Exception):
@@ -119,9 +124,11 @@ def _should_validate_db_voucher(company: Optional[str]) -> bool:
     return True
 
 
-def _check_report_permission(report_name: str) -> None:
+def _check_report_permission(report_name: str, user: Optional[str] = None) -> None:
+    """PB-SEC-01: forward the checked user so fresh-path authorization never
+    evaluates the ambient session on behalf of the caller."""
     try:
-        check_ai002_report_permission(report_name)
+        check_ai002_report_permission(report_name, user=user)
     except Exception as e:
         raise ObligationPermissionError(
             f"Permission denied accessing {report_name}."
@@ -134,6 +141,7 @@ def get_opening_cash_ledger(
     account_scope: Optional[List[str]] = None,
     currency: str = "VND",
     db_cursor: Any = None,
+    user: Optional[str] = None,
 ) -> OpeningCash:
     """
     Get opening cash balance as of EOD financial_as_of.
@@ -142,6 +150,9 @@ def get_opening_cash_ledger(
     FROM `tabGL Entry`
     WHERE company=%s AND posting_date <= %s [AND account IN (%s)]
     GROUP BY account
+
+    PB-SEC-01: report permission checks evaluate the checked user, not the
+    ambient session.
 
     Reconciliation (Fix B): GL is reconciled against the independent authorized
     ERPNext Trial Balance report for the FULL explicit account scope. A scope
@@ -159,8 +170,8 @@ def get_opening_cash_ledger(
         _require_report_primitives()
 
         # Report permission for General Ledger & Trial Balance (fail closed)
-        _check_report_permission("General Ledger")
-        _check_report_permission("Trial Balance")
+        _check_report_permission("General Ledger", user=user)
+        _check_report_permission("Trial Balance", user=user)
 
         # Fix B: Account scope must be explicit; if empty, do not auto-select
         if not account_scope:
@@ -412,7 +423,8 @@ def _collect_obligations(
     source_label: str,
     company: Optional[str] = None,
 ) -> List[Obligation]:
-    obligations: List[Obligation] = []
+    obligation_by_key: Dict[Tuple[str, str], Obligation] = {}
+    validated_rows: List[Dict[str, Any]] = []
     for r in _parse_report_rows(report, source_label, company=company):
         row_currency = r.get("currency") or r.get("account_currency")
         if row_currency and str(row_currency).strip().upper() != currency.strip().upper():
@@ -617,30 +629,41 @@ def _collect_obligations(
             if r.get(key):
                 party = r.get(key)
                 break
-        obligations.append(
-            Obligation(
-                type=oblig_type,
-                party_type="Customer" if oblig_type == "AR" else "Supplier",
-                party_hash=hash_party(party),
-                remaining_amount=amount,
-                due_date=_parse_due_date(r, source_label),
-                source_ref=f"{v_prefix}:{voucher}",
-                currency=r.get("currency") or currency,
-            )
+        validated_rows.append(r)
+        obligation_by_key[(observation_identity(r), content_signature(r))] = Obligation(
+            type=oblig_type,
+            party_type="Customer" if oblig_type == "AR" else "Supplier",
+            party_hash=hash_party(party),
+            remaining_amount=amount,
+            due_date=_parse_due_date(r, source_label),
+            source_ref=f"{v_prefix}:{voucher}",
+            currency=r.get("currency") or currency,
         )
-    return obligations
+
+    # PB-DATA-02: reconcile observations by voucher identity before returning —
+    # exact duplicates collapse to a single obligation; conflicting contents
+    # without an allocation discriminator fail closed.
+    kept_rows, _ = reconcile_observations(validated_rows, source_label, ObligationSourceError)
+    return [
+        obligation_by_key[(observation_identity(row), content_signature(row))]
+        for row in kept_rows
+    ]
 
 
 def get_trade_obligations(
     company: str,
     as_of: date,
     currency: str = "VND",
+    user: Optional[str] = None,
 ) -> List[Obligation]:
     """
     Get trade obligations (AR / AP).
     Fix E: Point-in-time correct using Accounts Receivable and Accounts Payable
     reports as of financial_as_of. Invoice `outstanding` as of historical cutoff
     is authoritative. Party names are hashed using SHA256[:12].
+
+    PB-SEC-01: report permission checks evaluate the checked user, not the
+    ambient session.
 
     Fix A: each leg (AR, AP) requires an explicit successful report status and a
     valid payload. Status errors, None responses, unknown statuses, malformed
@@ -649,12 +672,15 @@ def get_trade_obligations(
     converted into an empty result. AR and AP are read independently; a failure
     on either leg aborts the whole read so a failed leg can never be reported
     as a complete/zero leg. Error messages carry no party, invoice or amount.
+    PB-DATA-02: rows are reconciled by voucher observation identity before
+    obligation construction — exact duplicates collapse to one obligation,
+    conflicting contents without an allocation discriminator raise typed.
     """
     obligations: List[Obligation] = []
 
     if _has_active_db():
         _require_report_primitives()
-        _check_report_permission("Accounts Receivable")
+        _check_report_permission("Accounts Receivable", user=user)
         check_party_type_preflight()
 
         # AR leg (Point-in-Time as of cutoff)
@@ -681,7 +707,7 @@ def get_trade_obligations(
         )
 
         # AP leg (Point-in-Time as of cutoff) — read independently after AR
-        _check_report_permission("Accounts Payable")
+        _check_report_permission("Accounts Payable", user=user)
         try:
             ap_report = extract_key_report_data(
                 report_key="accounts_payable",
