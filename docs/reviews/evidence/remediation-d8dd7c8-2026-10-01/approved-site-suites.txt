@@ -1,0 +1,576 @@
+test_analyze_invoice_risk_success (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_analyze_invoice_risk_success)
+Admin or authorized user can successfully analyze a valid invoice. ... FAIL
+test_cross_company_deny (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_cross_company_deny)
+User restricted to Company 'Name' must be denied access to 'Name (Demo)'. ... ERROR
+test_cross_company_via_filter_tampering_deny (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_cross_company_via_filter_tampering_deny)
+User cannot bypass company restriction by passing company inside filters dict. ... ERROR
+test_empty_result_distinguished_from_error (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_empty_result_distinguished_from_error)
+Empty company yields status 'success' with total_rows = 0 and empty list, not an error. ... ERROR
+test_erpnext_report_execution_with_proper_filters (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_erpnext_report_execution_with_proper_filters)
+Standard ERPNext report execution produces expected columns and rows. ... ERROR
+test_get_ai_training_dataset_preserves_module_errors (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_get_ai_training_dataset_preserves_module_errors)
+Dataset aggregation must capture module errors without crashing and apply company isolation. ... ERROR
+test_get_available_key_reports (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_get_available_key_reports)
+Registry listing succeeds. ... ok
+test_get_financial_snapshot_as_of_prior_to_period_end_rule (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_get_financial_snapshot_as_of_prior_to_period_end_rule)
+When as_of is prior to period_end, report boundaries are restricted to as_of date. ... FAIL
+test_get_financial_snapshot_endpoint_structure (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_get_financial_snapshot_endpoint_structure)
+get_financial_snapshot returns structured FinancialSnapshot and EvidenceRefs. ... FAIL
+test_get_financial_snapshot_live_explanation (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_get_financial_snapshot_live_explanation)
+Whitelisted get_financial_snapshot supports include_explanation=True. ... FAIL
+test_get_financial_snapshot_live_gold_reconciliation (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_get_financial_snapshot_live_gold_reconciliation)
+Verify live ERPNext report execution matches known gold exactly for Name (Demo) FY2020. ... FAIL
+test_get_financial_snapshot_near_term_ap_status (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_get_financial_snapshot_near_term_ap_status)
+near_term_ap metric is present with UNAVAILABLE status and frozen limitation. ... FAIL
+test_get_financial_snapshot_previous_period_comparison_live (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_get_financial_snapshot_previous_period_comparison_live)
+When comparison=PREVIOUS_PERIOD, comparison block is returned with accurate deltas. ... FAIL
+test_nonexistent_company_uses_generic_denial (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_nonexistent_company_uses_generic_denial)
+Missing and unauthorized companies must have the same public denial. ... ok
+test_nonexistent_report_key_raises_error (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_nonexistent_report_key_raises_error)
+Requesting unknown report key must throw ValidationError. ... ok
+test_predict_cashflow_deprecation_flag (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_predict_cashflow_deprecation_flag)
+predict_cashflow output must include deprecation warning flag. ... ERROR
+test_predict_cashflow_on_empty_company (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_predict_cashflow_on_empty_company)
+Empty company with no transactions yields 0 inflow/outflow with success status and deprecated warning. ... ERROR
+test_report_error_preserved_in_extract_key_report (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_report_error_preserved_in_extract_key_report)
+When query report fails (e.g. mandatory filters missing), return status error and error message. ... ERROR
+test_report_error_preserved_in_predict_cashflow (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_report_error_preserved_in_predict_cashflow)
+If AR or AP fails, predict_cashflow MUST NOT fabricate zero inflow/outflow, but return status error. ... ERROR
+test_same_company_allow_as_admin (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_same_company_allow_as_admin)
+Admin should have access to both demo and empty company. ... ERROR
+test_same_company_allow_restricted_user (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_same_company_allow_restricted_user)
+Restricted user should have access only to their permitted company. ... ERROR
+test_unauthorized_guest_denied_company (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_unauthorized_guest_denied_company)
+Guest user must be denied company verification. ... ok
+test_unauthorized_guest_denied_report (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_unauthorized_guest_denied_report)
+Guest user must be denied from extracting reports. ... ok
+test_unauthorized_invoice_risk_analysis_deny (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_unauthorized_invoice_risk_analysis_deny)
+User restricted to Company 'Name' cannot analyze invoice belonging to 'Name (Demo)'. ... ERROR
+test_ai002_logger_accepts_typed_metadata_only (lotus_fin.tests.test_security_hardening.TestSecurityHardening.test_ai002_logger_accepts_typed_metadata_only) ... ok
+test_legacy_logger_drops_fake_pii_and_amount (lotus_fin.tests.test_security_hardening.TestSecurityHardening.test_legacy_logger_drops_fake_pii_and_amount) ... ok
+test_missing_and_forbidden_company_have_identical_public_denial (lotus_fin.tests.test_security_hardening.TestSecurityHardening.test_missing_and_forbidden_company_have_identical_public_denial) ... ok
+test_missing_report_has_generic_denial (lotus_fin.tests.test_security_hardening.TestSecurityHardening.test_missing_report_has_generic_denial) ... ok
+test_authorized_company_loads_full_metrics (lotus_fin.tests.test_workspace_ui.TestFinancialHealthWorkspaceContract.test_authorized_company_loads_full_metrics)
+A. Authorized company loads complete snapshot contract. ... FAIL
+test_evidence_refs_mapping_and_sanitization (lotus_fin.tests.test_workspace_ui.TestFinancialHealthWorkspaceContract.test_evidence_refs_mapping_and_sanitization)
+J, K. EvidenceRef mapping to correct reports, checksums, and XSS sanitization. ... FAIL
+test_explanation_available_and_unavailable_degradation (lotus_fin.tests.test_workspace_ui.TestFinancialHealthWorkspaceContract.test_explanation_available_and_unavailable_degradation)
+H, I. Explanation available renders decomposed sections; unavailable preserves KPI UI. ... ERROR
+test_financial_health_page_doc_exists_and_standard (lotus_fin.tests.test_workspace_ui.TestFinancialHealthWorkspaceContract.test_financial_health_page_doc_exists_and_standard)
+Verify standard Page document for financial-health is registered in Frappe. ... ok
+test_fy2020_runtime_gold_values (lotus_fin.tests.test_workspace_ui.TestFinancialHealthWorkspaceContract.test_fy2020_runtime_gold_values)
+C, D, E. Known gold reconciliation for FY2020: negative cash, 100% overdue AR. ... ERROR
+test_near_term_ap_and_previous_period_unavailable_handling (lotus_fin.tests.test_workspace_ui.TestFinancialHealthWorkspaceContract.test_near_term_ap_and_previous_period_unavailable_handling)
+F, G. near_term_ap and previous period unavailable handling. ... ERROR
+test_unauthorized_company_forbidden_no_leak (lotus_fin.tests.test_workspace_ui.TestFinancialHealthWorkspaceContract.test_unauthorized_company_forbidden_no_leak)
+B. Unauthorized user requesting company returns FORBIDDEN with zero leaked metrics. ... ok
+
+======================================================================
+ERROR: test_cross_company_deny (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_cross_company_deny)
+User restricted to Company 'Name' must be denied access to 'Name (Demo)'.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/review/docs/reviews/evidence/remediation-d8dd7c8-2026-10-01/approved-base/lotus_fin/lotus_fin/tests/test_access_and_reports.py", line 69, in test_cross_company_deny
+    add_user_permission("Company", self.empty_company, self.test_user)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/permissions.py", line 607, in add_user_permission
+    frappe.throw(_("{0} {1} not found").format(_(doctype), name), frappe.DoesNotExistError)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/messages.py", line 159, in throw
+    msgprint(
+    ~~~~~~~~^
+    	msg,
+     ^^^^
+    ...<7 lines>...
+    	allow_dangerous_html=allow_dangerous_html,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/messages.py", line 118, in msgprint
+    _raise_exception()
+    ~~~~~~~~~~~~~~~~^^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/messages.py", line 59, in _raise_exception
+    raise exc
+frappe.exceptions.DoesNotExistError: Company Name not found
+
+======================================================================
+ERROR: test_cross_company_via_filter_tampering_deny (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_cross_company_via_filter_tampering_deny)
+User cannot bypass company restriction by passing company inside filters dict.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/review/docs/reviews/evidence/remediation-d8dd7c8-2026-10-01/approved-base/lotus_fin/lotus_fin/tests/test_access_and_reports.py", line 84, in test_cross_company_via_filter_tampering_deny
+    add_user_permission("Company", self.empty_company, self.test_user)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/permissions.py", line 607, in add_user_permission
+    frappe.throw(_("{0} {1} not found").format(_(doctype), name), frappe.DoesNotExistError)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/messages.py", line 159, in throw
+    msgprint(
+    ~~~~~~~~^
+    	msg,
+     ^^^^
+    ...<7 lines>...
+    	allow_dangerous_html=allow_dangerous_html,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/messages.py", line 118, in msgprint
+    _raise_exception()
+    ~~~~~~~~~~~~~~~~^^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/messages.py", line 59, in _raise_exception
+    raise exc
+frappe.exceptions.DoesNotExistError: Company Name not found
+
+======================================================================
+ERROR: test_empty_result_distinguished_from_error (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_empty_result_distinguished_from_error)
+Empty company yields status 'success' with total_rows = 0 and empty list, not an error.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/review/docs/reviews/evidence/remediation-d8dd7c8-2026-10-01/approved-base/lotus_fin/lotus_fin/tests/test_access_and_reports.py", line 116, in test_empty_result_distinguished_from_error
+    res = extract_key_report_data("accounts_receivable", company=self.empty_company)
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/typing_validations.py", line 36, in wrapper
+    return func(*args, **kwargs)
+  File "/review/docs/reviews/evidence/remediation-d8dd7c8-2026-10-01/approved-base/lotus_fin/lotus_fin/api/key_reports.py", line 283, in extract_key_report_data
+    verified_company = get_verified_company(requested_company)
+  File "/review/docs/reviews/evidence/remediation-d8dd7c8-2026-10-01/approved-base/lotus_fin/lotus_fin/security/access.py", line 60, in get_verified_company
+    frappe.throw(_("FORBIDDEN"), exc=CompanyAccessError)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/messages.py", line 159, in throw
+    msgprint(
+    ~~~~~~~~^
+    	msg,
+     ^^^^
+    ...<7 lines>...
+    	allow_dangerous_html=allow_dangerous_html,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/messages.py", line 118, in msgprint
+    _raise_exception()
+    ~~~~~~~~~~~~~~~~^^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/messages.py", line 59, in _raise_exception
+    raise exc
+lotus_fin.security.access.CompanyAccessError: FORBIDDEN
+
+======================================================================
+ERROR: test_erpnext_report_execution_with_proper_filters (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_erpnext_report_execution_with_proper_filters)
+Standard ERPNext report execution produces expected columns and rows.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/review/docs/reviews/evidence/remediation-d8dd7c8-2026-10-01/approved-base/lotus_fin/lotus_fin/tests/test_access_and_reports.py", line 167, in test_erpnext_report_execution_with_proper_filters
+    res = extract_key_report_data(
+    	"general_ledger",
+    	filters={"from_date": "2020-01-01", "to_date": "2020-12-31"},
+    	company=self.demo_company
+    )
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/typing_validations.py", line 36, in wrapper
+    return func(*args, **kwargs)
+  File "/review/docs/reviews/evidence/remediation-d8dd7c8-2026-10-01/approved-base/lotus_fin/lotus_fin/api/key_reports.py", line 283, in extract_key_report_data
+    verified_company = get_verified_company(requested_company)
+  File "/review/docs/reviews/evidence/remediation-d8dd7c8-2026-10-01/approved-base/lotus_fin/lotus_fin/security/access.py", line 60, in get_verified_company
+    frappe.throw(_("FORBIDDEN"), exc=CompanyAccessError)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/messages.py", line 159, in throw
+    msgprint(
+    ~~~~~~~~^
+    	msg,
+     ^^^^
+    ...<7 lines>...
+    	allow_dangerous_html=allow_dangerous_html,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/messages.py", line 118, in msgprint
+    _raise_exception()
+    ~~~~~~~~~~~~~~~~^^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/messages.py", line 59, in _raise_exception
+    raise exc
+lotus_fin.security.access.CompanyAccessError: FORBIDDEN
+
+======================================================================
+ERROR: test_get_ai_training_dataset_preserves_module_errors (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_get_ai_training_dataset_preserves_module_errors)
+Dataset aggregation must capture module errors without crashing and apply company isolation.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/review/docs/reviews/evidence/remediation-d8dd7c8-2026-10-01/approved-base/lotus_fin/lotus_fin/tests/test_access_and_reports.py", line 187, in test_get_ai_training_dataset_preserves_module_errors
+    dataset = get_ai_training_dataset(company=self.demo_company)
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/typing_validations.py", line 36, in wrapper
+    return func(*args, **kwargs)
+  File "/review/docs/reviews/evidence/remediation-d8dd7c8-2026-10-01/approved-base/lotus_fin/lotus_fin/api/key_reports.py", line 338, in get_ai_training_dataset
+    verified_company = get_verified_company(company)
+  File "/review/docs/reviews/evidence/remediation-d8dd7c8-2026-10-01/approved-base/lotus_fin/lotus_fin/security/access.py", line 60, in get_verified_company
+    frappe.throw(_("FORBIDDEN"), exc=CompanyAccessError)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/messages.py", line 159, in throw
+    msgprint(
+    ~~~~~~~~^
+    	msg,
+     ^^^^
+    ...<7 lines>...
+    	allow_dangerous_html=allow_dangerous_html,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/messages.py", line 118, in msgprint
+    _raise_exception()
+    ~~~~~~~~~~~~~~~~^^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/messages.py", line 59, in _raise_exception
+    raise exc
+lotus_fin.security.access.CompanyAccessError: FORBIDDEN
+
+======================================================================
+ERROR: test_predict_cashflow_deprecation_flag (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_predict_cashflow_deprecation_flag)
+predict_cashflow output must include deprecation warning flag.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/review/docs/reviews/evidence/remediation-d8dd7c8-2026-10-01/approved-base/lotus_fin/lotus_fin/tests/test_access_and_reports.py", line 159, in test_predict_cashflow_deprecation_flag
+    res = predict_cashflow(company=self.demo_company)
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/typing_validations.py", line 36, in wrapper
+    return func(*args, **kwargs)
+  File "/review/docs/reviews/evidence/remediation-d8dd7c8-2026-10-01/approved-base/lotus_fin/lotus_fin/api/ai_insights.py", line 81, in predict_cashflow
+    verified_company = get_verified_company(company)
+  File "/review/docs/reviews/evidence/remediation-d8dd7c8-2026-10-01/approved-base/lotus_fin/lotus_fin/security/access.py", line 60, in get_verified_company
+    frappe.throw(_("FORBIDDEN"), exc=CompanyAccessError)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/messages.py", line 159, in throw
+    msgprint(
+    ~~~~~~~~^
+    	msg,
+     ^^^^
+    ...<7 lines>...
+    	allow_dangerous_html=allow_dangerous_html,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/messages.py", line 118, in msgprint
+    _raise_exception()
+    ~~~~~~~~~~~~~~~~^^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/messages.py", line 59, in _raise_exception
+    raise exc
+lotus_fin.security.access.CompanyAccessError: FORBIDDEN
+
+======================================================================
+ERROR: test_predict_cashflow_on_empty_company (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_predict_cashflow_on_empty_company)
+Empty company with no transactions yields 0 inflow/outflow with success status and deprecated warning.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/review/docs/reviews/evidence/remediation-d8dd7c8-2026-10-01/approved-base/lotus_fin/lotus_fin/tests/test_access_and_reports.py", line 123, in test_predict_cashflow_on_empty_company
+    res = predict_cashflow(company=self.empty_company)
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/typing_validations.py", line 36, in wrapper
+    return func(*args, **kwargs)
+  File "/review/docs/reviews/evidence/remediation-d8dd7c8-2026-10-01/approved-base/lotus_fin/lotus_fin/api/ai_insights.py", line 81, in predict_cashflow
+    verified_company = get_verified_company(company)
+  File "/review/docs/reviews/evidence/remediation-d8dd7c8-2026-10-01/approved-base/lotus_fin/lotus_fin/security/access.py", line 60, in get_verified_company
+    frappe.throw(_("FORBIDDEN"), exc=CompanyAccessError)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/messages.py", line 159, in throw
+    msgprint(
+    ~~~~~~~~^
+    	msg,
+     ^^^^
+    ...<7 lines>...
+    	allow_dangerous_html=allow_dangerous_html,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/messages.py", line 118, in msgprint
+    _raise_exception()
+    ~~~~~~~~~~~~~~~~^^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/messages.py", line 59, in _raise_exception
+    raise exc
+lotus_fin.security.access.CompanyAccessError: FORBIDDEN
+
+======================================================================
+ERROR: test_report_error_preserved_in_extract_key_report (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_report_error_preserved_in_extract_key_report)
+When query report fails (e.g. mandatory filters missing), return status error and error message.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/review/docs/reviews/evidence/remediation-d8dd7c8-2026-10-01/approved-base/lotus_fin/lotus_fin/tests/test_access_and_reports.py", line 94, in test_report_error_preserved_in_extract_key_report
+    res = extract_key_report_data("general_ledger", company=self.demo_company)
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/typing_validations.py", line 36, in wrapper
+    return func(*args, **kwargs)
+  File "/review/docs/reviews/evidence/remediation-d8dd7c8-2026-10-01/approved-base/lotus_fin/lotus_fin/api/key_reports.py", line 283, in extract_key_report_data
+    verified_company = get_verified_company(requested_company)
+  File "/review/docs/reviews/evidence/remediation-d8dd7c8-2026-10-01/approved-base/lotus_fin/lotus_fin/security/access.py", line 60, in get_verified_company
+    frappe.throw(_("FORBIDDEN"), exc=CompanyAccessError)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/messages.py", line 159, in throw
+    msgprint(
+    ~~~~~~~~^
+    	msg,
+     ^^^^
+    ...<7 lines>...
+    	allow_dangerous_html=allow_dangerous_html,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/messages.py", line 118, in msgprint
+    _raise_exception()
+    ~~~~~~~~~~~~~~~~^^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/messages.py", line 59, in _raise_exception
+    raise exc
+lotus_fin.security.access.CompanyAccessError: FORBIDDEN
+
+======================================================================
+ERROR: test_report_error_preserved_in_predict_cashflow (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_report_error_preserved_in_predict_cashflow)
+If AR or AP fails, predict_cashflow MUST NOT fabricate zero inflow/outflow, but return status error.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/review/docs/reviews/evidence/remediation-d8dd7c8-2026-10-01/approved-base/lotus_fin/lotus_fin/tests/test_access_and_reports.py", line 106, in test_report_error_preserved_in_predict_cashflow
+    res = predict_cashflow(company=self.demo_company)
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/typing_validations.py", line 36, in wrapper
+    return func(*args, **kwargs)
+  File "/review/docs/reviews/evidence/remediation-d8dd7c8-2026-10-01/approved-base/lotus_fin/lotus_fin/api/ai_insights.py", line 81, in predict_cashflow
+    verified_company = get_verified_company(company)
+  File "/review/docs/reviews/evidence/remediation-d8dd7c8-2026-10-01/approved-base/lotus_fin/lotus_fin/security/access.py", line 60, in get_verified_company
+    frappe.throw(_("FORBIDDEN"), exc=CompanyAccessError)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/messages.py", line 159, in throw
+    msgprint(
+    ~~~~~~~~^
+    	msg,
+     ^^^^
+    ...<7 lines>...
+    	allow_dangerous_html=allow_dangerous_html,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/messages.py", line 118, in msgprint
+    _raise_exception()
+    ~~~~~~~~~~~~~~~~^^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/messages.py", line 59, in _raise_exception
+    raise exc
+lotus_fin.security.access.CompanyAccessError: FORBIDDEN
+
+======================================================================
+ERROR: test_same_company_allow_as_admin (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_same_company_allow_as_admin)
+Admin should have access to both demo and empty company.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/review/docs/reviews/evidence/remediation-d8dd7c8-2026-10-01/approved-base/lotus_fin/lotus_fin/tests/test_access_and_reports.py", line 45, in test_same_company_allow_as_admin
+    comp = get_verified_company(self.demo_company, user="Administrator")
+  File "/review/docs/reviews/evidence/remediation-d8dd7c8-2026-10-01/approved-base/lotus_fin/lotus_fin/security/access.py", line 60, in get_verified_company
+    frappe.throw(_("FORBIDDEN"), exc=CompanyAccessError)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/messages.py", line 159, in throw
+    msgprint(
+    ~~~~~~~~^
+    	msg,
+     ^^^^
+    ...<7 lines>...
+    	allow_dangerous_html=allow_dangerous_html,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/messages.py", line 118, in msgprint
+    _raise_exception()
+    ~~~~~~~~~~~~~~~~^^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/messages.py", line 59, in _raise_exception
+    raise exc
+lotus_fin.security.access.CompanyAccessError: FORBIDDEN
+
+======================================================================
+ERROR: test_same_company_allow_restricted_user (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_same_company_allow_restricted_user)
+Restricted user should have access only to their permitted company.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/review/docs/reviews/evidence/remediation-d8dd7c8-2026-10-01/approved-base/lotus_fin/lotus_fin/tests/test_access_and_reports.py", line 53, in test_same_company_allow_restricted_user
+    add_user_permission("Company", self.empty_company, self.test_user)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/permissions.py", line 607, in add_user_permission
+    frappe.throw(_("{0} {1} not found").format(_(doctype), name), frappe.DoesNotExistError)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/messages.py", line 159, in throw
+    msgprint(
+    ~~~~~~~~^
+    	msg,
+     ^^^^
+    ...<7 lines>...
+    	allow_dangerous_html=allow_dangerous_html,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/messages.py", line 118, in msgprint
+    _raise_exception()
+    ~~~~~~~~~~~~~~~~^^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/messages.py", line 59, in _raise_exception
+    raise exc
+frappe.exceptions.DoesNotExistError: Company Name not found
+
+======================================================================
+ERROR: test_unauthorized_invoice_risk_analysis_deny (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_unauthorized_invoice_risk_analysis_deny)
+User restricted to Company 'Name' cannot analyze invoice belonging to 'Name (Demo)'.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/review/docs/reviews/evidence/remediation-d8dd7c8-2026-10-01/approved-base/lotus_fin/lotus_fin/tests/test_access_and_reports.py", line 149, in test_unauthorized_invoice_risk_analysis_deny
+    add_user_permission("Company", self.empty_company, self.test_user)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/permissions.py", line 607, in add_user_permission
+    frappe.throw(_("{0} {1} not found").format(_(doctype), name), frappe.DoesNotExistError)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/messages.py", line 159, in throw
+    msgprint(
+    ~~~~~~~~^
+    	msg,
+     ^^^^
+    ...<7 lines>...
+    	allow_dangerous_html=allow_dangerous_html,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/messages.py", line 118, in msgprint
+    _raise_exception()
+    ~~~~~~~~~~~~~~~~^^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/messages.py", line 59, in _raise_exception
+    raise exc
+frappe.exceptions.DoesNotExistError: Company Name not found
+
+======================================================================
+ERROR: test_explanation_available_and_unavailable_degradation (lotus_fin.tests.test_workspace_ui.TestFinancialHealthWorkspaceContract.test_explanation_available_and_unavailable_degradation)
+H, I. Explanation available renders decomposed sections; unavailable preserves KPI UI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/review/docs/reviews/evidence/remediation-d8dd7c8-2026-10-01/approved-base/lotus_fin/lotus_fin/tests/test_workspace_ui.py", line 108, in test_explanation_available_and_unavailable_degradation
+    self.assertEqual(res_exp["explanation"]["status"], "AVAILABLE")
+                     ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable
+
+======================================================================
+ERROR: test_fy2020_runtime_gold_values (lotus_fin.tests.test_workspace_ui.TestFinancialHealthWorkspaceContract.test_fy2020_runtime_gold_values)
+C, D, E. Known gold reconciliation for FY2020: negative cash, 100% overdue AR.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/review/docs/reviews/evidence/remediation-d8dd7c8-2026-10-01/approved-base/lotus_fin/lotus_fin/tests/test_workspace_ui.py", line 82, in test_fy2020_runtime_gold_values
+    self.assertEqual(m_map["revenue"], 363000.0)
+                     ~~~~~^^^^^^^^^^^
+KeyError: 'revenue'
+
+======================================================================
+ERROR: test_near_term_ap_and_previous_period_unavailable_handling (lotus_fin.tests.test_workspace_ui.TestFinancialHealthWorkspaceContract.test_near_term_ap_and_previous_period_unavailable_handling)
+F, G. near_term_ap and previous period unavailable handling.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/review/docs/reviews/evidence/remediation-d8dd7c8-2026-10-01/approved-base/lotus_fin/lotus_fin/tests/test_workspace_ui.py", line 95, in test_near_term_ap_and_previous_period_unavailable_handling
+    self.assertEqual(m_map["near_term_ap"]["status"], "UNAVAILABLE")
+                     ~~~~~^^^^^^^^^^^^^^^^
+KeyError: 'near_term_ap'
+
+======================================================================
+FAIL: test_analyze_invoice_risk_success (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_analyze_invoice_risk_success)
+Admin or authorized user can successfully analyze a valid invoice.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/review/docs/reviews/evidence/remediation-d8dd7c8-2026-10-01/approved-base/lotus_fin/lotus_fin/tests/test_access_and_reports.py", line 200, in test_analyze_invoice_risk_success
+    self.assertEqual(res["company"], self.demo_company)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'AI002 Fixture 2026' != 'Name (Demo)'
+- AI002 Fixture 2026
++ Name (Demo)
+
+
+======================================================================
+FAIL: test_get_financial_snapshot_as_of_prior_to_period_end_rule (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_get_financial_snapshot_as_of_prior_to_period_end_rule)
+When as_of is prior to period_end, report boundaries are restricted to as_of date.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/review/docs/reviews/evidence/remediation-d8dd7c8-2026-10-01/approved-base/lotus_fin/lotus_fin/tests/test_access_and_reports.py", line 251, in test_get_financial_snapshot_as_of_prior_to_period_end_rule
+    self.assertEqual(res["status"], "OK")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'FORBIDDEN' != 'OK'
+- FORBIDDEN
++ OK
+
+
+======================================================================
+FAIL: test_get_financial_snapshot_endpoint_structure (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_get_financial_snapshot_endpoint_structure)
+get_financial_snapshot returns structured FinancialSnapshot and EvidenceRefs.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/review/docs/reviews/evidence/remediation-d8dd7c8-2026-10-01/approved-base/lotus_fin/lotus_fin/tests/test_access_and_reports.py", line 212, in test_get_financial_snapshot_endpoint_structure
+    self.assertEqual(res["status"], "OK")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'FORBIDDEN' != 'OK'
+- FORBIDDEN
++ OK
+
+
+======================================================================
+FAIL: test_get_financial_snapshot_live_explanation (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_get_financial_snapshot_live_explanation)
+Whitelisted get_financial_snapshot supports include_explanation=True.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/review/docs/reviews/evidence/remediation-d8dd7c8-2026-10-01/approved-base/lotus_fin/lotus_fin/tests/test_access_and_reports.py", line 295, in test_get_financial_snapshot_live_explanation
+    self.assertEqual(res["status"], "OK")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'FORBIDDEN' != 'OK'
+- FORBIDDEN
++ OK
+
+
+======================================================================
+FAIL: test_get_financial_snapshot_live_gold_reconciliation (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_get_financial_snapshot_live_gold_reconciliation)
+Verify live ERPNext report execution matches known gold exactly for Name (Demo) FY2020.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/review/docs/reviews/evidence/remediation-d8dd7c8-2026-10-01/approved-base/lotus_fin/lotus_fin/tests/test_access_and_reports.py", line 223, in test_get_financial_snapshot_live_gold_reconciliation
+    self.assertEqual(res["status"], "OK")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'FORBIDDEN' != 'OK'
+- FORBIDDEN
++ OK
+
+
+======================================================================
+FAIL: test_get_financial_snapshot_near_term_ap_status (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_get_financial_snapshot_near_term_ap_status)
+{"site": "ai003-verify.localhost", "init_calls": [{"requested": "ai003-verify.localhost", "actual": "ai003-verify.localhost"}, {"requested": "frontend", "actual": "ai003-verify.localhost"}, {"requested": "frontend", "actual": "ai003-verify.localhost"}], "tests": 35, "failures": 9, "errors": 15, "skipped": 0}
+near_term_ap metric is present with UNAVAILABLE status and frozen limitation.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/review/docs/reviews/evidence/remediation-d8dd7c8-2026-10-01/approved-base/lotus_fin/lotus_fin/tests/test_access_and_reports.py", line 261, in test_get_financial_snapshot_near_term_ap_status
+    self.assertEqual(res["status"], "OK")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'FORBIDDEN' != 'OK'
+- FORBIDDEN
++ OK
+
+
+======================================================================
+FAIL: test_get_financial_snapshot_previous_period_comparison_live (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_get_financial_snapshot_previous_period_comparison_live)
+When comparison=PREVIOUS_PERIOD, comparison block is returned with accurate deltas.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/review/docs/reviews/evidence/remediation-d8dd7c8-2026-10-01/approved-base/lotus_fin/lotus_fin/tests/test_access_and_reports.py", line 276, in test_get_financial_snapshot_previous_period_comparison_live
+    self.assertEqual(res["status"], "OK")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'FORBIDDEN' != 'OK'
+- FORBIDDEN
++ OK
+
+
+======================================================================
+FAIL: test_authorized_company_loads_full_metrics (lotus_fin.tests.test_workspace_ui.TestFinancialHealthWorkspaceContract.test_authorized_company_loads_full_metrics)
+A. Authorized company loads complete snapshot contract.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/review/docs/reviews/evidence/remediation-d8dd7c8-2026-10-01/approved-base/lotus_fin/lotus_fin/tests/test_workspace_ui.py", line 62, in test_authorized_company_loads_full_metrics
+    self.assertEqual(res["status"], "OK")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'FORBIDDEN' != 'OK'
+- FORBIDDEN
++ OK
+
+
+======================================================================
+FAIL: test_evidence_refs_mapping_and_sanitization (lotus_fin.tests.test_workspace_ui.TestFinancialHealthWorkspaceContract.test_evidence_refs_mapping_and_sanitization)
+J, K. EvidenceRef mapping to correct reports, checksums, and XSS sanitization.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/review/docs/reviews/evidence/remediation-d8dd7c8-2026-10-01/approved-base/lotus_fin/lotus_fin/tests/test_workspace_ui.py", line 129, in test_evidence_refs_mapping_and_sanitization
+    self.assertIn("Profit and Loss Statement", sources)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'Profit and Loss Statement' not found in {}
+
+----------------------------------------------------------------------
+Ran 35 tests in 3.672s
+
+FAILED (failures=9, errors=15)

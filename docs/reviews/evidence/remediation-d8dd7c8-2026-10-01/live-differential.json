@@ -1,0 +1,56 @@
+{
+  "same_case_verdicts": true,
+  "current": {
+    "total": 51,
+    "pass": 39,
+    "fail": 12,
+    "errors": 0
+  },
+  "approved": {
+    "total": 51,
+    "pass": 39,
+    "fail": 12,
+    "errors": 0
+  },
+  "failed_cases": [
+    "AR_BASIS_MISSING_BOTH",
+    "AR_BASIS_MALFORMED_DATE",
+    "AR_EXACT_DUPLICATE_AI001",
+    "AR_DUPLICATE_AI002_EXACT",
+    "AR_DUPLICATE_AI002_CONFLICTING_AMOUNT",
+    "AP_EXACT_DUPLICATE_AI001",
+    "AP_DUPLICATE_AI002_EXACT",
+    "AP_DUPLICATE_AI002_CONFLICTING_AMOUNT",
+    "PB_SEC_01_ACTIVE_GUARD_DENIED",
+    "PB_SEC_01_CACHE_REVOKED",
+    "PB_SEC_01_FRESH_REVOKED",
+    "PB_SEC_01_TRUSTED_EXPLICIT_USER"
+  ],
+  "fixture_unchanged": {
+    "case": "FIXTURE_UNCHANGED",
+    "result": "PASS",
+    "actual": {
+      "before": "f43de2e6a769d228cb4971a4742a6cbb2c4a812790756a9819392c7706116372",
+      "after": "f43de2e6a769d228cb4971a4742a6cbb2c4a812790756a9819392c7706116372"
+    },
+    "evidence_kind": "VERIFIED_RUNTIME"
+  },
+  "cleanup": {
+    "PROBE_USER_ABSENT": {
+      "case": "PROBE_USER_ABSENT",
+      "result": "PASS",
+      "actual": {
+        "absent": true
+      },
+      "evidence_kind": "VERIFIED_RUNTIME"
+    },
+    "PROBE_ROLE_ABSENT": {
+      "case": "PROBE_ROLE_ABSENT",
+      "result": "PASS",
+      "actual": {
+        "absent": true
+      },
+      "evidence_kind": "VERIFIED_RUNTIME"
+    }
+  }
+}

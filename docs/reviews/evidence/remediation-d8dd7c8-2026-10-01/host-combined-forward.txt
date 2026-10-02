@@ -1,0 +1,331 @@
+test_gold_margin_quantized_to_four_places (lotus_fin.tests.test_numeric_contract.TestGrossMarginNumericBoundaries.test_gold_margin_quantized_to_four_places) ... ok
+test_missing_cogs_row_is_unavailable_with_explicit_limitation (lotus_fin.tests.test_numeric_contract.TestGrossMarginNumericBoundaries.test_missing_cogs_row_is_unavailable_with_explicit_limitation) ... ok
+test_missing_pnl_source_yields_typed_unavailable_metrics (lotus_fin.tests.test_numeric_contract.TestGrossMarginNumericBoundaries.test_missing_pnl_source_yields_typed_unavailable_metrics) ... ok
+test_negative_margin_survives_truthiness_guards (lotus_fin.tests.test_numeric_contract.TestGrossMarginNumericBoundaries.test_negative_margin_survives_truthiness_guards)
+COGS > Revenue is a legitimate verified ratio (negative margin). ... ok
+test_zero_revenue_is_unavailable_with_explicit_limitation (lotus_fin.tests.test_numeric_contract.TestGrossMarginNumericBoundaries.test_zero_revenue_is_unavailable_with_explicit_limitation) ... ok
+test_revenue_100_cogs_0_is_margin_one_available (lotus_fin.tests.test_numeric_contract.TestGrossMarginZeroCogsContract.test_revenue_100_cogs_0_is_margin_one_available)
+The exact SSOT controlled replay: Revenue=100, COGS=0 -> 1.0. ... ok
+test_zero_cogs_via_public_snapshot_envelope (lotus_fin.tests.test_numeric_contract.TestGrossMarginZeroCogsContract.test_zero_cogs_via_public_snapshot_envelope)
+End-to-end through build_financial_snapshot: zero-COGS stays ... ok
+test_legitimate_success_empty_is_verified_zero (lotus_fin.tests.test_ai003_foundation_remediation.TestBucketAFailClosedSourceValidation.test_legitimate_success_empty_is_verified_zero) ... ok
+test_malformed_ap_amount_unparseable_raises (lotus_fin.tests.test_ai003_foundation_remediation.TestBucketAFailClosedSourceValidation.test_malformed_ap_amount_unparseable_raises) ... ok
+test_malformed_ap_row_missing_amount_raises (lotus_fin.tests.test_ai003_foundation_remediation.TestBucketAFailClosedSourceValidation.test_malformed_ap_row_missing_amount_raises) ... ok
+test_malformed_ar_amount_unparseable_raises (lotus_fin.tests.test_ai003_foundation_remediation.TestBucketAFailClosedSourceValidation.test_malformed_ar_amount_unparseable_raises) ... ok
+test_malformed_ar_row_missing_amount_raises (lotus_fin.tests.test_ai003_foundation_remediation.TestBucketAFailClosedSourceValidation.test_malformed_ar_row_missing_amount_raises)
+SSOT �23 controlled replay: a row without any amount field must be ... ok
+test_malformed_row_in_success_payload_is_unavailable_not_zero (lotus_fin.tests.test_ai003_foundation_remediation.TestBucketAFailClosedSourceValidation.test_malformed_row_in_success_payload_is_unavailable_not_zero) ... ok
+test_missing_data_key_becomes_unavailable_not_zero (lotus_fin.tests.test_ai003_foundation_remediation.TestBucketAFailClosedSourceValidation.test_missing_data_key_becomes_unavailable_not_zero) ... ok
+test_mixed_rows_through_snapshot_fail_closed (lotus_fin.tests.test_ai003_foundation_remediation.TestBucketAFailClosedSourceValidation.test_mixed_rows_through_snapshot_fail_closed) ... ok
+test_mixed_valid_and_invalid_rows_fail_closed (lotus_fin.tests.test_ai003_foundation_remediation.TestBucketAFailClosedSourceValidation.test_mixed_valid_and_invalid_rows_fail_closed)
+One malformed row invalidates the whole source � no partial sums. ... ok
+test_non_dict_ar_row_raises (lotus_fin.tests.test_ai003_foundation_remediation.TestBucketAFailClosedSourceValidation.test_non_dict_ar_row_raises) ... ok
+test_success_empty_data_is_verified_zero (lotus_fin.tests.test_ai003_foundation_remediation.TestBucketAFailClosedSourceValidation.test_success_empty_data_is_verified_zero) ... ok
+test_unknown_report_status_becomes_unavailable_not_zero (lotus_fin.tests.test_ai003_foundation_remediation.TestBucketAFailClosedSourceValidation.test_unknown_report_status_becomes_unavailable_not_zero) ... ok
+test_validate_source_payload_missing_data_rejected (lotus_fin.tests.test_ai003_foundation_remediation.TestBucketAFailClosedSourceValidation.test_validate_source_payload_missing_data_rejected) ... ok
+test_validate_source_payload_non_list_data_rejected (lotus_fin.tests.test_ai003_foundation_remediation.TestBucketAFailClosedSourceValidation.test_validate_source_payload_non_list_data_rejected) ... ok
+test_validate_source_payload_success_empty_accepted (lotus_fin.tests.test_ai003_foundation_remediation.TestBucketAFailClosedSourceValidation.test_validate_source_payload_success_empty_accepted) ... ok
+test_validate_source_payload_unknown_status_rejected (lotus_fin.tests.test_ai003_foundation_remediation.TestBucketAFailClosedSourceValidation.test_validate_source_payload_unknown_status_rejected) ... ok
+test_as_of_before_period_start_rejected (lotus_fin.tests.test_ai003_foundation_remediation.TestBucketBAsOfValidation.test_as_of_before_period_start_rejected) ... ok
+test_garbage_as_of_rejected (lotus_fin.tests.test_ai003_foundation_remediation.TestBucketBAsOfValidation.test_garbage_as_of_rejected) ... ok
+test_invalid_as_of_rejected (lotus_fin.tests.test_ai003_foundation_remediation.TestBucketBAsOfValidation.test_invalid_as_of_rejected) ... ok
+test_mid_period_cutoff_uses_validated_as_of (lotus_fin.tests.test_ai003_foundation_remediation.TestBucketBAsOfValidation.test_mid_period_cutoff_uses_validated_as_of)
+Mid-period cutoff flows into report filters; an explicit historical ... ok
+test_previous_period_aligned_with_effective_length (lotus_fin.tests.test_ai003_foundation_remediation.TestBucketBAsOfValidation.test_previous_period_aligned_with_effective_length)
+Previous window must use the same effective length as the current ... ok
+test_previous_period_full_year_when_no_cutoff (lotus_fin.tests.test_ai003_foundation_remediation.TestBucketBAsOfValidation.test_previous_period_full_year_when_no_cutoff)
+Without an as_of cutoff the previous period remains the full year. ... ok
+test_zero_prior_denominator_relative_change_unavailable (lotus_fin.tests.test_ai003_foundation_remediation.TestBucketBAsOfValidation.test_zero_prior_denominator_relative_change_unavailable) ... ok
+test_ai002_finance_book_explicitly_not_supported (lotus_fin.tests.test_ai003_foundation_remediation.TestBucketCCurrencySafety.test_ai002_finance_book_explicitly_not_supported)
+The request contract carries finance_book; supplying it must fail ... ok
+test_comparison_blocks_cross_currency (lotus_fin.tests.test_ai003_foundation_remediation.TestBucketCCurrencySafety.test_comparison_blocks_cross_currency) ... ok
+test_currency_tampering_rejected (lotus_fin.tests.test_ai003_foundation_remediation.TestBucketCCurrencySafety.test_currency_tampering_rejected)
+VND company + USD request must be a typed VALIDATION_ERROR, never a ... ok
+test_get_company_accounting_currency_reads_server_value (lotus_fin.tests.test_ai003_foundation_remediation.TestBucketCCurrencySafety.test_get_company_accounting_currency_reads_server_value) ... ok
+test_matching_currency_normalized_to_server_value (lotus_fin.tests.test_ai003_foundation_remediation.TestBucketCCurrencySafety.test_matching_currency_normalized_to_server_value) ... ok
+test_undetermined_company_currency_fails_closed (lotus_fin.tests.test_ai003_foundation_remediation.TestBucketCCurrencySafety.test_undetermined_company_currency_fails_closed) ... ok
+test_cache_isolation_between_users_preserved (lotus_fin.tests.test_ai003_foundation_remediation.TestBucketDCacheAuthorization.test_cache_isolation_between_users_preserved)
+Bucket D must not weaken cache isolation: different users never ... ok
+test_regranted_permission_restores_authorized_behavior (lotus_fin.tests.test_ai003_foundation_remediation.TestBucketDCacheAuthorization.test_regranted_permission_restores_authorized_behavior) ... ok
+test_revoked_permission_on_cache_hit_yields_forbidden_no_financial_data (lotus_fin.tests.test_ai003_foundation_remediation.TestBucketDCacheAuthorization.test_revoked_permission_on_cache_hit_yields_forbidden_no_financial_data) ... ok
+test_wr01_ai002_all_summary_payload_raises_not_empty_obligations (lotus_fin.tests.test_ai003_foundation_remediation.TestWR01WR02UntrustedSummaryAndVoucherlessRows.test_wr01_ai002_all_summary_payload_raises_not_empty_obligations)
+AI002 top-level adapter path: an all-summary payload must raise, so ... ok
+test_wr01_all_summary_report_raises (lotus_fin.tests.test_ai003_foundation_remediation.TestWR01WR02UntrustedSummaryAndVoucherlessRows.test_wr01_all_summary_report_raises) ... ok
+test_wr01_fake_truthy_marker_raises (lotus_fin.tests.test_ai003_foundation_remediation.TestWR01WR02UntrustedSummaryAndVoucherlessRows.test_wr01_fake_truthy_marker_raises) ... ok
+test_wr01_mixed_valid_and_fake_summary_raises (lotus_fin.tests.test_ai003_foundation_remediation.TestWR01WR02UntrustedSummaryAndVoucherlessRows.test_wr01_mixed_valid_and_fake_summary_raises) ... ok
+test_wr01_repro_is_total_row_dict_alone_is_not_verified_zero (lotus_fin.tests.test_ai003_foundation_remediation.TestWR01WR02UntrustedSummaryAndVoucherlessRows.test_wr01_repro_is_total_row_dict_alone_is_not_verified_zero)
+Minimal recheck repro: parse_ar_data([{"is_total_row": True, "outstanding": 123}]) ... ok
+test_wr01_summary_dict_top_level_metric_unavailable_not_zero (lotus_fin.tests.test_ai003_foundation_remediation.TestWR01WR02UntrustedSummaryAndVoucherlessRows.test_wr01_summary_dict_top_level_metric_unavailable_not_zero)
+Top-level AI001 must not report a zero metric when the source is a ... ok
+test_wr01_total_label_with_voucher_is_transaction_row (lotus_fin.tests.test_ai003_foundation_remediation.TestWR01WR02UntrustedSummaryAndVoucherlessRows.test_wr01_total_label_with_voucher_is_transaction_row)
+A party string alone is never summary authority: a row labelled ... ok
+test_wr01_trailing_party_total_dict_raises (lotus_fin.tests.test_ai003_foundation_remediation.TestWR01WR02UntrustedSummaryAndVoucherlessRows.test_wr01_trailing_party_total_dict_raises)
+The old contract skipped a trailing voucher-less party="Total" dict; ... ok
+test_wr02_ai001_ai002_voucherless_row_contract_consistent (lotus_fin.tests.test_ai003_foundation_remediation.TestWR01WR02UntrustedSummaryAndVoucherlessRows.test_wr02_ai001_ai002_voucherless_row_contract_consistent)
+Both engines reject the same row shape with their typed errors. ... ok
+test_wr02_ai002_mixed_valid_and_voucherless_rows_fail_closed (lotus_fin.tests.test_ai003_foundation_remediation.TestWR01WR02UntrustedSummaryAndVoucherlessRows.test_wr02_ai002_mixed_valid_and_voucherless_rows_fail_closed)
+AI002 already rejects positive obligations without a voucher; one ... ok
+test_wr02_name_alias_counts_as_voucher_identity (lotus_fin.tests.test_ai003_foundation_remediation.TestWR01WR02UntrustedSummaryAndVoucherlessRows.test_wr02_name_alias_counts_as_voucher_identity)
+`name` is the accepted identity alias; without an active DB the ... ok
+test_wr02_repro_voucherless_positive_row_raises (lotus_fin.tests.test_ai003_foundation_remediation.TestWR01WR02UntrustedSummaryAndVoucherlessRows.test_wr02_repro_voucherless_positive_row_raises)
+Minimal recheck repro: a positive row without voucher_no/name must ... ok
+test_wr02_voucherless_negative_row_raises (lotus_fin.tests.test_ai003_foundation_remediation.TestWR01WR02UntrustedSummaryAndVoucherlessRows.test_wr02_voucherless_negative_row_raises)
+Voucher-less rows are invalid regardless of amount sign: a negative ... ok
+test_wr02_voucherless_row_top_level_metric_unavailable_not_zero (lotus_fin.tests.test_ai003_foundation_remediation.TestWR01WR02UntrustedSummaryAndVoucherlessRows.test_wr02_voucherless_row_top_level_metric_unavailable_not_zero) ... ok
+test_wr02_voucherless_zero_row_raises (lotus_fin.tests.test_ai003_foundation_remediation.TestWR01WR02UntrustedSummaryAndVoucherlessRows.test_wr02_voucherless_zero_row_raises)
+A voucher-less zero row is a fake summary claiming zero � it must ... ok
+test_all_empty_candidate_footer_rejected (lotus_fin.tests.test_ai003_foundation_remediation.TestWV01ReportFooterNormalization.test_all_empty_candidate_footer_rejected) ... ok
+test_footer_with_unexpected_descriptive_field_rejected (lotus_fin.tests.test_ai003_foundation_remediation.TestWV01ReportFooterNormalization.test_footer_with_unexpected_descriptive_field_rejected) ... ok
+test_footer_with_voucher_no_populated_rejected (lotus_fin.tests.test_ai003_foundation_remediation.TestWV01ReportFooterNormalization.test_footer_with_voucher_no_populated_rejected) ... ok
+test_footer_with_wrong_column_count_rejected (lotus_fin.tests.test_ai003_foundation_remediation.TestWV01ReportFooterNormalization.test_footer_with_wrong_column_count_rejected) ... ok
+test_list_row_in_middle_rejected (lotus_fin.tests.test_ai003_foundation_remediation.TestWV01ReportFooterNormalization.test_list_row_in_middle_rejected) ... ok
+test_multiple_list_rows_rejected (lotus_fin.tests.test_ai003_foundation_remediation.TestWV01ReportFooterNormalization.test_multiple_list_rows_rejected) ... ok
+test_skip_total_row_string_zero_handled (lotus_fin.tests.test_ai003_foundation_remediation.TestWV01ReportFooterNormalization.test_skip_total_row_string_zero_handled) ... ok
+test_string_column_definitions_footer_normalized (lotus_fin.tests.test_ai003_foundation_remediation.TestWV01ReportFooterNormalization.test_string_column_definitions_footer_normalized) ... ok
+test_summary_row_dict_fails_closed (lotus_fin.tests.test_ai003_foundation_remediation.TestWV01ReportFooterNormalization.test_summary_row_dict_fails_closed)
+WR-01 recheck: a dict total/summary row is not a verified Frappe v16 ... ok
+test_valid_list_footer_normalized_successfully (lotus_fin.tests.test_ai003_foundation_remediation.TestWV01ReportFooterNormalization.test_valid_list_footer_normalized_successfully) ... ok
+test_ap_cross_leg_party_rejected (lotus_fin.tests.test_ai003_foundation_remediation.TestWV02MasterDataAndVoucherSafety.test_ap_cross_leg_party_rejected) ... ok
+test_ap_cross_leg_voucher_rejected (lotus_fin.tests.test_ai003_foundation_remediation.TestWV02MasterDataAndVoucherSafety.test_ap_cross_leg_voucher_rejected) ... ok
+test_ar_cross_leg_party_rejected (lotus_fin.tests.test_ai003_foundation_remediation.TestWV02MasterDataAndVoucherSafety.test_ar_cross_leg_party_rejected) ... ok
+test_ar_cross_leg_voucher_rejected (lotus_fin.tests.test_ai003_foundation_remediation.TestWV02MasterDataAndVoucherSafety.test_ar_cross_leg_voucher_rejected) ... ok
+test_db_company_mismatch_rejected (lotus_fin.tests.test_ai003_foundation_remediation.TestWV02MasterDataAndVoucherSafety.test_db_company_mismatch_rejected) ... ok
+test_db_non_submitted_voucher_rejected (lotus_fin.tests.test_ai003_foundation_remediation.TestWV02MasterDataAndVoucherSafety.test_db_non_submitted_voucher_rejected) ... ok
+test_foreign_currency_in_row_rejected (lotus_fin.tests.test_ai003_foundation_remediation.TestWV02MasterDataAndVoucherSafety.test_foreign_currency_in_row_rejected) ... ok
+test_party_account_validation_checks (lotus_fin.tests.test_ai003_foundation_remediation.TestWV02MasterDataAndVoucherSafety.test_party_account_validation_checks) ... ok
+test_payment_entry_cross_leg_rejected (lotus_fin.tests.test_ai003_foundation_remediation.TestWV02MasterDataAndVoucherSafety.test_payment_entry_cross_leg_rejected) ... ok
+test_payment_entry_non_existent_rejected (lotus_fin.tests.test_ai003_foundation_remediation.TestWV02MasterDataAndVoucherSafety.test_payment_entry_non_existent_rejected) ... ok
+test_preflight_payable_missing_supplier_fails_closed (lotus_fin.tests.test_ai003_foundation_remediation.TestWV02MasterDataAndVoucherSafety.test_preflight_payable_missing_supplier_fails_closed) ... ok
+test_preflight_receivable_missing_customer_fails_closed (lotus_fin.tests.test_ai003_foundation_remediation.TestWV02MasterDataAndVoucherSafety.test_preflight_receivable_missing_customer_fails_closed) ... ok
+test_report_envelope_mismatch_rejected (lotus_fin.tests.test_ai003_foundation_remediation.TestWV02MasterDataAndVoucherSafety.test_report_envelope_mismatch_rejected) ... ok
+test_cache_state_shared_across_spellings (lotus_fin.tests.test_f002_import_identity.TestF002CanonicalModuleIdentity.test_cache_state_shared_across_spellings)
+A store entry written via the legacy path must be visible via the ... ok
+test_from_import_binds_canonical_class (lotus_fin.tests.test_f002_import_identity.TestF002CanonicalModuleIdentity.test_from_import_binds_canonical_class)
+from lotus_fin.cashflow.models import ForecastRequest yields the ... ok
+test_identity_when_canonical_imported_first (lotus_fin.tests.test_f002_import_identity.TestF002CanonicalModuleIdentity.test_identity_when_canonical_imported_first) ... ok
+test_identity_when_legacy_imported_first (lotus_fin.tests.test_f002_import_identity.TestF002CanonicalModuleIdentity.test_identity_when_legacy_imported_first) ... ok
+test_identity_when_package_alias_imported_first (lotus_fin.tests.test_f002_import_identity.TestF002CanonicalModuleIdentity.test_identity_when_package_alias_imported_first) ... ok
+test_empty_company_yields_forbidden (lotus_fin.tests.test_financial_snapshot.TestFinancialSnapshotAndEvidence.test_empty_company_yields_forbidden)
+Empty or invalid company request must return FORBIDDEN and conceal company name. ... ok
+test_empty_company_yields_valid_zero_not_error (lotus_fin.tests.test_financial_snapshot.TestFinancialSnapshotAndEvidence.test_empty_company_yields_valid_zero_not_error)
+Legitimately empty ledgers yield 0.0 values with status OK, not an error. ... ok
+test_evidence_ref_linkage (lotus_fin.tests.test_financial_snapshot.TestFinancialSnapshotAndEvidence.test_evidence_ref_linkage)
+Every available metric must reference valid EvidenceRef checksums. ... ok
+test_missing_pnl_never_becomes_zero (lotus_fin.tests.test_financial_snapshot.TestFinancialSnapshotAndEvidence.test_missing_pnl_never_becomes_zero)
+Missing P&L must set revenue/COGS to UNAVAILABLE, never fabricate 0.0. ... ok
+test_numeric_gold_reconciliation_all_metrics (lotus_fin.tests.test_financial_snapshot.TestFinancialSnapshotAndEvidence.test_numeric_gold_reconciliation_all_metrics)
+Verify 100% material numeric match with independent gold calculations. ... ok
+test_period_temporal_bounds_validation (lotus_fin.tests.test_financial_snapshot.TestFinancialSnapshotAndEvidence.test_period_temporal_bounds_validation)
+start_date > end_date must immediately return VALIDATION_ERROR. ... ok
+test_source_error_propagation (lotus_fin.tests.test_financial_snapshot.TestFinancialSnapshotAndEvidence.test_source_error_propagation)
+When source fetcher throws error, snapshot sets SOURCE_ERROR without throwing unhandled crash. ... ok
+test_zero_revenue_gross_margin_handled (lotus_fin.tests.test_financial_snapshot.TestFinancialSnapshotAndEvidence.test_zero_revenue_gross_margin_handled)
+When revenue is 0.0, gross margin ratio must be UNAVAILABLE, not ZeroDivisionError. ... ok
+test_zero_total_ar_with_positive_overdue_anomalous_ledger (lotus_fin.tests.test_financial_snapshot.TestFinancialSnapshotAndEvidence.test_zero_total_ar_with_positive_overdue_anomalous_ledger)
+Anomalous state with overdue amount but zero total AR handles ratio safely without division error. ... ok
+test_comparison_block_cross_company_deny (lotus_fin.tests.test_financial_health.TestFinancialHealthMetricsAndComparison.test_comparison_block_cross_company_deny)
+Cross-company comparison must return UNAVAILABLE with limitation. ... ok
+test_comparison_block_full_metrics_reconciliation (lotus_fin.tests.test_financial_health.TestFinancialHealthMetricsAndComparison.test_comparison_block_full_metrics_reconciliation)
+Valid comparison computes delta for all 7 core metrics without subjective labels. ... ok
+test_compute_previous_period_annual (lotus_fin.tests.test_financial_health.TestFinancialHealthMetricsAndComparison.test_compute_previous_period_annual)
+Standard annual period [2026-01-01, 2026-12-31] (365 days) -> [2025-01-01, 2025-12-31]. ... ok
+test_compute_previous_period_leap_year (lotus_fin.tests.test_financial_health.TestFinancialHealthMetricsAndComparison.test_compute_previous_period_leap_year)
+Leap year period spanning Feb 29 (2024-02-01 to 2024-02-29 is 28 days span) -> 29 days. ... ok
+test_compute_previous_period_quarterly (lotus_fin.tests.test_financial_health.TestFinancialHealthMetricsAndComparison.test_compute_previous_period_quarterly)
+Quarter Q2 [2026-04-01, 2026-06-30] (90 days) -> Q1 [2026-01-01, 2026-03-31]. ... ok
+test_metric_change_negative_growth (lotus_fin.tests.test_financial_health.TestFinancialHealthMetricsAndComparison.test_metric_change_negative_growth)
+Current 80.0, Prev 100.0 -> Abs -20.0, Rel -0.2000 (-20.00%). ... ok
+test_metric_change_negative_to_more_negative (lotus_fin.tests.test_financial_health.TestFinancialHealthMetricsAndComparison.test_metric_change_negative_to_more_negative)
+Cash was -50.0, now -80.0 -> Abs -30.0, Rel = (-80 - (-50)) / abs(-50) = -30/50 = -0.6000. ... ok
+test_metric_change_negative_to_positive_transition (lotus_fin.tests.test_financial_health.TestFinancialHealthMetricsAndComparison.test_metric_change_negative_to_positive_transition)
+Cash was -50.0, now +20.0 -> Abs +70.0, Rel = (20 - (-50)) / abs(-50) = 70/50 = +1.4000. ... ok
+test_metric_change_none_inputs (lotus_fin.tests.test_financial_health.TestFinancialHealthMetricsAndComparison.test_metric_change_none_inputs)
+When either current or previous is None, change is UNAVAILABLE. ... ok
+test_metric_change_positive_growth (lotus_fin.tests.test_financial_health.TestFinancialHealthMetricsAndComparison.test_metric_change_positive_growth)
+Current 150.0, Prev 100.0 -> Abs +50.0, Rel +0.5000 (+50.00%). ... ok
+test_metric_change_zero_previous_denominator_limitation (lotus_fin.tests.test_financial_health.TestFinancialHealthMetricsAndComparison.test_metric_change_zero_previous_denominator_limitation)
+Current 100.0, Prev 0.0 -> Abs +100.0, Rel None with limitation. ... ok
+test_metrics_collector_aggregation (lotus_fin.tests.test_financial_health.TestFinancialHealthMetricsAndComparison.test_metrics_collector_aggregation)
+MetricsCollector accurately counts requests by status and metric availability. ... ok
+test_near_term_ap_is_frozen_unavailable (lotus_fin.tests.test_financial_health.TestFinancialHealthMetricsAndComparison.test_near_term_ap_is_frozen_unavailable)
+near_term_ap must be UNAVAILABLE with limitation. ... ok
+test_structured_log_contains_no_pii_or_amounts (lotus_fin.tests.test_financial_health.TestFinancialHealthMetricsAndComparison.test_structured_log_contains_no_pii_or_amounts)
+Structured event logs must not log monetary rows, customer names, or passwords. ... ok
+test_user_id_pseudonymization (lotus_fin.tests.test_financial_health.TestFinancialHealthMetricsAndComparison.test_user_id_pseudonymization)
+User identifiers must be hashed into 12-char hex digest. ... ok
+test_build_financial_snapshot_with_explanation_flag (lotus_fin.tests.test_explanation.TestGroundedLLMExplanation.test_build_financial_snapshot_with_explanation_flag)
+Setting include_explanation=True attaches generated explanation to snapshot. ... ok
+test_content_sanitization_xss (lotus_fin.tests.test_explanation.TestGroundedLLMExplanation.test_content_sanitization_xss)
+Sanitizer removes script tags and dangerous HTML attributes. ... ok
+test_data_minimization_excludes_pii_and_raw_gl (lotus_fin.tests.test_explanation.TestGroundedLLMExplanation.test_data_minimization_excludes_pii_and_raw_gl)
+Minimized payload only contains aggregated metrics, no raw invoices or supplier accounts. ... ok
+test_hallucinated_number_rejected (lotus_fin.tests.test_explanation.TestGroundedLLMExplanation.test_hallucinated_number_rejected)
+Fabricated number not present in snapshot triggers grounding rejection. ... ok
+test_happy_path_grounded_explanation (lotus_fin.tests.test_explanation.TestGroundedLLMExplanation.test_happy_path_grounded_explanation)
+Mock provider generates grounded facts and interpretations matching snapshot numbers. ... ok
+test_prohibited_guarantee_claims_rejected (lotus_fin.tests.test_explanation.TestGroundedLLMExplanation.test_prohibited_guarantee_claims_rejected)
+Claims containing prohibited forward guarantees are rejected. ... ok
+test_provider_429_rate_limit_fallback (lotus_fin.tests.test_explanation.TestGroundedLLMExplanation.test_provider_429_rate_limit_fallback)
+HTTP 429 Rate limit returns UNAVAILABLE explanation without corrupting snapshot metrics. ... ok
+test_provider_500_internal_error_fallback (lotus_fin.tests.test_explanation.TestGroundedLLMExplanation.test_provider_500_internal_error_fallback)
+HTTP 500 server error returns UNAVAILABLE cleanly. ... ok
+test_provider_malformed_json_fallback (lotus_fin.tests.test_explanation.TestGroundedLLMExplanation.test_provider_malformed_json_fallback)
+Non-JSON response from model is handled cleanly without crash. ... ok
+test_provider_schema_invalid_fallback (lotus_fin.tests.test_explanation.TestGroundedLLMExplanation.test_provider_schema_invalid_fallback)
+Response with invalid schema (e.g. facts is string not list) returns UNAVAILABLE. ... ok
+test_provider_timeout_fallback (lotus_fin.tests.test_explanation.TestGroundedLLMExplanation.test_provider_timeout_fallback)
+HTTP 504 Timeout returns UNAVAILABLE cleanly. ... ok
+test_cash_forecast_page_doc_exists_and_standard (lotus_fin.tests.test_cashflow_engine.TestCashflowEnginePurePython.test_cash_forecast_page_doc_exists_and_standard)
+Contract check: Verify cash-forecast Page doc is registered in Frappe when running in Docker bench. ... ok
+test_compound_cache_key_isolation (lotus_fin.tests.test_cashflow_engine.TestCashflowEnginePurePython.test_compound_cache_key_isolation)
+Cache keys differ when user, company, date, scope, or source_mode differs. ... ok
+test_date_validation_invariants (lotus_fin.tests.test_cashflow_engine.TestCashflowEnginePurePython.test_date_validation_invariants)
+Validation fails if forecast horizon is not exactly 30 days or not starting as_of + 1. ... ok
+test_fixture_cross_company_returns_no_events (lotus_fin.tests.test_cashflow_engine.TestCashflowEnginePurePython.test_fixture_cross_company_returns_no_events)
+Fix A: SyntheticFixtureSource fails closed (returns empty) when company does not match. ... ok
+test_fixture_event_company_mismatch_fails_closed (lotus_fin.tests.test_cashflow_engine.TestCashflowEnginePurePython.test_fixture_event_company_mismatch_fails_closed)
+Fix A: SyntheticFixtureSource drops events if row company does not match requested. ... ok
+test_fixture_exact_company_returns_events (lotus_fin.tests.test_cashflow_engine.TestCashflowEnginePurePython.test_fixture_exact_company_returns_events)
+Fix A: SyntheticFixtureSource returns events when requested company matches fixture. ... ok
+test_fixture_missing_company_metadata_fails_closed (lotus_fin.tests.test_cashflow_engine.TestCashflowEnginePurePython.test_fixture_missing_company_metadata_fails_closed)
+Fix A: SyntheticFixtureSource fails closed when fixture has no company. ... ok
+test_gold_strict_no_future_event (lotus_fin.tests.test_cashflow_engine.TestCashflowEnginePurePython.test_gold_strict_no_future_event)
+Gold Case 1: Strict baseline with no confirmed future events. ... ok
+test_gold_strict_with_confirmed_events (lotus_fin.tests.test_cashflow_engine.TestCashflowEnginePurePython.test_gold_strict_with_confirmed_events)
+Gold Case 2: Strict baseline with 3 confirmed events from fixture. ... ok
+test_live_mode_never_reads_fixture (lotus_fin.tests.test_cashflow_engine.TestCashflowEnginePurePython.test_live_mode_never_reads_fixture)
+Fix A: Live FailClosedSource never reads synthetic fixture. ... ok
+test_missing_cash_account_scope_fails_closed (lotus_fin.tests.test_cashflow_engine.TestCashflowEnginePurePython.test_missing_cash_account_scope_fails_closed)
+Fix B: Empty account scope fails closed with MISSING_ACCOUNT_SCOPE. ... ok
+test_multi_account_constituent_deficit (lotus_fin.tests.test_cashflow_engine.TestCashflowEnginePurePython.test_multi_account_constituent_deficit)
+Constituent deficit with positive net aggregate. ... ok
+test_negative_valid_balance_accepted (lotus_fin.tests.test_cashflow_engine.TestCashflowEnginePurePython.test_negative_valid_balance_accepted)
+Fix B: Negative verified balance is validly represented. ... ok
+test_no_db_opening_cash_is_never_reconciled (lotus_fin.tests.test_cashflow_engine.TestCashflowEnginePurePython.test_no_db_opening_cash_is_never_reconciled)
+Fix B: Without a Frappe DB there is no ledger evidence, so the adapter ... ok
+test_no_db_service_fails_closed_typed (lotus_fin.tests.test_cashflow_engine.TestCashflowEnginePurePython.test_no_db_service_fails_closed_typed)
+Fix A: A no-DB service run must return a typed SOURCE_ERROR response � ... ok
+test_no_db_trade_obligations_fail_closed (lotus_fin.tests.test_cashflow_engine.TestCashflowEnginePurePython.test_no_db_trade_obligations_fail_closed)
+Fix A: Without a Frappe DB, reading trade obligations must raise a typed ... ok
+test_shortfall_inherited_from_opening (lotus_fin.tests.test_cashflow_engine.TestCashflowEnginePurePython.test_shortfall_inherited_from_opening)
+Negative opening cash triggers INHERITED_FROM_OPENING immediately. ... ok
+test_trial_balance_empty_scope_fails_closed (lotus_fin.tests.test_cashflow_engine.TestCashflowEnginePurePython.test_trial_balance_empty_scope_fails_closed)
+Fix B2: get_opening_cash_ledger returns RECONCILIATION_UNAVAILABLE when account_scope is empty. ... ok
+test_zero_opening_cash_is_valid_not_negative (lotus_fin.tests.test_cashflow_engine.TestCashflowEnginePurePython.test_zero_opening_cash_is_valid_not_negative)
+Zero opening cash must NOT trigger shortfall if no events drag it below zero. ... ok
+test_scope_approved_resolved_without_cap (lotus_fin.tests.test_cashflow_failclosed.TestAccountScopeResolution.test_scope_approved_resolved_without_cap)
+Round 5: the approved scope is returned in full � no 50-account cap � ... ok
+test_scope_config_read_error_is_typed (lotus_fin.tests.test_cashflow_failclosed.TestAccountScopeResolution.test_scope_config_read_error_is_typed)
+The approved configuration cannot be read (e.g. fixture not migrated): ... ok
+test_scope_cross_company_visibility_denied (lotus_fin.tests.test_cashflow_failclosed.TestAccountScopeResolution.test_scope_cross_company_visibility_denied)
+User with Account permissions for another company sees zero accounts ... ok
+test_scope_invalid_config_needs_review (lotus_fin.tests.test_cashflow_failclosed.TestAccountScopeResolution.test_scope_invalid_config_needs_review) ... ok
+test_scope_missing_config_needs_review_blocks (lotus_fin.tests.test_cashflow_failclosed.TestAccountScopeResolution.test_scope_missing_config_needs_review_blocks)
+Accounts exist but no approved configuration: NEEDS_REVIEW with the ... ok
+test_scope_no_account_read_permission_fails_closed (lotus_fin.tests.test_cashflow_failclosed.TestAccountScopeResolution.test_scope_no_account_read_permission_fails_closed)
+User can read the Company but not the Account doctype: typed permission ... ok
+test_scope_partial_account_visibility_fails_closed (lotus_fin.tests.test_cashflow_failclosed.TestAccountScopeResolution.test_scope_partial_account_visibility_fails_closed)
+User reads only part of the company's accounts (3 visible of 5 ... ok
+test_scope_read_error_is_typed_not_empty (lotus_fin.tests.test_cashflow_failclosed.TestAccountScopeResolution.test_scope_read_error_is_typed_not_empty)
+A read error must fail closed with a typed error � never become an ... ok
+test_scope_requires_db (lotus_fin.tests.test_cashflow_failclosed.TestAccountScopeResolution.test_scope_requires_db) ... ok
+test_scope_stale_config_needs_review (lotus_fin.tests.test_cashflow_failclosed.TestAccountScopeResolution.test_scope_stale_config_needs_review)
+Config references an account that no longer exists/is no longer an ... ok
+test_scope_uses_full_pagination (lotus_fin.tests.test_cashflow_failclosed.TestAccountScopeResolution.test_scope_uses_full_pagination)
+Round 5: listing pages through the permission-aware query until ... ok
+test_scope_vietnamese_named_account_requires_approval (lotus_fin.tests.test_cashflow_failclosed.TestAccountScopeResolution.test_scope_vietnamese_named_account_requires_approval)
+An account named in Vietnamese ('Ti\u1ec1n k� qu\u1ef9') enters the scope only ... ok
+test_scope_zero_accounts_is_needs_review (lotus_fin.tests.test_cashflow_failclosed.TestAccountScopeResolution.test_scope_zero_accounts_is_needs_review)
+Successful read with genuinely zero accounts: valid NEEDS_REVIEW state ... ok
+test_validation_accepts_matching_approved_scope (lotus_fin.tests.test_cashflow_failclosed.TestAccountScopeResolution.test_validation_accepts_matching_approved_scope) ... ok
+test_validation_forbidden_when_account_read_denied (lotus_fin.tests.test_cashflow_failclosed.TestAccountScopeResolution.test_validation_forbidden_when_account_read_denied) ... ok
+test_validation_needs_review_when_scope_unapproved (lotus_fin.tests.test_cashflow_failclosed.TestAccountScopeResolution.test_validation_needs_review_when_scope_unapproved) ... ok
+test_validation_rejects_scope_not_matching_approved (lotus_fin.tests.test_cashflow_failclosed.TestAccountScopeResolution.test_validation_rejects_scope_not_matching_approved)
+The client cannot silently drop approved accounts or add unapproved ... ok
+test_ap_error_status_after_ar_success_fails_closed (lotus_fin.tests.test_cashflow_failclosed.TestObligationFailClosed.test_ap_error_status_after_ar_success_fails_closed) ... ok
+test_ap_exception_after_ar_success_fails_closed (lotus_fin.tests.test_cashflow_failclosed.TestObligationFailClosed.test_ap_exception_after_ar_success_fails_closed)
+AR read succeeds, then AP fails: the whole read fails closed � a failed ... ok
+test_ar_ap_success_zero_records_is_verified_zero (lotus_fin.tests.test_cashflow_failclosed.TestObligationFailClosed.test_ar_ap_success_zero_records_is_verified_zero)
+A successful, correctly scoped read with zero rows returns [] � and the ... ok
+test_ar_error_status_raises_typed (lotus_fin.tests.test_cashflow_failclosed.TestObligationFailClosed.test_ar_error_status_raises_typed) ... ok
+test_ar_exception_raises_typed_without_leak (lotus_fin.tests.test_cashflow_failclosed.TestObligationFailClosed.test_ar_exception_raises_typed_without_leak) ... ok
+test_ar_missing_data_key_raises_typed (lotus_fin.tests.test_cashflow_failclosed.TestObligationFailClosed.test_ar_missing_data_key_raises_typed) ... ok
+test_ar_non_list_data_raises_typed (lotus_fin.tests.test_cashflow_failclosed.TestObligationFailClosed.test_ar_non_list_data_raises_typed) ... ok
+test_ar_none_response_raises_typed (lotus_fin.tests.test_cashflow_failclosed.TestObligationFailClosed.test_ar_none_response_raises_typed) ... ok
+test_ar_permission_denied_raises_typed (lotus_fin.tests.test_cashflow_failclosed.TestObligationFailClosed.test_ar_permission_denied_raises_typed) ... ok
+test_ar_unknown_status_raises_typed (lotus_fin.tests.test_cashflow_failclosed.TestObligationFailClosed.test_ar_unknown_status_raises_typed) ... ok
+test_malformed_due_date_raises_typed (lotus_fin.tests.test_cashflow_failclosed.TestObligationFailClosed.test_malformed_due_date_raises_typed) ... ok
+test_malformed_row_missing_outstanding_raises_typed (lotus_fin.tests.test_cashflow_failclosed.TestObligationFailClosed.test_malformed_row_missing_outstanding_raises_typed) ... ok
+test_nan_amount_fails_closed (lotus_fin.tests.test_cashflow_failclosed.TestObligationFailClosed.test_nan_amount_fails_closed) ... ok
+test_non_dict_row_fails_closed (lotus_fin.tests.test_cashflow_failclosed.TestObligationFailClosed.test_non_dict_row_fails_closed)
+Round 4: a success payload with ANY non-dict row must fail closed � ... ok
+test_non_numeric_amount_fails_closed (lotus_fin.tests.test_cashflow_failclosed.TestObligationFailClosed.test_non_numeric_amount_fails_closed) ... ok
+test_payload_company_mismatch_fails_closed (lotus_fin.tests.test_cashflow_failclosed.TestObligationFailClosed.test_payload_company_mismatch_fails_closed) ... ok
+test_positive_outstanding_without_voucher_raises_typed (lotus_fin.tests.test_cashflow_failclosed.TestObligationFailClosed.test_positive_outstanding_without_voucher_raises_typed) ... ok
+test_row_currency_mismatch_fails_closed (lotus_fin.tests.test_cashflow_failclosed.TestObligationFailClosed.test_row_currency_mismatch_fails_closed) ... ok
+test_rows_parsed_with_hash_and_zero_rows_skipped (lotus_fin.tests.test_cashflow_failclosed.TestObligationFailClosed.test_rows_parsed_with_hash_and_zero_rows_skipped) ... ok
+test_duplicate_tb_rows_are_inconsistent (lotus_fin.tests.test_cashflow_failclosed.TestOpeningCashReconciliation.test_duplicate_tb_rows_are_inconsistent)
+Duplicate TB rows for one scope account make the totals ambiguous. ... ok
+test_empty_scope_returns_unavailable_without_selection (lotus_fin.tests.test_cashflow_failclosed.TestOpeningCashReconciliation.test_empty_scope_returns_unavailable_without_selection) ... ok
+test_gl_equals_tb_full_scope_reconciled (lotus_fin.tests.test_cashflow_failclosed.TestOpeningCashReconciliation.test_gl_equals_tb_full_scope_reconciled) ... ok
+test_gl_query_failure_raises_typed (lotus_fin.tests.test_cashflow_failclosed.TestOpeningCashReconciliation.test_gl_query_failure_raises_typed) ... ok
+test_intraday_label_when_as_of_is_today (lotus_fin.tests.test_cashflow_failclosed.TestOpeningCashReconciliation.test_intraday_label_when_as_of_is_today) ... ok
+test_offsetting_accounts_with_zeroed_tb_are_inconsistent (lotus_fin.tests.test_cashflow_failclosed.TestOpeningCashReconciliation.test_offsetting_accounts_with_zeroed_tb_are_inconsistent)
+Round 4: GL A=100, B=-100 (net 0) vs TB A=0, B=0 � totals match but the ... ok
+test_opening_permission_denied_raises_typed (lotus_fin.tests.test_cashflow_failclosed.TestOpeningCashReconciliation.test_opening_permission_denied_raises_typed) ... ok
+test_tb_error_is_reconciliation_unavailable (lotus_fin.tests.test_cashflow_failclosed.TestOpeningCashReconciliation.test_tb_error_is_reconciliation_unavailable) ... ok
+test_tb_error_status_is_reconciliation_unavailable (lotus_fin.tests.test_cashflow_failclosed.TestOpeningCashReconciliation.test_tb_error_status_is_reconciliation_unavailable) ... ok
+test_tb_missing_scope_account_is_inconsistent (lotus_fin.tests.test_cashflow_failclosed.TestOpeningCashReconciliation.test_tb_missing_scope_account_is_inconsistent)
+TB succeeds but one scope account has no TB row: fail closed even if a ... ok
+test_tb_total_mismatch_is_inconsistent (lotus_fin.tests.test_cashflow_failclosed.TestOpeningCashReconciliation.test_tb_total_mismatch_is_inconsistent) ... ok
+test_tb_wrong_company_is_reconciliation_unavailable (lotus_fin.tests.test_cashflow_failclosed.TestOpeningCashReconciliation.test_tb_wrong_company_is_reconciliation_unavailable) ... ok
+test_valid_zero_balance_reconciles_when_account_present_in_tb (lotus_fin.tests.test_cashflow_failclosed.TestOpeningCashReconciliation.test_valid_zero_balance_reconciles_when_account_present_in_tb)
+Genuine zero: GL has no entries and the account IS present in TB with a ... ok
+test_zero_without_tb_row_is_inconsistent (lotus_fin.tests.test_cashflow_failclosed.TestOpeningCashReconciliation.test_zero_without_tb_row_is_inconsistent)
+GL=0 with the account absent from TB must fail closed � the account set ... ok
+test_permission_failure_blocks_scope_query (lotus_fin.tests.test_cashflow_failclosed.TestScopeAuthorizationOrdering.test_permission_failure_blocks_scope_query) ... ok
+test_resolution_failure_is_typed_source_error (lotus_fin.tests.test_cashflow_failclosed.TestScopeAuthorizationOrdering.test_resolution_failure_is_typed_source_error) ... ok
+test_scope_permission_failure_not_swallowed (lotus_fin.tests.test_cashflow_failclosed.TestScopeAuthorizationOrdering.test_scope_permission_failure_not_swallowed)
+Round 5: an Account permission failure inside the resolver keeps its ... ok
+test_scope_resolved_for_verified_company_only (lotus_fin.tests.test_cashflow_failclosed.TestScopeAuthorizationOrdering.test_scope_resolved_for_verified_company_only) ... ok
+test_inconsistent_reconciliation_blocks_computation (lotus_fin.tests.test_cashflow_failclosed.TestServiceFailClosed.test_inconsistent_reconciliation_blocks_computation) ... ok
+test_permission_error_returns_forbidden_without_payload (lotus_fin.tests.test_cashflow_failclosed.TestServiceFailClosed.test_permission_error_returns_forbidden_without_payload) ... ok
+test_reconciliation_unavailable_blocks_computation (lotus_fin.tests.test_cashflow_failclosed.TestServiceFailClosed.test_reconciliation_unavailable_blocks_computation)
+Events exist but opening cash was never reconciled: no forecast points, ... ok
+test_source_error_response_and_recovery_after_retry (lotus_fin.tests.test_cashflow_failclosed.TestServiceFailClosed.test_source_error_response_and_recovery_after_retry)
+AR/AP failure returns typed SOURCE_ERROR with no financial payload and is ... ok
+test_unknown_reconciliation_label_fails_closed (lotus_fin.tests.test_cashflow_failclosed.TestServiceFailClosed.test_unknown_reconciliation_label_fails_closed)
+Any reconciliation label outside the verified set is unverified. ... ok
+test_unverified_opening_with_no_events_is_not_valid_baseline (lotus_fin.tests.test_cashflow_failclosed.TestServiceFailClosed.test_unverified_opening_with_no_events_is_not_valid_baseline)
+Fix B (round 4): with no future events AND unverified opening cash the ... ok
+test_verified_reconciliation_allows_forecast (lotus_fin.tests.test_cashflow_failclosed.TestServiceFailClosed.test_verified_reconciliation_allows_forecast)
+Control case: verified opening + events -> PARTIAL with 30 points. ... ok
+test_evidence_access_arbitrary_doctype_rejected (lotus_fin.tests.test_cashflow_security.TestCashflowSecurityAndHardening.test_evidence_access_arbitrary_doctype_rejected)
+Fix C: Arbitrary DocType outside allowlist is rejected with PermissionError. ... ok
+test_evidence_access_malformed_ref_rejected (lotus_fin.tests.test_cashflow_security.TestCashflowSecurityAndHardening.test_evidence_access_malformed_ref_rejected)
+Fix C: Evidence ref without colon or invalid format raises PermissionError. ... ok
+test_evidence_access_missing_company_rejected (lotus_fin.tests.test_cashflow_security.TestCashflowSecurityAndHardening.test_evidence_access_missing_company_rejected)
+Fix C: verify_evidence_access raises PermissionError when company is missing or empty. ... ok
+test_evidence_reauthorization_in_tools (lotus_fin.tests.test_cashflow_security.TestCashflowSecurityAndHardening.test_evidence_reauthorization_in_tools)
+Evidence refs tool enforces access reauthorization. ... ok
+test_generic_forbidden_on_missing_or_unauthorized_company (lotus_fin.tests.test_cashflow_security.TestCashflowSecurityAndHardening.test_generic_forbidden_on_missing_or_unauthorized_company)
+Generic FORBIDDEN response preserves zero-leakage invariant. ... ok
+test_generic_forbidden_sanitizes_verified_company (lotus_fin.tests.test_cashflow_security.TestCashflowSecurityAndHardening.test_generic_forbidden_sanitizes_verified_company)
+When request is FORBIDDEN, verified_company must be cleared/generic without leakage. ... ok
+test_grounding_accepts_supported_numbers (lotus_fin.tests.test_cashflow_security.TestCashflowSecurityAndHardening.test_grounding_accepts_supported_numbers)
+Fix D: Grounded numbers and dates pass validation. ... ok
+test_grounding_rejects_arbitrary_short_numbers (lotus_fin.tests.test_cashflow_security.TestCashflowSecurityAndHardening.test_grounding_rejects_arbitrary_short_numbers)
+Fix D: Ungrounded short numbers such as 9999, 12, 1 VND must be rejected by grounding validator. ... ok
+test_log_ai002_event_contract (lotus_fin.tests.test_cashflow_security.TestCashflowSecurityAndHardening.test_log_ai002_event_contract)
+Typed AI002 log event has no company or user plain text leaks. ... ok
+test_model_failure_degradation (lotus_fin.tests.test_cashflow_security.TestCashflowSecurityAndHardening.test_model_failure_degradation)
+When LLM times out or errors, explanation.status must be UNAVAILABLE with typed error_code. ... ok
+test_numeric_and_adversarial_grounding_rejection (lotus_fin.tests.test_cashflow_security.TestCashflowSecurityAndHardening.test_numeric_and_adversarial_grounding_rejection)
+Grounding validator must reject hallucinated amounts, dates, unsupported currencies, and subjective risk ratings. ... ok
+test_pii_logging_sentinel_canary (lotus_fin.tests.test_cashflow_security.TestCashflowSecurityAndHardening.test_pii_logging_sentinel_canary)
+Observability canary: Ensure raw amounts, party names, remarks ... ok
+
+----------------------------------------------------------------------
+Ran 209 tests in 2.382s
+
+OK

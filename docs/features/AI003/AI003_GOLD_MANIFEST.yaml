@@ -4728,5 +4728,16 @@
       },
       "notes": "AI001 reusable primitive, no AI003 endpoint or real provider call"
     }
+  ],
+  "revalidations": [
+    {
+      "revision": "86208f49e05122531c1cbe8b11d066092244dd4c",
+      "date": "2026-09-30",
+      "evidence": "evidence/AI003_FINAL_FOUNDATION_RESULTS_2026-09-30.json",
+      "expected_values_changed": false,
+      "source_fingerprints_match": true,
+      "policy_approved": false,
+      "note": "Original cases and verification states preserved; current focused probe results are separate, not appended as unique gold cases."
+    }
   ]
 }

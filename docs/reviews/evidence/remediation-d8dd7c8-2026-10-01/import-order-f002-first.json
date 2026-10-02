@@ -1,0 +1,16 @@
+{
+  "order": "f002-first",
+  "identities": {
+    "adapters": true,
+    "agent": true,
+    "cache": true,
+    "engine": true,
+    "grounding": true,
+    "models": true,
+    "service": true,
+    "source_interface": true,
+    "tools": true,
+    "validation": true,
+    "plugin": true
+  }
+}

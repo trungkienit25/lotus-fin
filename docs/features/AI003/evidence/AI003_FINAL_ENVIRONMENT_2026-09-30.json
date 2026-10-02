@@ -1,0 +1,27 @@
+{
+  "site": "ai003-verify.localhost",
+  "versions": {
+    "frappe": "16.34.0",
+    "erpnext": "16.35.0",
+    "lotus_fin": "0.0.1"
+  },
+  "installed_apps": [
+    "frappe",
+    "erpnext",
+    "lotus_fin"
+  ],
+  "timezone": "Asia/Ho_Chi_Minh",
+  "scope_column": true,
+  "gold_currency": "VND",
+  "gold_cash_scope": "[\"Cash - A3G\"]",
+  "site_config": {
+    "developer_mode": null,
+    "db_type": "mariadb"
+  },
+  "gold_counts": {
+    "Sales Invoice": 6,
+    "Purchase Invoice": 10,
+    "Payment Entry": 4,
+    "Journal Entry": 1
+  }
+}
