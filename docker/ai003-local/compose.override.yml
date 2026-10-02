@@ -3,6 +3,9 @@ services:
     image: lotus-fin:ai003-local
   frontend:
     image: lotus-fin:ai003-local
+    volumes:
+      # Absolute path: relative mounts resolve against the FIRST -f file dir.
+      - /e/lotus-fin/docker/ai003-local/nginx/frappe.conf:/etc/nginx/conf.d/frappe.conf:ro
   queue-long:
     image: lotus-fin:ai003-local
   queue-short:
