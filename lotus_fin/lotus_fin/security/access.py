@@ -147,6 +147,23 @@ def check_ai002_report_permission(report_name: str, user: Optional[str] = None) 
 	check_report_permission(report_name, user=user)
 
 
+AI003_PERMITTED_REPORTS = ("Accounts Receivable", "Accounts Payable")
+
+
+def check_ai003_report_permission(report_name: str, user: Optional[str] = None) -> None:
+	"""
+	Enforce compile-time allowlist of permitted reports for AI003 risk signals.
+	Additive AI003 boundary following the AI002 allowlist pattern (CG-SEC-02):
+	fails closed with generic FORBIDDEN when the report is outside the allowlist
+	or the checked user lacks report permission.
+	"""
+	if report_name not in AI003_PERMITTED_REPORTS:
+		if frappe:
+			frappe.throw(_("FORBIDDEN"), exc=frappe.PermissionError)
+		raise _PermissionError("FORBIDDEN")
+	check_report_permission(report_name, user=user)
+
+
 def verify_evidence_access(evidence_ref: str, user: Optional[str] = None, company: Optional[str] = None) -> bool:
 	"""
 	Re-authorize evidence access on every open/drilldown (CG-SEC-04).

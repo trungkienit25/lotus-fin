@@ -8,7 +8,7 @@ import frappe
 from frappe import _
 from frappe.permissions import has_permission
 from lotus_fin.api.key_reports import extract_key_report_data
-from lotus_fin.security.access import get_verified_company, CompanyAccessError
+from lotus_fin.security.access import get_verified_company
 
 from lotus_fin.api.events import (
     on_sales_invoice_submit,
@@ -154,3 +154,133 @@ def get_financial_snapshot(
     if hasattr(frappe, "message_log") and isinstance(frappe.message_log, list):
         frappe.message_log.clear()
     return res
+
+# ---------------------------------------------------------------------------
+# AI003 Risk Signal Agent (contract V2.2, DEMO_ONLY) — additive API
+# Server owns financial values, policy, baseline, reports, filters, currency,
+# method and authorization; the client passes scope/date/signal only.
+# ---------------------------------------------------------------------------
+
+_AI003_REQUEST_KEYS = frozenset(
+    {"cmd", "company", "signal_id", "as_of_date", "correlation_id", "include_explanation"}
+)
+
+
+def _ai003_bool(value) -> bool:
+    return value if isinstance(value, bool) else str(value).strip().lower() in ("1", "true", "yes", "y")
+
+
+def _ai003_forbidden(correlation_id=None) -> Dict[str, Any]:
+    from lotus_fin.risk_signal.contracts import forbidden_result, result_to_dict
+
+    return result_to_dict(forbidden_result(None, ("A1_AUTH",), correlation_id))
+
+
+@frappe.whitelist()
+def get_risk_signal(
+    company: Optional[str] = None,
+    signal_id: Optional[str] = None,
+    as_of_date: Optional[str] = None,
+    correlation_id: Optional[str] = None,
+    include_explanation: Union[bool, int, str] = False,
+) -> Dict[str, Any]:
+    """
+    AI003 deterministic risk-signal evaluation (AR_OVERDUE_SPIKE | AP_DUE_CLUSTER).
+
+    Fail-closed typed envelope (V2.2): first-failed-stage A1..A11, no financial
+    payload on FORBIDDEN/VALIDATION_ERROR/SOURCE_ERROR, LLM explanation-only.
+    """
+    from lotus_fin.risk_signal.agent import explain_result, next_check_actions
+    from lotus_fin.risk_signal.contracts import (
+        ReasonCode,
+        SignalId,
+        SignalResult,
+        Status,
+        result_to_dict,
+    )
+    from lotus_fin.risk_signal.service import default_deps, evaluate_signal
+
+    checked_user = getattr(frappe.session, "user", None)
+    unknown = set((frappe.form_dict or {}).keys()) - _AI003_REQUEST_KEYS
+    if unknown:
+        return {
+            "feature_id": "AI003",
+            "status": "VALIDATION_ERROR",
+            "reason_code": "INVALID_REQUEST",
+            "explanation": {"status": "NOT_REQUESTED", "text": None, "reason_code": None},
+        }
+
+    def _run() -> Dict[str, Any]:
+        result = evaluate_signal(
+            {
+                "company": company,
+                "signal_id": signal_id,
+                "as_of_date": as_of_date,
+                "correlation_id": correlation_id,
+            },
+            checked_user=checked_user,
+            deps=default_deps(checked_user),
+            include_explanation=_ai003_bool(include_explanation),
+            explain=explain_result,
+        )
+        wire = result_to_dict(result, include_debug=False)
+        wire["next_check_actions"] = next_check_actions(result.signal_id.value, result.status.value)
+        return wire
+
+    try:
+        return _run()
+    except Exception:
+        # Unexpected failure: sanitized typed envelope, no internals on the wire.
+        return result_to_dict(
+            SignalResult(
+                signal_id=SignalId.AR_OVERDUE_SPIKE,
+                status=Status.SOURCE_ERROR,
+                reason_code=ReasonCode.SOURCE_UNAVAILABLE,
+                correlation_id=correlation_id if isinstance(correlation_id, str) else None,
+                stage_trace=("A1_AUTH",),
+            ),
+            include_debug=False,
+        )
+
+
+@frappe.whitelist()
+def get_risk_signal_evidence(
+    evidence_ref: Optional[str] = None,
+    company: Optional[str] = None,
+    correlation_id: Optional[str] = None,
+) -> Dict[str, Any]:
+    """
+    AI003 authorized evidence replay (MATCH/RESTATED/UNAVAILABLE/FORBIDDEN).
+    The ref is an opaque server-side record id, never an authorization token;
+    authorization is rechecked on every access.
+    """
+    from lotus_fin.risk_signal.service import default_deps, get_evidence
+    from lotus_fin.security.access import get_verified_company
+
+    checked_user = getattr(frappe.session, "user", None)
+    if not checked_user or checked_user == "Guest":
+        return {"status": "FORBIDDEN", "payload": None}
+    try:
+        verified_company = get_verified_company(company, user=checked_user)
+    except Exception:
+        return {"status": "FORBIDDEN", "payload": None}
+
+    deps = default_deps(checked_user)
+
+    def replay_factory(record):
+        def replay():
+            snapshot = deps.ap_provider.fetch(verified_company, record.as_of_date)
+            return {"report_key": snapshot.report_key, "source_hash": snapshot.source_hash}
+
+        return replay
+
+    result = get_evidence(
+        evidence_ref or "",
+        checked_user=checked_user,
+        verified_company=verified_company,
+        replay_factory=replay_factory,
+    )
+    return {
+        "status": result.outcome,
+        "payload": dict(result.fresh_payload) if result.fresh_payload else None,
+    }
