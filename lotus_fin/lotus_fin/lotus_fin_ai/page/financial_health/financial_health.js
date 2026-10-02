@@ -96,6 +96,11 @@ lotus_fin.financial_health.Controller = class Controller {
 			me.fetch_financial_health(true);
 		}, "octicon octicon-sync");
 
+		// AI003 entry point (additive)
+		this.page.add_button(__("Risk Signal"), function () {
+			frappe.set_route("risk-signal");
+		}, "octicon octicon-pulse");
+
 		this.apply_period_preset("CURRENT_YEAR");
 		if (this.period_field) {
 			this.period_field.set_value("CURRENT_YEAR");

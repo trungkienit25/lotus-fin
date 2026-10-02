@@ -473,3 +473,46 @@
 	font-weight: 700;
 }
 
+
+
+/* ---- AI003 Risk Signal page ---- */
+.rs-banner { padding: 10px 14px; border-radius: 8px; margin-bottom: 10px; }
+.rs-banner-demo { background: #fff7e6; border: 1px solid #f0c36d; color: #6b4e00; }
+.rs-banner-info { background: #eef4fb; border: 1px solid #9cc3e5; color: #1f4e79; }
+.rs-banner-ok { background: #edf7ed; border: 1px solid #9ccc9c; color: #1e4620; }
+.rs-banner-warning { background: #fff7e6; border: 1px solid #f0c36d; color: #6b4e00; }
+.rs-glossary { font-size: 12px; margin-bottom: 12px; }
+.rs-state, .rs-result { margin-top: 6px; }
+.rs-panel { border: 1px solid #d9d9d9; border-radius: 10px; padding: 14px 16px; background: #fff; }
+.rs-panel-muted { background: #fafafa; color: #555; }
+.rs-panel-error { border-color: #e53935; }
+.rs-panel-title { font-weight: 700; margin: 10px 0 4px; }
+.rs-header { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 6px; }
+.rs-chip { padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; display: inline-block; }
+.rs-chip-ok { background: #eef4fb; color: #1f4e79; border: 1px solid #9cc3e5; }
+.rs-chip-benign { background: #edf7ed; color: #1e4620; border: 1px solid #9ccc9c; }
+.rs-chip-watch { background: #fff3cd; color: #6b4e00; border: 1px solid #f0c36d; }
+.rs-chip-high { background: #fdecea; color: #8c1d18; border: 1px solid #e57368; }
+.rs-chip-inconclusive { background: #eceff1; color: #37474f; border: 1px solid #b0bec5; }
+.rs-chip-denied { background: #eceff1; color: #37474f; border: 1px solid #b0bec5; }
+.rs-chip-warn { background: #fff3cd; color: #6b4e00; border: 1px solid #f0c36d; }
+.rs-chip-error { background: #fdecea; color: #8c1d18; border: 1px solid #e57368; }
+.rs-chip-pending { background: #f3e5f5; color: #4a148c; border: 1px solid #ce93d8; }
+.rs-meta { color: #777; font-size: 12px; }
+.rs-reason { margin: 6px 0 2px; }
+.rs-reason-text { font-size: 13px; }
+.rs-section { margin-top: 10px; padding-top: 6px; border-top: 1px dashed #e5e5e5; }
+.rs-kv { display: flex; justify-content: space-between; gap: 12px; padding: 3px 0; }
+.rs-kv-label { color: #555; }
+.rs-kv-value { font-weight: 600; text-align: right; }
+.rs-num { font-variant-numeric: tabular-nums; }
+.rs-note { font-size: 12px; margin: 2px 0; }
+.rs-explanation { white-space: pre-wrap; font-size: 13px; }
+.rs-next { font-size: 13px; }
+.rs-evidence-row { display: flex; align-items: center; gap: 10px; margin: 6px 0; }
+.rs-evidence-live { margin-top: 10px; }
+.rs-debug { font-size: 11px; margin-top: 12px; border-top: 1px solid #eee; padding-top: 6px; }
+@media (max-width: 768px) {
+  .rs-kv { flex-direction: column; gap: 0; }
+  .rs-kv-value { text-align: left; }
+}

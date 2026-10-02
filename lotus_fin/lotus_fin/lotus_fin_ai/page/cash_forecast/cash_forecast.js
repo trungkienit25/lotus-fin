@@ -71,6 +71,11 @@ lotus_fin.cash_forecast.Controller = class Controller {
 		});
 
 		// 3. Primary Run Forecast Button
+		// AI003 entry point (additive)
+		this.page.add_button(__("Risk Signal"), function () {
+			frappe.set_route("risk-signal");
+		}, "octicon octicon-pulse");
+
 		this.page.set_primary_action(__("Compute Forecast"), function () {
 			me.fetch_forecast(true);
 		}, "octicon octicon-sync");
