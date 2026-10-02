@@ -716,6 +716,63 @@ CONTRACT FREEZE: NOT_FROZEN
 NEXT OWNER: ChatGPT Chat
 ```
 
+## 22. Implementation record (records-only) — 2026-10-02
+
+**RECORDS ONLY — the builder records, does not decide.** The repo contract-freeze
+ledger above (NOT_FROZEN) is retained unchanged as the recorded process state.
+The owner task packet dated 2026-10-02 states verbatim:
+
+```text
+AI003 CONTRACT: FROZEN
+SCOPE: DEMO_ONLY / COMPETITION
+
+Contract: V2.2
+
+METHOD GOLD:
+66/66 PASS
+
+Policy:
+AI003_DEMO_POLICY_V1
+
+POLICY GOLD:
+17/17 REQUIRED PASS
+4 valid NOT_APPLICABLE
+
+G1: PASS
+G2: PASS
+G3: PASS
+G4A: PASS
+```
+
+(Owner communication, quoted verbatim with attribution to the Project Owner /
+Chat packet of 2026-10-02; this is an attributed external record, not a
+builder self-freeze. The naming ledger in §16.8/§19/§21 remains as recorded.)
+
+**Implementation record:** the reviewed V2.2 two-signal method was implemented
+on branch `feature/ai003-risk-signal` (revisions efd7046 → b4eba4d): package
+`lotus_fin/lotus_fin/risk_signal/` (S1–S5 per the scaffold plan), additive API
+`get_risk_signal`/`get_risk_signal_evidence`, additive
+`AI003_PERMITTED_REPORTS`, page `/app/risk-signal`, 128 hermetic unit tests,
+in-container verification (279-targeted OK), live API smoke 7/7 on
+`ai003-verify.localhost` with METHOD GOLD number assertions. Docs:
+AI003_TECHNICAL_DOCUMENTATION.md + AI003_SECURITY_SELF_ASSESSMENT.md
+(competition schemas), AI001 retro pair, AI003_EVIDENCE_INDEX.md,
+AI003_REPRODUCTION_GUIDE.md. E2E live run blocked by a verify-site desk boot
+loop (stale bootinfo `setup_complete:"0"` vs DB 1) — root-caused in
+AI003_EVIDENCE_DIR/AI003_E2E_BLOCKER_NOTE_2026-10-02.md; not an AI003 code
+defect.
+
+**Identifier alias note:** the owner packet labels the AR method
+`AI003_AR_SPIKE_PREV_MONTH_V1`; that string exists in no repo artifact. The
+executable identifier is the METHOD GOLD manifest string
+`V2.2_REVIEWED_METHOD_SPEC` with signal ids `AR_OVERDUE_SPIKE`/`AP_DUE_CLUSTER`;
+the packet label is recorded here as an attributed alias (owner-confirmed
+2026-10-02). Signal semantics are unchanged.
+
+**Verdict for this section:** builder records only —
+`IMPLEMENTATION_COMPLETE_FOR_WORK_REVIEW`; G4B NOT_APPLICABLE_YET; next owner:
+Work review.
+
 # Historical investigation — retained, superseded by current §1–21 above
 
 # AI-F003 Risk Signal Agent — pre-build investigation (draft, chưa freeze)
