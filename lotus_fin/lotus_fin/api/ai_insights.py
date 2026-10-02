@@ -170,12 +170,6 @@ def _ai003_bool(value) -> bool:
     return value if isinstance(value, bool) else str(value).strip().lower() in ("1", "true", "yes", "y")
 
 
-def _ai003_forbidden(correlation_id=None) -> Dict[str, Any]:
-    from lotus_fin.risk_signal.contracts import forbidden_result, result_to_dict
-
-    return result_to_dict(forbidden_result(None, ("A1_AUTH",), correlation_id))
-
-
 @frappe.whitelist()
 def get_risk_signal(
     company: Optional[str] = None,
@@ -207,6 +201,8 @@ def get_risk_signal(
             "feature_id": "AI003",
             "status": "VALIDATION_ERROR",
             "reason_code": "INVALID_REQUEST",
+            "correlation_id": correlation_id if isinstance(correlation_id, str) else None,
+            "stage_trace": ("A1_AUTH", "A2_STRUCTURE"),
             "explanation": {"status": "NOT_REQUESTED", "text": None, "reason_code": None},
         }
 
@@ -230,14 +226,15 @@ def get_risk_signal(
     try:
         return _run()
     except Exception:
-        # Unexpected failure: sanitized typed envelope, no internals on the wire.
+        # Unexpected failure: sanitized typed envelope, no internals on the wire;
+        # the full traceback stays server-side for debugging.
+        frappe.log_error(message=frappe.get_traceback(), title="AI003 get_risk_signal failed")
         return result_to_dict(
             SignalResult(
                 signal_id=SignalId.AR_OVERDUE_SPIKE,
                 status=Status.SOURCE_ERROR,
                 reason_code=ReasonCode.SOURCE_UNAVAILABLE,
                 correlation_id=correlation_id if isinstance(correlation_id, str) else None,
-                stage_trace=("A1_AUTH",),
             ),
             include_debug=False,
         )

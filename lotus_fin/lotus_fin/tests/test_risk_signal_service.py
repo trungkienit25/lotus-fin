@@ -387,6 +387,25 @@ class APPipeline(unittest.TestCase):
         self.assertEqual(result.status, Status.INCONCLUSIVE)
         self.assertEqual(result.reason_code, ReasonCode.INCOMPLETE_DUE_DATE_COVERAGE)
 
+    def test_single_schedule_null_child_is_coverage_gap_not_multi(self):
+        # Audit P2 regression: a 1-schedule invoice with no usable child due date
+        # must yield INCOMPLETE_DUE_DATE_COVERAGE, never UNSUPPORTED_MULTI_SCHEDULE.
+        rows = [_ap_row("PINV-ONE", "300", date(2026, 10, 1))]
+        schedule = _FakeSchedule({
+            "PINV-ONE": ScheduleMetadata(
+                voucher_type="Purchase Invoice",
+                voucher_no="PINV-ONE",
+                company="AI003 Gold 2026",
+                docstatus=1,
+                schedule_count=1,
+                header_due_date=None,
+                child_due_dates=(None,),
+            )
+        })
+        result = evaluate_signal(_ap_payload(), checked_user=USER, deps=self._deps_ap(rows, schedule))
+        self.assertEqual(result.status, Status.INCONCLUSIVE)
+        self.assertEqual(result.reason_code, ReasonCode.INCOMPLETE_DUE_DATE_COVERAGE)
+
     def test_duplicate_no_double_count(self):
         as_of = date(2026, 9, 26)
         rows = [

@@ -67,6 +67,7 @@ from lotus_fin.risk_signal.sources import (
     AI001PublicARProvider,
     APReportAdapter,
     FrappeScheduleMetadataProvider,
+    SUPPORTED_AP_SOURCE_DOC_TYPES,
     fetch_ar_pair,
 )
 
@@ -202,12 +203,11 @@ def evaluate_signal(
     reconciled = ()
     if request.signal_id is SignalId.AP_DUE_CLUSTER:
         try:
-            rows = [row for row in ap_snapshot.rows if row.currency in ("", "VND")]
             if any(row.currency not in ("", "VND") for row in ap_snapshot.rows):
                 raise SourceFailure(
                     Status.SOURCE_ERROR, ReasonCode.INCONSISTENT_DATA, "row currency contradiction"
                 )
-            reconciled = reconcile_observations(rows, verified_company)
+            reconciled = reconcile_observations(ap_snapshot.rows, verified_company)
         except SourceFailure as failure:
             return _finish(
                 _typed_failure_result(request, failure, trace, correlation_id),
@@ -297,7 +297,7 @@ def evaluate_signal(
                     status=ExplanationStatus.UNAVAILABLE, reason_code=violation
                 )
         result = _with_explanation(result, explanation)
-    return _finish(result, timer, checked_user, request=request)
+    return _finish(result, timer, checked_user)
 
 
 # --- helpers -----------------------------------------------------------------
@@ -308,7 +308,7 @@ def _correlation(payload: Mapping) -> Optional[str]:
     return value if isinstance(value, str) and value else None
 
 
-def _finish(result: SignalResult, timer: LatencyTimer, user: Optional[str], request: Optional[SignalRequest] = None) -> SignalResult:
+def _finish(result: SignalResult, timer: LatencyTimer, user: Optional[str]) -> SignalResult:
     log_ai003_event(
         event_type="ai003_evaluate_completed",
         correlation_id=result.correlation_id,
@@ -355,9 +355,9 @@ def _coverage_inconclusive(request, gaps, trace, correlation_id, ap_snapshot, re
         count_basis=CountBasis.DISTINCT_VOUCHER,
         count_positive_vouchers=distinct_voucher_count([o for o in reconciled if o.amount > 0]),
         as_of_date=request.as_of_date,
-        data_mode=_current_data_mode(),
+        data_mode=data_mode,
         stage_trace=trace,
-        coverage=Coverage(missing_inputs=tuple({g for _, g in gaps})),
+        coverage=Coverage(missing_inputs=tuple(sorted({g for _, g in gaps}))),
         limitations=("Evaluation stopped at the first incomplete observation coverage gap.",),
     )
 
@@ -368,7 +368,7 @@ def _schedule_preflight(reconciled, deps: ServiceDeps, company):
     positive = [obs for obs in reconciled if obs.amount > 0]
     metadata_by_voucher = {}
     for obs in positive:
-        if obs.voucher_type not in ("Purchase Invoice",):
+        if obs.voucher_type not in SUPPORTED_AP_SOURCE_DOC_TYPES:
             raise SourceFailure(
                 Status.INCONCLUSIVE,
                 ReasonCode.UNSUPPORTED_ALLOCATION_SCOPE,
@@ -397,7 +397,7 @@ def _policy_pending_result(request, reason_code, trace, correlation_id, ap_snaps
         reason_code=reason_code,
         correlation_id=correlation_id,
         as_of_date=request.as_of_date,
-        data_mode=_current_data_mode(),
+        data_mode=data_mode,
         stage_trace=trace,
     )
     if request.signal_id is SignalId.AP_DUE_CLUSTER and selection is not None:
@@ -433,7 +433,7 @@ def _ok_result(request, policy, outcome, trace, correlation_id, company, capture
         policy_scope=policy.policy_scope,
         production_calibrated=policy.production_calibrated,
         as_of_date=request.as_of_date,
-        data_mode=_current_data_mode(),
+        data_mode=data_mode,
         correlation_id=correlation_id,
         stage_trace=trace,
         rule=RuleBlock(
@@ -555,7 +555,13 @@ def get_evidence(ref: str, *, checked_user: Optional[str], verified_company: str
     def _replay(record):
         return replay_factory(record)()
 
-    return evidence_get(ref, verified_company, _replay)
+    result = evidence_get(ref, verified_company, _replay)
+    log_ai003_event(
+        event_type="ai003_evidence_" + result.outcome.lower(),
+        correlation_id=None,
+        signal_type=result.record.signal_id.value if result.record else None,
+    )
+    return result
 
 
 def _current_data_mode() -> DataMode:

@@ -86,7 +86,9 @@ class SignalPolicy:
                     raise ValueError("AP thresholds must lie in [0,1]")
         else:
             raise ValueError("unsupported threshold unit")
-        if self.window_days is not None and (not isinstance(self.window_days, int) or self.window_days < 0):
+        if self.window_days is not None and (
+            isinstance(self.window_days, bool) or not isinstance(self.window_days, int) or self.window_days < 0
+        ):
             raise ValueError("window W must be a nonnegative integer")
         if self.approval_status not in (APPROVAL_APPROVED, APPROVAL_PENDING):
             raise ValueError("unknown approval status")

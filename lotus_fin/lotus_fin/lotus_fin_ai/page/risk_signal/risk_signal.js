@@ -50,6 +50,7 @@ lotus_fin.risk_signal.Controller = class Controller {
 				frappe.defaults.get_user_default("Company") ||
 				frappe.defaults.get_global_default("company"),
 			change() {
+				me.current_company = null;
 				me.clear_result(__("Company changed — the previous result was cleared."));
 			}
 		});
@@ -64,6 +65,7 @@ lotus_fin.risk_signal.Controller = class Controller {
 			],
 			default: "AR_OVERDUE_SPIKE",
 			change() {
+				me.current_company = null;
 				me.clear_result(__("Signal changed — the previous result was cleared."));
 			}
 		});
@@ -74,6 +76,7 @@ lotus_fin.risk_signal.Controller = class Controller {
 			fieldtype: "Date",
 			default: frappe.datetime.get_today(),
 			change() {
+				me.current_company = null;
 				me.clear_result(__("Date changed — the previous result was cleared."));
 			}
 		});

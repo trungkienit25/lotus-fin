@@ -21,9 +21,10 @@ from lotus_fin.risk_signal.contracts import (
     Explanation,
     ExplanationStatus,
     Status,
+    ThresholdUnit,
+    money_str,
     pp_str,
     ratio_str,
-    money_str,
 )
 from lotus_fin.risk_signal.observability import log_ai003_event
 
@@ -100,9 +101,11 @@ def _minimized_payload(result) -> Dict[str, Any]:
     if result.delta_pp is not None:
         payload["delta_pp"] = pp_str(result.delta_pp)
     if result.rule is not None and result.rule.threshold is not None:
-        payload["watch_threshold"] = ratio_str(result.rule.threshold)
+        fmt = pp_str if result.rule.threshold_unit is ThresholdUnit.PERCENTAGE_POINTS else ratio_str
+        payload["watch_threshold"] = fmt(result.rule.threshold)
     if result.rule is not None and result.rule.high_threshold is not None:
-        payload["high_threshold"] = ratio_str(result.rule.high_threshold)
+        fmt_high = pp_str if result.rule.threshold_unit is ThresholdUnit.PERCENTAGE_POINTS else ratio_str
+        payload["high_threshold"] = fmt_high(result.rule.high_threshold)
     if result.count_positive_vouchers is not None:
         payload["count_positive_vouchers"] = result.count_positive_vouchers
     if result.count_due_vouchers is not None:

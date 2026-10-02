@@ -165,5 +165,6 @@ def resolve_due_dates(
                 continue
             resolved[obs.voucher_no] = effective
         else:
-            gaps.append((obs.voucher_no, "UNSUPPORTED_MULTI_SCHEDULE"))
+            # 1 schedule declared but no usable child due date.
+            gaps.append((obs.voucher_no, "NO_VALID_DUE_DATE"))
     return resolved, gaps

@@ -19,28 +19,24 @@ import time
 from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
+from lotus_fin.risk_signal.contracts import (
+    METHOD_VERSION,
+    DataMode,
+    ReasonCode,
+    SignalId,
+    Stage,
+    Status,
+)
+
 _logger = logging.getLogger("lotus_fin.ai003")
 
 _SAFE_TOKEN = re.compile(r"^[A-Za-z0-9_.-]{1,64}$")
 
-_STAGE_VALUES = {
-    "A1_AUTH", "A2_STRUCTURE", "A3_COMPANY", "A4_SEMANTIC_SCOPE", "A5_SOURCE_AUTH",
-    "A6_SOURCE_CURRENCY", "A7_INTEGRITY_IDENTITY", "A8_METHOD_PREREQ", "A9_POLICY",
-    "A10_EVALUATION", "A11_EXPLANATION",
-}
-_SIGNAL_VALUES = {"AR_OVERDUE_SPIKE", "AP_DUE_CLUSTER"}
-_STATUS_VALUES = {"OK", "INCONCLUSIVE", "FORBIDDEN", "VALIDATION_ERROR", "SOURCE_ERROR", "POLICY_PENDING"}
-_REASON_VALUES = {
-    "UNAUTHORIZED_ACCESS", "INVALID_REQUEST", "FUTURE_AS_OF", "UNSUPPORTED_CURRENCY",
-    "FINANCE_BOOK_NOT_SUPPORTED", "HISTORY_INSUFFICIENT", "INVALID_DENOMINATOR", "ZERO_DENOMINATOR",
-    "INCOMPLETE_DUE_DATE_COVERAGE", "UNSUPPORTED_ALLOCATION_SCOPE", "INCONSISTENT_DATA",
-    "SOURCE_UNAVAILABLE", "SOURCE_TIMEOUT", "POLICY_UNAVAILABLE", "INVALID_POLICY_CONFIG",
-    "UNSUPPORTED_SOURCE_VERSION", "ACCESS_DENIED", "UNSUPPORTED_COMPANY_CURRENCY",
-    "BASELINE_DENOMINATOR_INVALID", "CURRENT_DENOMINATOR_INVALID", "CONFLICTING_OBSERVATION",
-    "SOURCE_INVALID", "UNSUPPORTED_MULTI_SCHEDULE", "POLICY_NOT_APPROVED",
-}
-_DATA_MODE_VALUES = {"LIVE", "CONTROLLED_FIXTURE"}
-_METHOD_VERSION = "V2.2_REVIEWED_METHOD_SPEC"
+_STAGE_VALUES = {s.value for s in Stage}
+_SIGNAL_VALUES = {s.value for s in SignalId}
+_STATUS_VALUES = {s.value for s in Status}
+_REASON_VALUES = {r.value for r in ReasonCode}
+_DATA_MODE_VALUES = {m.value for m in DataMode}
 
 
 def hash_id(value: Optional[str]) -> Optional[str]:
@@ -79,7 +75,7 @@ def log_ai003_event(
         "signal_type": signal_type if signal_type in _SIGNAL_VALUES else None,
         "stage": stage if stage in _STAGE_VALUES else None,
         "reason_code": reason_code if reason_code in _REASON_VALUES else None,
-        "method_version": _METHOD_VERSION,
+        "method_version": METHOD_VERSION,
         "policy_version": policy_version if policy_version in (None, "AI003_DEMO_POLICY_V1") else None,
         "data_mode": data_mode if data_mode in _DATA_MODE_VALUES else None,
         "latency_ms": None,
