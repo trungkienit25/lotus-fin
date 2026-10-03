@@ -170,6 +170,15 @@ def _ai003_bool(value) -> bool:
     return value if isinstance(value, bool) else str(value).strip().lower() in ("1", "true", "yes", "y")
 
 
+def _clear_leaked_server_messages() -> None:
+    """Caught frappe.throw() calls inside the typed authorization paths leave
+    entries in frappe.message_log; if not cleared they travel as
+    ``_server_messages`` and pop a client dialog ON TOP of the typed envelope.
+    Same cleanup the AI002 endpoint applies. No financial behavior changes."""
+    if hasattr(frappe, "message_log") and isinstance(frappe.message_log, list):
+        frappe.message_log.clear()
+
+
 @frappe.whitelist()
 def get_risk_signal(
     company: Optional[str] = None,
@@ -224,11 +233,14 @@ def get_risk_signal(
         return wire
 
     try:
-        return _run()
+        wire = _run()
+        _clear_leaked_server_messages()
+        return wire
     except Exception:
         # Unexpected failure: sanitized typed envelope, no internals on the wire;
         # the full traceback stays server-side for debugging.
         frappe.log_error(message=frappe.get_traceback(), title="AI003 get_risk_signal failed")
+        _clear_leaked_server_messages()
         return result_to_dict(
             SignalResult(
                 signal_id=SignalId.AR_OVERDUE_SPIKE,
@@ -281,6 +293,7 @@ def get_risk_signal_evidence(
         replay_factory=replay_factory,
         correlation_id=correlation_id,
     )
+    _clear_leaked_server_messages()
     return {
         "status": result.outcome,
         "payload": dict(result.fresh_payload) if result.fresh_payload else None,

@@ -11,7 +11,7 @@ method_version: V2.2_REVIEWED_METHOD_SPEC
 policy_version: AI003_DEMO_POLICY_V1
 scope: DEMO_ONLY
 evidence_date: 2026-10-03
-implementation_revision: G4B targeted remediation pass (parent b4eba4d/117d7e5 lineage, branch feature/ai003-risk-signal)
+implementation_revision: fix-4 round on 27fe965 (branch feature/ai003-risk-signal)
 status: IMPLEMENTATION_COMPLETE_FOR_WORK_REVIEW
 ```
 
@@ -135,6 +135,19 @@ boundary (ConnectionError, timeout, SET failure emits no ref, GET failure vs
 missing key, no local fallback, correlation-id diagnostics without sensitive
 error text).
 
+**Third defect (fix-4 finding, remediated 2026-10-03).** Decode/JSON-parse/
+record-validation of the cached payload sat outside the typed boundary, so
+legacy non-JSON payloads (parent-format pickle bytes from 117d7e5 at the same
+key prefix) or corrupt records reached the public endpoint as unhandled
+UnicodeDecodeError/parse exceptions. Remediation: decode, parse and strict
+record validation now run inside the typed boundary — legacy/corrupt payloads
+fail closed as typed `EvidenceStorageUnavailable` (replay UNAVAILABLE, payload
+null) with exactly one sanitized diagnostic (correlation id preserved; no raw
+bytes, record content or exception text logged); `pickle.loads` is never used;
+valid JSON records are unaffected (healthy replay still MATCH). Verified by a
+public-endpoint probe in a site-context process and by fault-injecting the
+installed Frappe cache client's raw commands (ConnectionError/TimeoutError).
+
 **Residual limits (not production-grade).** TTL is 3600 s; expiry or cache
 eviction/flush fails closed to FORBIDDEN and the evidence must be re-created by
 re-evaluating. Records are not durable across a Redis flush or restart. Cache
@@ -244,9 +257,13 @@ parent (live); LLM failure/timeout/ungrounded/banned; payload suppression on
 FORBIDDEN/VALIDATION_ERROR/SOURCE_ERROR; unexpected exception sanitization;
 cross-worker evidence consistency (20/20 sequential replays across 2 workers);
 live HTTP report permission revoke/regrant (`tests_e2e/test_security_revoke_regrant.py`,
-hardened 2026-10-03: pre-existing Custom Roles snapshotted and preserved, only
-harness-created role/user removed); live HTTP TTL-expiry mechanism probe
-(`tests_e2e/test_ttl_expiry_http.py`, dedicated short-TTL record).
+state-preserving: per-run unique user, pre-state snapshot, conflict aborts
+BEFORE any mutation, cleanup of run-created artifacts only, pre-existing roles
+asserted before == after); installed-Frappe raw Redis fault probe
+(`tests_e2e/test_raw_redis_fault_probe.py`); decode-boundary public-endpoint
+probe (`tests_e2e/test_decode_boundary_endpoint.py`); live HTTP TTL-expiry
+mechanism probe (`tests_e2e/test_ttl_expiry_http.py`, unique isolated probe
+ref, short TTL).
 
 ## 19. Security Test Results
 
@@ -254,14 +271,16 @@ harness-created role/user removed); live HTTP TTL-expiry mechanism probe
 |---|---|---|
 | Stage/payload suppression (hermetic) | PASS | test_risk_signal_service.py (StageA/PayloadSuppression classes) |
 | Identity/dedupe/currency gates (hermetic) | PASS | test_risk_signal_sources.py |
-| Evidence authorization + Redis storage-boundary fault injection (hermetic) | PASS 27/27 | test_risk_signal_evidence.py (8 storage-boundary tests: ConnectionError/timeout injection at raw command boundary, SET failure emits no ref, GET failure vs missing key, no local fallback, TTL/Decimal/date round-trip, correlation-id diagnostics without sensitive text) |
-| Live smoke incl. unauth/unknown-company suppression | PASS 7/7 | evidence/ai003_smoke_results_2026-10-03.json (2026-10-02 artifact kept as historical) |
+| Evidence authorization + Redis storage/decode boundary fault injection (hermetic) | PASS 34/34 | test_risk_signal_evidence.py (8 storage-boundary tests + 6 decode-boundary tests: parent pickle bytes, invalid UTF-8, invalid JSON, malformed records — each typed, payload null, one sanitized diagnostic, no content logging) |
+| Live smoke incl. unauth/unknown-company suppression | PASS 7/7 | evidence/ai003_smoke_results_2026-10-03.json (re-run on final fix-4 image; earlier artifacts kept as historical) |
 | Restricted-user live probes (report/metadata) | PASS (reused) | AI003_METHOD_GOLD_MANIFEST.yaml SECURITY cases |
-| Cross-worker evidence consistency (live multi-worker) | PASS 20/20 | 20 sequential HTTP replays across Gunicorn workers (20/20 MATCH, 0 false FORBIDDEN; re-run 2026-10-03) |
-| Live HTTP revoke/regrant via AI003 endpoint | PASS 4/4 (hardened harness) | `tests_e2e/test_security_revoke_regrant.py`: MATCH → revoke → FORBIDDEN (no payload) → restore → MATCH; site roles preserved |
-| TTL expiry mechanism over live HTTP | PASS (mechanism; NOT a 3600s wall-clock run) | `tests_e2e/test_ttl_expiry_http.py`: fresh → MATCH, post-expiry → FORBIDDEN, payload null |
-| Semgrep SAST (repo CI) | PASS (unchanged baseline) | .github/workflows/ci.yml |
-| Bandit on new code | No HIGH severity findings | bandit -ll run 2026-10-02 (not re-run on 2026-10-03 diff) |
+| Cross-worker evidence consistency (live multi-worker) | PASS 20/20 | 20 sequential HTTP replays across Gunicorn workers (20/20 MATCH, 0 false FORBIDDEN; re-run 2026-10-03 fix-4 round) |
+| Live HTTP revoke/regrant via AI003 endpoint | PASS 4/4 (state-preserving harness) | `tests_e2e/test_security_revoke_regrant.py`: MATCH → revoke → FORBIDDEN (no payload) → restore → MATCH; per-run unique user; conflict abort verified; pre-existing roles before == after |
+| Installed-Frappe raw Redis fault probe | PASS 5/5 | `tests_e2e/test_raw_redis_fault_probe.py`: GET ConnectionError/TimeoutError → endpoint UNAVAILABLE (null); SETEX/DELETE ConnectionError → typed; healthy MATCH after unpatch |
+| Decode boundary via public endpoint (site context) | PASS 5/5 | `tests_e2e/test_decode_boundary_endpoint.py`: legacy pickle / invalid UTF-8 / invalid JSON / malformed record → typed UNAVAILABLE (null), no unhandled exception; healthy record → MATCH |
+| TTL expiry mechanism over live HTTP | PASS (mechanism, isolated probe key; NOT a 3600s wall-clock run) | `tests_e2e/test_ttl_expiry_http.py`: unique probe ref, fresh → MATCH, post-expiry → FORBIDDEN (null); existing production record untouched |
+| Semgrep SAST (repo CI) | PASS (unchanged baseline) | .github/workflows/ci.yml (not re-run on fix-4 diff) |
+| Bandit on new code | No HIGH severity findings | bandit -ll run 2026-10-02 (not re-run on fix-4 diff) |
 
 ## 20. Known Risks
 
@@ -296,8 +315,9 @@ calibrated policy, G4B acceptance, rate limiting and persistent audit storage.
 ## 24. Security Evidence Index
 
 See `docs/features/AI003/AI003_EVIDENCE_INDEX.md` (per-item command, host/container,
-date, revision, path). Primary (2026-10-03 targeted-remediation pass): smoke JSON
-2026-10-03, hardened revoke/regrant harness, TTL-expiry HTTP probe, G4B targeted
-remediation verification record (`evidence/AI003_G4B_TARGETED_REMEDIATION_VERIFICATION_2026-10-03.md`),
-METHOD/POLICY GOLD manifests, hermetic suites. Earlier artifacts (b4eba4d round)
-are kept as historical records.
+date, revision, path). Primary (2026-10-03 fix-4 round): smoke JSON 2026-10-03, state-preserving
+revoke/regrant harness, isolated-key TTL probe, raw Redis fault probe, decode
+endpoint probe, fix-4 verification record
+(`evidence/AI003_FIX4_VERIFICATION_2026-10-03.md`), METHOD/POLICY GOLD
+manifests, hermetic suites. Earlier artifacts (round 1 remediation 27fe965,
+b4eba4d audit round) are kept as historical records.

@@ -100,16 +100,35 @@ def _serialize_record(record: EvidenceRecord) -> dict:
     }
 
 
-def _deserialize_record(data: dict) -> EvidenceRecord:
+def _deserialize_record(data) -> EvidenceRecord:
+    """Strictly validate + rebuild a stored record. Any malformed legacy or
+    corrupt payload raises here so the caller's typed boundary catches it —
+    never pickle.loads, never silent partial records."""
+    if not isinstance(data, dict):
+        raise ValueError("evidence record is not an object")
+    ref = data.get("ref")
+    company = data.get("company")
+    if not isinstance(ref, str) or not ref.startswith("AI003-EV-"):
+        raise ValueError("evidence record ref malformed")
+    if not isinstance(company, str) or not company:
+        raise ValueError("evidence record company malformed")
     as_of = data.get("as_of_date")
-    if isinstance(as_of, str):
-        as_of = date.fromisoformat(as_of)
-    raw_signal = data.get("signal_id")
+    if not isinstance(as_of, str):
+        raise ValueError("evidence record as_of_date malformed")
+    as_of = date.fromisoformat(as_of)
     try:
-        signal_id = SignalId(raw_signal)
+        signal_id = SignalId(data.get("signal_id"))
     except Exception:
-        signal_id = raw_signal
-    raw_payload = data.get("payload") or {}
+        raise ValueError("evidence record signal_id malformed") from None
+    raw_payload = data.get("payload")
+    if not isinstance(raw_payload, dict):
+        raise ValueError("evidence record payload malformed")
+    scope_fingerprint = data.get("scope_fingerprint")
+    payload_hash = data.get("payload_hash")
+    captured_at = data.get("captured_at")
+    kind = data.get("kind", EVIDENCE_KIND_REPORT_SNAPSHOT)
+    if not all(isinstance(v, str) for v in (scope_fingerprint, payload_hash, captured_at, kind)):
+        raise ValueError("evidence record metadata malformed")
     sanitized_payload = {}
     for k, v in raw_payload.items():
         if k in ("numerator", "denominator", "display_share") and isinstance(v, str):
@@ -120,15 +139,15 @@ def _deserialize_record(data: dict) -> EvidenceRecord:
         else:
             sanitized_payload[k] = v
     return EvidenceRecord(
-        ref=data["ref"],
-        company=data["company"],
+        ref=ref,
+        company=company,
         signal_id=signal_id,
         as_of_date=as_of,
-        kind=data.get("kind", EVIDENCE_KIND_REPORT_SNAPSHOT),
-        scope_fingerprint=data.get("scope_fingerprint", ""),
-        payload_hash=data.get("payload_hash", ""),
+        kind=kind,
+        scope_fingerprint=scope_fingerprint,
+        payload_hash=payload_hash,
         payload=sanitized_payload,
-        captured_at=data.get("captured_at", ""),
+        captured_at=captured_at,
     )
 
 
@@ -229,7 +248,9 @@ class EvidenceStore:
 
     def get(self, ref: str, correlation_id: Optional[str] = None) -> Optional[EvidenceRecord]:
         """Fetch record by ref. ``None`` means missing/expired (clean miss);
-        Redis failures raise typed ``EvidenceStorageUnavailable``."""
+        command, decode, JSON-parse or record-validation failures raise typed
+        ``EvidenceStorageUnavailable`` (legacy pickle or corrupt records must
+        never surface as unhandled endpoint exceptions)."""
         if not isinstance(ref, str) or not ref:
             return None
 
@@ -250,13 +271,22 @@ class EvidenceStore:
             )
         if raw is None:
             return None
-        if isinstance(raw, bytes):
-            raw = raw.decode("utf-8")
         try:
-            data = json.loads(raw)
-        except Exception:
-            return None
-        return _deserialize_record(data)
+            if isinstance(raw, bytes):
+                raw = raw.decode("utf-8")
+            if not isinstance(raw, str):
+                raise TypeError("unexpected cache payload type")
+            record = _deserialize_record(json.loads(raw))
+        except Exception as exc:
+            # One structured, sanitized diagnostic; no raw bytes, record
+            # content or exception text is ever logged or surfaced.
+            self._storage_failure(
+                exc,
+                operation="evidence_cache_decode",
+                stage=Stage.A5_SOURCE_AUTH.value,
+                correlation_id=correlation_id,
+            )
+        return record
 
     def delete(self, ref: str, correlation_id: Optional[str] = None) -> None:
         """Evict record by ref; Redis failures are surfaced, not swallowed."""

@@ -19,6 +19,7 @@ the runtime resolves Frappe's cache and must never fall back to a local dict.
 
 import json
 import os
+import pickle
 import sys
 import unittest
 import unittest.mock as mock
@@ -396,6 +397,133 @@ class StorageBoundaryTests(unittest.TestCase):
         self.assertNotIn("sekret", serialized)
         self.assertNotIn("redis://", serialized)
         self.assertNotIn("10.0.0.42", serialized)
+
+
+class DecodeBoundaryTests(unittest.TestCase):
+    """Legacy/corrupt cache payloads (e.g. parent-format pickle bytes from
+    117d7e5) must fail CLOSED with exactly one sanitized diagnostic — never an
+    unhandled endpoint exception, never pickle.loads, never content logging."""
+
+    SENSITIVE = "SENSITIVE-pickle-payload-admin-token"
+
+    def setUp(self):
+        self.client = FakeFrappeRedis()
+        self.store = ev.EvidenceStore(client=self.client)
+        ev._STORE = self.store
+
+    def _seed_raw(self, ref, raw):
+        self.client.data[f"testsite|{ev.EVIDENCE_KEY_PREFIX}{ref}"] = raw
+
+    def _logged(self):
+        logged = []
+        patcher = mock.patch(
+            "lotus_fin.risk_signal.evidence.log_ai003_event",
+            side_effect=lambda **kw: logged.append(kw) or {},
+        )
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        return logged
+
+    def test_valid_json_still_round_trips_with_hash_semantics(self):
+        record = _make_record()
+        self.store.put(record)
+        restored = ev.EvidenceStore(client=self.client).get(record.ref, correlation_id="dec-valid")
+        self.assertEqual(restored.payload_hash, record.payload_hash)
+        self.assertEqual(restored.payload["numerator"], Decimal("1000"))
+        self.assertEqual(restored.as_of_date, date(2026, 9, 26))
+
+    def test_parent_pickle_bytes_typed(self):
+        self._seed_raw(
+            "AI003-EV-legacy01",
+            pickle.dumps({"ref": "AI003-EV-legacy01", self.SENSITIVE: "x"}, protocol=4),
+        )
+        with self.assertRaises(ev.EvidenceStorageUnavailable) as ctx:
+            self.store.get("AI003-EV-legacy01", correlation_id="dec-pickle")
+        self.assertEqual(ctx.exception.cause_type, "UnicodeDecodeError")
+        result = ev.evidence_get("AI003-EV-legacy01", "AI003 Gold 2026", lambda r: {}, correlation_id="dec-pickle")
+        self.assertEqual(result.outcome, ev.ReplayOutcome.UNAVAILABLE)
+        self.assertIsNone(result.fresh_payload)
+        self.assertIsNone(result.record)
+
+    def test_invalid_utf8_typed(self):
+        self._seed_raw("AI003-EV-badutf8", b"\xff\xfe\x81" + self.SENSITIVE.encode("utf-16"))
+        with self.assertRaises(ev.EvidenceStorageUnavailable) as ctx:
+            self.store.get("AI003-EV-badutf8", correlation_id="dec-utf8")
+        self.assertEqual(ctx.exception.cause_type, "UnicodeDecodeError")
+        self.assertEqual(
+            ev.evidence_get("AI003-EV-badutf8", "AI003 Gold 2026", lambda r: {}).outcome,
+            ev.ReplayOutcome.UNAVAILABLE,
+        )
+
+    def test_invalid_json_typed(self):
+        self._seed_raw("AI003-EV-badjson", b"{not-json")
+        with self.assertRaises(ev.EvidenceStorageUnavailable) as ctx:
+            self.store.get("AI003-EV-badjson", correlation_id="dec-json")
+        self.assertEqual(ctx.exception.cause_type, "JSONDecodeError")
+        self.assertEqual(
+            ev.evidence_get("AI003-EV-badjson", "AI003 Gold 2026", lambda r: {}).outcome,
+            ev.ReplayOutcome.UNAVAILABLE,
+        )
+
+    def test_valid_json_wrong_structure_typed(self):
+        for ref, raw in (
+            ("AI003-EV-arr", b"[1, 2, 3]"),
+            ("AI003-EV-scalar", b"123"),
+            ("AI003-EV-noref", json.dumps({"company": "AI003 Gold 2026"}).encode()),
+            ("AI003-EV-nopayload", json.dumps(
+                {"ref": "AI003-EV-nopayload", "company": "c", "as_of_date": "2026-09-26",
+                 "signal_id": "AP_DUE_CLUSTER"}).encode()),
+            ("AI003-EV-baddate", json.dumps(
+                {"ref": "AI003-EV-baddate", "company": "c", "as_of_date": 20260926,
+                 "signal_id": "AP_DUE_CLUSTER", "payload": {}}).encode()),
+            ("AI003-EV-badsignal", json.dumps(
+                {"ref": "AI003-EV-badsignal", "company": "c", "as_of_date": "2026-09-26",
+                 "signal_id": "NOT_A_SIGNAL", "payload": {}}).encode()),
+            ("AI003-EV-badhash", json.dumps(
+                {"ref": "AI003-EV-badhash", "company": "c", "as_of_date": "2026-09-26",
+                 "signal_id": "AP_DUE_CLUSTER", "payload": {}, "payload_hash": 7}).encode()),
+        ):
+            with self.subTest(ref=ref):
+                self._seed_raw(ref, raw)
+                with self.assertRaises(ev.EvidenceStorageUnavailable):
+                    self.store.get(ref, correlation_id="dec-struct")
+                self.assertEqual(
+                    ev.evidence_get(ref, "AI003 Gold 2026", lambda r: {}).outcome,
+                    ev.ReplayOutcome.UNAVAILABLE,
+                )
+
+    def test_each_decode_failure_one_sanitized_diagnostic(self):
+        self._seed_raw(
+            "AI003-EV-legacy02",
+            pickle.dumps({self.SENSITIVE: "party-names-raw-rows"}, protocol=4),
+        )
+        logged = self._logged()
+        with self.assertRaises(ev.EvidenceStorageUnavailable):
+            self.store.get("AI003-EV-legacy02", correlation_id="corr-dec-1")
+        self.assertEqual(len(logged), 1)
+        event = logged[0]
+        self.assertEqual(event["operation"], "evidence_cache_decode")
+        self.assertEqual(event["correlation_id"], "corr-dec-1")
+        self.assertEqual(event["exception_type"], "UnicodeDecodeError")
+        # Missing/expired keys stay a clean miss (no decode diagnostic at all).
+        missing_logged = self._logged()
+        self.assertIsNone(self.store.get("AI003-EV-never-stored"))
+        self.assertEqual(len(missing_logged), 0)
+
+    def test_diagnostics_never_contain_content_or_message(self):
+        for ref, raw in (
+            ("AI003-EV-p", pickle.dumps({self.SENSITIVE: "x"}, protocol=4)),
+            ("AI003-EV-u", b"\xff\xfe" + self.SENSITIVE.encode("utf-16")),
+            ("AI003-EV-j", b"{oops:" + self.SENSITIVE.encode()[:5] + b"}"),
+        ):
+            self._seed_raw(ref, raw)
+            logged = self._logged()
+            with self.assertRaises(ev.EvidenceStorageUnavailable):
+                self.store.get(ref, correlation_id="corr-dec-2")
+            serialized = json.dumps(logged, default=str)
+            self.assertNotIn("SENSITIVE", serialized)
+            self.assertNotIn("party-names", serialized)
+            self.assertNotIn("pickle", serialized)
 
 
 class ServiceDiagnosticsTests(unittest.TestCase):

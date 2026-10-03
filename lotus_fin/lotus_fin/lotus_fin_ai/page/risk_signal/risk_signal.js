@@ -24,6 +24,11 @@ lotus_fin.risk_signal.Controller = class Controller {
 		this.page = wrapper.page;
 		this.current_company = null;
 		this.in_flight = false;
+		// Stale-response guard: every evaluation carries a sequence token; any
+		// input change invalidates the outstanding token so a delayed response
+		// can never render for inputs the user has already replaced.
+		this.request_seq = 0;
+		this.in_flight_request = null;
 		this.init();
 	}
 
@@ -54,8 +59,7 @@ lotus_fin.risk_signal.Controller = class Controller {
 				frappe.defaults.get_user_default("Company") ||
 				frappe.defaults.get_global_default("company"),
 			change() {
-				me.current_company = null;
-				me.clear_result(__("Company changed — the previous result was cleared."));
+				me.invalidate_requests(__("Company changed — the previous result was cleared."));
 			}
 		});
 
@@ -75,8 +79,7 @@ lotus_fin.risk_signal.Controller = class Controller {
 			],
 			default: "AR_OVERDUE_SPIKE",
 			change() {
-				me.current_company = null;
-				me.clear_result(__("Signal changed — the previous result was cleared."));
+				me.invalidate_requests(__("Signal changed — the previous result was cleared."));
 			}
 		});
 
@@ -86,8 +89,7 @@ lotus_fin.risk_signal.Controller = class Controller {
 			fieldtype: "Date",
 			default: frappe.datetime.get_today(),
 			change() {
-				me.current_company = null;
-				me.clear_result(__("Date changed — the previous result was cleared."));
+				me.invalidate_requests(__("Date changed — the previous result was cleared."));
 			}
 		});
 
@@ -186,6 +188,23 @@ lotus_fin.risk_signal.Controller = class Controller {
 		}
 	}
 
+	// ---------- stale-response invalidation ----------
+	invalidate_requests(message) {
+		// Any relevant input change invalidates the outstanding request: its
+		// delayed success/error response must never render for inputs the
+		// user has already replaced, and the primary action must not stay
+		// stuck in the in-flight state.
+		this.current_company = null;
+		const had_in_flight = this.in_flight_request !== null;
+		this.in_flight_request = null;
+		if (had_in_flight) {
+			this.in_flight = false;
+			this.restore_primary_action();
+			this.set_state(null); // drop the loading panel of the dead request
+		}
+		this.clear_result(message);
+	}
+
 	// ---------- reason copy ----------
 	reason_text(code) {
 		const map = {
@@ -232,7 +251,7 @@ lotus_fin.risk_signal.Controller = class Controller {
 	// ---------- evaluation ----------
 	evaluate() {
 		const me = this;
-		if (this.in_flight) return; // no double-submit
+		if (this.in_flight) return; // no double-submit of the current request
 		const company = this.company_field.get_value() || this.last_typed_company || (this.company_field.$input && this.company_field.$input.val());
 		const signal_id = this.signal_field.get_value();
 		const as_of_date = this.as_of_field.get_value() || (this.as_of_field.$input && this.as_of_field.$input.val());
@@ -245,6 +264,8 @@ lotus_fin.risk_signal.Controller = class Controller {
 			return;
 		}
 		this.current_company = company;
+		const seq = ++this.request_seq;
+		this.in_flight_request = seq;
 		this.in_flight = true;
 		this.page.set_primary_action(__("Evaluating…"), function () {}, "octicon octicon-sync");
 		this.show_loading();
@@ -260,12 +281,16 @@ lotus_fin.risk_signal.Controller = class Controller {
 			type: "POST"
 		})
 			.then(function (r) {
+				if (me.in_flight_request !== seq) return; // stale response — discard
 				me.in_flight = false;
+				me.in_flight_request = null;
 				me.restore_primary_action();
 				me.render_result(r.message || r);
 			})
 			.fail(function () {
+				if (me.in_flight_request !== seq) return; // stale error — discard
 				me.in_flight = false;
+				me.in_flight_request = null;
 				me.restore_primary_action();
 				me.render_transport_error();
 			});

@@ -34,6 +34,65 @@ def record(name, ok, detail=""):
     print(("PASS" if ok else "FAIL"), name, detail)
 
 
+def hold_first_get_risk_signal(page, held, abort_on_release=False):
+    """Hold the FIRST get_risk_signal POST at the browser (it is not sent
+    until released) — later requests pass through untouched, including after
+    the release (single-shot armed flag; the harness must never re-arm and
+    swallow a subsequent evaluation). On release the held request continues to
+    the real server, so every financial result the UI sees is the server's
+    real response; only the delivery ORDER is controlled.
+    abort_on_release=True instead aborts the held request to produce a real
+    transport error at release time."""
+    held["armed"] = True
+    held["abort_on_release"] = abort_on_release
+
+    def handler(route):
+        if held.get("armed"):
+            held["armed"] = False
+            held["route"] = route
+        else:
+            route.continue_()
+    page.route("**/api/method/lotus_fin.api.ai_insights.get_risk_signal", handler)
+
+
+def release_held(held):
+    route = held.pop("route", None)
+    if route is None:
+        return
+    if held.pop("abort_on_release", False):
+        route.abort("connectionreset")
+    else:
+        route.continue_()
+
+
+def set_date(page, value):
+    page.fill("input[data-fieldname='as_of_date']", value)
+    page.locator("input[data-fieldname='as_of_date']").evaluate(
+        "el => el.dispatchEvent(new Event('change'))"
+    )
+
+
+def controller_state(page):
+    try:
+        return page.evaluate(
+            "() => { const c = cur_page.page.controller; return {in_flight: c.in_flight,"
+            " seq: c.request_seq, inflight_req: c.in_flight_request}; }"
+        )
+    except Exception:
+        return None
+
+
+def wait_result_or_fail_with_diag(page, label, timeout=60000):
+    try:
+        page.wait_for_selector(".rs-result .rs-panel", timeout=timeout)
+    except Exception:
+        print(f"DIAG[{label}]:", controller_state(page),
+              "| state:", page.locator(".rs-state").inner_text()[:120].replace("\n", " | "),
+              "| result:", page.locator(".rs-result").inner_text()[:120].replace("\n", " | "))
+        page.screenshot(path=os.path.join(SHOTS, "rs_failure_diag.png"), full_page=True)
+        raise
+
+
 def run():
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True, slow_mo=60)
@@ -154,23 +213,116 @@ def run():
         record("permission_denial_safe", "FORBIDDEN" in denial or "Access" in denial or "denied" in denial.lower(),
                denial[:80].replace("\n", " | "))
 
-        # --- rapid change: last selection wins ---
+        # --- rapid change: real in-flight request + input change: last request wins ---
+        # Request A (AP, 2026-09-26 -> BENIGN 33.33%) is held server-side;
+        # the user changes the date (invalidates A), evaluates B (2026-09-27
+        # -> WATCH 50.00%), and only then is A's real response delivered.
+        # B's result must persist; A must never render.
+        page.locator("select[data-fieldname='signal_id']").select_option("AP_DUE_CLUSTER")
+        page.fill("input[data-fieldname='company']", "AI003 MG AP")
+        page.keyboard.press("Escape")
+        set_date(page, "2026-09-26")
+        held_a = {}
+        hold_first_get_risk_signal(page, held_a)
+        page.locator(".page-head .primary-action").click()
+        page.wait_for_selector(".rs-state:has-text('Evaluating')", timeout=15000)
+        set_date(page, "2026-09-27")  # invalidates A while it is truly in flight
+        page.wait_for_timeout(300)
+        record("rapid_inflight_invalidated_not_stuck",
+               "Evaluating" not in page.locator(".rs-state").inner_text()
+               and "Evaluate Signal" in page.locator(".page-head .primary-action").inner_text())
+        page.locator(".page-head .primary-action").click()  # request B allowed after invalidation
+        page.wait_for_selector(".rs-result .rs-panel", timeout=60000)
+        release_held(held_a)  # A's real success response arrives AFTER B rendered
+        page.wait_for_timeout(700)
+        final_rapid = page.locator(".rs-result").inner_text()
+        record("rapid_change_last_wins",
+               "WATCH" in final_rapid and "50.00%" in final_rapid
+               and "33.33%" not in final_rapid and "BENIGN" not in final_rapid,
+               final_rapid[:100].replace("\n", " | "))
+        page.unroute("**/api/method/lotus_fin.api.ai_insights.get_risk_signal")
+
+        # --- stale delayed SUCCESS discarded after date change ---
         page.locator("select[data-fieldname='signal_id']").select_option("AR_OVERDUE_SPIKE")
         page.fill("input[data-fieldname='company']", "AI003 MG AR")
         page.keyboard.press("Escape")
-        page.fill("input[data-fieldname='as_of_date']", "2026-09-26")
+        set_date(page, "2026-09-26")
+        held_b = {}
+        hold_first_get_risk_signal(page, held_b)
+        page.locator(".page-head .primary-action").click()
+        page.wait_for_selector(".rs-state:has-text('Evaluating')", timeout=15000)
+        set_date(page, "2026-09-27")
+        page.wait_for_timeout(300)
+        release_held(held_b)  # real HIGH/72.73 response for 09-26 arrives late
+        page.wait_for_timeout(700)
+        after_stale = page.locator(".rs-result").inner_text()
+        record("stale_success_discarded_after_date_change",
+               page.locator(".rs-result .rs-panel").count() == 0
+               and "cleared" in after_stale.lower() and "72.73" not in after_stale,
+               after_stale[:80].replace("\n", " | "))
+        # User can still evaluate the new inputs after invalidation.
+        page.locator(".page-head .primary-action").click()
+        wait_result_or_fail_with_diag(page, "evaluate_new_inputs_after_invalidation")
+        new_date_res = page.locator(".rs-result").inner_text()
+        record("evaluate_new_inputs_after_invalidation",
+               "2026-09-27" in new_date_res, new_date_res[:90].replace("\n", " | "))
+        page.unroute("**/api/method/lotus_fin.api.ai_insights.get_risk_signal")
+
+        # --- stale delayed SUCCESS discarded after signal change ---
+        page.locator("select[data-fieldname='signal_id']").select_option("AP_DUE_CLUSTER")
+        page.wait_for_timeout(300)
+        held_c = {}
+        hold_first_get_risk_signal(page, held_c)
+        page.locator(".page-head .primary-action").click()
+        page.wait_for_selector(".rs-state:has-text('Evaluating')", timeout=15000)
+        page.locator("select[data-fieldname='signal_id']").select_option("AR_OVERDUE_SPIKE")
+        page.wait_for_timeout(300)
+        release_held(held_c)  # AP success arrives after signal switched to AR
+        page.wait_for_timeout(700)
+        after_sig = page.locator(".rs-result").inner_text()
+        record("stale_success_discarded_after_signal_change",
+               page.locator(".rs-result .rs-panel").count() == 0
+               and "cleared" in after_sig.lower(),
+               after_sig[:80].replace("\n", " | "))
+        page.fill("input[data-fieldname='company']", "AI003 MG AR")
         page.keyboard.press("Escape")
         page.locator(".page-head .primary-action").click()
-        page.wait_for_selector(".rs-result .rs-panel", timeout=60000)
-        rapid = page.locator(".rs-result").inner_text()
-        record("rapid_change_last_wins", "AR Overdue Spike" in rapid and "HIGH" in rapid,
-               rapid[:80].replace("\n", " | "))
+        wait_result_or_fail_with_diag(page, "evaluate_after_signal_invalidation")
+        sig_res = page.locator(".rs-result").inner_text()
+        record("evaluate_after_signal_invalidation",
+               "AR Overdue Spike" in sig_res, sig_res[:90].replace("\n", " | "))
+        page.unroute("**/api/method/lotus_fin.api.ai_insights.get_risk_signal")
 
-        # --- keyboard flow: primary button reachable via Tab and Enter ---
+        # --- stale delayed TRANSPORT ERROR discarded after input change ---
+        page.fill("input[data-fieldname='company']", "AI003 MG AP")
+        page.keyboard.press("Escape")
+        set_date(page, "2026-09-26")
+        page.locator("select[data-fieldname='signal_id']").select_option("AP_DUE_CLUSTER")
+        held_d = {}
+        hold_first_get_risk_signal(page, held_d, abort_on_release=True)
+        page.locator(".page-head .primary-action").click()
+        page.wait_for_selector(".rs-state:has-text('Evaluating')", timeout=15000)
+        set_date(page, "2026-09-27")
+        page.wait_for_timeout(300)
+        release_held(held_d)  # real transport error for the dead request
+        page.wait_for_timeout(900)
+        after_err = page.locator(".rs-result").inner_text()
+        record("stale_transport_error_discarded_after_change",
+               page.locator(".rs-result .rs-panel").count() == 0
+               and "cleared" in after_err.lower() and "Request failed" not in after_err,
+               after_err[:80].replace("\n", " | "))
+        page.locator(".page-head .primary-action").click()
+        wait_result_or_fail_with_diag(page, "evaluate_after_transport_error_invalidation")
+        page.unroute("**/api/method/lotus_fin.api.ai_insights.get_risk_signal")
+
+        # --- keyboard flow: Enter on primary action performs a REAL evaluation ---
+        set_date(page, "2026-09-26")
         page.locator(".page-head .primary-action").focus()
         page.keyboard.press("Enter")
-        page.wait_for_timeout(1500)
-        record("keyboard_primary_action", True)
+        wait_result_or_fail_with_diag(page, "keyboard_primary_action")
+        kb = page.locator(".rs-result").inner_text()
+        record("keyboard_primary_action",
+               "Evaluation completed" in kb and "33.33%" in kb, kb[:90].replace("\n", " | "))
 
         video_path = page.video.path()
         context.close()  # flush desktop video
