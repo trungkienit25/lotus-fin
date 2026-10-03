@@ -291,8 +291,9 @@ service+security 32) on host and in-container, order-independent (each suite
 injects its explicit hermetic store); in-container targeted verification set
 (298 AI003 + foundation + AI001/AI002 regression tests);
 live API smoke probe with METHOD GOLD number assertions; Playwright E2E suite
-(22/22 PASS on live verification site, incl. real held-request stale-response
-scenarios, video tests_e2e/videos/ai003_risk_signal_e2e.webm);
+(34/34 PASS on live verification site, incl. real held-request stale-response
+scenarios for BOTH committed changes and DRAFT company/date edits without
+blur/commit, video tests_e2e/videos/ai003_risk_signal_e2e.webm);
 cross-worker evidence consistency acceptance (20/20 MATCH); live HTTP
 permission revoke/regrant verification (state-preserving harness: per-run
 unique user, pre-state snapshot, conflict abort before any mutation, cleanup of
@@ -316,7 +317,7 @@ METHOD/POLICY GOLD live evidence and live HTTP tests).
 | Live API smoke (verify site, real boundaries, gold numbers) | PASS 7/7 | evidence/ai003_smoke_results_2026-10-03.json (re-run on final fix-4 image; earlier artifacts kept as historical) |
 | METHOD GOLD (oracle equivalence) | PASS 66/66 (pre-build evidence, reused) | AI003_METHOD_GOLD_MANIFEST.yaml |
 | POLICY GOLD | PASS 17/17 + 4 proved N/A | AI003_POLICY_GOLD_EVIDENCE.md |
-| Playwright E2E (live) | PASS 22/22 | `python -u tests_e2e/test_risk_signal_workspace.py` on `ai003-verify.localhost:8080` (fix-4 round: 4 real held-request stale-response scenarios + real-assertion keyboard test; video + screenshots) |
+| Playwright E2E (live) | PASS 34/34 | `python -u tests_e2e/test_risk_signal_workspace.py` on `ai003-verify.localhost:8080` (draft-input addendum: DRAFT company/date edits without blur discard stale success AND transport-error responses, A-B-A, empty-input no-resurrection, loading/action never stuck; committed-change and keyboard scenarios re-verified; video + screenshots) |
 | Cross-worker evidence acceptance | PASS 20/20 | 20 sequential HTTP replays across multi-worker Gunicorn (2 workers): 20/20 MATCH, 0 false FORBIDDEN; cross-company and unknown ref → FORBIDDEN (re-run 2026-10-03) |
 | Live HTTP report permission revoke/regrant | PASS 4/4 (state-preserving harness) | `tests_e2e/test_security_revoke_regrant.py`: MATCH → revoke → FORBIDDEN (null) → restore → MATCH; per-run unique user; conflict aborts before any mutation (verified with seeded foreign role); pre-existing AP Custom Roles before == after |
 | Installed-Frappe raw Redis fault probe | PASS 5/5 | `tests_e2e/test_raw_redis_fault_probe.py`: live cache-client raw commands fault-injected (evidence keys only) — GET ConnectionError/TimeoutError → endpoint UNAVAILABLE (null); SETEX/DELETE → typed; healthy MATCH after unpatch |
@@ -356,16 +357,21 @@ METHOD/POLICY GOLD live evidence and live HTTP tests).
    degraded to UNAVAILABLE more often than strictly necessary (fail-closed).
 6. No persistent signal history; no scheduler; single-site verification
    runtime only.
-7. **Stale-response UI defect (REMEDIATED in the fix-4 round)** — the
-   independent reviewer's finding (delayed response rendered for inputs the
-   user had already changed) is fixed: request-sequence tokens invalidate
-   outstanding requests on any company/signal/date change; stale success AND
-   stale transport-error responses are discarded; the primary action never
-   stays stuck in "Evaluating…"; leaked `_server_messages` (blocking modal on
-   top of the typed FORBIDDEN envelope) are cleared server-side. Verified by
-   live E2E with real held-request delivery control (22/22, incl. 4 stale
-   scenarios + real-assertion keyboard test). Independent re-verification is
-   still pending — G4B closure is not declared by the builder.
+7. **Stale-response UI defect (REMEDIATED across fix-4 + draft-input
+   addendum)** — the independent reviewer's finding (delayed response rendered
+   for inputs the user had already changed) is fixed for BOTH committed
+   changes and DRAFT company/date edits (no blur/commit): request-sequence
+   tokens invalidate outstanding requests on committed changes, signal
+   selection AND raw draft `input` edits (delegated bindings survive
+   frappe's datepicker element replacement); stale success AND stale
+   transport-error responses are discarded; the evaluate chain treats the
+   visible draft as the source of truth (an emptied field can never be
+   resurrected from buffers); the primary action never stays stuck in
+   "Evaluating…"; leaked `_server_messages` (blocking modal on top of the
+   typed FORBIDDEN envelope) are cleared server-side. Verified by live E2E
+   with real held-request delivery control (34/34). Independent
+   re-verification is still pending — G4B closure is not declared by the
+   builder, and this is builder-tested behavior, not an exhaustive claim.
 8. **Redis failure-mode distinctions** are: healthy (resolve), missing/expired
    key (clean miss → generic FORBIDDEN), outage/timeout (typed
    `EvidenceStorageUnavailable` → replay UNAVAILABLE; store emits no ref).
@@ -390,7 +396,8 @@ with exact Windows commands and named shell per step.
 | 2026-10-02 | Audit round 1 fixes (4 HIGH + quick wins) | b4eba4d |
 | 2026-10-02 | G4B remediation pass: shared Redis evidence store, structured diagnostics, Playwright E2E with video | 117d7e5 |
 | 2026-10-03 | G4B targeted remediation: raw-Redis evidence boundary (typed failures, no local fallback, site-namespaced keys, correlation-id diagnostics), configurator image fix (durable apps.txt registry), hardened revoke/regrant harness, TTL-expiry HTTP probe, docs alignment | 27fe965 (parent 117d7e5) |
-| 2026-10-03 | Fix-4 round: legacy/corrupt evidence decode typed boundary (no pickle.loads), state-preserving security harness (per-run user, abort-on-conflict, run-only cleanup), isolated-key TTL probe, stale-response UI invalidation + leaked server-message cleanup, real-assertion E2E race scenarios | this round (SHA recorded in the fix-4 report; parent 27fe965) |
+| 2026-10-03 | Fix-4 round: legacy/corrupt evidence decode typed boundary (no pickle.loads), state-preserving security harness (per-run user, abort-on-conflict, run-only cleanup), isolated-key TTL probe, stale-response UI invalidation + leaked server-message cleanup, real-assertion E2E race scenarios | bda0a23 (parent 27fe965) |
+| 2026-10-03 | Draft-input addendum: DRAFT company/date edits (no blur/commit) invalidate outstanding requests via delegated `input` bindings; visible-draft evaluate chain (empty field authoritative); stale success/error discarded for drafts; E2E 34/34 | this round (parent bda0a23) |
 
 ## 24. Competition Evidence Mapping
 

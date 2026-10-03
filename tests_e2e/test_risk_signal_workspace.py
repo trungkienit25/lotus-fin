@@ -82,6 +82,40 @@ def controller_state(page):
         return None
 
 
+def arm_change_sentinel(page, fieldname):
+    """Flag any `change` event on the field so a test can PROVE the discard
+    path fired from draft `input` edits alone (no blur/commit)."""
+    page.evaluate(
+        """(fieldname) => {
+            const el = document.querySelector("input[data-fieldname='" + fieldname + "']");
+            window.__rs_change_fired = false;
+            el.addEventListener('change', () => { window.__rs_change_fired = true; }, {once: true});
+        }""",
+        fieldname,
+    )
+
+
+def change_sentinel_fired(page):
+    return page.evaluate("() => window.__rs_change_fired === true")
+
+
+def focused_fieldname(page):
+    return page.evaluate(
+        "() => { const a = document.activeElement;"
+        " return a && a.dataset ? (a.dataset.fieldname || null) : null; }"
+    )
+
+
+def draft_edit_text(page, fieldname, text):
+    """Focus the field and REPLACE its text via real keystrokes (input events,
+    focus stays in the field, no blur, no change event, no programmatic
+    set_value)."""
+    locator = page.locator(f"input[data-fieldname='{fieldname}']")
+    locator.click()
+    page.keyboard.press("Control+a")
+    page.keyboard.type(text)
+
+
 def wait_result_or_fail_with_diag(page, label, timeout=60000):
     try:
         page.wait_for_selector(".rs-result .rs-panel", timeout=timeout)
@@ -204,14 +238,27 @@ def run():
         record("inconclusive_distinct", ok_inc, inconc[:110].replace("\n", " | "))
         page.screenshot(path=os.path.join(SHOTS, "rs_04_inconclusive_multi.png"), full_page=True)
 
-        # --- safe denial / FORBIDDEN ---
+        # --- invalid company typed: fail-closed UI (no fabricated/stale result) ---
+        # A nonexistent company cannot survive the button-click blur: frappe's
+        # link field reverts the visible text to the committed value and fires
+        # a programmatic `change`, which invalidates the in-flight request.
+        # The typed envelope must then NEVER render for the now-empty visible
+        # input — the UI fails closed (cleared note; a further click yields
+        # "Select a company"). The FORBIDDEN wire for an unknown company is
+        # proven at API level by the smoke probe (UNKNOWN_COMPANY_FORBIDDEN).
         page.fill("input[data-fieldname='company']", "Unauthorized Corp")
-        page.keyboard.press("Escape")
         page.locator(".page-head .primary-action").click()
-        page.wait_for_selector(".rs-result .rs-panel", timeout=60000)
-        denial = page.locator(".rs-result").inner_text()
-        record("permission_denial_safe", "FORBIDDEN" in denial or "Access" in denial or "denied" in denial.lower(),
-               denial[:80].replace("\n", " | "))
+        page.wait_for_timeout(2500)
+        invalid_res = page.locator(".rs-result").inner_text()
+        record("invalid_company_typed_fails_closed",
+               page.locator(".rs-result .rs-panel").count() == 0
+               and "cleared" in invalid_res.lower(),
+               invalid_res[:80].replace("\n", " | "))
+        page.locator(".page-head .primary-action").click()
+        page.wait_for_timeout(400)
+        post_clear = page.locator(".rs-result").inner_text()
+        record("invalid_company_then_empty_validation",
+               "Select a company" in post_clear, post_clear[:60].replace("\n", " | "))
 
         # --- rapid change: real in-flight request + input change: last request wins ---
         # Request A (AP, 2026-09-26 -> BENIGN 33.33%) is held server-side;
@@ -315,7 +362,152 @@ def run():
         wait_result_or_fail_with_diag(page, "evaluate_after_transport_error_invalidation")
         page.unroute("**/api/method/lotus_fin.api.ai_insights.get_risk_signal")
 
+        # ============ draft-input stale response (no blur / no change) ============
+        # The blocker: company/date DRAFT edits only updated a shadow buffer /
+        # waited for `change`; a delayed response could render a financial
+        # result for a company the user had already replaced in the visible
+        # input. Draft `input` edits must invalidate the outstanding request
+        # immediately. Sentinel flags prove no `change` event is involved.
+
+        # --- 1. company draft edit, no blur: old SUCCESS discarded ---
+        page.locator("select[data-fieldname='signal_id']").select_option("AP_DUE_CLUSTER")
+        page.fill("input[data-fieldname='company']", "AI003 MG AP")
+        page.keyboard.press("Escape")
+        set_date(page, "2026-09-26")
+        held_e1 = {}
+        hold_first_get_risk_signal(page, held_e1)
+        page.locator(".page-head .primary-action").click()
+        page.wait_for_selector(".rs-state:has-text('Evaluating')", timeout=15000)
+        arm_change_sentinel(page, "company")
+        draft_edit_text(page, "company", "AI003 MG AR")  # draft edit, focus stays, no change
+        page.wait_for_timeout(300)
+        record("draft_company_focus_kept_and_no_change",
+               focused_fieldname(page) == "company" and not change_sentinel_fired(page))
+        release_held(held_e1)  # old real success response delivered late
+        page.wait_for_timeout(900)
+        after_draft1 = page.locator(".rs-result").inner_text()
+        record("draft_company_success_discarded",
+               page.locator(".rs-result .rs-panel").count() == 0
+               and "cleared" in after_draft1.lower() and "33.33%" not in after_draft1,
+               after_draft1[:80].replace("\n", " | "))
+        page.unroute("**/api/method/lotus_fin.api.ai_insights.get_risk_signal")
+
+        # --- 9. loading/primary action not stuck after draft invalidation ---
+        record("draft_invalidation_loading_action_not_stuck",
+               "Evaluating" not in page.locator(".rs-state").inner_text()
+               and "Evaluate Signal" in page.locator(".page-head .primary-action").inner_text())
+
+        # --- 6. after draft invalidation, commit valid inputs and evaluate ---
+        page.fill("input[data-fieldname='company']", "AI003 MG AP")
+        page.keyboard.press("Escape")
+        set_date(page, "2026-09-26")
+        page.locator(".page-head .primary-action").click()
+        wait_result_or_fail_with_diag(page, "new_eval_after_draft_invalidation")
+        new_res = page.locator(".rs-result").inner_text()
+        record("new_eval_after_draft_invalidation",
+               "Evaluation completed" in new_res and "33.33%" in new_res,
+               new_res[:90].replace("\n", " | "))
+
+        # --- 2. company draft edit, no blur: old TRANSPORT ERROR discarded ---
+        set_date(page, "2026-09-26")
+        held_e2 = {}
+        hold_first_get_risk_signal(page, held_e2, abort_on_release=True)
+        page.locator(".page-head .primary-action").click()
+        page.wait_for_selector(".rs-state:has-text('Evaluating')", timeout=15000)
+        arm_change_sentinel(page, "company")
+        draft_edit_text(page, "company", "AI003 MG AP")  # draft edit only
+        page.wait_for_timeout(300)
+        release_held(held_e2)  # old transport error fires for the dead request
+        page.wait_for_timeout(900)
+        after_draft2 = page.locator(".rs-result").inner_text()
+        record("draft_company_error_discarded",
+               page.locator(".rs-result .rs-panel").count() == 0
+               and "Request failed" not in after_draft2,
+               after_draft2[:80].replace("\n", " | "))
+        page.unroute("**/api/method/lotus_fin.api.ai_insights.get_risk_signal")
+
+        # --- 3. date draft edit, no blur: old SUCCESS discarded ---
+        page.fill("input[data-fieldname='company']", "AI003 MG AP")
+        page.keyboard.press("Escape")
+        set_date(page, "2026-09-26")
+        held_e3 = {}
+        hold_first_get_risk_signal(page, held_e3)
+        page.locator(".page-head .primary-action").click()
+        page.wait_for_selector(".rs-state:has-text('Evaluating')", timeout=15000)
+        arm_change_sentinel(page, "as_of_date")
+        draft_edit_text(page, "as_of_date", "2026-09-267")  # append a digit via keystrokes
+        page.wait_for_timeout(300)
+        record("draft_date_focus_kept_and_no_change",
+               focused_fieldname(page) == "as_of_date" and not change_sentinel_fired(page))
+        release_held(held_e3)
+        page.wait_for_timeout(900)
+        after_draft3 = page.locator(".rs-result").inner_text()
+        record("draft_date_success_discarded",
+               page.locator(".rs-result .rs-panel").count() == 0
+               and "cleared" in after_draft3.lower() and "33.33%" not in after_draft3,
+               after_draft3[:80].replace("\n", " | "))
+        page.unroute("**/api/method/lotus_fin.api.ai_insights.get_risk_signal")
+
+        # --- 4. date draft edit, no blur: old TRANSPORT ERROR discarded ---
+        held_e4 = {}
+        hold_first_get_risk_signal(page, held_e4, abort_on_release=True)
+        page.locator(".page-head .primary-action").click()
+        page.wait_for_selector(".rs-state:has-text('Evaluating')", timeout=15000)
+        arm_change_sentinel(page, "as_of_date")
+        draft_edit_text(page, "as_of_date", "2026-09-26")
+        page.wait_for_timeout(300)
+        release_held(held_e4)
+        page.wait_for_timeout(900)
+        after_draft4 = page.locator(".rs-result").inner_text()
+        record("draft_date_error_discarded",
+               page.locator(".rs-result .rs-panel").count() == 0
+               and "Request failed" not in after_draft4,
+               after_draft4[:80].replace("\n", " | "))
+        page.unroute("**/api/method/lotus_fin.api.ai_insights.get_risk_signal")
+
+        # --- 5. A -> draft B -> draft A: old request still discarded ---
+        held_e5 = {}
+        hold_first_get_risk_signal(page, held_e5)
+        page.locator(".page-head .primary-action").click()
+        page.wait_for_selector(".rs-state:has-text('Evaluating')", timeout=15000)
+        arm_change_sentinel(page, "company")
+        draft_edit_text(page, "company", "AI003 MG AR")   # draft B
+        draft_edit_text(page, "company", "AI003 MG AP")   # draft A again
+        page.wait_for_timeout(300)
+        release_held(held_e5)
+        page.wait_for_timeout(900)
+        after_aba = page.locator(".rs-result").inner_text()
+        record("draft_aba_old_request_still_discarded",
+               page.locator(".rs-result .rs-panel").count() == 0
+               and "cleared" in after_aba.lower() and not change_sentinel_fired(page),
+               after_aba[:80].replace("\n", " | "))
+        page.unroute("**/api/method/lotus_fin.api.ai_insights.get_risk_signal")
+
+        # --- 8. clear company while in flight: no old result, no buffer resurrection ---
+        held_e8 = {}
+        hold_first_get_risk_signal(page, held_e8)
+        page.locator(".page-head .primary-action").click()
+        page.wait_for_selector(".rs-state:has-text('Evaluating')", timeout=15000)
+        page.fill("input[data-fieldname='company']", "")  # emptied draft (input fires, no blur)
+        page.wait_for_timeout(300)
+        release_held(held_e8)
+        page.wait_for_timeout(900)
+        after_clear = page.locator(".rs-result").inner_text()
+        record("clear_company_while_inflight_no_old_result",
+               page.locator(".rs-result .rs-panel").count() == 0
+               and "cleared" in after_clear.lower() and "33.33%" not in after_clear,
+               after_clear[:80].replace("\n", " | "))
+        page.unroute("**/api/method/lotus_fin.api.ai_insights.get_risk_signal")
+        # Emptied draft must not resurrect the old company from the buffer.
+        page.locator(".page-head .primary-action").click()
+        page.wait_for_timeout(400)
+        empty_val = page.locator(".rs-result").inner_text()
+        record("empty_input_no_buffer_resurrection",
+               "Select a company" in empty_val, empty_val[:60].replace("\n", " | "))
+
         # --- keyboard flow: Enter on primary action performs a REAL evaluation ---
+        page.fill("input[data-fieldname='company']", "AI003 MG AP")
+        page.keyboard.press("Escape")
         set_date(page, "2026-09-26")
         page.locator(".page-head .primary-action").focus()
         page.keyboard.press("Enter")

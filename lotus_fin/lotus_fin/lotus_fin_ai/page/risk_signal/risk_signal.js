@@ -63,11 +63,28 @@ lotus_fin.risk_signal.Controller = class Controller {
 			}
 		});
 
+		// Draft-edit invalidation is bound by EVENT DELEGATION on the stable
+		// page wrapper: frappe's Date control replaces its <input> element
+		// when the datepicker initializes, so a direct binding on
+		// `field.$input` would end up orphaned. Delegated draft `input`
+		// handlers invalidate the outstanding request IMMEDIATELY — before
+		// blur/commit — so a delayed response can never render a financial
+		// result for inputs the user has already replaced in the visible
+		// fields. No server call, no re-dispatched events, no field reset;
+		// the committed `change` path stays in charge of committed and
+		// programmatic transitions.
 		if (this.company_field && this.company_field.$input) {
-			this.company_field.$input.on("input", function () {
-				me.last_typed_company = $(this).val();
+			$(this.wrapper).on("input", "input[data-fieldname='company']", function () {
+				const typed = $(this).val();
+				// An emptied draft must not let the shadow buffer resurrect
+				// the previous company identity on a later evaluate click.
+				me.last_typed_company = typed || "";
+				me.invalidate_requests(__("Company changed — the previous result was cleared."));
 			});
 		}
+		$(this.wrapper).on("input", "input[data-fieldname='as_of_date']", function () {
+			me.invalidate_requests(__("Date changed — the previous result was cleared."));
+		});
 
 		this.signal_field = this.page.add_field({
 			fieldname: "signal_id",
@@ -252,9 +269,18 @@ lotus_fin.risk_signal.Controller = class Controller {
 	evaluate() {
 		const me = this;
 		if (this.in_flight) return; // no double-submit of the current request
-		const company = this.company_field.get_value() || this.last_typed_company || (this.company_field.$input && this.company_field.$input.val());
+		// Visible draft text is the source of truth (what the user SEES is
+		// what gets evaluated). An EMPTIED visible draft stays empty — the
+		// committed model value and the typed-company buffer must never
+		// resurrect a company/date the user has visibly cleared. No
+		// normalization — raw draft text goes to the typed boundary and
+		// fails closed there if invalid.
+		const company_input = this.company_field.$input ? this.company_field.$input.val() : null;
+		const company = company_input
+			|| (company_input === "" ? "" : (this.company_field.get_value() || this.last_typed_company));
 		const signal_id = this.signal_field.get_value();
-		const as_of_date = this.as_of_field.get_value() || (this.as_of_field.$input && this.as_of_field.$input.val());
+		const date_input = this.as_of_field.$input ? this.as_of_field.$input.val() : null;
+		const as_of_date = date_input || (date_input === "" ? "" : this.as_of_field.get_value());
 		if (!company) {
 			this.clear_result(__("Select a company to evaluate."));
 			return;

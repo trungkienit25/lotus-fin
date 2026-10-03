@@ -116,3 +116,81 @@ sha256:4eeb7dd024de1645099f74940742b4b6c6eccccc51d1438988d2d6e7c6080cc2)
    production TTL pinned by unit test).
 5. Historical artifacts from earlier rounds are preserved under their own
    dates; they are not current verification.
+
+---
+
+# ADDENDUM (2026-10-03, round 3) — Draft-input stale response (bounded remediation)
+
+Baseline independently reviewed: `bda0a235a61ff322f09bbf7caec4edd8e1b1a783`.
+Authorized scope: ONLY the residual stale-response case where the user edits
+company/date as DRAFT text (no blur, no commit) — the live reproduction:
+request A (AI003 MG AP / AP_DUE_CLUSTER / 2026-09-26) in flight, user types
+"AI003 MG AR" into the company field without blurring, A's real response then
+renders BENIGN for AP while the visible company reads AI003 MG AR.
+
+## Root cause
+
+The company `input` handler only updated a shadow buffer (`last_typed_company`);
+request invalidation ran exclusively through the committed `change` event. Two
+further gaps surfaced during the fix, both the same defect class:
+1. frappe's Date control REPLACES its `<input>` element when the datepicker
+   initializes — a direct jQuery binding on `field.$input` ended up orphaned,
+   so date draft edits never invalidated anything;
+2. `evaluate()` read the COMMITTED model value first, so an evaluate click
+   could send a company the user had visibly replaced (or, worse, a company
+   resurrected from the shadow buffer after the user had emptied the field).
+
+## Fix (`lotus_fin/lotus_fin/lotus_fin_ai/page/risk_signal/risk_signal.js` only)
+
+- Draft company/date `input` edits invalidate the outstanding request
+  IMMEDIATELY via the existing `invalidate_requests()`/sequence-token
+  mechanism — no new state machine, no server call, no re-dispatched events,
+  no field reset, no auto-evaluate. Handlers are bound by jQuery EVENT
+  DELEGATION on the stable page wrapper (survives frappe's datepicker element
+  replacement). Committed `change` handling is kept for committed/programmatic
+  transitions and signal selection.
+- `evaluate()` now treats the VISIBLE draft text as the source of truth; an
+  EMPTIED visible draft stays empty (the committed model value and the shadow
+  buffer can never resurrect a company/date the user visibly cleared).
+- Stale success AND stale transport-error responses are discarded by the
+  existing token check; the primary action/loading never stay stuck; A →
+  draft B → draft A cannot resurrect the old request.
+
+## Verification (final image sha256:ed6e02f587eb450a0882ecb4b6fbb259d1a1f27f549e1cc4bbe21a660b3017b7)
+
+| Check | Result |
+|---|---|
+| Live E2E (real backend responses; route hold/continue/abort controls delivery ORDER only) | PASS 34/34 — new: draft_company_success_discarded, draft_company_error_discarded, draft_date_success_discarded, draft_date_error_discarded, draft_aba_old_request_still_discarded, new_eval_after_draft_invalidation, clear_company_while_inflight_no_old_result, empty_input_no_buffer_resurrection, draft_invalidation_loading_action_not_stuck, draft_company/date_focus_kept_and_no_change (sentinel proves NO `change` event involved, focus stays in the field) |
+| Existing UI regression (committed-change, signal-change, keyboard, rapid, evidence, mobile) | all PASS within the 34/34 |
+| Container targeted AI003 suite | 298/298 OK |
+| Narrow host AI003 suite | 66 passed + 7 subtests (no Python changes this round) |
+| Read-only public API smoke | 7/7 `"pass": true` |
+| Runtime JS parity | container == working tree: risk_signal.js sha256 8152ba2086d2797d6003ef65b0dc3def6d704bf569c01e5982584e7624f9b26b |
+| Registry | configurator exit=0; sites/apps.txt = erpnext, frappe, lotus_fin |
+
+## Test-semantics change (documented, not a masked defect)
+
+The old `permission_denial_safe` E2E case (typed nonexistent company →
+FORBIDDEN panel) previously passed because the OLD evaluate chain sent the
+company from the shadow buffer — i.e., it rendered a result for a company that
+was no longer visible (exactly the defect class this round removes). With the
+visible-draft contract, a nonexistent company cannot survive the button-click
+blur: frappe's link field reverts the visible text to the committed value and
+fires a programmatic `change`, which invalidates the in-flight request, so the
+UI fails closed (cleared note; a further click yields "Select a company"). The
+rewritten cases `invalid_company_typed_fails_closed` /
+`invalid_company_then_empty_validation` pin that behavior. The FORBIDDEN wire
+for an unknown company remains proven at API level by the smoke probe
+(UNKNOWN_COMPANY_FORBIDDEN).
+
+## Iterations
+
+Two implementation → targeted-verification rounds were used (allowed maximum):
+round 1 found the orphaned date binding and the denial-test semantics; round 2
+(delegated bindings + corrected test 6 assertion) went fully green.
+
+## Limitations
+
+Builder evidence only — independent re-verification pending; G4B closure is
+NOT declared by the builder. Historical artifacts from earlier rounds remain
+under their own dates/labels.
