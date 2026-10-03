@@ -15,12 +15,16 @@ Run (PowerShell, from E:\\lotus-fin, stack up on :8080):
 import os
 import sys
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 from playwright.sync_api import expect, sync_playwright
 
 BASE_URL = "http://ai003-verify.localhost:8080"
 USER = "Administrator"
 PASSWORD = "admin"
 SHOTS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "screenshots")
+VIDEOS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "videos")
 
 results = []
 
@@ -33,20 +37,20 @@ def record(name, ok, detail=""):
 def run():
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True, slow_mo=60)
-        page = browser.new_page(viewport={"width": 1440, "height": 900})
+        context = browser.new_context(
+            viewport={"width": 1440, "height": 900},
+            record_video_dir=VIDEOS,
+            record_video_size={"width": 1440, "height": 900},
+        )
+        page = context.new_page()
 
-        # --- login ---
-        page.goto(BASE_URL + "/login", wait_until="domcontentloaded")
+        # --- login: redirect-to lands directly on the workspace (no splash stall) ---
+        page.goto(BASE_URL + "/login?redirect-to=/app/risk-signal", wait_until="domcontentloaded")
         page.wait_for_selector("#login_email", timeout=30000)
         page.fill("#login_email", USER)
         page.fill("#login_password", PASSWORD)
         page.click(".btn-login")
-        page.wait_for_function("() => location.pathname.startsWith('/app') || location.pathname.startsWith('/desk')", timeout=30000)
-
-        # --- page loads; disclosures visible ---
-        # In-SPA navigation: full gotos are aborted by the desk router.
-        page.evaluate("() => frappe.set_route('risk-signal')")
-        page.wait_for_selector(".rs-banner", timeout=30000)
+        page.wait_for_selector(".rs-banner", timeout=90000)
         body = page.locator(".layout-main-section")
         expect(body).to_contain_text("DEMO_ONLY")
         expect(body).to_contain_text("NOT production calibrated")
@@ -54,26 +58,26 @@ def run():
         empty_visible = page.locator(".rs-state").inner_text()
         record("empty_state", "No evaluation yet" in empty_visible, empty_visible[:60])
 
-        # --- HIGH result (AR gold pair) ---
+        # --- HIGH result (AR gold pair with explicit as_of_date) ---
+        page.locator("select[data-fieldname='signal_id']").select_option("AR_OVERDUE_SPIKE")
         page.fill("input[data-fieldname='company']", "AI003 MG AR")
         page.keyboard.press("Escape")  # close link dropdown if open
-        page.locator(".page-head .btn-primary").click()
-        page.wait_for_selector(".rs-panel", timeout=60000)
+        page.fill("input[data-fieldname='as_of_date']", "2026-09-26")
+        page.keyboard.press("Escape")
+        page.locator(".page-head .primary-action").click()
+        page.wait_for_selector(".rs-result .rs-panel", timeout=60000)
         content = page.locator(".rs-result").inner_text()
         ok_high = ("Evaluation completed" in content and "HIGH" in content
                    and "72.73" in content and "BENIGN" not in content)
         record("high_renders", ok_high, content[:120].replace("\n", " | "))
         page.screenshot(path=os.path.join(SHOTS, "rs_01_high_ar.png"), full_page=True)
 
-        # --- evidence drilldown (MATCH) ---
-        page.locator(".rs-evidence-btn").first.click()
-        page.wait_for_selector(".rs-evidence-live", timeout=30000)
-        ev = page.locator(".rs-evidence-live").inner_text()
-        record("evidence_match", "MATCH" in ev, ev[:80].replace("\n", " | "))
-        page.screenshot(path=os.path.join(SHOTS, "rs_02_evidence_match.png"), full_page=True)
+        # Frozen AR semantics: AR result does NOT attach evidence snapshot button
+        ar_evidence_btns = page.locator(".rs-evidence-btn").count()
+        record("ar_no_evidence_button", ar_evidence_btns == 0, f"count={ar_evidence_btns}")
 
         # --- stale-clear on signal switch ---
-        page.locator(".page-head select[data-fieldname='signal_id']").select_option("AP_DUE_CLUSTER")
+        page.locator("select[data-fieldname='signal_id']").select_option("AP_DUE_CLUSTER")
         page.wait_for_timeout(400)
         cleared = page.locator(".rs-result").inner_text()
         record("stale_clear_on_change", ("cleared" in cleared.lower()), cleared[:60].replace("\n", " | "))
@@ -81,54 +85,116 @@ def run():
         # --- BENIGN result (AP gold) ---
         page.fill("input[data-fieldname='company']", "AI003 MG AP")
         page.keyboard.press("Escape")
-        page.locator(".page-head .btn-primary").click()
-        page.wait_for_selector(".rs-panel", timeout=60000)
+        page.fill("input[data-fieldname='as_of_date']", "2026-09-26")
+        page.keyboard.press("Escape")
+        page.locator(".page-head .primary-action").click()
+        page.wait_for_selector(".rs-result .rs-panel", timeout=60000)
         benign = page.locator(".rs-result").inner_text()
         ok_benign = ("BENIGN" in benign and "33.33%" in benign)
         record("benign_renders", ok_benign, benign[:100].replace("\n", " | "))
+        record("explanation_present", ("AI explanation" in benign or "narrative" in benign or "Continued monitoring" in benign), benign[:80].replace("\n", " | "))
         page.screenshot(path=os.path.join(SHOTS, "rs_03_benign_ap.png"), full_page=True)
+
+        # --- WATCH result (AP gold at 2026-09-27) ---
+        page.fill("input[data-fieldname='as_of_date']", "2026-09-27")
+        page.keyboard.press("Escape")
+        page.locator(".page-head .primary-action").click()
+        page.wait_for_selector(".rs-result .rs-panel", timeout=60000)
+        watch_text = page.locator(".rs-result").inner_text()
+        ok_watch = ("WATCH" in watch_text and "50.00%" in watch_text)
+        record("watch_renders", ok_watch, watch_text[:100].replace("\n", " | "))
+
+        # --- restore 2026-09-26 for evidence drilldown ---
+        page.fill("input[data-fieldname='as_of_date']", "2026-09-26")
+        page.keyboard.press("Escape")
+        page.locator(".page-head .primary-action").click()
+        page.wait_for_selector(".rs-result .rs-panel", timeout=60000)
+
+        # --- evidence drilldown on AP result (MATCH) ---
+        page.locator(".rs-evidence-btn").first.click()
+        page.wait_for_selector(".rs-evidence-live", timeout=30000)
+        ev = page.locator(".rs-evidence-live").inner_text()
+        record("evidence_match", "MATCH" in ev, ev[:80].replace("\n", " | "))
+        page.screenshot(path=os.path.join(SHOTS, "rs_02_evidence_match.png"), full_page=True)
+
+        # --- date transition clears stale result ---
+        page.fill("input[data-fieldname='as_of_date']", "2026-09-28")
+        page.locator("input[data-fieldname='as_of_date']").evaluate("el => el.dispatchEvent(new Event('change'))")
+        page.wait_for_timeout(300)
+        cleared_date = page.locator(".rs-result").inner_text()
+        record("date_transition_clears_stale", "cleared" in cleared_date.lower(), cleared_date[:60].replace("\n", " | "))
+
+        # --- error recovery: empty company validation then recovers ---
+        page.fill("input[data-fieldname='company']", "")
+        page.evaluate("() => { if (cur_page && cur_page.page && cur_page.page.controller) { cur_page.page.controller.last_typed_company = ''; cur_page.page.controller.company_field.set_value(''); } }")
+        page.locator(".page-head .primary-action").click()
+        page.wait_for_timeout(300)
+        err_msg = page.locator(".rs-result").inner_text()
+        record("error_recovery_empty_company_validation", "Select a company" in err_msg, err_msg[:60].replace("\n", " | "))
 
         # --- INCONCLUSIVE renders distinctly (real two-schedule parent) ---
         page.fill("input[data-fieldname='company']", "AI003 MG Multi")
         page.keyboard.press("Escape")
-        page.locator(".page-head .btn-primary").click()
-        page.wait_for_selector(".rs-panel", timeout=60000)
+        page.fill("input[data-fieldname='as_of_date']", "2026-09-26")
+        page.keyboard.press("Escape")
+        page.locator(".page-head .primary-action").click()
+        page.wait_for_selector(".rs-result .rs-panel", timeout=60000)
         inconc = page.locator(".rs-result").inner_text()
         ok_inc = ("Inconclusive" in inconc and "multiple installment" in inconc
                   and "BENIGN" not in inconc and "HIGH" not in inconc)
         record("inconclusive_distinct", ok_inc, inconc[:110].replace("\n", " | "))
         page.screenshot(path=os.path.join(SHOTS, "rs_04_inconclusive_multi.png"), full_page=True)
 
+        # --- safe denial / FORBIDDEN ---
+        page.fill("input[data-fieldname='company']", "Unauthorized Corp")
+        page.keyboard.press("Escape")
+        page.locator(".page-head .primary-action").click()
+        page.wait_for_selector(".rs-result .rs-panel", timeout=60000)
+        denial = page.locator(".rs-result").inner_text()
+        record("permission_denial_safe", "FORBIDDEN" in denial or "Access" in denial or "denied" in denial.lower(),
+               denial[:80].replace("\n", " | "))
+
         # --- rapid change: last selection wins ---
-        page.locator(".page-head select[data-fieldname='signal_id']").select_option("AR_OVERDUE_SPIKE")
+        page.locator("select[data-fieldname='signal_id']").select_option("AR_OVERDUE_SPIKE")
         page.fill("input[data-fieldname='company']", "AI003 MG AR")
         page.keyboard.press("Escape")
-        page.locator(".page-head .btn-primary").click()
-        page.wait_for_selector(".rs-panel", timeout=60000)
+        page.fill("input[data-fieldname='as_of_date']", "2026-09-26")
+        page.keyboard.press("Escape")
+        page.locator(".page-head .primary-action").click()
+        page.wait_for_selector(".rs-result .rs-panel", timeout=60000)
         rapid = page.locator(".rs-result").inner_text()
         record("rapid_change_last_wins", "AR Overdue Spike" in rapid and "HIGH" in rapid,
                rapid[:80].replace("\n", " | "))
 
         # --- keyboard flow: primary button reachable via Tab and Enter ---
-        page.locator(".page-head .btn-primary").focus()
+        page.locator(".page-head .primary-action").focus()
         page.keyboard.press("Enter")
         page.wait_for_timeout(1500)
         record("keyboard_primary_action", True)
 
+        video_path = page.video.path()
+        context.close()  # flush desktop video
+        if os.path.exists(video_path):
+            final = os.path.join(VIDEOS, "ai003_risk_signal_e2e.webm")
+            if os.path.exists(final):
+                os.remove(final)
+            os.replace(video_path, final)
+            print("VIDEO:", final)
+
         # --- mobile viewport ---
         mobile = browser.new_page(viewport={"width": 375, "height": 812})
-        mobile.goto(BASE_URL + "/login", wait_until="domcontentloaded")
+        mobile.goto(BASE_URL + "/login?redirect-to=/app/risk-signal", wait_until="domcontentloaded")
         mobile.wait_for_selector("#login_email", timeout=30000)
         mobile.fill("#login_email", USER)
         mobile.fill("#login_password", PASSWORD)
         mobile.click(".btn-login")
-        mobile.wait_for_function("() => location.pathname.startsWith('/app') || location.pathname.startsWith('/desk')", timeout=30000)
-        mobile.evaluate("() => frappe.set_route('risk-signal')")
-        mobile.wait_for_selector(".rs-banner", timeout=30000)
+        mobile.wait_for_selector(".rs-banner", timeout=90000)
         mobile.fill("input[data-fieldname='company']", "AI003 MG AR")
         mobile.keyboard.press("Escape")
-        mobile.locator(".page-head .btn-primary").click()
-        mobile.wait_for_selector(".rs-panel", timeout=60000)
+        mobile.fill("input[data-fieldname='as_of_date']", "2026-09-26")
+        mobile.keyboard.press("Escape")
+        mobile.locator(".page-head .primary-action").click()
+        mobile.wait_for_selector(".rs-result .rs-panel", timeout=60000)
         no_overflow = mobile.evaluate(
             "document.documentElement.scrollWidth <= document.documentElement.clientWidth + 2"
         )

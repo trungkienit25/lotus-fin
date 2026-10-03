@@ -59,3 +59,6 @@ ALLOWED_WORKSPACES = [
 	"Settings",
 	"Lotus Fin AI"
 ]
+
+# Persistent Cache Keys (Preserved across clear_cache)
+persistent_cache_keys = ["ai003:evidence"]

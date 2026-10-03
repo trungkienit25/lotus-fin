@@ -266,6 +266,9 @@ def get_risk_signal_evidence(
 
     def replay_factory(record):
         def replay():
+            if not deps.report_permission("Accounts Payable"):
+                from lotus_fin.risk_signal.provenance import SourceFailure, Status, ReasonCode
+                raise SourceFailure(Status.FORBIDDEN, ReasonCode.ACCESS_DENIED, "report permission denied")
             snapshot = deps.ap_provider.fetch(verified_company, record.as_of_date)
             return {"report_key": snapshot.report_key, "source_hash": snapshot.source_hash}
 
@@ -276,6 +279,7 @@ def get_risk_signal_evidence(
         checked_user=checked_user,
         verified_company=verified_company,
         replay_factory=replay_factory,
+        correlation_id=correlation_id,
     )
     return {
         "status": result.outcome,

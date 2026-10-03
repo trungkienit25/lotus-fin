@@ -101,8 +101,33 @@ unknown ref, malformed ref, and cross-company requests all return the same
 generic FORBIDDEN with no existence disclosure (pinned tests). Replay re-runs
 the approved source path in checked-user context per access; outcomes MATCH /
 RESTATED / UNAVAILABLE / FORBIDDEN; a changed source is never silently MATCHed.
-Known limitation: per-process store — invalid refs after restart/eviction fail
-closed (documented; durability = future work).
+Evidence records are persisted in a shared Redis store (`ai003:evidence:*`)
+with bounded 3600-second TTL, ensuring cross-worker consistency (verified
+20/20 MATCH across multi-worker Gunicorn processes) without reliance on
+per-process memory. On TTL expiration or key eviction, replay safely fails
+closed to generic FORBIDDEN.
+
+**Previous defect (G4B finding, remediated).** Evidence was initially held in a
+process-local dict. With 2 Gunicorn workers, an evaluation on worker A followed
+by a replay on worker B found no record and returned a false FORBIDDEN (observed:
+12/20 MATCH, 8/20 false FORBIDDEN). This was an integrity/correctness defect of
+the access decision, not merely an availability risk: a legitimate user was
+denied depending on routing. Root cause: authorization state lived in per-process
+memory. Mitigation: shared Redis-backed store; the ref remains opaque and is never
+an authorization token; user, company scope and report permission are rechecked on
+every replay (verified live: revoke → FORBIDDEN with no payload, restore → MATCH).
+
+**Residual limits (not production-grade).** TTL is 3600 s; expiry or cache
+eviction/flush fails closed to FORBIDDEN and the evidence must be re-created by
+re-evaluating. Records are not durable across a Redis flush or restart. Cache
+backend failure is logged with structured, PII-free diagnostics (correlation_id,
+stage, exception_type, reason_code, operation) and returns a safe typed outcome;
+no stack trace reaches the client. TTL expiry over live HTTP was not exercised
+(unit-level only).
+
+**Standards references (aligned / referenced only; no certification claimed):**
+ISO/IEC 27001:2022, ISO/IEC 27002:2022, ISO/IEC 23894:2023, ISO/IEC 42001:2023.
+
 
 ## 10. Agent / Tool Security
 
@@ -185,7 +210,7 @@ template for independent verification.
 | T7 | Sensitive data in logs | allowlisted zero-PII events | Low |
 | T8 | Policy tampering via client | policy fields absent from schema; server-side registry | Low |
 | T9 | Brute-force/DoS on evaluation endpoints | none implemented (demo scope) | **Accepted for demo** |
-| T10 | Evidence store volatility | fail-closed degradation; durability future work | Medium (documented) |
+| T10 | Evidence store cross-worker defect | shared Redis store with bounded 3600s TTL + fail-closed | Low |
 
 ## 18. Security Test Matrix
 
@@ -197,11 +222,9 @@ unsupported currency (company + row contradiction); Finance Book unsupported;
 currency-before-identity; duplicate/conflicting observations; multi-schedule
 flattened-report; metadata permission denial + cross-company + nonexistent
 parent (live); LLM failure/timeout/ungrounded/banned; payload suppression on
-FORBIDDEN/VALIDATION_ERROR/SOURCE_ERROR; unexpected exception sanitization.
-NOT_RUN live: report permission revoke/regrant through the new AI003
-whitelisted endpoint over HTTP (covered by gold live probes at the boundary
-level + hermetic service tests; HTTP-level run blocked by the E2E environment
-issue — see blocker note).
+FORBIDDEN/VALIDATION_ERROR/SOURCE_ERROR; unexpected exception sanitization;
+cross-worker evidence consistency (20/20 sequential replays across 2 workers);
+live HTTP report permission revoke/regrant (`tests_e2e/test_security_revoke_regrant.py`).
 
 ## 19. Security Test Results
 
@@ -209,28 +232,26 @@ issue — see blocker note).
 |---|---|---|
 | Stage/payload suppression (hermetic) | PASS | test_risk_signal_service.py (StageA/PayloadSuppression classes) |
 | Identity/dedupe/currency gates (hermetic) | PASS | test_risk_signal_sources.py |
-| Evidence authorization (hermetic) | PASS | test_risk_signal_evidence.py |
+| Evidence authorization (hermetic) | PASS 21/21 | test_risk_signal_evidence.py |
 | Live smoke incl. unauth/unknown-company suppression | PASS 7/7 | evidence/ai003_smoke_results_2026-10-02.json |
 | Restricted-user live probes (report/metadata) | PASS (reused) | AI003_METHOD_GOLD_MANIFEST.yaml SECURITY cases |
+| Cross-worker evidence consistency (live multi-worker) | PASS 20/20 | 20 sequential HTTP replays across Gunicorn workers (20/20 MATCH, 0 false FORBIDDEN) |
+| Live HTTP revoke/regrant via AI003 endpoint | PASS 4/4 | `tests_e2e/test_security_revoke_regrant.py` live HTTP test |
 | Semgrep SAST (repo CI) | PASS (unchanged baseline) | .github/workflows/ci.yml |
 | Bandit on new code | No HIGH severity findings | bandit -ll run 2026-10-02 |
-| HTTP-level revoke/regrant via AI003 endpoint | NOT_RUN (env blocker) | AI003_E2E_BLOCKER_NOTE_2026-10-02.md |
 
 ## 20. Known Risks
 
 1. No rate limiting/backpressure on evaluation endpoints (demo scope).
-2. Evidence store per-process (see §9) — availability, not confidentiality,
-   exposure.
+2. Evidence store bounded TTL (3600s) — records expire after 1 hour, failing
+   closed to generic FORBIDDEN.
 3. Explanation provider endpoint/keys configured via env — mock default in
    demo; a real provider adds an external dependency inside the trust
    boundary (validated output, still data-only).
-4. E2E HTTP-level authorization testing deferred (blocker note) — the
-   authorization semantics themselves are covered hermetically and by live
-   boundary-level gold probes.
 
 ## 21. Residual Risks
 
-Accepted for DEMO_ONLY: T9, T10, risk 3 above; unknown unknowns normally
+Accepted for DEMO_ONLY: T9, risk 3 above; unknown unknowns normally
 caught by G4B remain (G4B pending). No production exposure is intended or
 supported.
 
@@ -239,17 +260,14 @@ supported.
 `policy_scope: DEMO_ONLY`; `production_calibrated: false` embedded in every
 result and surfaced on the UI ("DEMO_ONLY — NOT APPROVED FOR PRODUCTION").
 No automatic promotion path; production use requires Finance/Product-approved
-calibrated policy, G4B acceptance, durable evidence persistence, rate limiting
-and the HTTP-level security run — all recorded as future controls.
+calibrated policy, G4B acceptance, rate limiting and persistent audit storage.
 
 ## 23. Recommended Future Controls
 
-1. Durable evidence records (DocType/Redis) + eviction-safe resolution.
+1. Permanent evidence record archiving (DocType or cold audit log) beyond Redis TTL.
 2. Rate limiting / request budget on AI003 endpoints.
 3. Per-request provider budget + circuit breaker for LLM explanation.
-4. HTTP-level security E2E (revoke/regrant) once the verify-site boot-loop
-   cache issue is cleared.
-5. Signed evidence records (hash chaining) if AS_KNOWN_AT semantics are ever
+4. Signed evidence records (hash chaining) if AS_KNOWN_AT semantics are ever
    approved (currently explicitly not offered).
 
 ## 24. Security Evidence Index

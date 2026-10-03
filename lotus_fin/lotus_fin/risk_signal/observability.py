@@ -62,6 +62,8 @@ def log_ai003_event(
     data_mode: Optional[str] = None,
     record_count: Optional[int] = None,
     latency_ms: Optional[float] = None,
+    exception_type: Optional[str] = None,
+    operation: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Typed AI003 audit boundary. Company/user must never be passed here in
     raw form; callers pass nothing identifying — hashed ids are derived by the
@@ -78,6 +80,8 @@ def log_ai003_event(
         "method_version": METHOD_VERSION,
         "policy_version": policy_version if policy_version in (None, "AI003_DEMO_POLICY_V1") else None,
         "data_mode": data_mode if data_mode in _DATA_MODE_VALUES else None,
+        "exception_type": _safe_token(exception_type, None) if exception_type else None,
+        "operation": _safe_token(operation, None) if operation else None,
         "latency_ms": None,
         "record_count": None,
     }

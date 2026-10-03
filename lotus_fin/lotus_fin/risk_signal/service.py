@@ -344,7 +344,9 @@ def _coverage_inconclusive(request, gaps, trace, correlation_id, ap_snapshot, re
         if gap in ("NO_METADATA", "NO_VALID_DUE_DATE", "CHILD_HEADER_DISAGREEMENT",
                    "CHILD_REPORT_DISAGREEMENT", "HEADER_REPORT_DISAGREEMENT"):
             reason = ReasonCode.INCOMPLETE_DUE_DATE_COVERAGE
-    evidence, _ref = _ap_evidence(ap_snapshot, reconciled, company, request.as_of_date, captured_at)
+    evidence, _ref = _ap_evidence(
+        ap_snapshot, reconciled, company, request.as_of_date, captured_at, correlation_id=correlation_id
+    )
     return SignalResult(
         signal_id=request.signal_id,
         status=Status.INCONCLUSIVE,
@@ -403,7 +405,9 @@ def _policy_pending_result(request, reason_code, trace, correlation_id, ap_snaps
     if request.signal_id is SignalId.AP_DUE_CLUSTER and selection is not None:
         from lotus_fin.risk_signal.coverage import sum_amounts
 
-        evidence, _ref = _ap_evidence(ap_snapshot, reconciled, company, request.as_of_date, captured_at)
+        evidence, _ref = _ap_evidence(
+            ap_snapshot, reconciled, company, request.as_of_date, captured_at, correlation_id=correlation_id
+        )
         kwargs.update(
             observed=ObservedBlock(
                 value=None,
@@ -475,8 +479,10 @@ def _ok_result(request, policy, outcome, trace, correlation_id, company, capture
         from lotus_fin.risk_signal.coverage import ap_window
 
         window_start, window_end = ap_window(request.as_of_date)
-        evidence, _ref = _ap_evidence(ap_snapshot, (), company, request.as_of_date, captured_at,
-                                      selection=selection, outcome=outcome)
+        evidence, _ref = _ap_evidence(
+            ap_snapshot, (), company, request.as_of_date, captured_at,
+            selection=selection, outcome=outcome, correlation_id=correlation_id
+        )
         kwargs.update(
             observed=ObservedBlock(
                 value=outcome.observed_value,
@@ -515,7 +521,10 @@ def _ap_source_refs(ap_snapshot):
     )
 
 
-def _ap_evidence(ap_snapshot, reconciled, company, as_of, captured_at, selection=None, outcome=None):
+def _ap_evidence(
+    ap_snapshot, reconciled, company, as_of, captured_at,
+    selection=None, outcome=None, correlation_id=None
+):
     """Build (and store) the AP report-snapshot evidence record; return (refs, ref)."""
     if ap_snapshot is None:
         return (), None
@@ -539,27 +548,53 @@ def _ap_evidence(ap_snapshot, reconciled, company, as_of, captured_at, selection
         )
         return (EvidenceRef(kind="REPORT_SNAPSHOT", company=company, ref=record.ref,
                             as_of_date=as_of, captured_at=captured_at),), record.ref
-    except Exception:
+    except Exception as exc:
+        log_ai003_event(
+            event_type="ai003_evidence_store_failed",
+            correlation_id=correlation_id,
+            stage=Stage.A10_EVALUATION.value,
+            status=Status.SOURCE_ERROR.value,
+            reason_code=ReasonCode.SOURCE_UNAVAILABLE.value,
+            exception_type=type(exc).__name__,
+            operation="store_ap_evidence",
+        )
         return (), None  # evidence must never break the deterministic result
 
 
-def get_evidence(ref: str, *, checked_user: Optional[str], verified_company: str,
-                 replay_factory: Callable[[object], Callable]) -> ReplayResult:
+def get_evidence(
+    ref: str,
+    *,
+    checked_user: Optional[str],
+    verified_company: str,
+    replay_factory: Callable[[object], Callable],
+    correlation_id: Optional[str] = None,
+) -> ReplayResult:
     """Authorized evidence replay for the agent/tool layer (SSOT §16.7).
 
     ``replay_factory(record)`` returns the zero-arg replay callable bound to the
     captured record (cutoff/scope) once authorization has passed."""
     if not _is_authenticated(checked_user):
+        log_ai003_event(
+            event_type="ai003_evidence_unauthenticated",
+            correlation_id=correlation_id,
+            stage=Stage.A5_SOURCE_AUTH.value,
+            status=Status.FORBIDDEN.value,
+            reason_code=ReasonCode.ACCESS_DENIED.value,
+            operation="get_evidence",
+        )
         return ReplayResult(ReplayOutcome.FORBIDDEN, None)
 
     def _replay(record):
         return replay_factory(record)()
 
-    result = evidence_get(ref, verified_company, _replay)
+    result = evidence_get(ref, verified_company, _replay, correlation_id=correlation_id)
     log_ai003_event(
         event_type="ai003_evidence_" + result.outcome.lower(),
-        correlation_id=None,
-        signal_type=result.record.signal_id.value if result.record else None,
+        correlation_id=correlation_id,
+        signal_type=result.record.signal_id.value if result.record and hasattr(result.record.signal_id, "value") else (str(result.record.signal_id) if result.record else None),
+        status="OK" if result.outcome in (ReplayOutcome.MATCH, ReplayOutcome.RESTATED) else result.outcome,
+        stage=Stage.A10_EVALUATION.value,
+        operation="evidence_replay_completed",
     )
     return result
 

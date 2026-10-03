@@ -264,6 +264,12 @@ class APReportAdapter:
         except SourceFailure:
             raise
         except Exception as exc:
+            frappe = _frappe_module()
+            perm_err = getattr(frappe, "PermissionError", PermissionError)
+            if isinstance(exc, (perm_err, PermissionError)) or type(exc).__name__ in ("PermissionError", "_PermissionError"):
+                raise SourceFailure(
+                    Status.FORBIDDEN, ReasonCode.ACCESS_DENIED, sanitize_reason(exc)
+                ) from exc
             raise SourceFailure(
                 Status.SOURCE_ERROR, ReasonCode.SOURCE_UNAVAILABLE, sanitize_reason(exc)
             ) from exc

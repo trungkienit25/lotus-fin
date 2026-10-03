@@ -202,5 +202,132 @@ class ObservabilityTests(unittest.TestCase):
         self.assertIsNone(hash_id(None))
 
 
+class MockCacheClient:
+    def __init__(self):
+        self.store = {}
+
+    def set_value(self, key, val, expires_in_sec=None):
+        self.store[key] = val
+
+    def get_value(self, key, generator=None, user=None, expires=False, shared=False, *, use_local_cache=True):
+        return self.store.get(key)
+
+    def delete_value(self, key):
+        self.store.pop(key, None)
+
+
+class CrossWorkerAndDiagnosticTests(unittest.TestCase):
+    def test_cross_worker_shared_cache_retrieval(self):
+        """Simulate Gunicorn worker A writing and worker B reading via shared cache."""
+        mock_redis = MockCacheClient()
+        worker_a_store = ev.EvidenceStore(client=mock_redis)
+        worker_b_store = ev.EvidenceStore(client=mock_redis)
+        record = _make_record()
+        ref = worker_a_store.put(record)
+        self.assertEqual(ref, record.ref)
+
+        retrieved = worker_b_store.get(ref)
+        self.assertIsNotNone(retrieved)
+        self.assertEqual(retrieved.ref, record.ref)
+        self.assertEqual(retrieved.company, record.company)
+        self.assertEqual(retrieved.as_of_date, record.as_of_date)
+        self.assertEqual(retrieved.payload["numerator"], Decimal("1000"))
+        self.assertEqual(retrieved.payload["denominator"], Decimal("3000"))
+
+    def test_evidence_store_delete(self):
+        mock_redis = MockCacheClient()
+        store = ev.EvidenceStore(client=mock_redis)
+        record = _make_record()
+        ref = store.put(record)
+        self.assertIsNotNone(store.get(ref))
+        store.delete(ref)
+        self.assertIsNone(store.get(ref))
+
+    def test_evidence_ttl_expired(self):
+        mock_redis = MockCacheClient()
+        store = ev.EvidenceStore(client=mock_redis)
+        record = _make_record()
+        ref = store.put(record)
+        self.assertIsNotNone(store.get(ref))
+        # Simulate Redis TTL expiry
+        mock_redis.store.clear()
+        self.assertIsNone(store.get(ref))
+
+    def test_structured_diagnostics_on_replay_failure(self):
+        ev._STORE = ev.EvidenceStore()
+        record = _make_record()
+        logged = []
+        import unittest.mock as mock
+        with mock.patch("lotus_fin.risk_signal.evidence.log_ai003_event", side_effect=lambda **kw: logged.append(kw) or {}):
+            def bad_replay(r):
+                raise RuntimeError("backend_exploded")
+            result = ev.evidence_get(record.ref, "AI003 Gold 2026", bad_replay, correlation_id="test-corr-42")
+            self.assertEqual(result.outcome, ev.ReplayOutcome.UNAVAILABLE)
+            matching = [e for e in logged if e.get("event_type") == "ai003_evidence_replay_unexpected_failure"]
+            self.assertTrue(len(matching) >= 1)
+            self.assertEqual(matching[0]["exception_type"], "RuntimeError")
+            self.assertEqual(matching[0]["correlation_id"], "test-corr-42")
+            self.assertEqual(matching[0]["operation"], "replay_source_fetch")
+
+    def test_structured_diagnostics_on_store_failure(self):
+        logged = []
+        from lotus_fin.risk_signal.service import _ap_evidence
+        import unittest.mock as mock
+        with mock.patch("lotus_fin.risk_signal.service.create_evidence_record", side_effect=ValueError("redis_down")):
+            with mock.patch("lotus_fin.risk_signal.service.log_ai003_event", side_effect=lambda **kw: logged.append(kw) or {}):
+                dummy_snapshot = mock.MagicMock()
+                dummy_snapshot.report_key = "accounts_payable"
+                dummy_snapshot.source_hash = "h" * 64
+                dummy_snapshot.filters_applied = {}
+                refs, ref = _ap_evidence(
+                    dummy_snapshot, (), "AI003 Gold 2026", date(2026, 9, 26), "2026-10-02T00:00:00Z",
+                    correlation_id="store-fail-corr"
+                )
+                self.assertEqual(refs, ())
+                self.assertIsNone(ref)
+                matching = [e for e in logged if e.get("event_type") == "ai003_evidence_store_failed"]
+                self.assertTrue(len(matching) >= 1)
+                self.assertEqual(matching[0]["exception_type"], "ValueError")
+                self.assertEqual(matching[0]["correlation_id"], "store-fail-corr")
+                self.assertEqual(matching[0]["operation"], "store_ap_evidence")
+
+    def test_structured_diagnostics_on_storage_failure(self):
+        logged = []
+        import unittest.mock as mock
+
+        class BrokenCacheClient:
+            def set_value(self, key, val, expires_in_sec=None):
+                raise ConnectionError("redis_down")
+
+            def get_value(self, key, **kwargs):
+                raise ConnectionError("redis_down")
+
+            def delete_value(self, key):
+                raise ConnectionError("redis_down")
+
+        with mock.patch("lotus_fin.risk_signal.evidence.log_ai003_event", side_effect=lambda **kw: logged.append(kw) or {}):
+            store = ev.EvidenceStore(client=BrokenCacheClient())
+            record = _make_record()
+            ref = store.put(record)
+            self.assertEqual(ref, record.ref)
+            # Verify structured event logged for put failure
+            put_events = [e for e in logged if e.get("event_type") == "ai003_evidence_storage_error" and e.get("operation") == "evidence_cache_set"]
+            self.assertEqual(len(put_events), 1)
+            self.assertEqual(put_events[0]["exception_type"], "ConnectionError")
+
+            # Verify local fallback worked
+            fetched = store.get(ref)
+            get_events = [e for e in logged if e.get("event_type") == "ai003_evidence_storage_error" and e.get("operation") == "evidence_cache_get"]
+            self.assertEqual(len(get_events), 1)
+            self.assertIsNotNone(fetched)
+            self.assertEqual(fetched.ref, record.ref)
+
+            # Verify delete failure logs structured event
+            store.delete(ref)
+            del_events = [e for e in logged if e.get("event_type") == "ai003_evidence_storage_error" and e.get("operation") == "evidence_cache_delete"]
+            self.assertEqual(len(del_events), 1)
+
+
 if __name__ == "__main__":
     unittest.main()
+

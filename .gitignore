@@ -10,6 +10,16 @@
 .gitnexus
 .gitnexus/
 
+# Python & Cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Local Reference & Large Legacy Repos
+legacy/
+frappe_docker/
+
 # Logs & temp artifacts
 *.log
 brain/
@@ -19,17 +29,18 @@ output/
 temp/
 */temp/
 
-# Python build artifacts (never commit)
-__pycache__/
-*.py[cod]
-.pytest_cache/
-
-# Local data dumps & scratch areas (never commit)
-data/
-/lotus-fin/
-
 # OS & IDE
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Local runtime & containers
+frappe_docker/
+legacy/

@@ -71,9 +71,11 @@ Allowlist enforced in `core/use_cases/source_validation.py` (REPORT_ALLOWLIST).
 
 ## 9. Evidence Authorization
 
-Evidence refs are snapshot-lineage metadata (not tokens); document-level
-evidence drilldown reauthorizes via `verify_evidence_access` (shared access.py
-surface, AI002-pattern allowlist).
+Evidence refs in AI001 are snapshot-lineage metadata only (report metadata and
+checksum, not bearer tokens or resolvable document drilldown endpoints). AI001
+renders evidence metadata only and exposes no document drilldown endpoint;
+document-level evidence drilldown reauthorizing via `verify_evidence_access` is
+specific to AI002 cashflow paths (`api/ai_insights.py`, `security/access.py`).
 
 ## 10. Agent / Tool Security
 

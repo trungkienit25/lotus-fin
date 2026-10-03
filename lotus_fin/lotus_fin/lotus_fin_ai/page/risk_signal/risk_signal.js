@@ -34,6 +34,10 @@ lotus_fin.risk_signal.Controller = class Controller {
 		this.setup_events();
 	}
 
+	refresh() {
+		// Called on page refresh / switch
+	}
+
 	setup_breadcrumbs() {
 		frappe.breadcrumbs.add("Accounts");
 	}
@@ -54,6 +58,12 @@ lotus_fin.risk_signal.Controller = class Controller {
 				me.clear_result(__("Company changed — the previous result was cleared."));
 			}
 		});
+
+		if (this.company_field && this.company_field.$input) {
+			this.company_field.$input.on("input", function () {
+				me.last_typed_company = $(this).val();
+			});
+		}
 
 		this.signal_field = this.page.add_field({
 			fieldname: "signal_id",
@@ -96,7 +106,7 @@ lotus_fin.risk_signal.Controller = class Controller {
 	setup_dom() {
 		const me = this;
 		this.main = $(this.wrapper).find(".layout-main-section");
-		this.main.empty();
+		this.main.children(":not(.page-form)").remove();
 
 		// Persistent scope disclosures (packet §15: must be visibly disclosed).
 		const banner = this.el("div", "rs-banner rs-banner-demo");
@@ -145,7 +155,7 @@ lotus_fin.risk_signal.Controller = class Controller {
 
 	// ---------- states ----------
 	set_state(node) {
-		this.state_box.empty();
+		this.state_box.innerHTML = "";
 		if (node) this.state_box.append(node);
 	}
 
@@ -162,11 +172,11 @@ lotus_fin.risk_signal.Controller = class Controller {
 		box.append(this.el("div", "rs-panel-title", __("Evaluating…")));
 		box.append(this.el("div", null, __("Running the deterministic pipeline. This does not modify any data.")));
 		this.set_state(box);
-		this.result_box.empty();
+		this.result_box.innerHTML = "";
 	}
 
 	clear_result(message) {
-		this.result_box.empty();
+		this.result_box.innerHTML = "";
 		if (message) {
 			const note = this.el("div", "rs-banner rs-banner-info");
 			note.append(this.el("div", null, message));
@@ -223,9 +233,9 @@ lotus_fin.risk_signal.Controller = class Controller {
 	evaluate() {
 		const me = this;
 		if (this.in_flight) return; // no double-submit
-		const company = this.company_field.get_value();
+		const company = this.company_field.get_value() || this.last_typed_company || (this.company_field.$input && this.company_field.$input.val());
 		const signal_id = this.signal_field.get_value();
-		const as_of_date = this.as_of_field.get_value();
+		const as_of_date = this.as_of_field.get_value() || (this.as_of_field.$input && this.as_of_field.$input.val());
 		if (!company) {
 			this.clear_result(__("Select a company to evaluate."));
 			return;
@@ -279,7 +289,7 @@ lotus_fin.risk_signal.Controller = class Controller {
 	// ---------- rendering ----------
 	render_result(wire) {
 		this.set_state(null);
-		this.result_box.empty();
+		this.result_box.innerHTML = "";
 		if (!wire || !wire.status) {
 			this.render_transport_error();
 			return;
@@ -440,8 +450,10 @@ lotus_fin.risk_signal.Controller = class Controller {
 						box.append(me.kv_row(key, String(res.payload[key])));
 					});
 				}
-				me.result_box.find(".rs-evidence-live").remove();
-				me.result_box.append(box.addClass("rs-evidence-live"));
+				const existing = me.result_box.querySelector(".rs-evidence-live");
+				if (existing) existing.remove();
+				box.classList.add("rs-evidence-live");
+				me.result_box.append(box);
 			})
 			.fail(function () {
 				frappe.msgprint(__("Evidence replay failed (transport error). The original evaluation is unchanged."));

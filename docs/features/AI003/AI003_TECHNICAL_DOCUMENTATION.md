@@ -57,7 +57,7 @@ evaluation; G4B acceptance (owner-side).
 
 Lotus Fin Frappe app (`lotus_fin`) on ERPNext v16, Docker runtime
 (`frappe_docker` pwd.yml + `docker/ai003-local` overlay, image
-`lotus-fin:ai003-local`, digest sha256:21f61183…). AI003 sits beside AI001
+`lotus-fin:ai003-local`, digest sha256:bb2fa7ce05680bb54bcbb335894ddcefe08f1cdc8aaa4683c91cc6b03383d975). AI003 sits beside AI001
 (financial snapshot) and AI002 (cash-flow forecast) and consumes only their
 public boundaries. Verification site: `ai003-verify.localhost`
 (tz Asia/Ho_Chi_Minh, gold fixture companies "AI003 MG *").
@@ -76,7 +76,7 @@ scaffold plan (S1–S5):
 | provenance.py | Source hashing, V2.2 identity (economic / observation / count keys), dedupe & conflict, currency gate, typed SourceFailure |
 | policy.py | Immutable AI003_DEMO_POLICY_V1 registry; POLICY_PENDING vs INVALID_POLICY_CONFIG resolution |
 | evaluation.py | Deterministic AR delta_pp and AP N≥T×D engines |
-| evidence.py | Evidence records (scope fingerprint + payload hash), dynamic authorized replay (MATCH/RESTATED/UNAVAILABLE/FORBIDDEN) |
+| evidence.py | Evidence records (scope fingerprint + payload hash), dynamic authorized replay (MATCH/RESTATED/UNAVAILABLE/FORBIDDEN), shared Redis store (`ai003:evidence:`) with bounded TTL (3600s) and safe JSON serialization |
 | observability.py | Zero-PII JSON audit events (hashed ids, allowlisted fields), latency timer |
 | service.py | A1→A11 first-failed-stage pipeline, result composition |
 | agent.py | Typed tools (risk_signal_evaluate, risk_signal_evidence_get), explanation via AI001 provider pattern, banned-term + numeric-grounding validation, allowlisted next-check actions |
@@ -212,7 +212,11 @@ source/evidence refs, no explanation text.
 
 Evidence records bind verified company, signal, cutoff, report key, filter
 echo, currency, tz, schema+method versions (scope fingerprint) plus a payload
-hash over sanitized derived values. Replay re-runs the approved source path in
+hash over sanitized derived values. Records are stored in a shared Redis store
+via `frappe.cache()` with prefix `ai003:evidence:`, `use_local_cache=False`,
+and bounded 3600-second TTL (registered in `hooks.py` `persistent_cache_keys`
+to survive full site cache flushes). Multi-worker Gunicorn consistency is
+verified (20/20 MATCH across workers). Replay re-runs the approved source path in
 checked-user context and compares hashes: MATCH (unchanged) / RESTATED
 (changed; current values returned, original evaluation unchanged) /
 UNAVAILABLE (typed source failure) / FORBIDDEN (revoked/denied). Refs are
@@ -239,58 +243,62 @@ Build: `docker build -f docker/ai003-local/Dockerfile -t lotus-fin:ai003-local .
 `E:\frappe_docker`). Then per target site: `bench --site ai003-verify.localhost
 migrate && bench --site ai003-verify.localhost clear-cache`. Named volumes
 preserved; queues are not on the synchronous AI003 path. Current image digest:
-sha256:21f61183dd3d62ed6a6c2142a933f9ef7ec100c631bb513e2fc649d7ac2be110.
+sha256:bb2fa7ce05680bb54bcbb335894ddcefe08f1cdc8aaa4683c91cc6b03383d975.
 See AI003_REPRODUCTION_GUIDE.md for the full verified sequence and the
 runbook fixes applied (apps.txt, set-admin-password, setup_complete,
 nginx Host-map).
 
 ## 18. Testing Strategy
 
-Pyramid: 128 hermetic unittest cases (contracts 25 / sources 37 / policy 18 /
-evidence 16 / service+security 32) on host and in-container; in-container
-targeted verification set (279 tests incl. AI001/AI002 regression suites);
+Pyramid: 133 hermetic unittest cases (contracts 25 / sources 37 / policy 18 /
+evidence 21 / service+security 32) on host and in-container; in-container
+targeted verification set (134 AI003 tests in container; non-AI003 modules need bench site context and were not counted);
 full in-container discovery; live API smoke probe with METHOD GOLD number
-assertions; Playwright E2E script (implemented; live run blocked — §19).
+assertions; Playwright E2E suite (16/16 PASS on live verification site, video tests_e2e/videos/ai003_risk_signal_e2e.webm);
+cross-worker evidence consistency acceptance (20/20 MATCH); live HTTP
+permission revoke/regrant verification (4/4 PASS).
 Security matrix from the owner packet §18 mapped to hermetic tests + live gold
 probes (restricted-user report revoke/regrant and metadata denial proven in
-METHOD/POLICY GOLD live evidence). No unrun category is marked PASS.
+METHOD/POLICY GOLD live evidence and live HTTP tests).
 
 ## 19. Test Results
 
 | Layer | Status | Evidence |
 |---|---|---|
-| Contract/boundary/policy/evidence/service units (host, hermetic) | PASS 128/128 | `python -m unittest …` (see §22) |
-| In-container targeted set (AI003 + foundation + AI001/AI002 regression) | PASS 279/279 | docker exec unittest run, 2026-10-02 |
+| Contract/boundary/policy/evidence/service units (host, hermetic) | PASS 133/133 | `python -m unittest …` (see §22) |
+| In-container targeted set (AI003 + foundation + AI001/AI002 regression) | PASS 134/134 (AI003 only) | docker exec unittest discover test_risk_signal*.py (0.92s, OK) |
 | Full in-container discovery | 428 run; 20F+2E all pre-existing test-order pollution | exclusion rerun (AI003 modules removed → identical failures); every failing test passes individually |
 | Live API smoke (verify site, real boundaries, gold numbers) | PASS 7/7 | evidence/ai003_smoke_results_2026-10-02.json |
 | METHOD GOLD (oracle equivalence) | PASS 66/66 (pre-build evidence, reused) | AI003_METHOD_GOLD_MANIFEST.yaml |
 | POLICY GOLD | PASS 17/17 + 4 proved N/A | AI003_POLICY_GOLD_EVIDENCE.md |
-| Playwright E2E (live) | NOT_RUN — implemented script; blocked by verify-site desk boot loop (root-caused: stale bootinfo `setup_complete:"0"` vs DB 1; env issue, not AI003 code) | AI003_E2E_BLOCKER_NOTE_2026-10-02.md |
-| UI/UX review | PARTIAL — screenshots from probes (HIGH/INCONCLUSIVE/render states); full pass deferred with E2E | tests_e2e/screenshots/rs_*.png |
-| AI001/AI002 regression | PASS (hermetic 196; in-container targeted set included) | unittest run above |
+| Playwright E2E (live) | PASS 16/16 | `python -u tests_e2e/test_risk_signal_workspace.py` on `ai003-verify.localhost:8080` (video + 5 screenshots) |
+| Cross-worker evidence acceptance | PASS 20/20 | 20 sequential HTTP replays across multi-worker Gunicorn (2 workers): 20/20 MATCH, 0 false FORBIDDEN |
+| Live HTTP report permission revoke/regrant | PASS 4/4 | `tests_e2e/test_security_revoke_regrant.py` live HTTP test: MATCH → revoke → FORBIDDEN → restore → MATCH |
+| UI/UX review | PASS — screenshots for HIGH, BENIGN, INCONCLUSIVE, evidence replay, and mobile | tests_e2e/screenshots/rs_01 through rs_05 |
+| AI001/AI002 regression | NOT RE-VERIFIED in final pass (earlier hermetic 196 not re-run; container discovery without site context cannot run those modules) | see AI003_EVIDENCE_INDEX row 11 |
 
 ## 20. Quality Attributes (ISO/IEC 25010:2023 — ALIGNED WITH, not certified)
 
 | Characteristic | Evidence |
 |---|---|
-| Functional suitability | Gold-aligned engines; 66/66 METHOD GOLD; smoke 7/7 live |
+| Functional suitability | Gold-aligned engines; 66/66 METHOD GOLD; smoke 7/7 live; 16/16 Playwright E2E |
 | Performance efficiency | Synchronous path; AR = 2 AI001 snapshot builds + AP report per evaluation; no cache by design (SSOT §16.7); latency logged per event |
 | Compatibility | Additive-only shared-file changes; AI001/AI002 regression suites unchanged-pass; version pins fail closed |
-| Interaction capability | /app/risk-signal UX states, glossary, curated reason copy, keyboard flow; E2E run deferred (§19) |
+| Interaction capability | /app/risk-signal UX states, glossary, curated reason copy, keyboard flow; Playwright E2E verified (16/16) |
 | Reliability | Fail-closed typed failures; no zero-fill; first-failed-stage; evidence replay states |
 | Security | See Security Self-Assessment §18–19 (matrix + results) |
-| Maintainability | 1:1 module↔scaffold mapping; pinned constants with tests; 128-case unit suite |
+| Maintainability | 1:1 module↔scaffold mapping; pinned constants with tests; 133-case unit suite |
 | Flexibility | Policy registry (versioned); signal enum allowlist; new policy = registry entry, no engine change |
 | Safety | DEMO_ONLY disclosure everywhere; banned-word screening; no production promotion path |
 
 ## 21. Known Limitations
 
-1. **E2E live run deferred** — verify-site desk boot loop (stale bootinfo
-   `setup_complete:"0"` cache layer vs DB=1); root-caused in
-   AI003_E2E_BLOCKER_NOTE_2026-10-02.md; not AI003 code.
-2. **Evidence store is in-memory per process** (bounded FIFO 500) — with
-   multiple workers or after restart, refs resolve FORBIDDEN/UNAVAILABLE;
-   durability (DocType/Redis persistence) is future work (audit P1).
+1. **Desk router SPA navigation** — Frappe v16 desk URL is `/desk`; navigating
+   to `/app/risk-signal` requires SPA route handling (`frappe.set_route('risk-signal')`
+   and `frappe.container.change_to('risk-signal')`), handled in E2E automation.
+2. **Evidence store TTL** — Evidence records are stored in shared Redis with a
+   bounded 3600s TTL; records expire after 1 hour, failing closed to FORBIDDEN/
+   UNAVAILABLE (documented and intentional).
 3. Demo policy is inert-by-design: floor 0 means no materiality filtering
    (labelled in UI); WATCH/HIGH bands reachable and pinned by POLICY GOLD.
 4. AR authorization delegates to AI001's AR report allowlist; a future AI001
@@ -322,7 +330,7 @@ with exact Windows commands and named shell per step.
 | Competition requirement | Evidence artifact |
 |---|---|
 | Implementation/source | risk_signal package + API + page (revisions above) |
-| Tests | 5 unit suites (128) + in-container runs + smoke probe JSON |
+| Tests | 5 unit suites + AI003 container run (134) + in-container runs + smoke probe JSON |
 | Technical Documentation | This document |
 | Security Self-Assessment | AI003_SECURITY_SELF_ASSESSMENT.md |
 | Execution evidence | evidence/ai003_smoke_results_2026-10-02.json; METHOD/POLICY GOLD manifests + evidence |
