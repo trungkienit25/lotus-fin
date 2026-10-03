@@ -22,6 +22,7 @@ from decimal import Decimal
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
+from lotus_fin.risk_signal import evidence as evidence_module  # noqa: E402
 from lotus_fin.risk_signal import policy as policy_module  # noqa: E402
 from lotus_fin.risk_signal.agent import explain_result, next_check_actions  # noqa: E402
 from lotus_fin.risk_signal.contracts import (  # noqa: E402
@@ -41,6 +42,34 @@ from lotus_fin.risk_signal.interfaces import (  # noqa: E402
 )
 from lotus_fin.risk_signal.provenance import SourceFailure  # noqa: E402
 from lotus_fin.risk_signal.service import ServiceDeps, evaluate_signal, get_evidence  # noqa: E402
+
+
+class _HermeticEvidenceRedis:
+    """Explicitly injected raw-boundary fake (make_key/setex/get/delete) so
+    AP evidence records persist in this module without Frappe and without any
+    process-local fallback (runtime has none since G4B remediation)."""
+
+    def __init__(self):
+        self.data = {}
+
+    def make_key(self, key):
+        return f"hermetic|{key}"
+
+    def setex(self, name, time, value):
+        self.data[name] = value
+
+    def get(self, name):
+        return self.data.get(name)
+
+    def delete(self, name):
+        self.data.pop(name, None)
+
+
+def setUpModule():
+    # Module-isolated hermetic store: never rely on suite-execution order or
+    # on state leaked from the evidence test module.
+    evidence_module._STORE = evidence_module.EvidenceStore(client=_HermeticEvidenceRedis())
+
 
 APPLIED = {
     "company": "AI003 Gold 2026",

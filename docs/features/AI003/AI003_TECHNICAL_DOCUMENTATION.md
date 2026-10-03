@@ -26,9 +26,9 @@ status: IMPLEMENTATION_COMPLETE_FOR_WORK_REVIEW
 | Field | Value |
 |---|---|
 | Owner | Lotus Fin team (builder: Zcode) |
-| Date | 2026-10-02 |
+| Date | 2026-10-03 (targeted remediation revision of the 2026-10-02 document) |
 | Contract authority | V2.2 reviewed ruleset (SSOT §16–§19); owner task packet 2026-10-02 |
-| Review status | Independent Work review (G4B) pending — next owner |
+| Review status | Independent Work review (G4B) pending — next owner (targeted remediation handoff) |
 | Related | AI003_MASTER_SSOT.md (§1–22), AI003_SECURITY_SELF_ASSESSMENT.md, AI003_EVIDENCE_INDEX.md |
 
 ## 2. Feature Purpose & Business Problem
@@ -213,50 +213,81 @@ source/evidence refs, no explanation text.
 Evidence records bind verified company, signal, cutoff, report key, filter
 echo, currency, tz, schema+method versions (scope fingerprint) plus a payload
 hash over sanitized derived values. Records are stored in a shared Redis store
-via `frappe.cache()` with prefix `ai003:evidence:`, `use_local_cache=False`,
-and bounded 3600-second TTL (registered in `hooks.py` `persistent_cache_keys`
-to survive full site cache flushes). Multi-worker Gunicorn consistency is
-verified (20/20 MATCH across workers). Replay re-runs the approved source path in
-checked-user context and compares hashes: MATCH (unchanged) / RESTATED
-(changed; current values returned, original evaluation unchanged) /
-UNAVAILABLE (typed source failure) / FORBIDDEN (revoked/denied). Refs are
-opaque resolvable record ids, never authorization tokens. Evaluation
-explanation: grounded narrative or explicit UNAVAILABLE state.
+via the existing Frappe cache client (`frappe.cache()`), site-namespaced with
+`make_key()` under the prefix `ai003:evidence:` (registered in `hooks.py`
+`persistent_cache_keys` to survive full site cache flushes), bounded
+3600-second TTL. The store uses raw Redis commands (`setex`/`get`/`delete`),
+NOT the Frappe convenience wrappers (`set_value`/`get_value`), because those
+swallow `ConnectionError` — the G4B-reviewed defect that let a failed PUT
+return a ref while GET silently returned None. Failure semantics since the
+2026-10-03 targeted remediation (`EvidenceStorageUnavailable`, no
+process-local fallback):
+- Redis healthy → record resolves; multi-worker Gunicorn consistency verified
+  (20/20 MATCH across workers).
+- Missing/expired key → clean miss → generic FORBIDDEN (payload null).
+- Redis outage/timeout (SET, GET, DELETE, or cache init) → structured
+  `ai003_evidence_storage_error` event (correlation id, sanitized exception
+  type) then typed `EvidenceStorageUnavailable`: replay maps to UNAVAILABLE
+  (payload null); the store path never emits an un-persisted ref (the AP
+  evaluation drops evidence refs and the deterministic result keeps
+  frozen-contract behavior). Cache initialization failure is fail-closed.
+JSON serialization round-trips Decimal/date values and preserves canonical
+hash semantics. Replay re-runs the approved source path in checked-user
+context and compares hashes: MATCH (unchanged) / RESTATED (changed; current
+values returned, original evaluation unchanged) / UNAVAILABLE (typed source or
+storage failure) / FORBIDDEN (revoked/denied). Refs are opaque resolvable
+record ids, never authorization tokens; authorization, company scope and
+report permission are rechecked on every access. Evaluation explanation:
+grounded narrative or explicit UNAVAILABLE state.
 
 ## 16. Observability & Debugging
 
 Every evaluation emits `ai003_evaluate_completed` (correlation_id, signal,
 stage, status, reason_code, method/policy version, data_mode, latency) and
-every evidence access emits `ai003_evidence_<outcome>`. JSON events,
-SHA256[:12] hashed ids, allowlisted fields only — no raw rows, party names,
-amounts, prompts or tokens. `stage_trace` on the wire lists pipeline stages
-entered (debug metadata, same envelope for all statuses).
+every evidence access emits `ai003_evidence_<outcome>`. Redis boundary
+failures additionally emit `ai003_evidence_storage_error` with the propagated
+correlation id and a sanitized exception type (operation:
+evidence_cache_init/set/get/delete) — no exception text, raw rows, party
+names, amounts, prompts or tokens ever leave the allowlist. JSON events,
+SHA256[:12] hashed ids, allowlisted fields only. `stage_trace` on the wire
+lists pipeline stages entered (debug metadata, same envelope for all
+statuses).
 
 ## 17. Deployment / Docker Runtime
 
 Build: `docker build -f docker/ai003-local/Dockerfile -t lotus-fin:ai003-local .`
 (repo root; bakes app code + include assets). Run: `docker compose -f
 <compose-project-dir>/pwd.yml -f docker/ai003-local/compose.override.yml up -d
---force-recreate backend frontend websocket scheduler queue-short queue-long`
-(compose dir discovered via `docker inspect frappe_docker-backend-1 --format
+--force-recreate configurator backend frontend websocket scheduler queue-short
+queue-long` (compose dir discovered via `docker inspect
+frappe_docker-backend-1 --format
 '{{index .Config.Labels "com.docker.compose.project.working_dir"}}'` — here
 `E:\frappe_docker`). Then per target site: `bench --site ai003-verify.localhost
 migrate && bench --site ai003-verify.localhost clear-cache`. Named volumes
-preserved; queues are not on the synchronous AI003 path. Current image digest:
-sha256:bb2fa7ce05680bb54bcbb335894ddcefe08f1cdc8aaa4683c91cc6b03383d975.
+preserved; queues are not on the synchronous AI003 path. Since the 2026-10-03
+remediation the compose override pins `configurator.image: lotus-fin:ai003-local`
+so the `sites/apps.txt` registry write (`ls -1 apps`) includes `lotus_fin`;
+verified across two consecutive recreate/start cycles (registry durably
+correct; the earlier manual apps.txt workaround is obsolete). Current image
+digest:
+sha256:b9e70762321fea732299b547c68acc03a6d3b0c24a501fe94d0b91f9153953a4.
 See AI003_REPRODUCTION_GUIDE.md for the full verified sequence and the
 runbook fixes applied (apps.txt, set-admin-password, setup_complete,
 nginx Host-map).
 
 ## 18. Testing Strategy
 
-Pyramid: 133 hermetic unittest cases (contracts 25 / sources 37 / policy 18 /
-evidence 21 / service+security 32) on host and in-container; in-container
-targeted verification set (134 AI003 tests in container; non-AI003 modules need bench site context and were not counted);
-full in-container discovery; live API smoke probe with METHOD GOLD number
-assertions; Playwright E2E suite (16/16 PASS on live verification site, video tests_e2e/videos/ai003_risk_signal_e2e.webm);
+Pyramid: 139 hermetic unittest cases (contracts 25 / sources 37 / policy 18 /
+evidence 27 — including 8 Redis storage-boundary fault-injection tests /
+service+security 32) on host and in-container, order-independent (each suite
+injects its explicit hermetic store); in-container targeted verification set
+(291 AI003 + foundation + AI001/AI002 regression tests);
+live API smoke probe with METHOD GOLD number assertions; Playwright E2E suite
+(16/16 PASS on live verification site, video tests_e2e/videos/ai003_risk_signal_e2e.webm);
 cross-worker evidence consistency acceptance (20/20 MATCH); live HTTP
-permission revoke/regrant verification (4/4 PASS).
+permission revoke/regrant verification (hardened harness: snapshots and
+preserves pre-existing Custom Roles); live HTTP TTL-expiry mechanism probe
+(dedicated short-TTL record — expiry mechanism only, not a 3600s wall-clock run).
 Security matrix from the owner packet §18 mapped to hermetic tests + live gold
 probes (restricted-user report revoke/regrant and metadata denial proven in
 METHOD/POLICY GOLD live evidence and live HTTP tests).
@@ -265,15 +296,16 @@ METHOD/POLICY GOLD live evidence and live HTTP tests).
 
 | Layer | Status | Evidence |
 |---|---|---|
-| Contract/boundary/policy/evidence/service units (host, hermetic) | PASS 133/133 | `python -m unittest …` (see §22) |
-| In-container targeted set (AI003 + foundation + AI001/AI002 regression) | PASS 134/134 (AI003 only) | docker exec unittest discover test_risk_signal*.py (0.92s, OK) |
-| Full in-container discovery | 428 run; 20F+2E all pre-existing test-order pollution | exclusion rerun (AI003 modules removed → identical failures); every failing test passes individually |
-| Live API smoke (verify site, real boundaries, gold numbers) | PASS 7/7 | evidence/ai003_smoke_results_2026-10-02.json |
+| Contract/boundary/policy/evidence/service units (host, hermetic) | PASS 139/139 | `python -m pytest lotus_fin/tests/` (2026-10-03; 405 hermetic incl. AI001/AI002; 3 frappe-import modules excluded as host-env limitation) |
+| In-container targeted set (AI003 + foundation + AI001/AI002 regression) | PASS 291/291 | docker exec unittest -q over the 9-module targeted list (2026-10-03, rebuilt image) |
+| Full in-container discovery | HISTORICAL: 428 run; 20F+2E all pre-existing test-order pollution | exclusion rerun (AI003 modules removed → identical failures); every failing test passes individually; not re-run in 2026-10-03 pass |
+| Live API smoke (verify site, real boundaries, gold numbers) | PASS 7/7 | evidence/ai003_smoke_results_2026-10-03.json (2026-10-02 artifact kept as historical) |
 | METHOD GOLD (oracle equivalence) | PASS 66/66 (pre-build evidence, reused) | AI003_METHOD_GOLD_MANIFEST.yaml |
 | POLICY GOLD | PASS 17/17 + 4 proved N/A | AI003_POLICY_GOLD_EVIDENCE.md |
-| Playwright E2E (live) | PASS 16/16 | `python -u tests_e2e/test_risk_signal_workspace.py` on `ai003-verify.localhost:8080` (video + 5 screenshots) |
-| Cross-worker evidence acceptance | PASS 20/20 | 20 sequential HTTP replays across multi-worker Gunicorn (2 workers): 20/20 MATCH, 0 false FORBIDDEN |
-| Live HTTP report permission revoke/regrant | PASS 4/4 | `tests_e2e/test_security_revoke_regrant.py` live HTTP test: MATCH → revoke → FORBIDDEN → restore → MATCH |
+| Playwright E2E (live) | PASS 16/16 | `python -u tests_e2e/test_risk_signal_workspace.py` on `ai003-verify.localhost:8080` (re-run 2026-10-03; video + screenshots) |
+| Cross-worker evidence acceptance | PASS 20/20 | 20 sequential HTTP replays across multi-worker Gunicorn (2 workers): 20/20 MATCH, 0 false FORBIDDEN; cross-company and unknown ref → FORBIDDEN (re-run 2026-10-03) |
+| Live HTTP report permission revoke/regrant | PASS 4/4 (hardened harness) | `tests_e2e/test_security_revoke_regrant.py` live HTTP test: MATCH → revoke → FORBIDDEN → restore → MATCH; pre-existing Custom Roles snapshotted and preserved, only harness-created artifacts removed |
+| TTL expiry mechanism over live HTTP | PASS (mechanism) | `tests_e2e/test_ttl_expiry_http.py`: dedicated 4s-TTL record → fresh MATCH → post-expiry FORBIDDEN (payload null). NOT a 3600s wall-clock verification; production TTL pinned by unit test (SETEX time=3600) |
 | UI/UX review | PASS — screenshots for HIGH, BENIGN, INCONCLUSIVE, evidence replay, and mobile | tests_e2e/screenshots/rs_01 through rs_05 |
 | AI001/AI002 regression | NOT RE-VERIFIED in final pass (earlier hermetic 196 not re-run; container discovery without site context cannot run those modules) | see AI003_EVIDENCE_INDEX row 11 |
 
@@ -308,6 +340,17 @@ METHOD/POLICY GOLD live evidence and live HTTP tests).
    degraded to UNAVAILABLE more often than strictly necessary (fail-closed).
 6. No persistent signal history; no scheduler; single-site verification
    runtime only.
+7. **Stale-response UI defect (OPEN remaining finding)** — the independent
+   reviewer identified a residual stale-response case in the risk-signal UI
+   that is outside the 2026-10-03 targeted remediation's authorized scope
+   (thresholds/contract/method/authorization semantics untouched). It remains
+   open; G4B must not be declared PASS while this finding is unresolved.
+8. **Redis failure-mode distinctions** are: healthy (resolve), missing/expired
+   key (clean miss → generic FORBIDDEN), outage/timeout (typed
+   `EvidenceStorageUnavailable` → replay UNAVAILABLE; store emits no ref).
+   Historical test artifacts from earlier rounds (e.g., the 2026-10-02 smoke
+   JSON, prior image digest) are kept as historical records, clearly dated —
+   they are not current verification.
 
 ## 22. Reproduction Guide
 
@@ -324,16 +367,18 @@ with exact Windows commands and named shell per step.
 | 2026-10-02 | /app/risk-signal page + entry links + workspace card | 131b57e |
 | 2026-10-02 | E2E script + runbook fixes (nginx host-map, baked assets, apps.txt) + smoke evidence | 4b22d93 |
 | 2026-10-02 | Audit round 1 fixes (4 HIGH + quick wins) | b4eba4d |
+| 2026-10-02 | G4B remediation pass: shared Redis evidence store, structured diagnostics, Playwright E2E with video | 117d7e5 |
+| 2026-10-03 | G4B targeted remediation: raw-Redis evidence boundary (typed failures, no local fallback, site-namespaced keys, correlation-id diagnostics), configurator image fix (durable apps.txt registry), hardened revoke/regrant harness, TTL-expiry HTTP probe, docs alignment | this pass (SHA recorded in the remediation report; parent 117d7e5) |
 
 ## 24. Competition Evidence Mapping
 
 | Competition requirement | Evidence artifact |
 |---|---|
 | Implementation/source | risk_signal package + API + page (revisions above) |
-| Tests | 5 unit suites + AI003 container run (134) + in-container runs + smoke probe JSON |
+| Tests | 5 unit suites (139 hermetic) + AI003 in-container targeted set (291) + smoke probe JSON (2026-10-03) |
 | Technical Documentation | This document |
 | Security Self-Assessment | AI003_SECURITY_SELF_ASSESSMENT.md |
-| Execution evidence | evidence/ai003_smoke_results_2026-10-02.json; METHOD/POLICY GOLD manifests + evidence |
-| Known limitations | §21 + E2E blocker note |
+| Execution evidence | evidence/ai003_smoke_results_2026-10-03.json; METHOD/POLICY GOLD manifests + evidence |
+| Known limitations | §21 (incl. open stale-response UI finding) |
 | Deployment/reproduction | AI003_REPRODUCTION_GUIDE.md + §17 |
 | Independent verification | Next owner: Work review (G4B) — verdict reserved |

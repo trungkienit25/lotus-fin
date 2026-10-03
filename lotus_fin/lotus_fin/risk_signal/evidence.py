@@ -14,16 +14,17 @@ Semantics pinned by SSOT §16.7 and the IVL replay harness evidence
   timezone, schema and method versions.
 
 No dedicated evaluation cache exists (SSOT §16.7/§19.2); this store holds only
-evidence records, bounded, FIFO-evicted, never serving stale authorization.
+evidence records, TTL-bounded (3600s) in the site-scoped Redis cache, never
+serving stale authorization.
 """
 
 from __future__ import annotations
 
-import threading
+import json
 from dataclasses import dataclass, field
 from datetime import date
 from decimal import Decimal
-from typing import Any, Callable, Dict, Mapping, Optional
+from typing import Any, Callable, Mapping, Optional
 
 from lotus_fin.risk_signal.contracts import (
     ACCOUNTING_TIMEZONE,
@@ -40,8 +41,22 @@ from lotus_fin.risk_signal.provenance import (
 )
 
 EVIDENCE_KIND_REPORT_SNAPSHOT = "REPORT_SNAPSHOT"
-MAX_EVIDENCE_RECORDS = 500
 DEFAULT_EVIDENCE_TTL_SECONDS = 3600  # 1 hour bounded TTL
+EVIDENCE_KEY_PREFIX = "ai003:evidence:"
+
+
+class EvidenceStorageUnavailable(Exception):
+    """Typed fail-closed evidence-cache failure.
+
+    Raised whenever the Redis boundary (init, SET, GET, DELETE) fails or the
+    store cannot resolve a cache client. The message is generic — internal
+    error detail stays in the structured audit event only. Callers map this to
+    typed UNAVAILABLE (replay) or a suppressed evidence ref (store path).
+    """
+
+    def __init__(self, cause_type: str = "Unknown") -> None:
+        super().__init__("evidence storage unavailable")
+        self.cause_type = cause_type
 
 
 class ReplayOutcome:
@@ -118,129 +133,151 @@ def _deserialize_record(data: dict) -> EvidenceRecord:
 
 
 class EvidenceStore:
-    """Server-side bounded evidence record store shared across Gunicorn workers
-    via Frappe/Redis cache with hermetic in-memory fallback.
+    """Server-side evidence record store shared across Gunicorn workers via the
+    Frappe Redis cache client.
+
+    Boundary rules (G4B remediation):
+    - Raw Redis commands (``setex``/``get``/``delete``) are used directly — the
+      Frappe convenience wrappers (``set_value``/``get_value``) swallow
+      ConnectionError and would turn a store failure into a silent miss.
+    - Keys are site-namespaced via ``make_key()`` under ``ai003:evidence:``.
+    - Any Redis connection error/timeout is surfaced as typed
+      ``EvidenceStorageUnavailable``; there is NO process-local fallback.
+    - Missing/expired keys are a clean ``None`` (distinct from failures).
     """
 
     def __init__(
         self,
-        max_records: int = MAX_EVIDENCE_RECORDS,
         ttl_seconds: int = DEFAULT_EVIDENCE_TTL_SECONDS,
         client: Optional[Any] = None,
     ) -> None:
         self._ttl = ttl_seconds
-        self._max = max_records
         self._client = client
-        self._local_records: Dict[str, dict] = {}
-        self._local_order: list = []
-        self._lock = threading.Lock()
 
-    def _get_client(self):
+    def _get_client(self, *, operation: str, stage: str, correlation_id: Optional[str]):
+        """Resolve the cache client. Failure is never silent (no local
+        fallback): it is logged once and surfaced as a typed error."""
         if self._client is not None:
             return self._client
         try:
             import frappe
 
-            if getattr(frappe.local, "site", None) or getattr(frappe.local, "conf", None):
-                cache = frappe.cache()
-                if cache is not None:
-                    return cache
-        except Exception:
-            pass
-        return None
+            if not (getattr(frappe.local, "site", None) or getattr(frappe.local, "conf", None)):
+                raise RuntimeError("no frappe site context for evidence cache")
+            cache = frappe.cache()
+            if cache is None:
+                raise RuntimeError("frappe cache unavailable")
+            return cache
+        except Exception as exc:
+            self._storage_failure(
+                exc, operation=operation, stage=stage, correlation_id=correlation_id
+            )
 
-    def put(self, record: EvidenceRecord) -> str:
-        """Store an evidence record with bounded TTL; return opaque ref."""
+    @staticmethod
+    def _make_key(client: Any, ref: str) -> str:
+        key = f"{EVIDENCE_KEY_PREFIX}{ref}"
+        make_key = getattr(client, "make_key", None)
+        if callable(make_key):
+            return make_key(key)  # site-namespaced by Frappe's RedisWrapper
+        return key
+
+    def _storage_failure(
+        self,
+        exc: Exception,
+        *,
+        operation: str,
+        stage: str,
+        correlation_id: Optional[str],
+    ) -> None:
+        log_ai003_event(
+            event_type="ai003_evidence_storage_error",
+            correlation_id=correlation_id,
+            stage=stage,
+            status=Status.SOURCE_ERROR.value,
+            reason_code=ReasonCode.SOURCE_UNAVAILABLE.value,
+            exception_type=type(exc).__name__,
+            operation=operation,
+        )
+        raise EvidenceStorageUnavailable(cause_type=type(exc).__name__) from exc
+
+    def put(self, record: EvidenceRecord, correlation_id: Optional[str] = None) -> str:
+        """Persist one record with bounded TTL; return the opaque ref only
+        after a successful SET. Returns nothing on failure — the typed error
+        propagates so no un-persisted ref is ever handed out."""
         serialized = _serialize_record(record)
-        client = self._get_client()
-        if client is not None:
-            try:
-                key = f"ai003:evidence:{record.ref}"
-                client.set_value(key, serialized, expires_in_sec=self._ttl)
-                return record.ref
-            except Exception as exc:
-                log_ai003_event(
-                    event_type="ai003_evidence_storage_error",
-                    correlation_id=None,
-                    stage=Stage.A10_EVALUATION.value,
-                    status=Status.SOURCE_ERROR.value,
-                    reason_code=ReasonCode.SOURCE_UNAVAILABLE.value,
-                    exception_type=type(exc).__name__,
-                    operation="evidence_cache_set",
-                )
-
-        with self._lock:
-            self._local_records[record.ref] = serialized
-            self._local_order.append(record.ref)
-            while len(self._local_order) > self._max:
-                evicted = self._local_order.pop(0)
-                self._local_records.pop(evicted, None)
+        client = self._get_client(
+            operation="evidence_cache_init",
+            stage=Stage.A10_EVALUATION.value,
+            correlation_id=correlation_id,
+        )
+        key = self._make_key(client, record.ref)
+        try:
+            client.setex(key, self._ttl, json.dumps(serialized, sort_keys=True, default=str))
+        except Exception as exc:
+            self._storage_failure(
+                exc,
+                operation="evidence_cache_set",
+                stage=Stage.A10_EVALUATION.value,
+                correlation_id=correlation_id,
+            )
         return record.ref
 
-    def create(self, record: EvidenceRecord) -> EvidenceRecord:
+    def create(self, record: EvidenceRecord, correlation_id: Optional[str] = None) -> EvidenceRecord:
         """Backward-compatible put returning the record."""
-        self.put(record)
+        self.put(record, correlation_id=correlation_id)
         return record
 
-    def get(self, ref: str) -> Optional[EvidenceRecord]:
-        """Fetch record by ref, returning None if expired or nonexistent."""
+    def get(self, ref: str, correlation_id: Optional[str] = None) -> Optional[EvidenceRecord]:
+        """Fetch record by ref. ``None`` means missing/expired (clean miss);
+        Redis failures raise typed ``EvidenceStorageUnavailable``."""
         if not isinstance(ref, str) or not ref:
             return None
 
-        client = self._get_client()
-        if client is not None:
-            try:
-                key = f"ai003:evidence:{ref}"
-                data = client.get_value(key, expires=True, use_local_cache=False)
-                if data is not None:
-                    return _deserialize_record(data)
-                return None
-            except Exception as exc:
-                log_ai003_event(
-                    event_type="ai003_evidence_storage_error",
-                    correlation_id=None,
-                    stage=Stage.A5_SOURCE_AUTH.value,
-                    status=Status.SOURCE_ERROR.value,
-                    reason_code=ReasonCode.SOURCE_UNAVAILABLE.value,
-                    exception_type=type(exc).__name__,
-                    operation="evidence_cache_get",
-                )
+        client = self._get_client(
+            operation="evidence_cache_init",
+            stage=Stage.A5_SOURCE_AUTH.value,
+            correlation_id=correlation_id,
+        )
+        key = self._make_key(client, ref)
+        try:
+            raw = client.get(key)
+        except Exception as exc:
+            self._storage_failure(
+                exc,
+                operation="evidence_cache_get",
+                stage=Stage.A5_SOURCE_AUTH.value,
+                correlation_id=correlation_id,
+            )
+        if raw is None:
+            return None
+        if isinstance(raw, bytes):
+            raw = raw.decode("utf-8")
+        try:
+            data = json.loads(raw)
+        except Exception:
+            return None
+        return _deserialize_record(data)
 
-        with self._lock:
-            data = self._local_records.get(ref)
-            if data is not None:
-                return _deserialize_record(data)
-        return None
-
-    def delete(self, ref: str) -> None:
-        """Evict record by ref."""
+    def delete(self, ref: str, correlation_id: Optional[str] = None) -> None:
+        """Evict record by ref; Redis failures are surfaced, not swallowed."""
         if not isinstance(ref, str) or not ref:
             return
 
-        client = self._get_client()
-        if client is not None:
-            try:
-                key = f"ai003:evidence:{ref}"
-                client.delete_value(key)
-            except Exception as exc:
-                log_ai003_event(
-                    event_type="ai003_evidence_storage_error",
-                    correlation_id=None,
-                    stage=Stage.A10_EVALUATION.value,
-                    status=Status.SOURCE_ERROR.value,
-                    reason_code=ReasonCode.SOURCE_UNAVAILABLE.value,
-                    exception_type=type(exc).__name__,
-                    operation="evidence_cache_delete",
-                )
-
-        with self._lock:
-            self._local_records.pop(ref, None)
-            if ref in self._local_order:
-                self._local_order.remove(ref)
-
-    def __len__(self) -> int:
-        with self._lock:
-            return len(self._local_records)
+        client = self._get_client(
+            operation="evidence_cache_init",
+            stage=Stage.A10_EVALUATION.value,
+            correlation_id=correlation_id,
+        )
+        key = self._make_key(client, ref)
+        try:
+            client.delete(key)
+        except Exception as exc:
+            self._storage_failure(
+                exc,
+                operation="evidence_cache_delete",
+                stage=Stage.A10_EVALUATION.value,
+                correlation_id=correlation_id,
+            )
 
 
 _STORE = EvidenceStore()
@@ -286,6 +323,7 @@ def create_evidence_record(
     source_schema_version: str,
     payload: Mapping,
     captured_at: str,
+    correlation_id: Optional[str] = None,
 ) -> EvidenceRecord:
     """Build, hash and store one sanitized report-snapshot evidence record."""
     scope_fingerprint = build_scope_fingerprint(
@@ -308,7 +346,7 @@ def create_evidence_record(
         payload=payload,
         captured_at=captured_at,
     )
-    return _STORE.create(record)
+    return _STORE.create(record, correlation_id=correlation_id)
 
 
 def _sanitize_payload(payload: Mapping) -> Mapping:
@@ -353,7 +391,13 @@ def evidence_get(
         )
         return ReplayResult(ReplayOutcome.FORBIDDEN, None)
 
-    record = _STORE.get(ref)
+    try:
+        record = _STORE.get(ref, correlation_id=correlation_id)
+    except EvidenceStorageUnavailable:
+        # Redis boundary failure (outage/timeout) — distinct from a clean miss;
+        # the boundary event with correlation id was logged by the store.
+        return ReplayResult(ReplayOutcome.UNAVAILABLE, None)
+
     if record is None:
         log_ai003_event(
             event_type="ai003_evidence_not_found",

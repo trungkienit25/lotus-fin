@@ -1,4 +1,9 @@
 services:
+  configurator:
+    # Must run the custom image: it writes sites/apps.txt from `ls -1 apps`,
+    # so the stock frappe/erpnext image erases lotus_fin from the registry
+    # (UI: "Module Lotus Fin AI not found").
+    image: lotus-fin:ai003-local
   backend:
     image: lotus-fin:ai003-local
   frontend:

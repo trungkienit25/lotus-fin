@@ -24,6 +24,12 @@ TEST_USER = "ai003_sec_user@example.com"
 TEST_PASS = "LotusFinSecurity2026!#Strong"
 COMPANY = "AI003 MG AP"
 
+# Name of the Custom Role THIS harness created (if any). Only this exact doc
+# is ever deleted; pre-existing Custom Roles/Users are snapshotted and never
+# touched (no blanket AP Custom Role cleanup).
+CREATED_ROLE = None
+PREEXISTING_AP_ROLES = []
+
 
 def run_in_backend(py_code: str) -> str:
     cmd = [
@@ -36,6 +42,31 @@ def run_in_backend(py_code: str) -> str:
     return res.stdout.strip()
 
 
+def snapshot_ap_custom_roles():
+    """Record pre-existing Custom Role docs for report='Accounts Payable' so
+    the harness can prove it preserved them (it never deletes them)."""
+    global PREEXISTING_AP_ROLES
+    out = run_in_backend("""
+import json
+roles = []
+for name in frappe.get_all('Custom Role', filters={'report': 'Accounts Payable'}, pluck='name'):
+    doc = frappe.get_doc('Custom Role', name)
+    roles.append({
+        'name': name,
+        'ref_doctype': doc.ref_doctype,
+        'roles': sorted(r.role for r in doc.roles),
+    })
+print(json.dumps(roles))
+""")
+    PREEXISTING_AP_ROLES = json.loads(out)
+    if PREEXISTING_AP_ROLES:
+        print(f"   Snapshot: {len(PREEXISTING_AP_ROLES)} pre-existing AP Custom Role(s) preserved: "
+              + ", ".join(r["name"] for r in PREEXISTING_AP_ROLES))
+    else:
+        print("   Snapshot: no pre-existing AP Custom Role on this site")
+    return PREEXISTING_AP_ROLES
+
+
 def setup_test_user():
     code = f"""
 from frappe.utils.password import update_password
@@ -43,8 +74,6 @@ USER = '{TEST_USER}'
 C = '{COMPANY}'
 if frappe.db.exists('User', USER):
     frappe.delete_doc('User', USER, ignore_permissions=True)
-for cr in frappe.get_all('Custom Role', filters={{'report': 'Accounts Payable'}}, pluck='name'):
-    frappe.delete_doc('Custom Role', cr, ignore_permissions=True)
 frappe.db.commit()
 
 user = frappe.get_doc({{
@@ -71,45 +100,60 @@ print('USER_CREATED')
 
 
 def revoke_report_permission():
-    code = f"""
-cr = frappe.get_doc({{
+    global CREATED_ROLE
+    if PREEXISTING_AP_ROLES:
+        raise RuntimeError(
+            "pre-existing AP Custom Role(s) present; refusing to create a "
+            "conflicting permission state or delete them — resolve manually"
+        )
+    out = run_in_backend("""
+cr = frappe.get_doc({
     'doctype': 'Custom Role',
     'report': 'Accounts Payable',
     'ref_doctype': 'Purchase Invoice',
-    'roles': [{{'role': 'Accounts Manager'}}],
-}}).insert(ignore_permissions=True)
+    'roles': [{'role': 'Accounts Manager'}],
+}).insert(ignore_permissions=True)
 frappe.db.commit()
-print('REVOKED')
-"""
-    return run_in_backend(code)
+print(cr.name)
+""")
+    CREATED_ROLE = out.splitlines()[-1]
+    print(f"   Created test Custom Role: {CREATED_ROLE}")
+    return "REVOKED"
 
 
 def restore_report_permission():
-    code = f"""
-for cr in frappe.get_all('Custom Role', filters={{'report': 'Accounts Payable'}}, pluck='name'):
-    frappe.delete_doc('Custom Role', cr, ignore_permissions=True)
+    if not CREATED_ROLE:
+        return "RESTORED_NOTHING_CREATED"
+    run_in_backend(f"""
+if frappe.db.exists('Custom Role', {CREATED_ROLE!r}):
+    frappe.delete_doc('Custom Role', {CREATED_ROLE!r}, ignore_permissions=True)
 frappe.db.commit()
-print('RESTORED')
-"""
-    return run_in_backend(code)
+print('DELETED_OWN_ROLE')
+""")
+    return "RESTORED"
 
 
 def cleanup():
-    code = f"""
-USER = '{TEST_USER}'
+    global CREATED_ROLE
+    # Never blanket-delete: only the artifacts this harness created.
+    run_in_backend(f"""
+import json
+USER = {TEST_USER!r}
 if frappe.db.exists('User', USER):
     frappe.delete_doc('User', USER, ignore_permissions=True)
-for cr in frappe.get_all('Custom Role', filters={{'report': 'Accounts Payable'}}, pluck='name'):
-    frappe.delete_doc('Custom Role', cr, ignore_permissions=True)
+if {CREATED_ROLE!r} and frappe.db.exists('Custom Role', {CREATED_ROLE!r}):
+    frappe.delete_doc('Custom Role', {CREATED_ROLE!r}, ignore_permissions=True)
 frappe.db.commit()
-frappe.clear_cache()
-print('CLEANED')
-"""
-    return run_in_backend(code)
+remaining = frappe.get_all('Custom Role', filters={{'report': 'Accounts Payable'}}, pluck='name')
+print('REMAINING=' + json.dumps(sorted(remaining)))
+""")
+    CREATED_ROLE = None
+    return "CLEANED"
 
 
 def main():
-    print("1. Setting up restricted test user...")
+    print("1. Snapshotting pre-existing AP Custom Roles and setting up restricted test user...")
+    snapshot_ap_custom_roles()
     setup_test_user()
 
     cj = http.cookiejar.CookieJar()

@@ -7,13 +7,21 @@ Pins:
   FORBIDDEN; ref is never an auth token),
 - payload sanitization (only authorized derived values survive),
 - observability event allowlisting (unknown fields dropped, no PII, bounded
-  latency/count values, fixed method/policy metadata).
+  latency/count values, fixed method/policy metadata),
+- G4B remediation: raw Redis command boundary (make_key/setex/get/delete),
+  errors surfaced as typed EvidenceStorageUnavailable, no process-local
+  fallback, TTL 3600, Decimal/date round-trip, correlation-id diagnostics
+  with zero sensitive error text.
+
+Hermetic stores are ALWAYS constructed with an explicitly injected client —
+the runtime resolves Frappe's cache and must never fall back to a local dict.
 """
 
 import json
 import os
 import sys
 import unittest
+import unittest.mock as mock
 from datetime import date
 from decimal import Decimal
 
@@ -23,6 +31,48 @@ from lotus_fin.risk_signal import evidence as ev  # noqa: E402
 from lotus_fin.risk_signal.contracts import ReasonCode, SignalId, Status  # noqa: E402
 from lotus_fin.risk_signal.observability import hash_id, log_ai003_event  # noqa: E402
 from lotus_fin.risk_signal.provenance import SourceFailure  # noqa: E402
+
+
+# Sensitive marker injected into fake Redis errors — must never reach the
+# structured events or any client-facing payload.
+SENSITIVE_ERROR_TEXT = "SENSITIVE redis://admin:sekret@10.0.0.42:6379 auth-failed"
+
+
+class FakeFrappeRedis:
+    """Models the RAW redis command boundary exposed by Frappe's RedisWrapper
+    (make_key/setex/get/delete) — NOT the error-swallowing convenience methods
+    (set_value/get_value), which is the exact defect class under remediation.
+    Commands fail with an injected exception when listed in ``fail_on``."""
+
+    def __init__(self, fail_on=(), error=None):
+        self.data = {}
+        self.ttls = {}
+        self.fail_on = set(fail_on)
+        self.error = error or ConnectionError(SENSITIVE_ERROR_TEXT)
+
+    def make_key(self, key):
+        return f"testsite|{key}"
+
+    def setex(self, name, time, value):
+        if "setex" in self.fail_on:
+            raise self.error
+        self.data[name] = value
+        self.ttls[name] = time
+
+    def get(self, name):
+        if "get" in self.fail_on:
+            raise self.error
+        return self.data.get(name)
+
+    def delete(self, name):
+        if "delete" in self.fail_on:
+            raise self.error
+        self.data.pop(name, None)
+        self.ttls.pop(name, None)
+
+
+def _make_store(client=None):
+    return ev.EvidenceStore(client=client if client is not None else FakeFrappeRedis())
 
 
 def _make_record(company="AI003 Gold 2026", payload=None, signal=SignalId.AP_DUE_CLUSTER):
@@ -50,7 +100,7 @@ def _make_record(company="AI003 Gold 2026", payload=None, signal=SignalId.AP_DUE
 
 class EvidenceStoreTests(unittest.TestCase):
     def setUp(self):
-        ev._STORE = ev.EvidenceStore()
+        ev._STORE = _make_store()
 
     def test_record_created_with_bindings(self):
         record = _make_record()
@@ -76,17 +126,24 @@ class EvidenceStoreTests(unittest.TestCase):
         self.assertNotIn("exception_text", record.payload)
         self.assertIn("numerator", record.payload)
 
-    def test_store_bounded_fifo(self):
-        ev._STORE = ev.EvidenceStore(max_records=3)
-        refs = [_make_record(payload={"numerator": Decimal(i)}).ref for i in range(5)]
-        self.assertLessEqual(len(ev._STORE), 3)
-        self.assertIsNone(ev._STORE.get(refs[0]))
-        self.assertIsNotNone(ev._STORE.get(refs[-1]))
+    def test_scope_change_produces_different_ref(self):
+        other = ev.create_evidence_record(
+            company="AI003 Gold 2026",
+            signal_id=SignalId.AP_DUE_CLUSTER,
+            as_of_date=date(2026, 9, 25),  # different cutoff
+            report_key="accounts_payable",
+            filters={"report_date": "2026-09-25"},
+            currency="VND",
+            source_schema_version="ap_report_v1",
+            payload={"report_key": "accounts_payable"},
+            captured_at="2026-10-02T00:00:00.000Z",
+        )
+        self.assertNotEqual(other.ref, _make_record().ref)
 
 
 class ReplaySemanticsTests(unittest.TestCase):
     def setUp(self):
-        ev._STORE = ev.EvidenceStore()
+        ev._STORE = _make_store()
         self.record = _make_record()
 
     def test_match(self):
@@ -138,20 +195,6 @@ class ReplaySemanticsTests(unittest.TestCase):
         result = ev.evidence_get("custom:report/1", "AI003 Gold 2026", lambda record: {})
         self.assertEqual(result.outcome, ev.ReplayOutcome.FORBIDDEN)
 
-    def test_scope_change_produces_different_ref(self):
-        other = ev.create_evidence_record(
-            company="AI003 Gold 2026",
-            signal_id=SignalId.AP_DUE_CLUSTER,
-            as_of_date=date(2026, 9, 25),  # different cutoff
-            report_key="accounts_payable",
-            filters={"report_date": "2026-09-25"},
-            currency="VND",
-            source_schema_version="ap_report_v1",
-            payload={"report_key": "accounts_payable"},
-            captured_at="2026-10-02T00:00:00.000Z",
-        )
-        self.assertNotEqual(other.ref, self.record.ref)
-
 
 class ObservabilityTests(unittest.TestCase):
     def test_event_allowlisting(self):
@@ -202,62 +245,164 @@ class ObservabilityTests(unittest.TestCase):
         self.assertIsNone(hash_id(None))
 
 
-class MockCacheClient:
-    def __init__(self):
-        self.store = {}
+class StorageBoundaryTests(unittest.TestCase):
+    """G4B remediation — the Redis boundary is exercised directly: failures
+    surface as typed EvidenceStorageUnavailable and never fall back to a
+    process-local store."""
 
-    def set_value(self, key, val, expires_in_sec=None):
-        self.store[key] = val
+    def test_1_connection_error_surfaces_on_set_and_get(self):
+        # Real-wrapper shape: raw commands raise ConnectionError on outage.
+        put_store = ev.EvidenceStore(client=FakeFrappeRedis(fail_on={"setex"}))
+        with self.assertRaises(ev.EvidenceStorageUnavailable) as ctx:
+            put_store.put(_make_record(), correlation_id="conn-corr")
+        self.assertEqual(ctx.exception.cause_type, "ConnectionError")
 
-    def get_value(self, key, generator=None, user=None, expires=False, shared=False, *, use_local_cache=True):
-        return self.store.get(key)
+        get_store = ev.EvidenceStore(client=FakeFrappeRedis(fail_on={"get"}))
+        with self.assertRaises(ev.EvidenceStorageUnavailable) as ctx:
+            get_store.get("AI003-EV-anything", correlation_id="conn-corr")
+        self.assertEqual(ctx.exception.cause_type, "ConnectionError")
 
-    def delete_value(self, key):
-        self.store.pop(key, None)
+    def test_2_timeout_surfaces_as_typed_failure(self):
+        store = ev.EvidenceStore(
+            client=FakeFrappeRedis(fail_on={"setex", "get"}, error=TimeoutError(SENSITIVE_ERROR_TEXT))
+        )
+        with self.assertRaises(ev.EvidenceStorageUnavailable) as ctx:
+            store.put(_make_record(), correlation_id="timeout-corr")
+        self.assertEqual(ctx.exception.cause_type, "TimeoutError")
 
+        with self.assertRaises(ev.EvidenceStorageUnavailable):
+            store.get("AI003-EV-anything", correlation_id="timeout-corr")
 
-class CrossWorkerAndDiagnosticTests(unittest.TestCase):
-    def test_cross_worker_shared_cache_retrieval(self):
-        """Simulate Gunicorn worker A writing and worker B reading via shared cache."""
-        mock_redis = MockCacheClient()
-        worker_a_store = ev.EvidenceStore(client=mock_redis)
-        worker_b_store = ev.EvidenceStore(client=mock_redis)
+    def test_3_set_failure_emits_no_ref(self):
+        # Store path: a failed SET must not hand out an un-persisted ref —
+        # the typed error propagates and the service drops evidence refs.
+        ev._STORE = ev.EvidenceStore(client=FakeFrappeRedis(fail_on={"setex"}))
+        with self.assertRaises(ev.EvidenceStorageUnavailable):
+            ev.create_evidence_record(
+                company="AI003 Gold 2026",
+                signal_id=SignalId.AP_DUE_CLUSTER,
+                as_of_date=date(2026, 9, 26),
+                report_key="accounts_payable",
+                filters={},
+                currency="VND",
+                source_schema_version="ap_report_v1",
+                payload={"report_key": "accounts_payable"},
+                captured_at="2026-10-02T00:00:00.000Z",
+            )
+        # Deterministic result keeps frozen-contract behavior: no refs, no crash.
+        from lotus_fin.risk_signal.service import _ap_evidence
+
+        dummy_snapshot = mock.MagicMock()
+        dummy_snapshot.report_key = "accounts_payable"
+        dummy_snapshot.source_hash = "h" * 64
+        dummy_snapshot.filters_applied = {}
+        refs, ref = _ap_evidence(
+            dummy_snapshot, (), "AI003 Gold 2026", date(2026, 9, 26), "2026-10-02T00:00:00Z",
+            correlation_id="set-fail-corr"
+        )
+        self.assertEqual(refs, ())
+        self.assertIsNone(ref)
+
+    def test_4_get_failure_distinct_from_missing_key(self):
+        # Redis failure on GET -> typed error -> evidence_get maps to UNAVAILABLE.
+        ev._STORE = ev.EvidenceStore(client=FakeFrappeRedis(fail_on={"get"}))
+        result = ev.evidence_get("AI003-EV-x", "AI003 Gold 2026", lambda record: {}, correlation_id="gf")
+        self.assertEqual(result.outcome, ev.ReplayOutcome.UNAVAILABLE)
+        self.assertIsNone(result.fresh_payload)
+
+        # Healthy GET on missing/expired key -> None -> generic FORBIDDEN.
+        ev._STORE = _make_store()
+        result = ev.evidence_get("AI003-EV-never-stored", "AI003 Gold 2026", lambda record: {})
+        self.assertEqual(result.outcome, ev.ReplayOutcome.FORBIDDEN)
+        self.assertIsNone(result.record)
+
+    def test_5_cross_worker_healthy_path(self):
+        shared = FakeFrappeRedis()
+        worker_a = ev.EvidenceStore(client=shared)
+        worker_b = ev.EvidenceStore(client=shared)
         record = _make_record()
-        ref = worker_a_store.put(record)
+        ref = worker_a.put(record, correlation_id="cw")
         self.assertEqual(ref, record.ref)
 
-        retrieved = worker_b_store.get(ref)
+        # Site-namespaced key with the frozen prefix.
+        self.assertTrue(
+            all(k.startswith("testsite|ai003:evidence:") for k in shared.data),
+            f"unexpected keys: {list(shared.data)}",
+        )
+
+        retrieved = worker_b.get(ref)
         self.assertIsNotNone(retrieved)
         self.assertEqual(retrieved.ref, record.ref)
         self.assertEqual(retrieved.company, record.company)
         self.assertEqual(retrieved.as_of_date, record.as_of_date)
         self.assertEqual(retrieved.payload["numerator"], Decimal("1000"))
-        self.assertEqual(retrieved.payload["denominator"], Decimal("3000"))
 
-    def test_evidence_store_delete(self):
-        mock_redis = MockCacheClient()
-        store = ev.EvidenceStore(client=mock_redis)
+    def test_6_no_runtime_local_fallback(self):
+        store = ev.EvidenceStore(client=FakeFrappeRedis(fail_on={"setex"}))
+        self.assertFalse(hasattr(store, "_local_records"))
+        self.assertFalse(hasattr(store, "_local_order"))
+        with self.assertRaises(ev.EvidenceStorageUnavailable):
+            store.put(_make_record(), correlation_id="lf")
+        # Nothing landed anywhere: after the client heals, the ref is absent.
+        store._client.fail_on.clear()
+        self.assertIsNone(store.get("AI003-EV-never-persisted"))
+        # A store with no resolvable client and no injection fails closed too.
+        with mock.patch.dict(sys.modules, {"frappe": None}):
+            orphan = ev.EvidenceStore()
+            with self.assertRaises(ev.EvidenceStorageUnavailable):
+                orphan.get("AI003-EV-x", correlation_id="lf")
+
+    def test_7_ttl_and_decimal_date_roundtrip(self):
+        shared = FakeFrappeRedis()
+        worker_a = ev.EvidenceStore(client=shared)
+        worker_b = ev.EvidenceStore(client=shared)
         record = _make_record()
-        ref = store.put(record)
-        self.assertIsNotNone(store.get(ref))
-        store.delete(ref)
-        self.assertIsNone(store.get(ref))
+        worker_a.put(record)
+        (blob,) = shared.ttls.values()
+        self.assertEqual(blob, 3600)  # frozen TTL bound
 
-    def test_evidence_ttl_expired(self):
-        mock_redis = MockCacheClient()
-        store = ev.EvidenceStore(client=mock_redis)
-        record = _make_record()
-        ref = store.put(record)
-        self.assertIsNotNone(store.get(ref))
-        # Simulate Redis TTL expiry
-        mock_redis.store.clear()
-        self.assertIsNone(store.get(ref))
+        restored = worker_b.get(record.ref)
+        self.assertEqual(restored.as_of_date, date(2026, 9, 26))
+        self.assertEqual(restored.payload["numerator"], Decimal("1000"))
+        self.assertEqual(restored.payload["display_share"], Decimal("0.3333"))
+        self.assertEqual(restored.payload["numerator_voucher_count"], 2)
+        # Canonical hash semantics survive the round trip (MATCH basis).
+        self.assertEqual(
+            worker_b.get(record.ref).payload_hash, record.payload_hash
+        )
 
+    def test_8_diagnostics_correlation_no_sensitive_text(self):
+        logged = []
+        store = ev.EvidenceStore(client=FakeFrappeRedis(fail_on={"setex", "get"}))
+        with mock.patch(
+            "lotus_fin.risk_signal.evidence.log_ai003_event",
+            side_effect=lambda **kw: logged.append(kw) or {},
+        ):
+            with self.assertRaises(ev.EvidenceStorageUnavailable):
+                store.put(_make_record(), correlation_id="corr-boundary-8")
+            with self.assertRaises(ev.EvidenceStorageUnavailable):
+                store.get("AI003-EV-x", correlation_id="corr-boundary-8")
+
+        put_events = [e for e in logged if e.get("operation") == "evidence_cache_set"]
+        get_events = [e for e in logged if e.get("operation") == "evidence_cache_get"]
+        self.assertEqual(len(put_events), 1)
+        self.assertEqual(len(get_events), 1)
+        self.assertEqual(put_events[0]["correlation_id"], "corr-boundary-8")
+        self.assertEqual(get_events[0]["correlation_id"], "corr-boundary-8")
+        self.assertEqual(put_events[0]["exception_type"], "ConnectionError")
+
+        serialized = json.dumps(logged, default=str)
+        self.assertNotIn("SENSITIVE", serialized)
+        self.assertNotIn("sekret", serialized)
+        self.assertNotIn("redis://", serialized)
+        self.assertNotIn("10.0.0.42", serialized)
+
+
+class ServiceDiagnosticsTests(unittest.TestCase):
     def test_structured_diagnostics_on_replay_failure(self):
-        ev._STORE = ev.EvidenceStore()
+        ev._STORE = _make_store()
         record = _make_record()
         logged = []
-        import unittest.mock as mock
         with mock.patch("lotus_fin.risk_signal.evidence.log_ai003_event", side_effect=lambda **kw: logged.append(kw) or {}):
             def bad_replay(r):
                 raise RuntimeError("backend_exploded")
@@ -272,7 +417,6 @@ class CrossWorkerAndDiagnosticTests(unittest.TestCase):
     def test_structured_diagnostics_on_store_failure(self):
         logged = []
         from lotus_fin.risk_signal.service import _ap_evidence
-        import unittest.mock as mock
         with mock.patch("lotus_fin.risk_signal.service.create_evidence_record", side_effect=ValueError("redis_down")):
             with mock.patch("lotus_fin.risk_signal.service.log_ai003_event", side_effect=lambda **kw: logged.append(kw) or {}):
                 dummy_snapshot = mock.MagicMock()
@@ -291,43 +435,20 @@ class CrossWorkerAndDiagnosticTests(unittest.TestCase):
                 self.assertEqual(matching[0]["correlation_id"], "store-fail-corr")
                 self.assertEqual(matching[0]["operation"], "store_ap_evidence")
 
-    def test_structured_diagnostics_on_storage_failure(self):
-        logged = []
-        import unittest.mock as mock
+    def test_evidence_delete_eviction(self):
+        shared = FakeFrappeRedis()
+        store = ev.EvidenceStore(client=shared)
+        record = _make_record()
+        ref = store.put(record)
+        self.assertIsNotNone(store.get(ref))
+        store.delete(ref)
+        self.assertIsNone(store.get(ref))
 
-        class BrokenCacheClient:
-            def set_value(self, key, val, expires_in_sec=None):
-                raise ConnectionError("redis_down")
-
-            def get_value(self, key, **kwargs):
-                raise ConnectionError("redis_down")
-
-            def delete_value(self, key):
-                raise ConnectionError("redis_down")
-
-        with mock.patch("lotus_fin.risk_signal.evidence.log_ai003_event", side_effect=lambda **kw: logged.append(kw) or {}):
-            store = ev.EvidenceStore(client=BrokenCacheClient())
-            record = _make_record()
-            ref = store.put(record)
-            self.assertEqual(ref, record.ref)
-            # Verify structured event logged for put failure
-            put_events = [e for e in logged if e.get("event_type") == "ai003_evidence_storage_error" and e.get("operation") == "evidence_cache_set"]
-            self.assertEqual(len(put_events), 1)
-            self.assertEqual(put_events[0]["exception_type"], "ConnectionError")
-
-            # Verify local fallback worked
-            fetched = store.get(ref)
-            get_events = [e for e in logged if e.get("event_type") == "ai003_evidence_storage_error" and e.get("operation") == "evidence_cache_get"]
-            self.assertEqual(len(get_events), 1)
-            self.assertIsNotNone(fetched)
-            self.assertEqual(fetched.ref, record.ref)
-
-            # Verify delete failure logs structured event
-            store.delete(ref)
-            del_events = [e for e in logged if e.get("event_type") == "ai003_evidence_storage_error" and e.get("operation") == "evidence_cache_delete"]
-            self.assertEqual(len(del_events), 1)
+    def test_delete_failure_surfaces(self):
+        store = ev.EvidenceStore(client=FakeFrappeRedis(fail_on={"delete"}))
+        with self.assertRaises(ev.EvidenceStorageUnavailable):
+            store.delete("AI003-EV-x", correlation_id="del-corr")
 
 
 if __name__ == "__main__":
     unittest.main()
-

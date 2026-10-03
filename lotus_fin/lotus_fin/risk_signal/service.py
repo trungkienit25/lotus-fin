@@ -50,6 +50,7 @@ from lotus_fin.risk_signal.coverage import (
     select_ap_observations,
 )
 from lotus_fin.risk_signal.evidence import (
+    EvidenceStorageUnavailable,
     ReplayResult,
     ReplayOutcome,
     create_evidence_record,
@@ -545,9 +546,14 @@ def _ap_evidence(
             source_schema_version="ap_report_v1",
             payload=payload,
             captured_at=captured_at,
+            correlation_id=correlation_id,
         )
         return (EvidenceRef(kind="REPORT_SNAPSHOT", company=company, ref=record.ref,
                             as_of_date=as_of, captured_at=captured_at),), record.ref
+    except EvidenceStorageUnavailable:
+        # Boundary failure already logged by the store with correlation id;
+        # deterministic result keeps its frozen-contract behavior (no refs).
+        return (), None
     except Exception as exc:
         log_ai003_event(
             event_type="ai003_evidence_store_failed",

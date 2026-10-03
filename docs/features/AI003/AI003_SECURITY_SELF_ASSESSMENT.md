@@ -10,8 +10,8 @@ contract_version: "2.2.0"
 method_version: V2.2_REVIEWED_METHOD_SPEC
 policy_version: AI003_DEMO_POLICY_V1
 scope: DEMO_ONLY
-evidence_date: 2026-10-02
-implementation_revision: b4eba4d (feature/ai003-risk-signal)
+evidence_date: 2026-10-03
+implementation_revision: G4B targeted remediation pass (parent b4eba4d/117d7e5 lineage, branch feature/ai003-risk-signal)
 status: IMPLEMENTATION_COMPLETE_FOR_WORK_REVIEW
 ```
 
@@ -23,9 +23,10 @@ status: IMPLEMENTATION_COMPLETE_FOR_WORK_REVIEW
 
 ## 1. Document Control
 
-Owner: Lotus Fin team (builder: Zcode). Date: 2026-10-02. Authority: owner task
-packet 2026-10-02 + SSOT §16–§19 + METHOD/POLICY GOLD evidence. Independent
-verification (G4B) pending — next owner: Work review.
+Owner: Lotus Fin team (builder: Zcode). Date: 2026-10-03 (targeted remediation
+revision of the 2026-10-02 document). Authority: owner task packet 2026-10-02 +
+SSOT §16–§19 + METHOD/POLICY GOLD evidence. Independent verification (G4B)
+pending — next owner: Work review (remediation report handoff).
 
 ## 2. Scope
 
@@ -117,13 +118,31 @@ memory. Mitigation: shared Redis-backed store; the ref remains opaque and is nev
 an authorization token; user, company scope and report permission are rechecked on
 every replay (verified live: revoke → FORBIDDEN with no payload, restore → MATCH).
 
+**Second defect (targeted-remediation finding, remediated 2026-10-03).** On the
+real Frappe cache wrapper, `set_value()` suppresses Redis `ConnectionError` and
+`get_value()` catches it and returns None — a failed PUT returned an evidence ref
+while GET silently returned None, and a process-local fallback dict could still
+serve same-worker reads. Remediation: the store now issues raw Redis commands
+(`setex`/`get`/`delete`) on the existing Frappe cache client, keys are
+site-namespaced via `make_key()`, and any init/SET/GET/DELETE failure (connection
+error or timeout) is logged once as a structured PII-free event (correlation id
+propagated, sanitized exception type, allowlisted fields) and raised as typed
+`EvidenceStorageUnavailable` — replay maps it to UNAVAILABLE with null payload,
+and the store path never emits an un-persisted ref. The process-local fallback
+was removed entirely (runtime); missing/expired keys remain a clean generic
+FORBIDDEN, distinct from outages. Fault-injection tests cover the raw command
+boundary (ConnectionError, timeout, SET failure emits no ref, GET failure vs
+missing key, no local fallback, correlation-id diagnostics without sensitive
+error text).
+
 **Residual limits (not production-grade).** TTL is 3600 s; expiry or cache
 eviction/flush fails closed to FORBIDDEN and the evidence must be re-created by
 re-evaluating. Records are not durable across a Redis flush or restart. Cache
 backend failure is logged with structured, PII-free diagnostics (correlation_id,
 stage, exception_type, reason_code, operation) and returns a safe typed outcome;
-no stack trace reaches the client. TTL expiry over live HTTP was not exercised
-(unit-level only).
+no stack trace reaches the client. TTL expiry mechanism was exercised over live
+HTTP with a dedicated short-TTL record (fresh → MATCH, post-expiry → FORBIDDEN);
+the 3600-second wall-clock value itself is pinned by unit test, not waited out.
 
 **Standards references (aligned / referenced only; no certification claimed):**
 ISO/IEC 27001:2022, ISO/IEC 27002:2022, ISO/IEC 23894:2023, ISO/IEC 42001:2023.
@@ -224,7 +243,10 @@ flattened-report; metadata permission denial + cross-company + nonexistent
 parent (live); LLM failure/timeout/ungrounded/banned; payload suppression on
 FORBIDDEN/VALIDATION_ERROR/SOURCE_ERROR; unexpected exception sanitization;
 cross-worker evidence consistency (20/20 sequential replays across 2 workers);
-live HTTP report permission revoke/regrant (`tests_e2e/test_security_revoke_regrant.py`).
+live HTTP report permission revoke/regrant (`tests_e2e/test_security_revoke_regrant.py`,
+hardened 2026-10-03: pre-existing Custom Roles snapshotted and preserved, only
+harness-created role/user removed); live HTTP TTL-expiry mechanism probe
+(`tests_e2e/test_ttl_expiry_http.py`, dedicated short-TTL record).
 
 ## 19. Security Test Results
 
@@ -232,13 +254,14 @@ live HTTP report permission revoke/regrant (`tests_e2e/test_security_revoke_regr
 |---|---|---|
 | Stage/payload suppression (hermetic) | PASS | test_risk_signal_service.py (StageA/PayloadSuppression classes) |
 | Identity/dedupe/currency gates (hermetic) | PASS | test_risk_signal_sources.py |
-| Evidence authorization (hermetic) | PASS 21/21 | test_risk_signal_evidence.py |
-| Live smoke incl. unauth/unknown-company suppression | PASS 7/7 | evidence/ai003_smoke_results_2026-10-02.json |
+| Evidence authorization + Redis storage-boundary fault injection (hermetic) | PASS 27/27 | test_risk_signal_evidence.py (8 storage-boundary tests: ConnectionError/timeout injection at raw command boundary, SET failure emits no ref, GET failure vs missing key, no local fallback, TTL/Decimal/date round-trip, correlation-id diagnostics without sensitive text) |
+| Live smoke incl. unauth/unknown-company suppression | PASS 7/7 | evidence/ai003_smoke_results_2026-10-03.json (2026-10-02 artifact kept as historical) |
 | Restricted-user live probes (report/metadata) | PASS (reused) | AI003_METHOD_GOLD_MANIFEST.yaml SECURITY cases |
-| Cross-worker evidence consistency (live multi-worker) | PASS 20/20 | 20 sequential HTTP replays across Gunicorn workers (20/20 MATCH, 0 false FORBIDDEN) |
-| Live HTTP revoke/regrant via AI003 endpoint | PASS 4/4 | `tests_e2e/test_security_revoke_regrant.py` live HTTP test |
+| Cross-worker evidence consistency (live multi-worker) | PASS 20/20 | 20 sequential HTTP replays across Gunicorn workers (20/20 MATCH, 0 false FORBIDDEN; re-run 2026-10-03) |
+| Live HTTP revoke/regrant via AI003 endpoint | PASS 4/4 (hardened harness) | `tests_e2e/test_security_revoke_regrant.py`: MATCH → revoke → FORBIDDEN (no payload) → restore → MATCH; site roles preserved |
+| TTL expiry mechanism over live HTTP | PASS (mechanism; NOT a 3600s wall-clock run) | `tests_e2e/test_ttl_expiry_http.py`: fresh → MATCH, post-expiry → FORBIDDEN, payload null |
 | Semgrep SAST (repo CI) | PASS (unchanged baseline) | .github/workflows/ci.yml |
-| Bandit on new code | No HIGH severity findings | bandit -ll run 2026-10-02 |
+| Bandit on new code | No HIGH severity findings | bandit -ll run 2026-10-02 (not re-run on 2026-10-03 diff) |
 
 ## 20. Known Risks
 
@@ -273,5 +296,8 @@ calibrated policy, G4B acceptance, rate limiting and persistent audit storage.
 ## 24. Security Evidence Index
 
 See `docs/features/AI003/AI003_EVIDENCE_INDEX.md` (per-item command, host/container,
-date, revision, path). Primary: smoke JSON, METHOD/POLICY GOLD manifests,
-hermetic suites, blocker note, revision b4eba4d.
+date, revision, path). Primary (2026-10-03 targeted-remediation pass): smoke JSON
+2026-10-03, hardened revoke/regrant harness, TTL-expiry HTTP probe, G4B targeted
+remediation verification record (`evidence/AI003_G4B_TARGETED_REMEDIATION_VERIFICATION_2026-10-03.md`),
+METHOD/POLICY GOLD manifests, hermetic suites. Earlier artifacts (b4eba4d round)
+are kept as historical records.
