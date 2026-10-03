@@ -1,32 +1,33 @@
-# AI001 — Technical Documentation (Retro-Documentation)
+# AI001 — Technical Documentation (Current Source and Evidence Review)
 
 ```yaml
 feature_id: AI001
 feature_name: Financial Health Analyst (Financial Snapshot)
 document_type: technical_documentation
-document_version: "1.0.0"
+document_version: "1.1.0"
 feature_version: "1.0.0"
 contract_version: "1.0.0"
 method_version: FORMULA_2026.1
 policy_version: NONE
 scope: COMPETITION_DEMO
-evidence_date: 2026-10-02
-implementation_revision: b4eba4d (documented as-found; AI003 retro pass)
-status: IMPLEMENTED_PREVIOUSLY_RETRO_DOCUMENTED
+evidence_date: 2026-10-03
+implementation_revision: 4d1c73a1515237018ad035bf5356fbdb61641048
+verification_scope: AI001_SOURCE_REVIEW_AND_77_HERMETIC_TESTS
+status: UPDATED_DOCUMENTATION_DEMO_SCOPE
 ```
 
-> **Verdict precedence:** this document describes what exists in source,
-> tests and verified evidence as of revision b4eba4d. It is documentation
-> only — AI001 was NOT redesigned during this pass (AI003 retro rule, packet
-> §27–28). Weaknesses are recorded under Known Limitations/Risks with a
-> disposition column; none were silently fixed here.
+This update reviews the existing implementation at the pinned revision and
+runs the five AI001 hermetic suites listed in §18. No production code,
+contract, formulas, thresholds or fixture transactions changed. Historical
+live evidence is reused with its original revision/date; it is not a fresh
+AI001 UI or infrastructure security approval.
 
 ## 1. Document Control
 
-Owner: Lotus Fin team. Retro-documented 2026-10-02 from actual source
-(`lotus_fin/lotus_fin/ai/`, `core/`, `api/ai_insights.py`), existing suites,
-and the AI003 foundation remediation evidence chain (PB-SEC-01/PB-DATA-01/
-PB-DATA-02 verified in commits 99b4388, 6c07e00, abc3212).
+Owner: Lotus Fin team. Original retrospective documentation: 2026-10-02.
+Updated source/evidence review: 2026-10-03. Current focused result: **77/77
+PASS**, host Python, no live Frappe database. Foundation remediation evidence
+covers PB-SEC-01, PB-DATA-01, PB-DATA-02 and the datetime correction in abc3212.
 
 ## 2. Feature Purpose & Business Problem
 
@@ -80,9 +81,26 @@ DTOs in `core/dto/`. Served on site `frontend` (demo FY2020 dataset) at
 
 ## 6. Dependency Direction
 
-API → facade → coordinator → gatherer/validators → calculators → ERPNext
-reports (via `api/key_reports.py` chokepoint). DTO/entities shared in `core/`.
-AI002 re-exports through the same API module; AI003 consumes the public
+```mermaid
+flowchart LR
+    UI[Financial Health page] --> API[Authenticated snapshot API]
+    API --> Facade[Snapshot facade]
+    Facade --> Coordinator[SnapshotCoordinator]
+    Coordinator --> Scope[Company and currency guards]
+    Coordinator --> Gatherer[SourceGatherer]
+    Gatherer --> Fetcher[API report fetcher]
+    Fetcher --> Reports[Permission-checked ERPNext reports]
+    Coordinator --> Assembler[MetricAssembler]
+    Assembler --> Validators[Source validation and Decimal calculators]
+    Coordinator --> Narrative[Optional grounded explanation]
+```
+
+The coordinator gathers reports through an injected fetcher, then validates
+and calculates metrics; calculators do not fetch reports after calculation.
+DTO/entities are shared in `core/`. This is a layered implementation, not
+strict framework-independent Clean Architecture: the coordinator imports
+Frappe guards and observability. Source errors and metrics retain provenance.
+AI002 endpoints share the API module; AI003 consumes the public
 snapshot (see AI003 docs).
 
 ## 7. Public Interfaces / API Contract
@@ -110,7 +128,12 @@ snapshot_id lineage; source validation fail-closed.
 `parse_ar_data(ar_data, as_of_date, company, currency)` → total_ar, overdue_ar,
 overdue_ratio (4dp Decimal ROUND_HALF_UP), limitations. Overdue basis: explicit
 overdue column when present, else due_date strictly before as_of; unknown basis
-→ overdue metrics typed unavailable while total stays available. Voucher
+→ overdue metrics typed unavailable while total stays available. Date strings,
+`date` and `datetime` use the same normalization, checking `datetime` before
+`date`. Net AR includes credits; a non-positive net denominator yields the
+implemented zero ratio (with an anomaly limitation where applicable), not a
+claim that there is no credit risk. No-active-row zero is a valid empty-source
+result. Voucher
 identity dedupe; cross-leg party/voucher consistency (WV-02); currency
 mismatch raises FinancialSourceDataError.
 
@@ -162,40 +185,58 @@ status counters), trace_span helper; AI002 wrapper shares the surface.
 
 ## 17. Deployment / Docker Runtime
 
-Same stack as AI003 (§4/§17 of the AI003 tech doc): frappe_docker pwd.yml +
-ai003-local overlay, site `frontend` with FY2020 demo data, timezone
-Africa/Abidjan (accepted demo posture; accounting tz contract is exercised on
-the AI003 verify site). Deployment path: run.ps1 sync (docker cp + install-app
-+ migrate + build) or image bake.
+The shared Docker stack uses the committed `docker/ai003-local/Dockerfile`
+and compose override; the configurator must use the custom image so the apps
+registry retains `lotus_fin`. Follow the linked reproduction guide rather
+than assuming an untracked local `run.ps1` exists or works on a clean clone.
+
+AI001's historical FY2020 UI evidence targets `frontend`; foundation/API
+consumer evidence targets `ai003-verify.localhost`. They are different sites.
+The previously recorded frontend timezone Africa/Abidjan is historical, not
+re-inspected in this update. Fresh-machine installation, current runtime
+configuration and production hardening are **NOT VERIFIED** here.
 
 ## 18. Testing Strategy
 
-Hermetic unittest suites (fake-frappe pattern): test_financial_snapshot,
-test_financial_health, test_explanation, test_ai001_foundation_blockers,
-test_numeric_contract; site-connected suites in-container
-(test_access_and_reports, test_workspace_ui). 196 hermetic regression tests
-rerun green at b4eba4d. Known suite-order pollution documented (§21).
+Five AI001-specific suites cover snapshot/numeric gold, health/comparison,
+explanation validation, foundation permission/data blockers and zero-COGS.
+They use controlled sources/fake Frappe; this cannot establish live database
+permissions, provider availability, UI correctness or load performance.
 
-## 19. Test Results (as of 2026-10-02, revision b4eba4d)
+PowerShell reproduction from the repository root:
 
-| Suite | Result |
-|---|---|
-| Hermetic AI001 suites (host) | PASS (196 combined run incl. AI002/AI003-foundation) |
-| In-container targeted set incl. test_financial_snapshot | PASS (279 combined) |
-| test_access_and_reports / test_workspace_ui in discovery | FAIL under full discovery — pre-existing order pollution (proven by exclusion rerun; pass individually) |
-| FY2020 gold E2E (Playwright, 2026-09 era) | PASS historically (test_financial_health_workspace.py); not rerun in this pass |
+```powershell
+$env:PYTHONPATH = 'E:\lotus-fin\lotus_fin'
+python -m unittest -q lotus_fin.tests.test_financial_snapshot lotus_fin.tests.test_financial_health lotus_fin.tests.test_explanation lotus_fin.tests.test_ai001_foundation_blockers lotus_fin.tests.test_numeric_contract
+```
+
+## 19. Test Results and Evidence Provenance
+
+| Check | Result | Date / revision / limits |
+|---|---|---|
+| Five AI001 suites above | **77/77 PASS**; 0.223 s test time | Fresh host run 2026-10-03, 4d1c73a; unittest exit 0 |
+| Foundation live probe | 51/51 PASS, reused | 2026-10-01 foundation record; not rerun here |
+| Datetime parser/public snapshot | PASS, reused + current regression suite | [Host/Docker artifacts](../../reviews/evidence/final-8941cfb-2026-10-01/); date/datetime/string/malformed/missing cases |
+| Historical combined suites | 196 host / 279 container, historical reported results | b4eba4d records; include other features; not AI001-only counts |
+| AI003 consumer API/UI validation | 7/7 smoke, 34/34 E2E; reused independent evidence | [3eb8207 review](../../reviews/AI003_FINAL_INDEPENDENT_REVERIFY_3eb8207_2026-10-03.md); does not validate the AI001 workspace |
+| AI001 FY2020 UI E2E | Historical PASS claim; fresh run **NOT_RUN** | Existing `test_financial_health_workspace.py`; no current UI verdict |
+| Full site discovery / performance benchmark / fresh AI001 pentest | **NOT_RUN** | Historical site-suite order pollution remains a limitation, not a current clean-suite result |
+
+Current command/count/output are recorded here; no separate durable raw log
+was added for this host run. Shared AI003 builder counts are not promoted to
+independent AI001 test results.
 
 ## 20. Quality Attributes (ISO/IEC 25010:2023 — ALIGNED WITH, not certified)
 
 | Characteristic | Evidence |
 |---|---|
-| Functional suitability | 196-test hermetic suite; FY2020 gold reconciliation |
-| Performance efficiency | One snapshot = 4 report fetches + parse; adequate for demo single-user |
+| Functional suitability | 77 fresh AI001 tests; historical foundation gold evidence |
+| Performance efficiency | One snapshot = 4 report fetches + parse; no throughput/latency benchmark in this update |
 | Compatibility | Contract 1.0.0 pinned; AI003 consumes without changes |
 | Interaction capability | financial-health page with loading/error/degraded states |
 | Reliability | Fail-closed metric states; explanation degradation |
 | Security | PB-SEC-01/PB-DATA fixes verified; see Security Self-Assessment |
-| Maintainability | Layered modules; shared calculators; conventions documented |
+| Maintainability | Layered modules and shared calculators; coordinator 447 lines exceeds ADR <200; framework coupling remains |
 | Safety | Zero-PII logging; grounded LLM output |
 
 ## 21. Known Limitations (with disposition)
@@ -211,6 +252,8 @@ rerun green at b4eba4d. Known suite-order pollution documented (§21).
 | L7 | Malformed AR/AP rows → typed unavailable (PB-DATA-01/02) | REMEDIATED — commits 99b4388, abc3212; verified in AI003 foundation retests (51/51 probe) |
 | L8 | Report permission used ambient user (PB-SEC-01) | REMEDIATED — 99b4388 (checked-user Report.is_permitted with session restore) |
 | L9 | Duplicate voucher double-count (PB-DATA-02) | REMEDIATED — 99b4388/6c07e00 shared observation_reconciliation |
+| L10 | SnapshotCoordinator is 447 lines; core orchestration uses Frappe and AI-layer logging | OPEN — maintainability/ADR deviation; no refactor authorized by this update |
+| L11 | Source exception text can enter client limitations; logger exceptions are swallowed | OPEN — diagnostics and error-message sanitization need targeted review; log allowlisting alone does not cover client error text |
 
 ## 22. Reproduction Guide
 
@@ -226,6 +269,7 @@ fixture companies on `frontend` (site-cleanliness invariant).
 | 2026-09 era | Feature implementation + freeze docs (see docs/features/AI001/*) |
 | 2026-10-01 | Foundation remediation: PB-SEC-01, PB-DATA-01/02 (99b4388, 6c07e00, abc3212) |
 | 2026-10-02 | Retro-documented (this file) — no code changes |
+| 2026-10-03 | v1.1.0 source review, 77 fresh AI001 tests, evidence provenance and limitations corrected |
 
 ## 24. Competition Evidence Mapping
 
@@ -234,3 +278,10 @@ in §18. Documentation: this pair + docs/features/AI001/* (freeze docs).
 Execution evidence: FY2020 gold E2E artifacts (tests_e2e/screenshots, videos),
 AI003 smoke probe (consumes AI001 boundary live). Known limitations: §21.
 Deployment/reproduction: §22.
+
+The supplied competition rules require architecture/core-algorithm/security
+documentation and a security self-assessment with permission tiers/known
+risks. This pair covers those content categories. It does not approve the
+full submission: presentation deck, English deployment material, final demo
+video, licenses, team eligibility and fresh-machine reproduction remain
+separate checks; see [submission index](../../README.md).

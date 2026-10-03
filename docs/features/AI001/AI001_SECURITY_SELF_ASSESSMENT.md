@@ -1,30 +1,34 @@
-# AI001 — Security Self-Assessment (Retro-Documentation)
+# AI001 — Security Self-Assessment (Current Source and Evidence Review)
 
 ```yaml
 feature_id: AI001
 feature_name: Financial Health Analyst (Financial Snapshot)
 document_type: security_self_assessment
-document_version: "1.0.0"
+document_version: "1.1.0"
 feature_version: "1.0.0"
 contract_version: "1.0.0"
 method_version: FORMULA_2026.1
 policy_version: NONE
 scope: COMPETITION_DEMO
-evidence_date: 2026-10-02
-implementation_revision: b4eba4d (documented as-found; AI003 retro pass)
-status: IMPLEMENTED_PREVIOUSLY_RETRO_DOCUMENTED
+evidence_date: 2026-10-03
+implementation_revision: 4d1c73a1515237018ad035bf5356fbdb61641048
+verification_scope: AI001_SOURCE_REVIEW_AND_77_HERMETIC_TESTS
+status: UPDATED_DOCUMENTATION_DEMO_SCOPE
 ```
 
-> Verdict precedence and "ALIGNED WITH, not certified" framing as in the AI003
-> Security Self-Assessment. Documentation only — no security controls were
-> added or changed during this retro pass.
+This is a source-based security self-assessment for the competition demo,
+not an ISO certification, independent full pentest or production approval.
+No security control or production code was changed in this documentation update.
 
 ## 1. Document Control
 
-Retro-documented 2026-10-02 from source (`security/access.py`, `api/ai_insights.py`,
-`ai/observability.py`, `ai/explanation.py`), existing suites, and the AI003
-foundation remediation chain. Dispositions distinguish remediated (with
-commits) from open items.
+Original retrospective record: 2026-10-02. Updated 2026-10-03 against the
+pinned revision, `security/access.py`, the public snapshot endpoint,
+coordinator/gatherer, observability and existing foundation artifacts.
+The five AI001 host suites in the technical documentation freshly pass
+**77/77**. Live permission/data evidence is historical and explicitly reused.
+Risk labels below are qualitative reviewer judgments, not measured
+probabilities or formal Product/Finance risk acceptance.
 
 ## 2. Scope
 
@@ -46,9 +50,15 @@ parse); LLM ⇄ grounding/schema validation.
 
 ## 5. Roles / Permission Tiers
 
-Page roles: Accounts User/Accounts Manager/System Manager. API: any
-authenticated user passing company authorization + report permission. No
-Administrator-ambient reliance in the current code (post PB-SEC-01).
+| Tier | Capability / enforcement |
+|---|---|
+| Guest | Snapshot endpoint is not guest-whitelisted; Frappe authentication is required |
+| Authenticated user | API additionally requires verified Company read access and report permissions |
+| Accounts User / Accounts Manager / System Manager | Listed page roles permit UI access; page visibility does not replace server-side checks |
+| Administrator / target-user checks | Report permission uses the checked user; when it differs from the session, `set_user` is scoped with `try/finally` restoration |
+
+Browser-supplied roles, company strings, snapshot IDs and evidence hashes
+never grant permission. Company and report authorization remain server-owned.
 
 ## 6. Authentication
 
@@ -59,8 +69,11 @@ report permissions and fails company authorization.
 
 `get_verified_company(company, user)` — existence + Company read permission;
 CompanyAccessError → generic FORBIDDEN envelope without scope disclosure.
-Evidence refs and snapshot data are company-bound; cross-company comparison
-attempts are rejected (Bucket C currency/company guards).
+Evidence refs and snapshot data are company-bound; source company mismatches
+are rejected by source validation; comparison remains within the verified
+company. Bucket C concerns server-owned currency, not a general cross-company
+comparison endpoint. Hermetic no-DB fallbacks are testing behavior, not an
+authorized deployment mode; the HTTP endpoint must run with live Frappe.
 
 ## 8. Report & Document Permissions
 
@@ -106,19 +119,30 @@ missing ≠ zero (PB-DATA-01); datetime due_date normalization (abc3212).
 ## 14. Failure / Fail-Closed Design
 
 Envelope statuses + per-metric availability; INSUFFICIENT_DATA for missing
-inputs; explanation degradation never touches metrics; cache (AI002-shared
-patterns) reauthorizes on hit and evicts on revocation (Bucket D).
+inputs; explanation degradation never touches metrics. AI001 has no snapshot
+result cache/replay store in this path: each request gathers sources anew.
+AI002 cache hit reauthorization/eviction and AI003 Redis evidence TTL are
+separate feature controls and must not be credited as AI001 controls.
 
 ## 15. Logging / Sensitive-Data Handling
 
 INV-03 zero-PII: JSON events with hashed company/user ids, allowlisted detail
 keys (unknown dropped), bounded values; no raw rows/parties/amounts; PII
-canary-tested (test_cashflow_security).
+historically canary-tested (shared `test_cashflow_security`, not rerun in
+this update). Hashes are pseudonymous identifiers, not guaranteed anonymity.
+The logger catches logging exceptions without a durable failure diagnostic;
+process-local metrics are not a multi-worker central monitoring system.
+SourceGatherer stores exception strings that can enter client limitations;
+log allowlisting does not prove those client messages are sanitized.
 
 ## 16. Docker / Runtime Security Assumptions
 
-Same demo runtime as AI003 (§16 of AI003 assessment). `allow_tests: true` on
-the demo site is an accepted demo posture. Demo data (FY2020) is synthetic.
+Historical AI001 evidence uses the FY2020 `frontend` sandbox; AI003 uses
+`ai003-verify.localhost`. Prior AI001 records describe `allow_tests: true` and
+known demo credentials. These settings/network exposure were not re-inspected
+here. Treat them as demo-only assumptions requiring enforcement, not proof
+of isolation. Verification-site settings must not be inferred for frontend.
+Synthetic/controlled data is not business calibration evidence.
 
 ## 17. Threat & Risk Register
 
@@ -131,40 +155,45 @@ the demo site is an accepted demo posture. Demo data (FY2020) is synthetic.
 | T5 | Overdue-basis misread | explicit basis resolution; unknown → unavailable | Low |
 | T6 | LLM ungrounded/PII leak | minimized payload + grounding + schema | Low-Medium |
 | T7 | Client currency relabeling | server currency authority (Bucket C) | Low |
-| T8 | Brute-force/DoS | none implemented | Accepted (demo) |
-| T9 | Endpoint default period confusion (FY2020) | documented; explicit dates required by contracts | Open |
+| T8 | Brute-force/DoS | no endpoint rate limit/provider budget verified | Open; demo scope restriction is not a technical mitigation |
+| T9 | Endpoint default period confusion (FY2020) | documented; consumers should pass explicit dates | Open |
+| T10 | Internal error detail disclosure | log fields are allowlisted, but client source-error text needs separate sanitization review | Open; exploitability not assessed here |
+| T11 | Missing audit events / per-worker operational visibility | logging exceptions swallowed; metrics process-local | Open |
 
 ## 18. Security Test Matrix
 
-Executed: hermetic Buckets A–D suites (test_ai001_foundation_blockers,
-test_ai003_foundation_remediation), cashflow security canaries (PII, generic
-FORBIDDEN, Decimal), live restricted-user report revoke/regrant probes
-(foundation retests 2026-10-01, 51/51), cross-company/currency/Finance Book
-rejections. NOT_RUN in this pass: fresh live pentest round (out of AI003
-retro scope; last independent round 2026-10-01).
+Fresh validation is limited to the five AI001 hermetic suites in the
+technical document. Their security-related coverage includes checked-user
+permission guards, malformed/missing overdue basis, duplicate/conflicting
+observations and public snapshot regression. Fake-Frappe tests cannot prove
+actual Frappe session/CSRF behavior, live revocation, network isolation or
+real provider security.
 
-## 19. Security Test Results
+## 19. Security Test Results and Provenance
 
-| Area | Result | Evidence |
+| Area | Result | Evidence / scope |
 |---|---|---|
-| Buckets A–D hermetic | PASS | 196-test run at b4eba4d |
-| PB-SEC-01 live revoke/regrant | PASS | AI003_FINAL_FOUNDATION_RETEST_cdb9933_2026-10-01.md |
-| PB-DATA-01/02 live probes | PASS (51/51) | AI003_FINAL_FOUNDATION_RESULTS_2026-10-01_51of51.json |
-| PII canary | PASS | test_cashflow_security |
-| Fresh live pentest round | NOT_RUN this pass | — |
+| Five AI001 suites (security and numeric regression combined) | **77/77 PASS**, fresh 2026-10-03 at 4d1c73a | Exact command and output in [technical document](AI001_TECHNICAL_DOCUMENTATION.md) §18–19; not 77 security-only cases |
+| PB-SEC-01 live revoke/regrant | Historical PASS, reused | [Foundation retest](../../reviews/AI003_FINAL_FOUNDATION_RETEST_cdb9933_2026-10-01.md) |
+| PB-DATA-01/02 live probe | Historical 51/51 PASS, reused | [Result artifact](../AI003/evidence/AI003_FINAL_FOUNDATION_RESULTS_2026-10-01_51of51.json) |
+| Datetime/public snapshot | Historical host/Docker PASS plus current regression | [Artifacts](../../reviews/evidence/final-8941cfb-2026-10-01/) |
+| Shared PII canary / combined 196-suite baseline | Historical reported PASS | b4eba4d record; includes AI002, not a new AI001-only result |
+| AI003 independent security/UI results | Reused for unchanged shared consumer boundaries only | [Final review](../../reviews/AI003_FINAL_INDEPENDENT_REVERIFY_3eb8207_2026-10-03.md); does not establish full AI001 coverage |
+| Fresh AI001 live pentest / workspace E2E / full site suites / infrastructure audit | **NOT_RUN** | No new result claimed |
 
 ## 20. Known Risks
 
 1. No rate limiting on whitelisted endpoints (demo).
 2. Site `frontend` runs with `allow_tests: true` and a known demo credential —
-   demo-only posture, never exposed publicly.
+   demo-only posture; current network exposure is NOT VERIFIED in this update.
 3. LLM provider key handling relies on env hygiene; no provider call budget.
 4. test_access_and_reports pollution can mask regressions in full-discovery
    runs (mitigation: targeted invocations; documented).
 
 ## 21. Residual Risks
 
-Accepted for competition demo scope; production adoption would require the
+Restricted to competition demo scope; formal risk acceptance is not established
+by this documentation update. Production adoption would require the
 future-control list in the AI003 assessment plus an AI001-specific live
 pentest round.
 
@@ -177,11 +206,20 @@ any artifact.
 ## 23. Recommended Future Controls
 
 Rate limiting; per-provider call budgets; production credential management;
-site-hardening (allow_tests off, unique admin credentials); disallowed-period
-guard for the endpoint defaults; full-discovery test isolation refactor.
+site-hardening (allow_tests off, unique credentials, verified network isolation);
+source-error message sanitization; durable safe logging-failure diagnostics;
+central operational telemetry; disallowed-period guard for endpoint defaults;
+full-discovery test isolation and fresh AI001-specific live security tests.
+These are open controls, not changes implemented by this assessment.
 
 ## 24. Security Evidence Index
 
 `docs/features/AI003/evidence/AI003_EVIDENCE_INDEX.md` (shared stack); PB remediation
 evidence: `docs/reviews/AI003_FINAL_FOUNDATION_RETEST_cdb9933_2026-10-01.md`,
 `docs/reviews/evidence/*`, commits 99b4388 / 6c07e00 / abc3212.
+
+Documentation revision 1.1.0 (2026-10-03): separated AI001 controls from
+AI002 cache/AI003 replay, corrected test attribution, added permission tiers,
+updated evidence provenance and residual risks. The supplied competition rule
+categories (security design, permission tiers and known risks) are documented;
+completion of these categories is not certification or full submission approval.
