@@ -25,7 +25,7 @@ $env:PYTHONPATH='E:\lotus-fin\lotus_fin'
 python -m unittest -q lotus_fin.tests.test_risk_signal_contract lotus_fin.tests.test_risk_signal_sources lotus_fin.tests.test_risk_signal_policy lotus_fin.tests.test_risk_signal_evidence lotus_fin.tests.test_risk_signal_service
 python -m unittest -q lotus_fin.tests.test_ai001_foundation_blockers lotus_fin.tests.test_ai002_foundation_blockers lotus_fin.tests.test_ai003_foundation_remediation lotus_fin.tests.test_financial_snapshot lotus_fin.tests.test_cashflow_security lotus_fin.tests.test_cashflow_failclosed
 ```
-Expected: 128 PASS; 196 PASS. (Order-dependence is NOT claimed between suites;
+Expected: 146 PASS for AI003 (current evidence index); 196 combined foundation PASS is historical, not rerun during documentation cleanup. (Order-dependence is NOT claimed between suites;
 `test_access_and_reports` is container-only.)
 
 ## 2. Docker rebuild + recreate (Git Bash; absolute paths required)
@@ -45,7 +45,7 @@ docker exec frappe_docker-backend-1 bench --site ai003-verify.localhost migrate
 docker exec frappe_docker-backend-1 bench --site ai003-verify.localhost clear-cache
 ```
 Required after image rebuild when the Page/workspace records changed.
-`sites/apps.txt` must list `lotus_fin` (append if missing) — otherwise the desk
+`sites/apps.txt` must list `lotus_fin` (the configurator image in the committed compose override supplies it; investigate image alignment if missing) — otherwise the desk
 throws "Module Lotus Fin AI not found" and app assets are not linked.
 
 ## 4. In-container verification set (Git Bash)
@@ -53,7 +53,7 @@ throws "Module Lotus Fin AI not found" and app assets are not linked.
 ```bash
 MSYS_NO_PATHCONV=1 docker exec -w /home/frappe/frappe-bench/sites frappe_docker-backend-1 /home/frappe/frappe-bench/env/bin/python -m unittest -q lotus_fin.tests.test_risk_signal_contract lotus_fin.tests.test_risk_signal_sources lotus_fin.tests.test_risk_signal_policy lotus_fin.tests.test_risk_signal_evidence lotus_fin.tests.test_risk_signal_service lotus_fin.tests.test_ai003_foundation_remediation lotus_fin.tests.test_financial_snapshot lotus_fin.tests.test_cashflow_security lotus_fin.tests.test_cashflow_failclosed
 ```
-Expected: 279 PASS. (Full discovery historically shows pre-existing order
+Recorded builder result: 298 PASS (fix-4 round, see evidence index; not rerun during documentation cleanup). (Full discovery historically shows pre-existing order
 pollution among site-connected suites — see AI003 tech doc §19.)
 
 ## 5. API smoke (gold numbers) — Git Bash
@@ -67,7 +67,7 @@ FORBIDDEN, AR gold HIGH 72.73pp, AP gold BENIGN 0.3333 counts 4/2, evidence
 MATCH, multi-schedule INCONCLUSIVE, DEMO disclosure). Read-only; no cleanup
 needed.
 
-## 6. Playwright E2E (PowerShell) — implemented; live run currently blocked
+## 6. Playwright E2E (PowerShell) — verified 34/34 at 3eb8207
 
 ```powershell
 python tests_e2e\test_risk_signal_workspace.py
@@ -75,10 +75,7 @@ python tests_e2e\test_risk_signal_workspace.py
 Target: `http://ai003-verify.localhost:8080` only (Chromium resolves
 *.localhost; other browsers need a hosts entry; smoke curl uses `--resolve
 ai003-verify.localhost:8080:127.0.0.1`). Read-only; screenshots land in
-`tests_e2e\screenshots\rs_*.png`. **Known blocker:** the verify site's desk
-reloads in a loop after boot (stale bootinfo cache with `setup_complete:"0"`
-vs DB=1) — see `docs/features/AI003/evidence/AI003_E2E_BLOCKER_NOTE_2026-10-02.md`.
-After flushing that cache layer, the script should run end-to-end. The shared
+`tests_e2e\screenshots\rs_*.png`. The earlier E2E blocker note is historical. Live E2E passed 34/34 at `3eb8207`; see the evidence index and `docs/reviews/AI003_FINAL_INDEPENDENT_REVERIFY_3eb8207_2026-10-03.md`. The shared
 `frontend` site is never used as an E2E target (site-cleanliness invariant).
 
 ## Environment fixes applied during this build (for reruns on this machine)
@@ -87,8 +84,8 @@ After flushing that cache layer, the script should run end-to-end. The shared
    missing asset links).
 2. `bench --site ai003-verify.localhost set-admin-password admin` (stack
    standard credential on the isolated verify site).
-3. `System Settings.setup_complete = 1` (DB) on the verify site; a stale
-   bootinfo cache layer still needs flushing (blocker note).
+3. `System Settings.setup_complete = 1` (DB) on the verify site; the earlier
+   bootinfo cache blocker was resolved before the verified E2E run.
 4. nginx Host-map conf mounted read-only via compose override
    (`docker/ai003-local/nginx/frappe.conf`) — default site behavior unchanged.
 5. Dockerfile bakes `/assets/lotus_fin/{js,css}` include assets.

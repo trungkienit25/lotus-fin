@@ -182,6 +182,6 @@ guard for the endpoint defaults; full-discovery test isolation refactor.
 
 ## 24. Security Evidence Index
 
-`docs/features/AI003/AI003_EVIDENCE_INDEX.md` (shared stack); PB remediation
+`docs/features/AI003/evidence/AI003_EVIDENCE_INDEX.md` (shared stack); PB remediation
 evidence: `docs/reviews/AI003_FINAL_FOUNDATION_RETEST_cdb9933_2026-10-01.md`,
 `docs/reviews/evidence/*`, commits 99b4388 / 6c07e00 / abc3212.

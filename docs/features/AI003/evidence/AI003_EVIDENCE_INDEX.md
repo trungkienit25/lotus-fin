@@ -44,7 +44,13 @@ recreate/start cycles that run configurator, `sites/apps.txt` lists `erpnext`,
 `frappe`, `lotus_fin`. The 2026-10-02 note above is kept as the historical
 record of that round.
 
+Independent final verification at `3eb8207`: live E2E 34/34, additional reviewer
+browser scenarios 8/8, API smoke 7/7; unchanged Redis/security/TTL boundaries
+reuse the independent parent verification. See
+`docs/reviews/AI003_FINAL_INDEPENDENT_REVERIFY_3eb8207_2026-10-03.md`.
+This record was added during documentation cleanup, without rerunning tests.
+
 NOT_RUN / NOT VERIFIED: full-site `bench run-tests` (`allow_tests` disabled on
 the verification site by design); 3600-second TTL wall-clock wait (expiry
-mechanism verified instead, see row 14); independent verification of this round
-(builder evidence only — see rows 18-19 for their limitation).
+mechanism verified instead, see row 14). Rows 18-19 are builder records;
+independent verification is separately identified above.
