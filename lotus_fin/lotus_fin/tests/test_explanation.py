@@ -84,9 +84,9 @@ class TestGroundedLLMExplanation(unittest.TestCase):
         self.assertTrue(len(explanation["interpretations"]) > 0)
         self.assertTrue(len(explanation["next_checks"]) > 0)
 
-        # Confirm revenue number 363000 is cited in facts
+        # Confirm revenue number 363000 is cited in facts (with or without comma formatting)
         facts_str = " ".join(explanation["facts"])
-        self.assertIn("363000", facts_str)
+        self.assertTrue("363000" in facts_str or "363,000" in facts_str)
 
     # --- 2. Grounding & Numeric Verification ---
     def test_hallucinated_number_rejected(self):

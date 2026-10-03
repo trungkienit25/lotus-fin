@@ -12,6 +12,7 @@ app_license = "MIT"
 app_include_css = "/assets/lotus_fin/css/lotus_fin.css"
 app_include_js = "/assets/lotus_fin/js/lotus_fin.js"
 
+
 # Document Events (Hooks for AI analysis & automation)
 # ---------------
 doc_events = {
@@ -34,14 +35,18 @@ scheduler_events = {
 	]
 }
 
-# Fixtures to sync configuration across environments
-# ---------------
-fixtures = [
+app_home = "/desk/financial-health"
+
+add_to_apps_screen = [
 	{
-		"doctype": "Custom HTML Block",
-		"filters": [["name", "in", ["Lotus Fin AI Widget"]]]
+		"name": "lotus_fin",
+		"logo": "/assets/erpnext/images/erpnext-logo.svg",
+		"title": "Lotus Fin AI",
+		"route": "/desk/financial-health",
 	}
 ]
+
+fixtures = []
 
 # Desk Workspaces Configuration (Filtering allowed modules for Lotus Fin)
 # ------------------

@@ -25,10 +25,12 @@ _logger = logging.getLogger("lotus_fin.f005_financing.service")
 class FinancingService:
     """Business coordinator for Module F005 Financing Copilot."""
 
-    def __init__(self, ai_provider: str = "mock"):
+    def __init__(self, ai_provider: Optional[str] = None):
+        import os
+        chosen_provider = ai_provider or os.environ.get("LOTUS_AI_PROVIDER") or ("gemini" if os.environ.get("GEMINI_API_KEY") else "mock")
         self.matcher = FinancingDecisionEngine(catalog=get_active_catalog())
         self.scenario_engine = WhatIfScenarioEngine()
-        self.ai_advisor = FinancingAIAdvisor(provider=ai_provider)
+        self.ai_advisor = FinancingAIAdvisor(provider=chosen_provider)
         self.intent_parser = FinancingIntentParser()
 
     def ask_financing_copilot(

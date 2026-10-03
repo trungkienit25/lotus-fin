@@ -55,7 +55,9 @@ def build_minimized_model_payload(snapshot: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def extract_numbers_from_text(text: str) -> List[Decimal]:
-    cleaned = re.sub(r'\b(20[1-3][0-9])\b', '', text)
+    cleaned = re.sub(r'\b\d{4}-\d{2}-\d{2}\b', '', text)
+    cleaned = re.sub(r'\b\d{2}/\d{2}/\d{4}\b', '', cleaned)
+    cleaned = re.sub(r'\b(20[1-3][0-9])\b', '', cleaned)
     cleaned = re.sub(r'^\s*\d+[\.\)]\s*', '', cleaned)
     tokens = re.findall(r'-?\d+(?:,\d+)*(?:\.\d+)?', cleaned)
     numbers = []

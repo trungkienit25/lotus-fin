@@ -116,10 +116,11 @@ def explain_cash_forecast(
             next_checks=next_checks,
         )
 
-    # If API key is available and LLM is enabled, we could query OpenAI with a 5000ms circuit breaker.
+    # If API key is available and LLM is enabled, we query LLM with a 5000ms circuit breaker.
     # Note: As per rule, API key is strictly used in memory and never logged.
-    openai_key = api_key or os.environ.get("OPENAI_API_KEY")
-    if not openai_key:
+    gemini_key = os.environ.get("GEMINI_API_KEY")
+    openai_key = api_key or os.environ.get("OPENAI_API_KEY") or os.environ.get("LOTUS_LLM_API_KEY")
+    if not openai_key and not gemini_key:
         return Explanation(
             status="OK",
             facts=facts,
@@ -142,42 +143,76 @@ def explain_cash_forecast(
         }
         stripped_prompt = strip_free_text(prompt_data)
 
-        req_body = {
-            "model": "gpt-4o-mini",
-            "messages": [
-                {
-                    "role": "system",
-                    "content": "You are a financial copilot. Explain the 30-day cash forecast strictly using the provided structured facts. Do NOT invent new numbers or make forward speculations.",
+        if gemini_key and (not openai_key or os.environ.get("LOTUS_AI_PROVIDER") == "gemini"):
+            gemini_model = os.environ.get("LOTUS_LLM_MODEL", "gemini-flash-lite-latest")
+            if gemini_model in ["gemini-1.5-flash", "gemini-flash-latest", "gemini-2.5-flash"]:
+                gemini_model = "gemini-flash-lite-latest"
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{gemini_model}:generateContent?key={gemini_key}"
+            req_body = {
+                "contents": [
+                    {"role": "user", "parts": [{"text": "SYSTEM INSTRUCTION: You are a financial copilot. Explain the 30-day cash forecast strictly using the provided structured facts. Do NOT invent new numbers or make forward speculations."}]},
+                    {"role": "model", "parts": [{"text": "Understood."}]},
+                    {"role": "user", "parts": [{"text": json.dumps(stripped_prompt)}]}
+                ],
+                "generationConfig": {"maxOutputTokens": 200}
+            }
+            req = urllib.request.Request(
+                url,
+                data=json.dumps(req_body).encode("utf-8"),
+                headers={"Content-Type": "application/json"},
+                method="POST",
+            )
+            with urllib.request.urlopen(req, timeout=CIRCUIT_BREAKER_TIMEOUT_SECONDS) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                candidates = data.get("candidates", [{}])
+                if not candidates or "content" not in candidates[0]:
+                    return Explanation(
+                        status="UNAVAILABLE",
+                        error_code="MALFORMED_OUTPUT",
+                        reason="Model returned empty or malformed output.",
+                        facts=facts,
+                        drivers=[],
+                        limitations=forecast_response.limitations,
+                        next_checks=next_checks,
+                    )
+                content = candidates[0].get("content", {}).get("parts", [{}])[0].get("text", "")
+        else:
+            req_body = {
+                "model": "gpt-4o-mini",
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "You are a financial copilot. Explain the 30-day cash forecast strictly using the provided structured facts. Do NOT invent new numbers or make forward speculations.",
+                    },
+                    {"role": "user", "content": json.dumps(stripped_prompt)},
+                ],
+                "max_tokens": 200,
+            }
+
+            req = urllib.request.Request(
+                "https://api.openai.com/v1/chat/completions",
+                data=json.dumps(req_body).encode("utf-8"),
+                headers={
+                    "Authorization": f"Bearer {openai_key}",
+                    "Content-Type": "application/json",
                 },
-                {"role": "user", "content": json.dumps(stripped_prompt)},
-            ],
-            "max_tokens": 200,
-        }
+                method="POST",
+            )
 
-        req = urllib.request.Request(
-            "https://api.openai.com/v1/chat/completions",
-            data=json.dumps(req_body).encode("utf-8"),
-            headers={
-                "Authorization": f"Bearer {openai_key}",
-                "Content-Type": "application/json",
-            },
-            method="POST",
-        )
+            with urllib.request.urlopen(req, timeout=CIRCUIT_BREAKER_TIMEOUT_SECONDS) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                if "choices" not in data or not data["choices"]:
+                    return Explanation(
+                        status="UNAVAILABLE",
+                        error_code="MALFORMED_OUTPUT",
+                        reason="Model returned empty or malformed output.",
+                        facts=facts,
+                        drivers=[],
+                        limitations=forecast_response.limitations,
+                        next_checks=next_checks,
+                    )
 
-        with urllib.request.urlopen(req, timeout=CIRCUIT_BREAKER_TIMEOUT_SECONDS) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-            if "choices" not in data or not data["choices"]:
-                return Explanation(
-                    status="UNAVAILABLE",
-                    error_code="MALFORMED_OUTPUT",
-                    reason="Model returned empty or malformed output.",
-                    facts=facts,
-                    drivers=[],
-                    limitations=forecast_response.limitations,
-                    next_checks=next_checks,
-                )
-
-            content = data["choices"][0]["message"].get("content", "")
+                content = data["choices"][0]["message"].get("content", "")
             if not content or not content.strip():
                 return Explanation(
                     status="UNAVAILABLE",

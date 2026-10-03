@@ -1,475 +1,1004 @@
-/* Lotus Fin AI001 - Financial Health Workspace Styles */
+/* ==========================================================================
+   Lotus Fin AI — Design System & Visual Language Tokens
+   Conventions based on weamis-fnb-ops-ui:
+   - Typography: Google Sans / Inter / Roboto
+   - Palette: Slate-50 surface, Blue-600 primary, Indigo/Purple AI highlights
+   - Radius: rounded-full pills, rounded-xl to rounded-2xl cards/modals
+   - Elevation & Micro-interactions: shadow-sm / shadow-md, scale on click
+   ========================================================================== */
 
 :root {
-	--lotus-primary: #1e88e5;
-	--lotus-primary-hover: #1565c0;
-	--lotus-primary-subtle: #f0f7ff;
-	--lotus-accent: #00897b;
-	--lotus-dark: #1e293b;
-	--lotus-muted: #64748b;
-	--lotus-border: #e2e8f0;
-	--lotus-card-bg: #ffffff;
+	/* Font Stack */
+	--lotus-font-family: "Google Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+	/* Color System: Brand & Accents */
+	--lotus-primary: #2563eb;          /* Blue-600 */
+	--lotus-primary-hover: #1d4ed8;    /* Blue-700 */
+	--lotus-primary-light: #eff6ff;    /* Blue-50 */
+	--lotus-primary-subtle: #dbeafe;   /* Blue-100 */
+
+	--lotus-ai-magic: #6366f1;         /* Indigo-500 */
+	--lotus-ai-magic-hover: #4f46e5;   /* Indigo-600 */
+	--lotus-ai-purple: #a855f7;        /* Purple-500 */
+	--lotus-ai-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #2563eb 100%);
+	--lotus-ai-glow: 0 4px 20px rgba(99, 102, 241, 0.15);
+
+	/* Surfaces (Light Mode) */
+	--lotus-surface-app: #f8fafc;      /* Slate-50 */
+	--lotus-surface-card: #ffffff;     /* Surface 1 */
+	--lotus-surface-subtle: #f1f5f9;   /* Slate-100 / Surface 2 */
+	--lotus-surface-hover: #e2e8f0;    /* Slate-200 */
+
+	/* Borders */
+	--lotus-border: #e2e8f0;           /* Slate-200 */
+	--lotus-border-subtle: #cbd5e1;    /* Slate-300 */
+	--lotus-border-focus: #3b82f6;     /* Blue-500 */
+
+	/* Typography Colors */
+	--lotus-text-primary: #0f172a;     /* Slate-900 */
+	--lotus-text-secondary: #475569;   /* Slate-600 */
+	--lotus-text-muted: #94a3b8;       /* Slate-400 */
+
+	/* Status Colors */
+	--lotus-success: #16a34a;          /* Green-600 */
+	--lotus-success-bg: #f0fdf4;       /* Green-50 */
+	--lotus-success-border: #bbf7d0;   /* Green-200 */
+
+	--lotus-warning: #ea580c;          /* Orange-600 / Amber */
+	--lotus-warning-bg: #fffbeb;       /* Amber-50 */
+	--lotus-warning-border: #fde68a;   /* Amber-200 */
+
+	--lotus-danger: #dc2626;           /* Red-600 */
+	--lotus-danger-bg: #fef2f2;        /* Red-50 */
+	--lotus-danger-border: #fecaca;    /* Red-200 */
+
+	/* Radius Tokens */
+	--lotus-radius-sm: 6px;
+	--lotus-radius-md: 10px;
+	--lotus-radius-lg: 14px;
+	--lotus-radius-xl: 18px;
+	--lotus-radius-pill: 9999px;
+
+	/* Elevation / Shadows */
+	--lotus-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+	--lotus-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.07), 0 1px 2px rgba(0, 0, 0, 0.04);
+	--lotus-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.07), 0 2px 4px rgba(0, 0, 0, 0.03);
+	--lotus-shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+	--lotus-shadow-xl: 0 20px 30px -10px rgba(0, 0, 0, 0.12);
 }
 
-/* Badge highlight for AI insights */
-.lotus-ai-badge {
-	display: inline-flex;
-	align-items: center;
-	padding: 2px 8px;
-	border-radius: 12px;
-	font-size: 11px;
-	font-weight: 600;
-	background-color: #e0f2fe;
-	color: #0369a1;
-	margin-left: 6px;
-}
+/* ==========================================================================
+   Base Layout Container & Typography
+   ========================================================================== */
 
-.lotus-ai-badge.warning {
-	background-color: #fef3c7;
-	color: #b45309;
-}
-
-.lotus-ai-badge.danger {
-	background-color: #fee2e2;
-	color: #b91c1c;
-}
-
-/* Financial Health Container */
 .lotus-financial-health-container {
-	padding: 16px 20px 40px 20px;
+	font-family: var(--lotus-font-family);
 	max-width: 1400px;
 	margin: 0 auto;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-	color: #1e293b;
+	padding: 20px 24px 60px 24px;
+	color: var(--lotus-text-primary);
+	-webkit-font-smoothing: antialiased;
 }
 
-/* Header & Filter Bar */
+/* Header Banner Card with Glassmorphism */
 .lotus-fh-header-card {
 	background: #ffffff;
 	border: 1px solid var(--lotus-border);
-	border-radius: 8px;
-	padding: 16px 20px;
+	border-radius: var(--lotus-radius-xl);
+	padding: 20px 24px;
 	margin-bottom: 20px;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+	box-shadow: var(--lotus-shadow-sm);
+	position: relative;
+	overflow: hidden;
+}
+
+.lotus-fh-header-card::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 3px;
+	background: var(--lotus-ai-gradient);
 }
 
 .lotus-brand-badge {
-	display: inline-block;
+	display: inline-flex;
+	align-items: center;
 	font-size: 11px;
 	font-weight: 700;
-	letter-spacing: 0.5px;
+	letter-spacing: 0.6px;
 	text-transform: uppercase;
 	color: #ffffff;
-	background: #1e88e5;
-	padding: 3px 8px;
-	border-radius: 4px;
-	margin-bottom: 6px;
+	background: var(--lotus-ai-gradient);
+	padding: 3px 10px;
+	border-radius: var(--lotus-radius-pill);
+	margin-bottom: 8px;
+	box-shadow: 0 2px 6px rgba(99, 102, 241, 0.25);
 }
 
 .lotus-fh-title {
 	font-size: 22px;
 	font-weight: 700;
-	color: #0f172a;
+	color: var(--lotus-text-primary);
 	margin: 0;
-	line-height: 1.2;
+	line-height: 1.25;
+	letter-spacing: -0.02em;
 }
 
 .lotus-fh-subtitle {
 	font-size: 13px;
-	color: #64748b;
-	margin-top: 4px;
+	color: var(--lotus-text-secondary);
+	margin-top: 5px;
 	margin-bottom: 0;
 }
 
+/* Meta status tags with pill design */
 .lotus-meta-tag {
 	display: inline-flex;
 	align-items: center;
-	padding: 3px 10px;
-	border-radius: 12px;
+	gap: 4px;
+	padding: 4px 12px;
+	border-radius: var(--lotus-radius-pill);
 	font-size: 11px;
 	font-weight: 600;
-	background: #f1f5f9;
-	color: #334155;
-	border: 1px solid #e2e8f0;
+	background: var(--lotus-surface-subtle);
+	color: var(--lotus-text-secondary);
+	border: 1px solid var(--lotus-border);
 }
 
 .lotus-meta-tag.status-ok {
-	background: #ecfdf5;
-	color: #065f46;
-	border-color: #a7f3d0;
+	background: var(--lotus-success-bg);
+	color: var(--lotus-success);
+	border-color: var(--lotus-success-border);
 }
 
 .lotus-meta-tag.status-warn {
-	background: #fffbeb;
-	color: #92400e;
-	border-color: #fde68a;
+	background: var(--lotus-warning-bg);
+	color: var(--lotus-warning);
+	border-color: var(--lotus-warning-border);
 }
 
 .lotus-meta-tag.status-error {
-	background: #fef2f2;
-	color: #991b1b;
-	border-color: #fecaca;
+	background: var(--lotus-danger-bg);
+	color: var(--lotus-danger);
+	border-color: var(--lotus-danger-border);
 }
 
-/* Notification & Limitation Banner */
-.lotus-banner {
-	display: flex;
-	align-items: flex-start;
-	padding: 12px 16px;
-	border-radius: 6px;
+/* AI Highlight Badge */
+.lotus-ai-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 3px 10px;
+	border-radius: var(--lotus-radius-pill);
+	font-size: 11px;
+	font-weight: 600;
+	background: #ede9fe;
+	color: #6d28d9;
+	margin-left: 6px;
+}
+
+/* ==========================================================================
+   Cards, Sections & Panels
+   ========================================================================== */
+
+.lotus-section-card {
+	background: var(--lotus-surface-card);
+	border: 1px solid var(--lotus-border);
+	border-radius: var(--lotus-radius-xl);
+	padding: 22px 24px;
 	margin-bottom: 20px;
+	box-shadow: var(--lotus-shadow-sm);
+	transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.lotus-section-card:hover {
+	box-shadow: var(--lotus-shadow-md);
+}
+
+.lotus-section-title {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	font-size: 16px;
+	font-weight: 700;
+	color: var(--lotus-text-primary);
+	margin-bottom: 16px;
+	letter-spacing: -0.01em;
+}
+
+/* Quick Navigation Hub with Glass & Hover micro-interactions */
+.lotus-quick-hub-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+	gap: 14px;
+	margin-bottom: 20px;
+}
+
+.lotus-hub-item {
+	background: var(--lotus-surface-card);
+	border: 1px solid var(--lotus-border);
+	border-radius: var(--lotus-radius-lg);
+	padding: 16px 18px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	box-shadow: var(--lotus-shadow-xs);
+	transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+	text-decoration: none;
+}
+
+.lotus-hub-item:hover {
+	transform: translateY(-2px);
+	box-shadow: var(--lotus-shadow-md);
+	border-color: var(--lotus-primary-subtle);
+}
+
+.lotus-hub-item:active {
+	transform: scale(0.98);
+}
+
+.lotus-hub-info b {
+	font-size: 14px;
+	color: var(--lotus-text-primary);
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.lotus-hub-info .text-muted {
+	font-size: 12px;
+	color: var(--lotus-text-secondary);
+	margin-top: 2px;
+}
+
+/* ==========================================================================
+   Buttons & Interactive Pills
+   ========================================================================== */
+
+/* Primary Pill Action */
+.lotus-btn-primary {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	background: var(--lotus-primary);
+	color: #ffffff !important;
+	font-weight: 600;
 	font-size: 13px;
-	line-height: 1.5;
+	padding: 7px 16px;
+	border-radius: var(--lotus-radius-pill);
+	border: none;
+	cursor: pointer;
+	box-shadow: 0 1px 3px rgba(37, 99, 235, 0.25);
+	transition: all 0.2s ease;
 }
 
-.lotus-banner-warning {
-	background: #fffbeb;
-	border-left: 4px solid #f59e0b;
-	color: #92400e;
+.lotus-btn-primary:hover {
+	background: var(--lotus-primary-hover);
+	box-shadow: 0 3px 8px rgba(37, 99, 235, 0.35);
 }
 
-.lotus-banner-danger {
-	background: #fef2f2;
-	border-left: 4px solid #ef4444;
-	color: #991b1b;
+.lotus-btn-primary:active {
+	transform: scale(0.96);
 }
 
-.lotus-banner-info {
-	background: #eff6ff;
-	border-left: 4px solid #3b82f6;
-	color: #1e40af;
+/* Secondary Pill Action */
+.lotus-btn-secondary {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	background: var(--lotus-surface-subtle);
+	color: var(--lotus-text-primary) !important;
+	font-weight: 600;
+	font-size: 13px;
+	padding: 7px 16px;
+	border-radius: var(--lotus-radius-pill);
+	border: 1px solid var(--lotus-border);
+	cursor: pointer;
+	transition: all 0.2s ease;
 }
 
-/* KPI Cards Grid */
+.lotus-btn-secondary:hover {
+	background: var(--lotus-surface-hover);
+	border-color: var(--lotus-border-subtle);
+}
+
+.lotus-btn-secondary:active {
+	transform: scale(0.96);
+}
+
+/* Quick Selector / Prompt Pills */
+.lotus-quick-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	padding: 5px 14px;
+	background: var(--lotus-surface-card);
+	border: 1px solid var(--lotus-border);
+	border-radius: var(--lotus-radius-pill);
+	font-size: 12px;
+	font-weight: 500;
+	color: var(--lotus-text-secondary);
+	cursor: pointer;
+	transition: all 0.18s ease;
+	box-shadow: var(--lotus-shadow-xs);
+	user-select: none;
+}
+
+.lotus-quick-pill:hover {
+	background: var(--lotus-primary-light);
+	border-color: var(--lotus-primary-subtle);
+	color: var(--lotus-primary);
+	transform: translateY(-1px);
+	box-shadow: var(--lotus-shadow-sm);
+}
+
+.lotus-quick-pill:active {
+	transform: scale(0.95);
+}
+
+/* ==========================================================================
+   KPI Cards Grid
+   ========================================================================== */
+
 .lotus-kpi-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+	grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
 	gap: 14px;
-	margin-bottom: 24px;
+	margin-top: 10px;
 }
 
 .lotus-kpi-card {
-	background: #ffffff;
+	background: var(--lotus-surface-card);
 	border: 1px solid var(--lotus-border);
-	border-radius: 8px;
-	padding: 14px 16px;
-	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+	border-radius: var(--lotus-radius-lg);
+	padding: 16px 18px;
+	box-shadow: var(--lotus-shadow-xs);
+	transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 	position: relative;
-	transition: box-shadow 0.2s ease;
 }
 
 .lotus-kpi-card:hover {
-	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+	box-shadow: var(--lotus-shadow-md);
+	border-color: var(--lotus-border-subtle);
+	transform: translateY(-2px);
 }
 
 .lotus-kpi-label {
 	font-size: 12px;
 	font-weight: 600;
+	color: var(--lotus-text-secondary);
 	text-transform: uppercase;
-	letter-spacing: 0.5px;
-	color: #64748b;
-	margin-bottom: 6px;
+	letter-spacing: 0.4px;
 }
 
 .lotus-kpi-value {
-	font-size: 20px;
+	font-size: 22px;
 	font-weight: 700;
-	color: #0f172a;
-	line-height: 1.2;
+	color: var(--lotus-text-primary);
+	margin-top: 8px;
+	margin-bottom: 4px;
+	letter-spacing: -0.02em;
 }
 
 .lotus-kpi-value.cash-negative {
-	color: #b91c1c;
+	color: var(--lotus-danger);
 }
 
 .lotus-kpi-unit {
-	font-size: 12px;
-	font-weight: 500;
-	color: #64748b;
-	margin-left: 4px;
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--lotus-text-muted);
+	margin-left: 2px;
 }
 
 .lotus-kpi-subtext {
 	font-size: 11px;
-	color: #64748b;
-	margin-top: 8px;
+	color: var(--lotus-text-muted);
 }
 
 .lotus-kpi-state-badge {
 	font-size: 10px;
 	font-weight: 600;
-	padding: 1px 6px;
-	border-radius: 4px;
-	text-transform: uppercase;
-	display: inline-block;
+	padding: 2px 7px;
+	border-radius: var(--lotus-radius-pill);
 }
 
 .lotus-kpi-state-available {
-	background: #dcfce7;
-	color: #166534;
+	background: var(--lotus-success-bg);
+	color: var(--lotus-success);
 }
 
 .lotus-kpi-state-unavailable {
-	background: #f1f5f9;
-	color: #475569;
+	background: var(--lotus-surface-subtle);
+	color: var(--lotus-text-muted);
 }
 
-/* Sections */
-.lotus-section-card {
-	background: #ffffff;
-	border: 1px solid var(--lotus-border);
-	border-radius: 8px;
-	padding: 18px 20px;
-	margin-bottom: 24px;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-}
+/* ==========================================================================
+   Tables & Data Presentation
+   ========================================================================== */
 
-.lotus-section-title {
-	font-size: 15px;
-	font-weight: 700;
-	color: #0f172a;
-	margin-bottom: 12px;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-}
-
-/* Tables */
 .lotus-table {
 	width: 100%;
-	border-collapse: collapse;
+	border-collapse: separate;
+	border-spacing: 0;
 	font-size: 13px;
+	border: 1px solid var(--lotus-border);
+	border-radius: var(--lotus-radius-lg);
+	overflow: hidden;
 }
 
-.lotus-table th {
-	background: #f8fafc;
-	color: #475569;
+.lotus-table thead th {
+	background: var(--lotus-surface-subtle);
+	color: var(--lotus-text-secondary);
 	font-weight: 600;
-	text-align: left;
-	padding: 10px 12px;
-	border-bottom: 1px solid var(--lotus-border);
 	font-size: 12px;
+	text-transform: uppercase;
+	letter-spacing: 0.4px;
+	padding: 12px 16px;
+	border-bottom: 1px solid var(--lotus-border);
+	text-align: left;
 }
 
-.lotus-table td {
-	padding: 10px 12px;
-	border-bottom: 1px solid #f1f5f9;
-	color: #1e293b;
+.lotus-table tbody tr {
+	transition: background 0.15s ease;
 }
 
-.lotus-table tr:last-child td {
+.lotus-table tbody tr:hover {
+	background: var(--lotus-surface-app);
+}
+
+.lotus-table tbody td {
+	padding: 12px 16px;
+	border-bottom: 1px solid var(--lotus-border);
+	color: var(--lotus-text-primary);
+	vertical-align: middle;
+}
+
+.lotus-table tbody tr:last-child td {
 	border-bottom: none;
 }
 
-.lotus-table tr:hover td {
+/* ==========================================================================
+   AI Narrative, Breakdown Boxes & Alerts
+   ========================================================================== */
+
+.lotus-ai-box {
+	background: var(--lotus-surface-subtle);
+	border: 1px solid var(--lotus-border);
+	border-radius: var(--lotus-radius-lg);
+	padding: 16px 18px;
+	margin-bottom: 14px;
+}
+
+.lotus-ai-box.facts {
+	border-left: 4px solid var(--lotus-primary);
 	background: #f8fafc;
 }
 
-/* AI Analysis Cards */
-.lotus-ai-box {
-	background: #f8fafc;
-	border: 1px solid #e2e8f0;
-	border-radius: 6px;
-	padding: 14px;
-	margin-bottom: 12px;
+.lotus-ai-box.interpretations {
+	border-left: 4px solid var(--lotus-ai-magic);
+	background: #fdfcff;
+}
+
+.lotus-ai-box.limitations {
+	border-left: 4px solid var(--lotus-warning);
+	background: #fffdfa;
 }
 
 .lotus-ai-box-title {
-	font-size: 12px;
+	font-size: 13px;
 	font-weight: 700;
-	text-transform: uppercase;
-	letter-spacing: 0.5px;
-	margin-bottom: 8px;
+	color: var(--lotus-text-primary);
+	margin-bottom: 10px;
 	display: flex;
 	align-items: center;
+	gap: 6px;
 }
 
-.lotus-ai-box.facts .lotus-ai-box-title { color: #0284c7; }
-.lotus-ai-box.interpretations .lotus-ai-box-title { color: #4f46e5; }
-.lotus-ai-box.limitations .lotus-ai-box-title { color: #d97706; }
-.lotus-ai-box.next-checks .lotus-ai-box-title { color: #059669; }
-
 .lotus-ai-list {
-	margin: 0;
-	padding-left: 18px;
-	font-size: 13px;
-	line-height: 1.6;
-	color: #334155;
+	list-style-type: none;
+	padding-left: 0;
+	margin-bottom: 0;
 }
 
 .lotus-ai-list li {
-	margin-bottom: 4px;
-}
-
-/* Next checks quick buttons */
-.lotus-action-btn-group {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 10px;
-	margin-top: 12px;
-}
-
-.lotus-action-btn {
-	background: #ffffff;
-	border: 1px solid #cbd5e1;
-	border-radius: 6px;
-	padding: 6px 14px;
-	font-size: 12px;
-	font-weight: 600;
-	color: #1e293b;
-	cursor: pointer;
-	transition: all 0.15s ease;
-	display: inline-flex;
-	align-items: center;
-	gap: 6px;
-}
-
-.lotus-action-btn:hover {
-	background: #f8fafc;
-	border-color: #94a3b8;
-	color: #0f172a;
-}
-
-/* Evidence drawer / section */
-.lotus-evidence-item {
-	background: #ffffff;
-	border: 1px solid #e2e8f0;
-	border-radius: 6px;
-	padding: 10px 14px;
+	position: relative;
+	padding-left: 18px;
 	margin-bottom: 8px;
-	font-size: 12px;
+	font-size: 13px;
+	line-height: 1.6;
+	color: var(--lotus-text-secondary);
 }
 
-.lotus-code-badge {
-	font-family: monospace;
-	background: #f1f5f9;
-	padding: 2px 6px;
-	border-radius: 4px;
-	font-size: 11px;
-	color: #334155;
+.lotus-ai-list li:last-child {
+	margin-bottom: 0;
 }
 
-/* Staged Loader Skeleton */
-.lotus-skeleton {
-	background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
-	background-size: 200% 100%;
-	animation: lotus-shimmer 1.5s infinite;
-	border-radius: 4px;
+.lotus-ai-list li::before {
+	content: "•";
+	position: absolute;
+	left: 4px;
+	color: var(--lotus-text-muted);
+	font-weight: bold;
 }
 
-@keyframes lotus-shimmer {
-	0% { background-position: 200% 0; }
-	100% { background-position: -200% 0; }
-}
-
-/* AI004 & AI005 What-If Simulation & Financing Advisor Styles */
-.lotus-sim-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-	gap: 16px;
-	margin-bottom: 16px;
-}
-
-.lotus-sim-control {
-	background: #f8fafc;
-	border: 1px solid #e2e8f0;
-	border-radius: 6px;
-	padding: 12px;
-}
-
-.lotus-sim-label {
-	font-size: 12px;
-	font-weight: 600;
-	color: #334155;
-	margin-bottom: 6px;
+/* Banners & Notifications */
+.lotus-banner {
 	display: flex;
-	justify-content: space-between;
-}
-
-.lotus-sim-input {
-	width: 100%;
-	padding: 6px 10px;
+	align-items: flex-start;
+	gap: 10px;
+	padding: 14px 18px;
+	border-radius: var(--lotus-radius-lg);
+	margin-bottom: 18px;
 	font-size: 13px;
-	border: 1px solid #cbd5e1;
-	border-radius: 4px;
-	background: #ffffff;
+	line-height: 1.5;
+	box-shadow: var(--lotus-shadow-xs);
 }
 
-.lotus-sim-btn {
-	background: #00897b;
+.lotus-banner-info {
+	background: #eff6ff;
+	border: 1px solid #bfdbfe;
+	color: #1e40af;
+}
+
+.lotus-banner-warning {
+	background: var(--lotus-warning-bg);
+	border: 1px solid var(--lotus-warning-border);
+	color: #9a3412;
+}
+
+.lotus-banner-danger {
+	background: var(--lotus-danger-bg);
+	border: 1px solid var(--lotus-danger-border);
+	color: #991b1b;
+}
+
+/* ==========================================================================
+   Chat Copilot Component Styles (weamis-fnb-ops-ui Style)
+   ========================================================================== */
+
+.lotus-copilot-card {
+	border: 1px solid #c7d2fe !important;
+	box-shadow: 0 8px 24px rgba(99, 102, 241, 0.08) !important;
+	border-radius: var(--lotus-radius-2xl, 20px) !important;
+}
+
+.lotus-chat-container {
+	display: flex;
+	flex-direction: column;
+	background: var(--lotus-surface-app);
+	border: 1px solid var(--lotus-border);
+	border-radius: var(--lotus-radius-xl);
+	overflow: hidden;
+}
+
+.lotus-chat-thread {
+	padding: 20px;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	overflow-y: auto;
+	scroll-behavior: smooth;
+}
+
+.lotus-chat-msg {
+	display: flex;
+	flex-direction: column;
+	max-width: 86%;
+	animation: lotusFadeIn 0.25s ease forwards;
+}
+
+.lotus-chat-msg.user {
+	align-self: flex-end;
+}
+
+.lotus-chat-msg.copilot {
+	align-self: flex-start;
+}
+
+.lotus-msg-bubble {
+	padding: 14px 18px;
+	border-radius: 16px;
+	font-size: 13px;
+	line-height: 1.6;
+	word-break: break-word;
+	box-shadow: var(--lotus-shadow-xs);
+}
+
+.lotus-chat-msg.user .lotus-msg-bubble {
+	background: var(--lotus-primary);
 	color: #ffffff;
-	border: none;
-	border-radius: 6px;
-	padding: 8px 18px;
-	font-weight: 600;
-	font-size: 13px;
-	cursor: pointer;
-	transition: background 0.15s ease;
+	border-bottom-right-radius: 4px;
+}
+
+.lotus-chat-msg.copilot .lotus-msg-bubble {
+	background: #ffffff;
+	color: var(--lotus-text-primary);
+	border: 1px solid var(--lotus-border);
+	border-bottom-left-radius: 4px;
+}
+
+.lotus-chat-tool-badge {
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
+	background: #ede9fe;
+	color: #5b21b6;
+	font-size: 11px;
+	font-weight: 600;
+	padding: 4px 10px;
+	border-radius: var(--lotus-radius-pill);
+	margin-bottom: 10px;
+	border: 1px solid #ddd6fe;
 }
 
-.lotus-sim-btn:hover {
-	background: #00695c;
-}
-
-/* AI Copilot Prompt & Matching Cards */
-.lotus-copilot-input-box {
+.lotus-chat-input-bar {
 	display: flex;
+	align-items: center;
 	gap: 10px;
-	margin-bottom: 12px;
+	padding: 14px 16px;
+	background: #ffffff;
+	border-top: 1px solid var(--lotus-border);
 }
 
 .lotus-copilot-input {
 	flex: 1;
-	padding: 10px 14px;
+	border: 1px solid var(--lotus-border);
+	border-radius: var(--lotus-radius-pill);
+	padding: 10px 18px;
 	font-size: 13px;
-	border: 1px solid #cbd5e1;
-	border-radius: 6px;
+	color: var(--lotus-text-primary);
+	background: var(--lotus-surface-app);
+	outline: none;
+	transition: all 0.2s ease;
+}
+
+.lotus-copilot-input:focus {
+	border-color: var(--lotus-border-focus);
 	background: #ffffff;
+	box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
-.lotus-quick-pill {
-	display: inline-block;
-	background: #f1f5f9;
-	color: #0284c7;
-	border: 1px solid #e0f2fe;
-	border-radius: 12px;
-	padding: 3px 10px;
-	font-size: 11px;
-	margin-right: 6px;
-	margin-bottom: 8px;
+.lotus-chat-send-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: var(--lotus-ai-gradient);
+	color: #ffffff;
+	border: none;
+	border-radius: var(--lotus-radius-pill);
+	padding: 10px 20px;
+	font-size: 13px;
+	font-weight: 600;
 	cursor: pointer;
-	font-weight: 500;
-	transition: all 0.15s ease;
+	box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+	transition: all 0.2s ease;
 }
 
-.lotus-quick-pill:hover {
-	background: #e0f2fe;
-	color: #0369a1;
+.lotus-chat-send-btn:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+.lotus-chat-send-btn:active {
+	transform: scale(0.95);
+}
+
+/* Chat Widgets inside bubbles */
+.lotus-chat-widget {
+	margin-top: 12px;
+	padding: 12px;
+	background: var(--lotus-surface-app);
+	border: 1px solid var(--lotus-border);
+	border-radius: var(--lotus-radius-md);
 }
 
 .lotus-product-card {
 	background: #ffffff;
-	border: 1px solid #e2e8f0;
-	border-radius: 8px;
-	padding: 14px;
-	margin-bottom: 12px;
-	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+	border: 1px solid var(--lotus-border);
+	border-radius: var(--lotus-radius-md);
+	padding: 10px 12px;
+	transition: all 0.15s ease;
 }
 
 .lotus-product-card.top-recommended {
-	border-left: 4px solid #00897b;
-	background: #f0fdf4;
+	border-color: #818cf8;
+	background: #fbfbfe;
 }
 
 .lotus-score-badge {
-	background: #00897b;
-	color: #ffffff;
-	padding: 2px 8px;
-	border-radius: 10px;
 	font-size: 11px;
 	font-weight: 700;
+	color: #4338ca;
+	background: #e0e7ff;
+	padding: 2px 8px;
+	border-radius: var(--lotus-radius-pill);
 }
 
+/* ==========================================================================
+   What-If Stress Testing Studio Styles
+   ========================================================================== */
+
+.lotus-preset-scenarios {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-top: 8px;
+	margin-bottom: 16px;
+}
+
+.lotus-preset-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 14px;
+	background: #ffffff;
+	border: 1px solid var(--lotus-border);
+	border-radius: var(--lotus-radius-pill);
+	font-size: 12px;
+	font-weight: 500;
+	color: var(--lotus-text-secondary);
+	cursor: pointer;
+	transition: all 0.18s ease;
+	box-shadow: var(--lotus-shadow-xs);
+}
+
+.lotus-preset-btn:hover {
+	background: #f3e8ff;
+	border-color: #d8b4fe;
+	color: #6b21a8;
+	transform: translateY(-1px);
+	box-shadow: var(--lotus-shadow-sm);
+}
+
+.lotus-preset-btn.active {
+	background: #7e22ce;
+	border-color: #6b21a8;
+	color: #ffffff;
+	box-shadow: 0 2px 6px rgba(126, 34, 206, 0.3);
+}
+
+.lotus-preset-btn:active {
+	transform: scale(0.95);
+}
+
+.lotus-sim-group-title {
+	font-size: 13px;
+	font-weight: 700;
+	color: var(--lotus-text-primary);
+	margin-top: 18px;
+	margin-bottom: 10px;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.lotus-sim-grid-section {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+	gap: 14px;
+	margin-bottom: 16px;
+}
+
+.lotus-sim-box {
+	background: var(--lotus-surface-app);
+	border: 1px solid var(--lotus-border);
+	border-radius: var(--lotus-radius-lg);
+	padding: 14px 16px;
+	transition: all 0.15s ease;
+}
+
+.lotus-sim-box:hover {
+	border-color: var(--lotus-border-subtle);
+	background: #ffffff;
+	box-shadow: var(--lotus-shadow-xs);
+}
+
+.lotus-sim-box-title {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--lotus-text-secondary);
+	margin-bottom: 8px;
+}
+
+.lotus-sim-val-badge {
+	font-family: ui-monospace, monospace;
+	font-size: 12px;
+	font-weight: 700;
+	padding: 2px 8px;
+	border-radius: var(--lotus-radius-pill);
+	background: var(--lotus-surface-hover);
+	color: var(--lotus-text-primary);
+}
+
+.lotus-sim-val-badge.negative {
+	background: var(--lotus-danger-bg);
+	color: var(--lotus-danger);
+}
+
+.lotus-sim-val-badge.positive {
+	background: var(--lotus-success-bg);
+	color: var(--lotus-success);
+}
+
+.lotus-sim-subhint {
+	font-size: 11px;
+	color: var(--lotus-text-muted);
+	margin-top: 6px;
+}
+
+.lotus-sim-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	padding: 10px 24px;
+	font-size: 13px;
+	font-weight: 600;
+	border-radius: var(--lotus-radius-pill);
+	border: none;
+	color: #ffffff;
+	cursor: pointer;
+	background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+	box-shadow: 0 2px 8px rgba(13, 148, 136, 0.3);
+	transition: all 0.2s ease;
+}
+
+.lotus-sim-btn:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 4px 12px rgba(13, 148, 136, 0.4);
+}
+
+.lotus-sim-btn:active {
+	transform: scale(0.96);
+}
+
+/* ==========================================================================
+   Range Slider & Inputs Polish (weamis-fnb-ops-ui convention)
+   ========================================================================== */
+
+input[type="range"].custom-range {
+	-webkit-appearance: none;
+	width: 100%;
+	height: 6px;
+	border-radius: var(--lotus-radius-pill);
+	background: #e2e8f0;
+	outline: none;
+	margin: 12px 0 6px 0;
+	transition: background 0.2s ease;
+}
+
+input[type="range"].custom-range:hover {
+	background: #cbd5e1;
+}
+
+input[type="range"].custom-range::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	background: var(--lotus-primary);
+	cursor: pointer;
+	border: 2px solid #ffffff;
+	box-shadow: 0 1px 4px rgba(37, 99, 235, 0.4);
+	transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+input[type="range"].custom-range::-webkit-slider-thumb:hover {
+	transform: scale(1.2);
+	background: var(--lotus-primary-hover);
+	box-shadow: 0 2px 8px rgba(37, 99, 235, 0.6);
+}
+
+input[type="range"].custom-range::-webkit-slider-thumb:active {
+	transform: scale(1.1);
+	box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
+}
+
+input[type="range"].custom-range::-moz-range-thumb {
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	background: var(--lotus-primary);
+	cursor: pointer;
+	border: 2px solid #ffffff;
+	box-shadow: 0 1px 4px rgba(37, 99, 235, 0.4);
+	transition: transform 0.15s ease;
+}
+
+input[type="range"].custom-range::-moz-range-thumb:hover {
+	transform: scale(1.2);
+}
+
+/* Custom Select Dropdown */
+.lotus-sim-input {
+	width: 100%;
+	padding: 8px 14px;
+	border-radius: var(--lotus-radius-md);
+	border: 1px solid var(--lotus-border);
+	font-size: 13px;
+	background: #ffffff;
+	color: var(--lotus-text-primary);
+	outline: none;
+	transition: all 0.2s ease;
+	cursor: pointer;
+}
+
+.lotus-sim-input:focus {
+	border-color: var(--lotus-border-focus);
+	box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* Action Button Group */
+.lotus-action-btn-group {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+}
+
+.lotus-action-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 7px 16px;
+	background: #ffffff;
+	border: 1px solid var(--lotus-border);
+	border-radius: var(--lotus-radius-pill);
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--lotus-text-secondary);
+	cursor: pointer;
+	box-shadow: var(--lotus-shadow-xs);
+	transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.lotus-action-btn:hover {
+	border-color: var(--lotus-primary-subtle);
+	background: var(--lotus-primary-light);
+	color: var(--lotus-primary);
+	transform: translateY(-1px);
+	box-shadow: var(--lotus-shadow-sm);
+}
+
+.lotus-action-btn:active {
+	transform: scale(0.96);
+}
+
+/* Evidence Audit Item */
+.lotus-evidence-item {
+	background: var(--lotus-surface-app);
+	border: 1px solid var(--lotus-border);
+	border-radius: var(--lotus-radius-md);
+	padding: 12px 14px;
+	margin-bottom: 10px;
+	transition: all 0.15s ease;
+}
+
+.lotus-evidence-item:hover {
+	background: #ffffff;
+	border-color: var(--lotus-border-subtle);
+}
+
+.lotus-code-badge {
+	font-family: ui-monospace, monospace;
+	font-size: 11px;
+	font-weight: 600;
+	background: #e0f2fe;
+	color: #0369a1;
+	padding: 2px 8px;
+	border-radius: var(--lotus-radius-pill);
+}
+
+/* Animation Helpers */
+@keyframes lotusFadeIn {
+	from { opacity: 0; transform: translateY(6px); }
+	to { opacity: 1; transform: translateY(0); }
+}

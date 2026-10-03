@@ -12,7 +12,9 @@ from lotus_fin.core.ai.resilience.token_manager import token_manager
 class GeminiProvider(BaseLLMProvider):
     """Provider for Google Gemini 1.5/2.5 Flash/Pro REST API."""
 
-    def __init__(self, model_name: str = "gemini-1.5-flash", api_key: Optional[str] = None):
+    def __init__(self, model_name: str = "gemini-flash-lite-latest", api_key: Optional[str] = None):
+        if model_name in ["gemini-1.5-flash", "gemini-flash-latest", "gemini-2.5-flash"]:
+            model_name = "gemini-flash-lite-latest"
         super().__init__(model_name=model_name, api_key=api_key or os.environ.get("GEMINI_API_KEY"))
 
     def generate(

@@ -269,12 +269,8 @@ def _parse_report_rows(report: Any, source_label: str, company: Optional[str] = 
     rows = report.get("data")
     if not isinstance(rows, list):
         raise ObligationSourceError(f"{source_label} payload is malformed.")
-    for r in rows:
-        if not isinstance(r, dict):
-            raise ObligationSourceError(
-                f"{source_label} payload contains malformed rows."
-            )
-    return rows
+    dict_rows = [r for r in rows if isinstance(r, dict)]
+    return dict_rows
 
 
 def _outstanding_amount(row: dict, source_label: str) -> Decimal:

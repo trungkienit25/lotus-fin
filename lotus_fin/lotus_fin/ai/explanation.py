@@ -47,12 +47,19 @@ class LLMExplanationProvider:
         provider_type: Optional[str] = None,
         model_name: Optional[str] = None,
         api_key: Optional[str] = None,
-        timeout_seconds: float = 3.0,
+        timeout_seconds: float = 10.0,
         mock_handler: Optional[Callable[[Dict[str, Any]], str]] = None
     ):
-        self.provider_type = provider_type or os.environ.get("LOTUS_LLM_PROVIDER", "mock")
-        self.model_name = model_name or os.environ.get("LOTUS_LLM_MODEL", "gpt-4o-mini")
-        self.api_key = api_key or os.environ.get("LOTUS_LLM_API_KEY", "")
+        gemini_key = os.environ.get("GEMINI_API_KEY")
+        self.api_key = api_key or gemini_key or os.environ.get("LOTUS_LLM_API_KEY") or os.environ.get("OPENAI_API_KEY", "")
+        self.provider_type = provider_type or os.environ.get("LOTUS_AI_PROVIDER") or os.environ.get("LOTUS_LLM_PROVIDER") or ("gemini" if gemini_key else "mock")
+        if self.provider_type in ["gemini", "google"]:
+            cand = model_name or os.environ.get("LOTUS_LLM_MODEL") or "gemini-flash-lite-latest"
+            if cand in ["gemini-1.5-flash", "gemini-flash-latest", "gemini-2.5-flash"]:
+                cand = "gemini-flash-lite-latest"
+            self.model_name = cand
+        else:
+            self.model_name = model_name or os.environ.get("LOTUS_LLM_MODEL", "gpt-4o-mini")
         self.timeout_seconds = timeout_seconds
         self.mock_handler = mock_handler
 
@@ -103,6 +110,33 @@ class LLMExplanationProvider:
 
     def _call_remote_provider(self, payload: Dict[str, Any]) -> Tuple[int, str, Dict[str, Any]]:
         import urllib.request, urllib.error
+        if self.provider_type in ["gemini", "google"] or "gemini" in self.model_name.lower():
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model_name}:generateContent?key={self.api_key}"
+            body_data = {
+                "contents": [
+                    {"role": "user", "parts": [{"text": f"SYSTEM INSTRUCTION: {SYSTEM_PROMPT}"}]},
+                    {"role": "model", "parts": [{"text": "Understood. I will provide strictly grounded JSON output."}]},
+                    {"role": "user", "parts": [{"text": json.dumps(payload, default=str)}]}
+                ],
+                "generationConfig": {"temperature": 0.0, "responseMimeType": "application/json"}
+            }
+            req = urllib.request.Request(url, data=json.dumps(body_data).encode("utf-8"), headers={"Content-Type": "application/json"}, method="POST")
+            try:
+                with urllib.request.urlopen(req, timeout=self.timeout_seconds) as resp:
+                    resp_json = json.loads(resp.read().decode("utf-8"))
+                    usage = resp_json.get("usageMetadata", {})
+                    candidates = resp_json.get("candidates", [{}])
+                    content_text = candidates[0].get("content", {}).get("parts", [{}])[0].get("text", "{}")
+                    return resp.getcode(), content_text, {
+                        "tokens_in": usage.get("promptTokenCount", 0), "tokens_out": usage.get("candidatesTokenCount", 0)
+                    }
+            except urllib.error.HTTPError as e:
+                return e.code, e.read().decode("utf-8") if e.fp else str(e), {}
+            except urllib.error.URLError as e:
+                return 504, json.dumps({"error": f"Timeout error: {str(e)}"}), {}
+            except Exception as e:
+                return 500, json.dumps({"error": f"Provider error: {str(e)}"}), {}
+
         endpoint = os.environ.get("LOTUS_LLM_ENDPOINT", "https://api.openai.com/v1/chat/completions")
         headers = {"Content-Type": "application/json", "Authorization": f"Bearer {self.api_key}"}
         body_data = {

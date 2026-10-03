@@ -54,12 +54,15 @@ function Invoke-SyncApp {
     docker cp $LocalApp "${BackendContainer}:/home/frappe/frappe-bench/apps/lotus_fin"
     docker exec --user root $BackendContainer chown -R frappe:frappe /home/frappe/frappe-bench/apps/lotus_fin
     docker exec $BackendContainer bash -c 'grep -q lotus_fin /home/frappe/frappe-bench/sites/apps.txt || echo lotus_fin >> /home/frappe/frappe-bench/sites/apps.txt'
-    docker exec $BackendContainer pip install -e /home/frappe/frappe-bench/apps/lotus_fin
+    docker exec --user root $BackendContainer /home/frappe/frappe-bench/env/bin/pip install -e /home/frappe/frappe-bench/apps/lotus_fin
+    docker exec --user root $BackendContainer ln -sf /home/frappe/frappe-bench/apps/lotus_fin/lotus_fin/public /home/frappe/frappe-bench/assets/lotus_fin
+    docker cp $LocalApp "frappe_docker-frontend-1:/home/frappe/frappe-bench/apps/lotus_fin"
+    docker exec --user root frappe_docker-frontend-1 ln -sf /home/frappe/frappe-bench/apps/lotus_fin/lotus_fin/public /home/frappe/frappe-bench/assets/lotus_fin
     docker exec $BackendContainer bench --site frontend install-app lotus_fin
     docker exec $BackendContainer bench build --app lotus_fin
     docker exec $BackendContainer bench --site frontend migrate
     docker exec $BackendContainer bench --site frontend clear-cache
-    docker restart $BackendContainer
+    docker restart $BackendContainer frappe_docker-frontend-1
     Write-Host "Waiting for backend service to stabilize (5s)..." -ForegroundColor Gray
     Start-Sleep -Seconds 5
     docker exec $BackendContainer bench --site frontend execute lotus_fin.setup_data.setup_demo_environment

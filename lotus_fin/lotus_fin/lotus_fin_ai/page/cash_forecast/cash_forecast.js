@@ -226,7 +226,7 @@ lotus_fin.cash_forecast.Controller = class Controller {
 		this.fetch_forecast();
 	}
 
-	fetch_forecast(want_explanation = false) {
+	fetch_forecast(want_explanation = true) {
 		const me = this;
 		const company = this.company_field.get_value();
 		const as_of = this.as_of_field.get_value() || "2026-09-26";

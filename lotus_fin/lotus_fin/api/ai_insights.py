@@ -22,6 +22,7 @@ from lotus_fin.api.cashflow_api import (
     get_ai002_cash_forecast,
     get_ai002_evidence,
 )
+from lotus_fin.api.copilot_api import chat_copilot
 
 __all__ = [
     "on_sales_invoice_submit",
@@ -34,6 +35,7 @@ __all__ = [
     "get_ai002_cash_account_scope",
     "get_ai002_cash_forecast",
     "get_ai002_evidence",
+    "chat_copilot",
 ]
 
 

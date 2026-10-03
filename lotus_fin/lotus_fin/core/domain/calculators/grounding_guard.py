@@ -20,9 +20,11 @@ def sanitize_text(text: str) -> str:
 def extract_numbers(text: str) -> List[Decimal]:
     """
     Extracts all candidate numbers from prose.
-    Ignores common non-metric numbers like calendar years (2010-2039) and numbered list headers.
+    Ignores common non-metric numbers like calendar years (2010-2039), dates, and numbered list headers.
     """
-    cleaned = re.sub(r'\b(20[1-3][0-9])\b', '', text)
+    cleaned = re.sub(r'\b\d{4}-\d{2}-\d{2}\b', '', text)
+    cleaned = re.sub(r'\b\d{2}/\d{2}/\d{4}\b', '', cleaned)
+    cleaned = re.sub(r'\b(20[1-3][0-9])\b', '', cleaned)
     cleaned = re.sub(r'^\s*\d+[\.\)]\s*', '', cleaned)
     tokens = re.findall(r'-?\d+(?:,\d+)*(?:\.\d+)?', cleaned)
     numbers: List[Decimal] = []

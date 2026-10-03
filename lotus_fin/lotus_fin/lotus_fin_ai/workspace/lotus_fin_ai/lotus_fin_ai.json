@@ -1,6 +1,6 @@
 {
  "charts": [],
- "content": "[{\"id\":\"header\",\"type\":\"header\",\"data\":{\"text\":\"Lotus Fin AI - Financial Copilot & Scenario Intelligence\",\"level\":3}},{\"id\":\"shortcuts_card\",\"type\":\"card\",\"data\":{\"card_name\":\"Shortcuts\"}},{\"id\":\"modules_card\",\"type\":\"card\",\"data\":{\"card_name\":\"AI Financial Management\"}}]",
+ "content": "[{\"id\":\"hdr_1\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h3\\\"><b>Lotus Fin AI \u2014 Trung t\u00e2m T\u00e0i ch\u00ednh & Tr\u1ee3 l\u00fd Copilot</b></span>\",\"col\":12}},{\"id\":\"sc_1\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"\ud83e\udd16 Lotus Fin AI Copilot\",\"col\":3}},{\"id\":\"sc_2\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"\ud83d\udcca S\u1ee9c kh\u1ecfe T\u00e0i ch\u00ednh (AI001)\",\"col\":3}},{\"id\":\"sc_3\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"\ud83d\udd2e What-If Stress-Test Studio\",\"col\":3}},{\"id\":\"sc_4\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"\ud83d\udca7 D\u1ef1 b\u00e1o D\u00f2ng ti\u1ec1n & Runway\",\"col\":3}},{\"id\":\"card_modules\",\"type\":\"card\",\"data\":{\"card_name\":\"AI Financial Management\",\"col\":12}}]",
  "creation": "2026-09-30 22:30:00.000000",
  "custom_blocks": [],
  "docstatus": 0,
@@ -17,7 +17,7 @@
    "hidden": 0,
    "is_query_report": 0,
    "label": "AI Financial Management",
-   "link_count": 4,
+   "link_count": 7,
    "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
@@ -26,9 +26,42 @@
    "dependencies": "",
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Financial Health & Copilot",
+   "label": "Lotus Fin AI Copilot",
+   "link_count": 0,
+   "link_to": "lotus-copilot",
+   "link_type": "Page",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Financial Health Analyst",
    "link_count": 0,
    "link_to": "financial-health",
+   "link_type": "Page",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "What-If Stress Testing Studio",
+   "link_count": 0,
+   "link_to": "what-if-studio",
+   "link_type": "Page",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Cash Flow Forecast & Runway",
+   "link_count": 0,
+   "link_to": "cash-forecast",
    "link_type": "Page",
    "onboard": 1,
    "type": "Link"
@@ -67,7 +100,7 @@
    "type": "Link"
   }
  ],
- "modified": "2026-09-30 22:30:00.000000",
+ "modified": "2026-10-03 08:30:00.000000",
  "modified_by": "Administrator",
  "module": "Lotus Fin AI",
  "name": "Lotus Fin AI",
@@ -81,28 +114,36 @@
  "sequence_id": 1.0,
  "shortcuts": [
   {
-   "color": "Grey",
+   "color": "Blue",
    "doc_view": "",
    "format": "",
-   "label": "Financial Health Monitor",
+   "label": "\ud83e\udd16 Lotus Fin AI Copilot",
+   "link_to": "lotus-copilot",
+   "type": "Page"
+  },
+  {
+   "color": "Green",
+   "doc_view": "",
+   "format": "",
+   "label": "\ud83d\udcca S\u1ee9c kh\u1ecfe T\u00e0i ch\u00ednh (AI001)",
    "link_to": "financial-health",
    "type": "Page"
   },
   {
-   "color": "Grey",
+   "color": "Purple",
    "doc_view": "",
    "format": "",
-   "label": "General Ledger",
-   "link_to": "General Ledger",
-   "type": "Report"
+   "label": "\ud83d\udd2e What-If Stress-Test Studio",
+   "link_to": "what-if-studio",
+   "type": "Page"
   },
   {
-   "color": "Grey",
+   "color": "Cyan",
    "doc_view": "",
    "format": "",
-   "label": "Financial Reports",
-   "link_to": "financial-reports",
-   "type": "Workspace"
+   "label": "\ud83d\udca7 D\u1ef1 b\u00e1o D\u00f2ng ti\u1ec1n & Runway",
+   "link_to": "cash-forecast",
+   "type": "Page"
   }
  ],
  "title": "Lotus Fin AI",
