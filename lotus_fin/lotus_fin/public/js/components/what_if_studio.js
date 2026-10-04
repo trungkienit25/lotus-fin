@@ -246,7 +246,7 @@ lotus_fin.components.WhatIfStudio = class WhatIfStudio {
 		this.$el.on("change", "#input-sim-one-off", function () {
 			const val = parseFloat($(this).val()) || 0;
 			const badge = me.$el.find("#val-sim-one-off");
-			badge.text(frappe.format(val, { fieldtype: "Currency", currency: "VND" }));
+			badge.text(lotus_fin.core.format_currency(val, "VND"));
 			badge.removeClass("negative").addClass(val > 0 ? "negative" : "");
 		});
 
@@ -451,8 +451,8 @@ lotus_fin.components.WhatIfStudio = class WhatIfStudio {
 			const eventsHtml = res.shortfall_events.map(e => `
 				<li class="mb-1">
 					<b>[${frappe.utils.escape_html(e.date || "Kỳ phân tích")} - ${e.urgency_level || "CRITICAL"}]:</b> 
-					Số dư tiền giảm sâu còn <b>${frappe.format(e.projected_cash, { fieldtype: "Currency", currency: "VND" })}</b>, 
-					thâm hụt dòng tiền <b>${frappe.format(e.deficit_amount, { fieldtype: "Currency", currency: "VND" })}</b>.
+					Số dư tiền giảm sâu còn <b>${lotus_fin.core.format_currency(e.projected_cash, "VND")}</b>, 
+					thâm hụt dòng tiền <b>${lotus_fin.core.format_currency(e.deficit_amount, "VND")}</b>.
 					<div class="text-danger mt-1">👉 <b>Hành động xử lý:</b> ${frappe.utils.escape_html(e.recommended_action || "Cần bù đắp thanh khoản khẩn cấp.")}</div>
 				</li>
 			`).join("");
@@ -514,6 +514,6 @@ lotus_fin.components.WhatIfStudio = class WhatIfStudio {
 		if (meta.is_days) {
 			return `${val.toFixed(1)} ngày`;
 		}
-		return frappe.format(val, { fieldtype: "Currency", currency: "VND" });
+		return lotus_fin.core.format_currency(val, "VND");
 	}
 };

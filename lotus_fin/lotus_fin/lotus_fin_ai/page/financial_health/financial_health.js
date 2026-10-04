@@ -17,6 +17,12 @@ frappe.pages["financial-health"].refresh = function (wrapper) {
 	}
 };
 
+// Safe pure currency formatter (no HTML tags)
+function format_money(val, currency = "VND") {
+	if (val === null || val === undefined || isNaN(val)) return "0 " + currency;
+	return Math.round(Number(val)).toLocaleString("vi-VN") + " " + currency;
+}
+
 lotus_fin.financial_health.Controller = class Controller {
 	constructor(wrapper) {
 		this.wrapper = wrapper;
@@ -543,7 +549,7 @@ lotus_fin.financial_health.Controller = class Controller {
 					const pct = (m.value * 100).toFixed(2);
 					valHtml = `${pct}<span class="lotus-kpi-unit">%</span>`;
 				} else {
-					const formatted = frappe.format(m.value, { fieldtype: "Currency", currency: m.currency_or_unit || "VND" });
+					const formatted = format_money(m.value, m.currency_or_unit || "VND");
 					if (meta.id === "cash_balance" && m.value < 0) {
 						isCashNegative = true;
 					}
@@ -658,7 +664,7 @@ lotus_fin.financial_health.Controller = class Controller {
 		if (meta.is_ratio) {
 			return `${(val * 100).toFixed(2)}%`;
 		}
-		return frappe.format(val, { fieldtype: "Currency", currency: "VND" });
+		return format_money(val, "VND");
 	}
 
 	render_ai_analysis() {
@@ -923,7 +929,7 @@ lotus_fin.financial_health.Controller = class Controller {
 		if (meta.is_days) {
 			return `${val.toFixed(1)} ngày`;
 		}
-		return frappe.format(val, { fieldtype: "Currency", currency: "VND" });
+		return format_money(val, "VND");
 	}
 
 	ask_financing_copilot(queryText) {
@@ -958,7 +964,7 @@ lotus_fin.financial_health.Controller = class Controller {
 		// Intent Banner
 		const intentHtml = `<div class="lotus-banner lotus-banner-info mb-2">
 			<div>
-				<b>🎯 Ý định nhận diện (NLU Intent):</b> Nhu cầu vốn: <b>${frappe.format(intent.amount, { fieldtype: "Currency", currency: "VND" })}</b> &bull; Kỳ hạn: <b>${intent.term_months} tháng</b> &bull; Mục đích: <b>${intent.purpose}</b>
+				<b>🎯 Ý định nhận diện (NLU Intent):</b> Nhu cầu vốn: <b>${format_money(intent.amount, "VND")}</b> &bull; Kỳ hạn: <b>${intent.term_months} tháng</b> &bull; Mục đích: <b>${frappe.utils.escape_html(intent.purpose || '')}</b>
 			</div>
 		</div>`;
 
@@ -970,7 +976,7 @@ lotus_fin.financial_health.Controller = class Controller {
 		matchedProds.slice(0, 3).forEach((p, idx) => {
 			const isTop = idx === 0;
 			const ratePct = (p.nominal_rate_annual * 100).toFixed(1);
-			const interestStr = frappe.format(p.estimated_monthly_interest, { fieldtype: "Currency", currency: "VND" });
+			const interestStr = format_money(p.estimated_monthly_interest, "VND");
 			productsHtml += `
 				<div class="lotus-product-card ${isTop ? 'top-recommended' : ''}">
 					<div class="d-flex justify-content-between align-items-center mb-1">

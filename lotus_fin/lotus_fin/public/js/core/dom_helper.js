@@ -9,7 +9,7 @@ lotus_fin.core.format_currency = function (value, currency = "VND") {
 	if (value === null || value === undefined || isNaN(value)) {
 		return "—";
 	}
-	return frappe.format(value, { fieldtype: "Currency", currency: currency });
+	return Math.round(Number(value)).toLocaleString("vi-VN") + " " + currency;
 };
 
 lotus_fin.core.format_percent = function (value, decimals = 1) {

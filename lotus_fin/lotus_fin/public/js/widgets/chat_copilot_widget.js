@@ -237,11 +237,11 @@ lotus_fin.widgets.ChatCopilot = class ChatCopilot {
 	render_tool_output_widget(toolName, output) {
 		// F006: Repayment Schedule Widget
 		if (toolName === "calculate_repayment_schedule" && output.monthly_payment) {
-			const pmtStr = frappe.format(output.monthly_payment, { fieldtype: "Currency", currency: "VND" });
-			const intStr = frappe.format(output.total_interest, { fieldtype: "Currency", currency: "VND" });
+			const pmtStr = lotus_fin.core.format_currency(output.monthly_payment, "VND");
+			const intStr = lotus_fin.core.format_currency(output.total_interest, "VND");
 			const shockHtml = output.shock_bps > 0 ? `
 				<div class="mt-2 text-danger font-weight-bold" style="font-size: 12px;">
-					⚠️ Sốc lãi (+${output.shock_bps} bps): Chi phí lãi tăng thêm +${frappe.format(output.shock_added_interest, { fieldtype: "Currency", currency: "VND" })}
+					⚠️ Sốc lãi (+${output.shock_bps} bps): Chi phí lãi tăng thêm +${lotus_fin.core.format_currency(output.shock_added_interest, "VND")}
 				</div>
 			` : "";
 
@@ -267,7 +267,7 @@ lotus_fin.widgets.ChatCopilot = class ChatCopilot {
 			let cards = "";
 			prods.forEach((p, idx) => {
 				const rate = (p.nominal_rate_annual * 100).toFixed(1);
-				const interest = frappe.format(p.estimated_monthly_interest, { fieldtype: "Currency", currency: "VND" });
+				const interest = lotus_fin.core.format_currency(p.estimated_monthly_interest, "VND");
 				cards += `
 					<div class="p-2 mb-2" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px;">
 						<div class="d-flex justify-content-between align-items-center">
@@ -312,7 +312,7 @@ lotus_fin.widgets.ChatCopilot = class ChatCopilot {
 			let pills = "";
 			metrics.slice(0, 5).forEach(m => {
 				if (m.status === "AVAILABLE" && m.value !== null) {
-					pills += `<span class="lotus-badge lotus-badge-primary mr-2 mb-1">${m.metric_id}: <b>${frappe.format(m.value, { fieldtype: "Currency", currency: "VND" })}</b></span>`;
+					pills += `<span class="lotus-badge lotus-badge-primary mr-2 mb-1">${m.metric_id}: <b>${lotus_fin.core.format_currency(m.value, "VND")}</b></span>`;
 				}
 			});
 			if (pills) {
@@ -338,7 +338,7 @@ lotus_fin.widgets.ChatCopilot = class ChatCopilot {
 				rows += `
 					<div class="d-flex justify-content-between py-1" style="border-bottom: 1px dashed #e2e8f0; font-size: 12px;">
 						<span>${frappe.utils.escape_html(k.name)}:</span>
-						<span><b>${frappe.format(k.scenario_value, { fieldtype: "Currency", currency: "VND" })}</b> <span class="text-muted">${deltaStr}</span></span>
+						<span><b>${lotus_fin.core.format_currency(k.scenario_value, "VND")}</b> <span class="text-muted">${deltaStr}</span></span>
 					</div>
 				`;
 			});

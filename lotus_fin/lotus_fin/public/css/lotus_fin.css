@@ -1155,3 +1155,11 @@ input[type="range"].custom-range::-moz-range-thumb:hover {
   .rs-kv { flex-direction: column; gap: 0; }
   .rs-kv-value { text-align: left; }
 }
+
+/* Ensure Frappe Flatpickr / Datepicker popup is hidden when not open */
+.flatpickr-calendar:not(.open) {
+  display: none !important;
+}
+.datepicker:not(.active):not(.open) {
+  display: none !important;
+}

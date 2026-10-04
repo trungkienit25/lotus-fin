@@ -17,6 +17,12 @@ frappe.pages["cash-forecast"].refresh = function (wrapper) {
 	}
 };
 
+// Safe pure currency formatter (no HTML tags)
+function format_money(val, currency = "VND") {
+	if (val === null || val === undefined || isNaN(val)) return "0 " + currency;
+	return Math.round(Number(val)).toLocaleString("vi-VN") + " " + currency;
+}
+
 lotus_fin.cash_forecast.Controller = class Controller {
 	constructor(wrapper) {
 		this.wrapper = wrapper;
@@ -440,7 +446,7 @@ lotus_fin.cash_forecast.Controller = class Controller {
 				</div>
 			`);
 			if (resp.opening_cash) {
-				$("#cf-opening-amount").text(`${frappe.format(resp.opening_cash.aggregate_amount, { fieldtype: "Currency", currency: resp.currency || "VND" })}`);
+				$("#cf-opening-amount").text(format_money(resp.opening_cash.aggregate_amount, resp.currency || "VND"));
 				$("#cf-reconciliation-status").text(resp.opening_cash.reconciliation).attr("class", "lotus-badge lotus-badge-warning");
 			}
 			$("#cf-verification-badge").html(isInconsistent
@@ -466,7 +472,7 @@ lotus_fin.cash_forecast.Controller = class Controller {
 			const title = isInherited ? "Cảnh báo Thâm hụt Kế thừa từ Đầu kỳ" : "CẢNH BÁO NGUY CƠ THÂM HỤT THANH KHOẢN (LIQUIDITY SHORTFALL)";
 			alertArea.append(`
 				<div class="lotus-banner ${isInherited ? 'lotus-banner-warning' : 'lotus-banner-danger'} mb-4">
-					<b>${title}:</b> Dòng tiền dự kiến rơi xuống dưới 0 vào ngày <b>${sf.first_date}</b>, chạm đáy thâm hụt <b>${frappe.format(sf.minimum_modeled_cash, { fieldtype: "Currency", currency: "VND" })}</b> vào ngày <b>${sf.minimum_date}</b>.
+					<b>${title}:</b> Dòng tiền dự kiến rơi xuống dưới 0 vào ngày <b>${sf.first_date}</b>, chạm đáy thâm hụt <b>${format_money(sf.minimum_modeled_cash, "VND")}</b> vào ngày <b>${sf.minimum_date}</b>.
 				</div>
 			`);
 		}
@@ -482,7 +488,7 @@ lotus_fin.cash_forecast.Controller = class Controller {
 
 		// Render Opening Cash
 		if (resp.opening_cash) {
-			$("#cf-opening-amount").text(`${frappe.format(resp.opening_cash.aggregate_amount, { fieldtype: "Currency", currency: resp.currency || "VND" })}`);
+			$("#cf-opening-amount").text(format_money(resp.opening_cash.aggregate_amount, resp.currency || "VND"));
 			$("#cf-reconciliation-status")
 				.text(resp.opening_cash.reconciliation)
 				.attr("class", isLedgerVerified ? "lotus-badge lotus-badge-success" : "lotus-badge lotus-badge-warning");
@@ -493,7 +499,7 @@ lotus_fin.cash_forecast.Controller = class Controller {
 					<div class="lotus-evidence-item mb-0" style="padding: 6px 12px; border-radius: var(--lotus-radius-pill); font-size: 12px;">
 						<span style="font-weight: 500;">${frappe.utils.escape_html(a.account)}:</span>
 						<b style="color: ${a.deficit ? '#dc2626' : 'var(--lotus-text-primary)'}; margin-left: 4px;">
-							${frappe.format(a.amount, { fieldtype: "Currency", currency: a.currency || "VND" })}
+							${format_money(a.amount, a.currency || "VND")}
 						</b>
 					</div>
 				`).join("");
@@ -519,7 +525,7 @@ lotus_fin.cash_forecast.Controller = class Controller {
 					<tr style="${isNeg ? 'background-color: #fef2f2;' : ''}">
 						<td><span class="font-weight-bold" style="color: var(--lotus-text-primary);">${p.date}</span></td>
 						<td style="${isNeg ? 'color: #dc2626; font-weight: 700;' : 'color: var(--lotus-primary); font-weight: 600;'}">
-							${frappe.format(p.modeled_cash, { fieldtype: "Currency", currency: resp.currency || "VND" })}
+							${format_money(p.modeled_cash, resp.currency || "VND")}
 						</td>
 						<td>${eventsCount > 0 ? `<span class="lotus-badge lotus-badge-primary">${eventsCount} sự kiện</span>` : '<span class="text-muted">—</span>'}</td>
 						<td style="text-align: center;"><span class="lotus-badge lotus-badge-neutral">${p.status}</span></td>
@@ -540,7 +546,7 @@ lotus_fin.cash_forecast.Controller = class Controller {
 						<td style="text-align: center;"><span class="lotus-badge ${isAR ? 'lotus-badge-success' : 'lotus-badge-warning'}">${o.type}</span></td>
 						<td><span class="lotus-code-badge">${o.party_hash || '-'}</span></td>
 						<td style="color: var(--lotus-text-secondary);">${o.due_date || 'N/A'}</td>
-						<td style="font-weight: 600; color: var(--lotus-text-primary);">${frappe.format(o.remaining_amount, { fieldtype: "Currency", currency: o.currency || "VND" })}</td>
+						<td style="font-weight: 600; color: var(--lotus-text-primary);">${format_money(o.remaining_amount, o.currency || "VND")}</td>
 						<td><span class="text-muted" style="font-size: 11px;">${frappe.utils.escape_html(o.source_ref)}</span></td>
 					</tr>
 				`);
