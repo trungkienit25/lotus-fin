@@ -53,15 +53,15 @@ lotus_fin.copilot_page.Controller = class Controller {
 
 		this.current_company = this.company_field.get_value() || frappe.defaults.get_user_default("Company") || frappe.defaults.get_global_default("company");
 
-		this.page.set_secondary_action(__("📊 Sức khỏe tài chính"), function() {
+		this.page.set_secondary_action(__("📊 Financial Health"), function() {
 			frappe.set_route("financial-health");
 		});
 
-		this.page.add_inner_button(__("💧 Dòng tiền (AI002)"), function() {
+		this.page.add_inner_button(__("💧 Cash Flow (AI002)"), function() {
 			frappe.set_route("cash-forecast");
 		});
 
-		this.page.add_inner_button(__("⚠️ Rủi ro (AI003)"), function() {
+		this.page.add_inner_button(__("⚠️ Risk Signals (AI003)"), function() {
 			frappe.set_route("risk-signal");
 		});
 
@@ -69,11 +69,11 @@ lotus_fin.copilot_page.Controller = class Controller {
 			frappe.set_route("what-if-studio");
 		});
 
-		this.page.add_inner_button(__("🏦 Gói vay (AI005)"), function() {
+		this.page.add_inner_button(__("🏦 Financing (AI005)"), function() {
 			frappe.set_route("financing-copilot");
 		});
 
-		this.page.add_inner_button(__("📑 Lịch trả nợ (AI006)"), function() {
+		this.page.add_inner_button(__("📑 Repayment (AI006)"), function() {
 			frappe.set_route("repayment-schedule");
 		});
 	}
@@ -85,8 +85,8 @@ lotus_fin.copilot_page.Controller = class Controller {
 				<div class="d-flex justify-content-between align-items-center">
 					<div>
 						<span class="lotus-brand-badge">Lotus Fin &bull; AI Agentic Copilot</span>
-						<h1 class="lotus-fh-title">🤖 ${__("Trợ lý Tài chính AI Copilot")}</h1>
-						<p class="lotus-fh-subtitle">${__("Hỏi đáp thông minh, phân tích tự nhiên, điều phối Tool-Calling chuyên sâu")}</p>
+						<h1 class="lotus-fh-title">🤖 ${__("Financial AI Copilot")}</h1>
+						<p class="lotus-fh-subtitle">${__("Intelligent Q&A, natural language financial analysis, and automated tool-calling orchestration")}</p>
 					</div>
 					<div class="text-right">
 						<span class="lotus-meta-tag status-ok">Engine: Tool Calling Active</span>
@@ -100,7 +100,7 @@ lotus_fin.copilot_page.Controller = class Controller {
 		this.copilot = new lotus_fin.components.ChatCopilot({
 			parent: this.main.find("#copilot-container"),
 			get_company: () => me.company_field ? me.company_field.get_value() : me.current_company,
-			title: __("Lotus Fin AI Copilot — Đối thoại & Điều phối Nghiệp vụ"),
+			title: __("Lotus Fin AI Copilot — Financial Dialogue & Action Orchestrator"),
 			badge: __("Deterministic Tool Calling • Real-time Accounting Data"),
 			min_height: "560px",
 			show_quick_pills: true

@@ -46,7 +46,7 @@ lotus_fin.ui.Button = class Button {
 		}
 	}
 
-	set_loading(loading = true, loadingText = "Đang xử lý...") {
+	set_loading(loading = true, loadingText = "Processing...") {
 		this.isLoading = loading;
 		this.$el.prop("disabled", loading);
 		if (loading) {

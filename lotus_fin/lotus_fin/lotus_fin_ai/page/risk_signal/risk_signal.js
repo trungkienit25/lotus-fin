@@ -6,7 +6,7 @@ frappe.provide("lotus_fin.risk_signal");
 frappe.pages["risk-signal"].on_page_load = function (wrapper) {
 	frappe.ui.make_app_page({
 		parent: wrapper,
-		title: __("Tín hiệu Rủi ro (AI003)"),
+		title: __("Risk Signals (AI003)"),
 		single_column: true
 	});
 	wrapper.risk_signal = new lotus_fin.risk_signal.Controller(wrapper);
@@ -76,8 +76,8 @@ lotus_fin.risk_signal.Controller = class Controller {
 			label: __("Signal"),
 			fieldtype: "Select",
 			options: [
-				{ label: __("AR Overdue Spike (Đột biến nợ quá hạn)"), value: "AR_OVERDUE_SPIKE" },
-				{ label: __("AP Due Cluster (Áp lực đáo hạn nợ phải trả)"), value: "AP_DUE_CLUSTER" }
+				{ label: __("AR Overdue Spike (Receivables Overdue Spike)"), value: "AR_OVERDUE_SPIKE" },
+				{ label: __("AP Due Cluster (Payables Maturity Concentration)"), value: "AP_DUE_CLUSTER" }
 			],
 			default: "AR_OVERDUE_SPIKE",
 			change() {
@@ -107,15 +107,15 @@ lotus_fin.risk_signal.Controller = class Controller {
 			frappe.set_route("lotus-copilot");
 		});
 
-		this.page.add_inner_button(__("📊 Sức khỏe tài chính"), function () {
+		this.page.add_inner_button(__("📊 Financial Health"), function () {
 			frappe.set_route("financial-health");
 		});
 
-		this.page.add_inner_button(__("💧 Dự báo dòng tiền"), function () {
+		this.page.add_inner_button(__("💧 Cash Forecast"), function () {
 			frappe.set_route("cash-forecast");
 		});
 
-		this.page.set_primary_action(__("Đánh giá Tín hiệu"), function () {
+		this.page.set_primary_action(__("Evaluate Signal"), function () {
 			me.evaluate();
 		}, "octicon octicon-pulse");
 	}
@@ -140,8 +140,8 @@ lotus_fin.risk_signal.Controller = class Controller {
 			this.el("span", "lotus-badge lotus-badge-ai", "Deterministic Policy Engine")
 		);
 
-		const title = this.el("h1", "lotus-fh-title", "⚠️ " + __("Đánh giá & Nhận diện Tín hiệu Rủi ro"));
-		const subtitle = this.el("p", "lotus-fh-subtitle", __("Phát hiện bất thường nợ quá hạn AR Spike và dồn cục nghĩa vụ trả nợ AP Cluster"));
+		const title = this.el("h1", "lotus-fh-title", "⚠️ " + __("Risk Signal Assessment & Anomaly Detection"));
+		const subtitle = this.el("p", "lotus-fh-subtitle", __("Automated detection of overdue AR spikes and upcoming AP payables maturity clusters"));
 		headerLeft.append(tagRow, title, subtitle);
 
 		const headerRight = this.el("div", "text-right");
@@ -156,7 +156,7 @@ lotus_fin.risk_signal.Controller = class Controller {
 		const bannerBody = this.el(
 			"div",
 			null,
-			__("Chính sách AI003_DEMO_POLICY_V1 hoạt động theo tham số thử nghiệm. Ngưỡng cảnh báo và cửa sổ thời gian dùng cho mục đích trình diễn và không tạo hiệu lực pháp lý.")
+			__("AI003 Policy engine operates under deterministic criteria. Thresholds and time windows are for automated risk monitoring and operational review.")
 		);
 		bannerText.append(bannerTitle, bannerBody);
 		banner.append(bannerText);
@@ -167,14 +167,14 @@ lotus_fin.risk_signal.Controller = class Controller {
 		const glossaryHeader = this.el("div", "d-flex align-items-center gap-2 mb-2");
 		glossaryHeader.append(
 			this.el("span", null, "📖"),
-			this.el("b", null, __("Quy ước mức độ kết quả đánh giá (Verdict Levels):"))
+			this.el("b", null, __("Evaluation Verdict Levels:"))
 		);
 		const glossaryPills = this.el("div", "d-flex flex-wrap gap-2");
 		glossaryPills.append(
-			this.el("span", "lotus-badge lotus-badge-success", "BENIGN: Không vượt ngưỡng rủi ro"),
-			this.el("span", "lotus-badge lotus-badge-warning", "WATCH: Khuyến nghị theo dõi sát"),
-			this.el("span", "lotus-badge lotus-badge-danger", "HIGH: Cần ưu tiên xử lý khẩn cấp"),
-			this.el("span", "lotus-badge lotus-badge-neutral", "INCONCLUSIVE: Dữ liệu chưa đủ kết luận")
+			this.el("span", "lotus-badge lotus-badge-success", "BENIGN: Below risk threshold"),
+			this.el("span", "lotus-badge lotus-badge-warning", "WATCH: Monitor closely"),
+			this.el("span", "lotus-badge lotus-badge-danger", "HIGH: Immediate action required"),
+			this.el("span", "lotus-badge lotus-badge-neutral", "INCONCLUSIVE: Insufficient data for verdict")
 		);
 		glossaryCard.append(glossaryHeader, glossaryPills);
 
@@ -218,9 +218,9 @@ lotus_fin.risk_signal.Controller = class Controller {
 		const icon = this.el("div", "mb-2", "🔍");
 		icon.style.fontSize = "32px";
 		box.append(icon);
-		box.append(this.el("h3", "lotus-card-title justify-content-center mb-2", __("Chưa có kết quả đánh giá")));
+		box.append(this.el("h3", "lotus-card-title justify-content-center mb-2", __("No Evaluation Result Yet")));
 		box.append(this.el("p", "text-muted mb-0",
-			__("Chọn công ty, loại tín hiệu và ngày chốt số liệu, sau đó bấm <b>Đánh giá Tín hiệu</b> để hệ thống kích hoạt pipeline phân tích.")));
+			__("Select company, signal type, and cutoff date, then click <b>Evaluate Signal</b> to run the risk evaluation pipeline.")));
 		this.set_state(box);
 	}
 
@@ -229,8 +229,8 @@ lotus_fin.risk_signal.Controller = class Controller {
 		const icon = this.el("div", "mb-2", "⚡");
 		icon.style.fontSize = "32px";
 		box.append(icon);
-		box.append(this.el("h3", "lotus-card-title justify-content-center mb-2", __("Đang chạy pipeline đánh giá...")));
-		box.append(this.el("p", "text-muted mb-0", __("Hệ thống đang truy xuất chứng từ và áp dụng chính sách tất định. Không làm thay đổi dữ liệu.")));
+		box.append(this.el("h3", "lotus-card-title justify-content-center mb-2", __("Executing risk evaluation pipeline...")));
+		box.append(this.el("p", "text-muted mb-0", __("Retrieving verified vouchers and applying policy rules. Read-only operation.")));
 		this.set_state(box);
 		this.result_box.innerHTML = "";
 	}
@@ -260,42 +260,42 @@ lotus_fin.risk_signal.Controller = class Controller {
 
 	reason_text(code) {
 		const map = {
-			ACCESS_DENIED: __("Bạn không có quyền truy cập công ty hoặc báo cáo được yêu cầu."),
-			UNAUTHORIZED_ACCESS: __("Phiên làm việc chưa được xác thực."),
-			INVALID_REQUEST: __("Yêu cầu không hợp lệ. Vui lòng kiểm tra lại công ty, tín hiệu và ngày chốt."),
-			FUTURE_AS_OF: __("Ngày chốt không được nằm trong tương lai."),
-			UNSUPPORTED_CURRENCY: __("Phiên bản hiện tại chỉ hỗ trợ đơn vị tiền tệ VND."),
-			UNSUPPORTED_COMPANY_CURRENCY: __("Đơn vị tiền tệ kế toán của công ty không phải VND."),
-			FINANCE_BOOK_NOT_SUPPORTED: __("Chưa hỗ trợ phạm vi Sổ tài chính (Finance Book)."),
-			HISTORY_INSUFFICIENT: __("Không tìm thấy dữ liệu tháng trước của công ty để so sánh đường cơ sở."),
-			BASELINE_DENOMINATOR_INVALID: __("Tháng trước có số dư nợ phải thu bằng 0, không xác định được tỷ lệ cơ sở."),
-			CURRENT_DENOMINATOR_INVALID: __("Tại thời điểm chốt, số dư nợ phải thu bằng 0."),
-			ZERO_DENOMINATOR: __("Không có số dư nợ phải trả tương lai tại thời điểm này."),
-			INVALID_DENOMINATOR: __("Mẫu số tính toán không hợp lệ."),
-			INCOMPLETE_DUE_DATE_COVERAGE: __("Hóa đơn thiếu thông tin hạn thanh toán."),
-			UNSUPPORTED_ALLOCATION_SCOPE: __("Hóa đơn phân bổ qua nhiều tài khoản phức tạp."),
-			UNSUPPORTED_MULTI_SCHEDULE: __("Hóa đơn có nhiều đợt trả góp phức tạp."),
-			CONFLICTING_OBSERVATION: __("Nguồn dữ liệu trả về các dòng mâu thuẫn."),
-			INCONSISTENT_DATA: __("Dữ liệu nguồn không nhất quán."),
-			SOURCE_UNAVAILABLE: __("Nguồn dữ liệu kế toán tạm thời không khả dụng."),
-			SOURCE_TIMEOUT: __("Thời gian phản hồi từ nguồn dữ liệu quá lâu."),
-			SOURCE_INVALID: __("Dữ liệu từ nguồn bị lỗi cấu trúc."),
-			UNSUPPORTED_SOURCE_VERSION: __("Phiên bản hợp đồng dữ liệu nguồn không khớp."),
-			POLICY_NOT_APPROVED: __("Chính sách rủi ro tương ứng chưa được phê duyệt."),
-			POLICY_UNAVAILABLE: __("Không thể truy xuất chính sách rủi ro."),
-			INVALID_POLICY_CONFIG: __("Cấu hình chính sách rủi ro bị lỗi.")
+			ACCESS_DENIED: __("Access denied to requested company or underlying reports."),
+			UNAUTHORIZED_ACCESS: __("Unauthenticated session."),
+			INVALID_REQUEST: __("Invalid request parameters. Please verify company, signal, and as-of date."),
+			FUTURE_AS_OF: __("As-of date cannot be in the future."),
+			UNSUPPORTED_CURRENCY: __("Current version only supports VND currency."),
+			UNSUPPORTED_COMPANY_CURRENCY: __("Company accounting currency is not VND."),
+			FINANCE_BOOK_NOT_SUPPORTED: __("Finance Book scoping is not currently supported."),
+			HISTORY_INSUFFICIENT: __("No prior-month baseline data available for comparison."),
+			BASELINE_DENOMINATOR_INVALID: __("Prior month AR balance was zero; baseline ratio undefined."),
+			CURRENT_DENOMINATOR_INVALID: __("Current total AR balance is zero as of the cutoff date."),
+			ZERO_DENOMINATOR: __("No future AP obligations outstanding as of this date."),
+			INVALID_DENOMINATOR: __("Invalid denominator in metric computation."),
+			INCOMPLETE_DUE_DATE_COVERAGE: __("Invoices missing required payment due dates."),
+			UNSUPPORTED_ALLOCATION_SCOPE: __("Unsupported multi-account allocation vouchers."),
+			UNSUPPORTED_MULTI_SCHEDULE: __("Unsupported multi-schedule installment vouchers."),
+			CONFLICTING_OBSERVATION: __("Conflicting rows returned from underlying data source."),
+			INCONSISTENT_DATA: __("Inconsistent source data across reports."),
+			SOURCE_UNAVAILABLE: __("Accounting data source temporarily unavailable."),
+			SOURCE_TIMEOUT: __("Data source request timed out."),
+			SOURCE_INVALID: __("Malformed data payload from source."),
+			UNSUPPORTED_SOURCE_VERSION: __("Unsupported data source contract version."),
+			POLICY_NOT_APPROVED: __("Risk policy has not been approved."),
+			POLICY_UNAVAILABLE: __("Unable to retrieve risk policy configuration."),
+			INVALID_POLICY_CONFIG: __("Invalid risk policy configuration.")
 		};
-		return map[code] || __("Đánh giá dừng lại với mã nguyên nhân: " + code);
+		return map[code] || __("Evaluation halted with reason code: " + code);
 	}
 
 	status_label(status) {
 		const map = {
-			OK: __("Đánh giá hoàn tất"),
-			INCONCLUSIVE: __("Chưa thể kết luận"),
-			FORBIDDEN: __("Từ chối truy cập"),
-			VALIDATION_ERROR: __("Cần kiểm tra"),
-			SOURCE_ERROR: __("Lỗi nguồn dữ liệu"),
-			POLICY_PENDING: __("Chờ phê duyệt chính sách")
+			OK: __("Evaluation Complete"),
+			INCONCLUSIVE: __("Inconclusive"),
+			FORBIDDEN: __("Forbidden"),
+			VALIDATION_ERROR: __("Validation Error"),
+			SOURCE_ERROR: __("Source Error"),
+			POLICY_PENDING: __("Policy Pending")
 		};
 		return map[status] || status;
 	}
@@ -312,11 +312,11 @@ lotus_fin.risk_signal.Controller = class Controller {
 		const as_of_date = date_input || (date_input === "" ? "" : this.as_of_field.get_value());
 		
 		if (!company) {
-			this.clear_result(__("Vui lòng chọn công ty cần đánh giá."));
+			this.clear_result(__("Please select a company to evaluate."));
 			return;
 		}
 		if (!as_of_date) {
-			this.clear_result(__("Vui lòng chọn ngày chốt đánh giá."));
+			this.clear_result(__("Please select an as-of date."));
 			return;
 		}
 		
@@ -324,7 +324,7 @@ lotus_fin.risk_signal.Controller = class Controller {
 		const seq = ++this.request_seq;
 		this.in_flight_request = seq;
 		this.in_flight = true;
-		this.page.set_primary_action(__("Đang đánh giá…"), function () {}, "octicon octicon-sync");
+		this.page.set_primary_action(__("Evaluating…"), function () {}, "octicon octicon-sync");
 		this.show_loading();
 
 		frappe.call({
@@ -355,16 +355,16 @@ lotus_fin.risk_signal.Controller = class Controller {
 
 	restore_primary_action() {
 		const me = this;
-		this.page.set_primary_action(__("Đánh giá Tín hiệu"), function () {
+		this.page.set_primary_action(__("Evaluate Signal"), function () {
 			me.evaluate();
 		}, "octicon octicon-pulse");
 	}
 
 	render_transport_error() {
 		const box = this.el("div", "lotus-banner lotus-banner-danger mb-4");
-		box.append(this.el("h5", "mb-1", __("Lỗi kết nối")));
+		box.append(this.el("h5", "mb-1", __("Connection Error")));
 		box.append(this.el("div", null,
-			__("Yêu cầu đánh giá không thể gửi tới máy chủ (Transport error). Dữ liệu được bảo toàn an toàn.")));
+			__("Evaluation request failed to reach the server (Transport error). Accounting data remains secure.")));
 		this.set_state(box);
 	}
 
@@ -416,23 +416,23 @@ lotus_fin.risk_signal.Controller = class Controller {
 
 		if (wire.status === "OK" && wire.finding === "TRIGGERED" && wire.severity) {
 			const sevClass = wire.severity === "HIGH" ? "lotus-badge-danger" : "lotus-badge-warning";
-			header.append(this.el("span", "lotus-badge " + sevClass, wire.severity === "HIGH" ? "🚨 " + __("MỨC ĐỘ: CAO (HIGH)") : "⚠️ " + __("MỨC ĐỘ: THEO DÕI (WATCH)")));
+			header.append(this.el("span", "lotus-badge " + sevClass, wire.severity === "HIGH" ? "🚨 " + __("SEVERITY: HIGH") : "⚠️ " + __("SEVERITY: WATCH")));
 		}
 		if (wire.status === "OK" && wire.finding === "BENIGN") {
-			header.append(this.el("span", "lotus-badge lotus-badge-success", "🛡️ " + __("BENIGN — AN TOÀN (Không vi phạm ngưỡng)")));
+			header.append(this.el("span", "lotus-badge lotus-badge-success", "🛡️ " + __("BENIGN — HEALTHY (Within safe thresholds)")));
 		}
 		if (wire.as_of_date) {
-			header.append(this.el("span", "text-muted", __("Ngày chốt: {0}", [wire.as_of_date])));
+			header.append(this.el("span", "text-muted", __("As-of Date: {0}", [wire.as_of_date])));
 		}
 		if (wire.signal_id) {
-			header.append(this.el("span", "lotus-code-badge", wire.signal_id === "AR_OVERDUE_SPIKE" ? "Tín hiệu AR Overdue Spike" : "Tín hiệu AP Due Cluster"));
+			header.append(this.el("span", "lotus-code-badge", wire.signal_id === "AR_OVERDUE_SPIKE" ? "Signal: AR Overdue Spike" : "Signal: AP Due Cluster"));
 		}
 		return header;
 	}
 
 	render_reason(wire) {
 		const box = this.el("div", "mb-4");
-		box.append(this.el("h4", "lotus-card-title mb-2", "🔍 " + __("Lý do & Nguyên nhân kết luận:")));
+		box.append(this.el("h4", "lotus-card-title mb-2", "🔍 " + __("Root Cause & Finding Rationale:")));
 		const reasonBox = this.el("div", "p-3 rounded-xl", this.reason_text(wire.reason_code));
 		reasonBox.style.background = "var(--lotus-surface-app)";
 		reasonBox.style.border = "1px solid var(--lotus-border)";
@@ -442,27 +442,27 @@ lotus_fin.risk_signal.Controller = class Controller {
 
 	render_evaluation(wire) {
 		const box = this.el("div", "mb-4");
-		box.append(this.el("h4", "lotus-card-title mb-3", "📊 " + __("Chi tiết Chỉ số Đo lường (Observed Metrics):")));
+		box.append(this.el("h4", "lotus-card-title mb-3", "📊 " + __("Observed Metric Details:")));
 		
 		if (wire.signal_id === "AR_OVERDUE_SPIKE") {
-			box.append(this.kv_row(__("Tỷ lệ nợ quá hạn hiện tại (Current Overdue Ratio)"), wire.observed ? wire.observed.value : null));
-			box.append(this.kv_row(__("Tỷ lệ nợ quá hạn đường cơ sở (Baseline {0})", [wire.baseline ? wire.baseline.cutoff : ""]), wire.baseline ? wire.baseline.value : null));
-			box.append(this.kv_row(__("Mức tăng điểm phần trăm (Δ Delta)"), wire.delta_pp !== null && wire.delta_pp !== undefined ? wire.delta_pp + " pp" : null));
-			box.append(this.kv_row(__("Tổng giá trị nợ phải thu thuần (Net AR)"), wire.observed ? wire.observed.supporting_amount : null));
-			box.append(this.kv_row(__("Ngưỡng kích hoạt chính sách (Demo Policy)"),
+			box.append(this.kv_row(__("Current Overdue AR Ratio"), wire.observed ? wire.observed.value : null));
+			box.append(this.kv_row(__("Baseline Overdue AR Ratio ({0})", [wire.baseline ? wire.baseline.cutoff : ""]), wire.baseline ? wire.baseline.value : null));
+			box.append(this.kv_row(__("Percentage Points Delta (Δ)"), wire.delta_pp !== null && wire.delta_pp !== undefined ? wire.delta_pp + " pp" : null));
+			box.append(this.kv_row(__("Net Accounts Receivable (Total AR)"), wire.observed ? wire.observed.supporting_amount : null));
+			box.append(this.kv_row(__("Policy Thresholds"),
 				wire.rule ? wire.rule.threshold + " / " + wire.rule.high_threshold + " pp (WATCH / HIGH)" : null));
 		} else {
 			let pct = null;
 			if (wire.observed && wire.observed.value !== null && wire.observed.value !== undefined) {
 				pct = (parseFloat(wire.observed.value) * 100).toFixed(2) + "%";
 			}
-			box.append(this.kv_row(__("Tỷ trọng nợ phải trả đáo hạn trong cửa sổ"), pct));
-			box.append(this.kv_row(__("Tổng tiền đáo hạn trong cửa sổ (N)"), wire.observed ? wire.observed.supporting_amount : null));
-			box.append(this.kv_row(__("Tổng nợ phải trả tương lai (D)"), wire.numerator_denominator_detail || null));
-			box.append(this.kv_row(__("Ngưỡng kích hoạt chính sách"),
+			box.append(this.kv_row(__("Upcoming Due AP Ratio in Window"), pct));
+			box.append(this.kv_row(__("Due Amount in Window (Numerator)"), wire.observed ? wire.observed.supporting_amount : null));
+			box.append(this.kv_row(__("Total Future Payables (Denominator)"), wire.numerator_denominator_detail || null));
+			box.append(this.kv_row(__("Policy Activation Thresholds"),
 				wire.rule ? (parseFloat(wire.rule.threshold) * 100).toFixed(1) + "% / " + (parseFloat(wire.rule.high_threshold) * 100).toFixed(1) + "% (WATCH / HIGH)" : null));
 			if (wire.rule && wire.rule.window_start && wire.rule.window_end) {
-				box.append(this.kv_row(__("Cửa sổ đáo hạn"), wire.rule.window_start + " → " + wire.rule.window_end));
+				box.append(this.kv_row(__("Maturity Window"), wire.rule.window_start + " → " + wire.rule.window_end));
 			}
 		}
 		return box;
@@ -471,9 +471,9 @@ lotus_fin.risk_signal.Controller = class Controller {
 	render_counts(wire) {
 		if (wire.count_positive_vouchers === null || wire.count_positive_vouchers === undefined) return document.createDocumentFragment();
 		const box = this.el("div", "mb-4");
-		box.append(this.kv_row(__("Số lượng chứng từ phải trả tương lai"), String(wire.count_positive_vouchers)));
+		box.append(this.kv_row(__("Future Payables Voucher Count"), String(wire.count_positive_vouchers)));
 		if (wire.count_due_vouchers !== null && wire.count_due_vouchers !== undefined) {
-			box.append(this.kv_row(__("Số chứng từ rơi vào cửa sổ đáo hạn"), String(wire.count_due_vouchers)));
+			box.append(this.kv_row(__("Vouchers Maturing in Window"), String(wire.count_due_vouchers)));
 		}
 		return box;
 	}
@@ -482,36 +482,36 @@ lotus_fin.risk_signal.Controller = class Controller {
 		if (!wire.rule || wire.rule.floor === null || wire.rule.floor === undefined) return document.createDocumentFragment();
 		const box = this.el("div", "mb-4");
 		const definitionLabel = wire.rule.materiality_definition === "CURRENT_NET_AR_TOTAL"
-			? __("tổng nợ phải thu thuần")
-			: __("số tiền đáo hạn trong cửa sổ");
+			? __("Net Accounts Receivable Total")
+			: __("Due Amount in Window");
 		const floorText = parseFloat(wire.rule.floor) === 0
-			? __("0.00 VND (Không áp dụng lọc trọng yếu)")
+			? __("0.00 VND (No materiality filter applied)")
 			: wire.rule.floor + " VND";
-		box.append(this.kv_row(__("Ngưỡng giá trị trọng yếu (Materiality Floor)"), floorText));
+		box.append(this.kv_row(__("Materiality Floor Threshold"), floorText));
 		box.append(this.el("div", "text-muted mt-1",
-			__("Ngưỡng trọng yếu áp dụng cho {0}.", [definitionLabel])));
+			__("Materiality filter applied to {0}.", [definitionLabel])));
 		return box;
 	}
 
 	render_evidence(wire) {
 		const me = this;
 		const box = this.el("div", "mb-4");
-		box.append(this.el("h4", "lotus-card-title mb-2", "🧾 " + __("Bằng chứng Snapshot (Evidence Ref):")));
+		box.append(this.el("h4", "lotus-card-title mb-2", "🧾 " + __("Snapshot Evidence Reference:")));
 		const refs = wire.evidence || [];
 		if (!refs.length) {
 			box.append(this.el("div", "text-muted",
-				__("Không có bằng chứng snapshot đính kèm.")));
+				__("No snapshot evidence attached.")));
 			return box;
 		}
 		const note = this.el("div", "text-muted mb-2",
-			__("Mỗi lần mở snapshot, hệ thống sẽ tái xác thực quyền truy cập trên máy chủ theo cơ chế Zero-Trust."));
+			__("Every evidence inspection undergoes server-side Zero-Trust re-authorization."));
 		box.append(note);
 		
 		const btnRow = this.el("div", "d-flex flex-wrap gap-2");
 		refs.forEach(function (ref) {
 			const btn = me.el("button", "lotus-btn lotus-btn-secondary lotus-btn-sm");
 			btn.type = "button";
-			btn.textContent = `📋 Xem snapshot (${ref.kind} · ${ref.as_of_date || ""})`;
+			btn.textContent = `📋 View Snapshot (${ref.kind} · ${ref.as_of_date || ""})`;
 			btn.addEventListener("click", function () {
 				me.open_evidence(ref.ref);
 			});
@@ -532,10 +532,10 @@ lotus_fin.risk_signal.Controller = class Controller {
 				const res = r.message || r;
 				const box = me.el("div", "lotus-banner " + (res.status === "MATCH" ? "lotus-banner-success" : res.status === "FORBIDDEN" ? "lotus-banner-danger" : "lotus-banner-warning") + " mt-3");
 				const label = {
-					MATCH: __("Bằng chứng đã đối chiếu khớp 100%: Nguồn dữ liệu không bị thay đổi kể từ lúc chụp snapshot (MATCH)."),
-					RESTATED: __("Dữ liệu nguồn đã thay đổi sau thời điểm chụp snapshot (RESTATED)."),
-					UNAVAILABLE: __("Nguồn dữ liệu tạm thời không thể phát lại (UNAVAILABLE)."),
-					FORBIDDEN: __("Từ chối quyền truy cập bằng chứng (FORBIDDEN).")
+					MATCH: __("100% Verified Match: Underlying ledger data has not been modified since snapshot capture (MATCH)."),
+					RESTATED: __("Underlying data modified after snapshot capture (RESTATED)."),
+					UNAVAILABLE: __("Data source temporarily unavailable for replay (UNAVAILABLE)."),
+					FORBIDDEN: __("Access denied to evidence payload (FORBIDDEN).")
 				}[res.status] || res.status;
 				box.append(me.el("b", "d-block mb-2", label));
 				if (res.payload) {
@@ -550,7 +550,7 @@ lotus_fin.risk_signal.Controller = class Controller {
 				me.result_box.append(box);
 			})
 			.fail(function () {
-				frappe.msgprint(__("Không thể phát lại bằng chứng (Transport error)."));
+				frappe.msgprint(__("Failed to replay evidence (Transport error)."));
 			});
 	}
 
@@ -558,7 +558,7 @@ lotus_fin.risk_signal.Controller = class Controller {
 		const box = this.el("div", "mb-4");
 		const exp = wire.explanation || {};
 		if (exp.status === "AVAILABLE" && exp.text) {
-			box.append(this.el("h4", "lotus-card-title mb-2", "🤖 " + __("Giải thích & Diễn giải AI:")));
+			box.append(this.el("h4", "lotus-card-title mb-2", "🤖 " + __("AI Explanation & Context:")));
 			const expCard = this.el("div", "p-3 rounded-xl", exp.text);
 			expCard.style.background = "linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(37, 99, 235, 0.03) 100%)";
 			expCard.style.borderLeft = "4px solid var(--lotus-ai-magic)";
@@ -566,7 +566,7 @@ lotus_fin.risk_signal.Controller = class Controller {
 			box.append(expCard);
 		} else if (exp.status === "UNAVAILABLE") {
 			box.append(this.el("div", "lotus-banner lotus-banner-warning",
-				this.el("div", null, __("Diễn giải AI không khả dụng. Kết quả tất định phía trên vẫn hoàn toàn chính xác."))));
+				this.el("div", null, __("AI explanation unavailable. Deterministic metric results above remain completely valid."))));
 		}
 		return box;
 	}
@@ -575,7 +575,7 @@ lotus_fin.risk_signal.Controller = class Controller {
 		const lims = wire.limitations || [];
 		if (!lims.length) return document.createDocumentFragment();
 		const box = this.el("div", "mb-4");
-		box.append(this.el("h4", "lotus-card-title mb-2", "⚠️ " + __("Giới hạn Phạm vi (Limitations):")));
+		box.append(this.el("h4", "lotus-card-title mb-2", "⚠️ " + __("Model Scope Limitations:")));
 		lims.forEach((lim) => {
 			box.append(this.el("div", "text-muted mb-1", "• " + lim));
 		});
@@ -586,7 +586,7 @@ lotus_fin.risk_signal.Controller = class Controller {
 		const actions = wire.next_check_actions || [];
 		if (!actions.length) return document.createDocumentFragment();
 		const box = this.el("div", "mb-4");
-		box.append(this.el("h4", "lotus-card-title mb-2", "🎯 " + __("Khuyến nghị Hành động Tiếp theo:")));
+		box.append(this.el("h4", "lotus-card-title mb-2", "🎯 " + __("Recommended Next Actions:")));
 		const actionList = this.el("div", "d-flex flex-column gap-2");
 		actions.forEach(function (action) {
 			const item = document.createElement("div");

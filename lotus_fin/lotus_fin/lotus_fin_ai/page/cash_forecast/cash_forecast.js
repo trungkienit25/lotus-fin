@@ -4,7 +4,7 @@ frappe.provide("lotus_fin.cash_forecast");
 frappe.pages["cash-forecast"].on_page_load = function (wrapper) {
 	frappe.ui.make_app_page({
 		parent: wrapper,
-		title: __("Dự báo Dòng tiền & Runway (AI002)"),
+		title: __("Cash Flow Forecast & Runway (AI002)"),
 		single_column: true
 	});
 
@@ -81,7 +81,7 @@ lotus_fin.cash_forecast.Controller = class Controller {
 			frappe.set_route("lotus-copilot");
 		});
 
-		this.page.add_inner_button(__("⚠️ Tín hiệu Rủi ro (AI003)"), function () {
+		this.page.add_inner_button(__("⚠️ Risk Signals (AI003)"), function () {
 			frappe.set_route("risk-signal");
 		});
 
@@ -89,7 +89,7 @@ lotus_fin.cash_forecast.Controller = class Controller {
 			frappe.set_route("what-if-studio");
 		});
 
-		this.page.set_primary_action(__("Chạy dự báo dòng tiền"), function () {
+		this.page.set_primary_action(__("Run Cash Forecast"), function () {
 			me.fetch_forecast(true);
 		}, "octicon octicon-sync");
 	}
@@ -106,11 +106,11 @@ lotus_fin.cash_forecast.Controller = class Controller {
 								<span class="lotus-brand-badge">Lotus Fin • Cash Forecast & Runway (AI002)</span>
 								<span class="lotus-badge lotus-badge-primary">Horizon: 30 Days</span>
 							</div>
-							<h1 class="lotus-fh-title">💧 ${__("Dự báo Dòng tiền & Đường băng Thanh khoản")}</h1>
-							<p class="lotus-fh-subtitle">${__("Mô hình dự báo dòng tiền tất định 30 ngày, đối chiếu cân đối sổ cái & cảnh báo điểm thâm hụt")}</p>
+							<h1 class="lotus-fh-title">💧 ${__("Cash Flow Forecast & Liquidity Runway")}</h1>
+							<p class="lotus-fh-subtitle">${__("Deterministic 30-day cash trajectory, independent ledger balancing, and shortfall alert engine")}</p>
 						</div>
 						<div id="cf-verification-badge">
-							<span class="lotus-badge lotus-badge-neutral">Đang chờ dữ liệu...</span>
+							<span class="lotus-badge lotus-badge-neutral">Waiting for data...</span>
 						</div>
 					</div>
 				</div>
@@ -131,19 +131,19 @@ lotus_fin.cash_forecast.Controller = class Controller {
 								<div>
 									<h3 class="lotus-card-title">
 										<span>🏦</span>
-										<span>${__("Tier 1: Số dư Tiền & Ngân hàng Khởi tạo")}</span>
+										<span>${__("Tier 1: Opening Cash & Bank Balances")}</span>
 									</h3>
-									<p class="lotus-card-subtitle">${__("Đối chiếu độc lập giữa General Ledger (GL) và Bảng cân đối thử (Trial Balance)")}</p>
+									<p class="lotus-card-subtitle">${__("Independent verification between General Ledger (GL) and Trial Balance")}</p>
 								</div>
-								<span id="cf-reconciliation-status" class="lotus-badge lotus-badge-neutral">Đang xác thực...</span>
+								<span id="cf-reconciliation-status" class="lotus-badge lotus-badge-neutral">Verifying ledger...</span>
 							</div>
 
 							<div class="p-4 rounded-2xl mb-3" style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 1px solid var(--lotus-border);">
-								<div class="text-muted" style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">${__("Tổng số dư tiền mặt hợp nhất (Aggregate Cash)")}</div>
+								<div class="text-muted" style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">${__("Consolidated Aggregate Cash Balance")}</div>
 								<div id="cf-opening-amount" style="font-size: 32px; font-weight: 800; color: var(--lotus-text-primary); margin-top: 4px; letter-spacing: -0.5px;">-- VND</div>
 							</div>
 
-							<div class="text-muted mb-2" style="font-size: 12px; font-weight: 600;">${__("Chi tiết từng tài khoản thanh khoản:")}</div>
+							<div class="text-muted mb-2" style="font-size: 12px; font-weight: 600;">${__("Breakdown by constituent cash/bank account:")}</div>
 							<div id="cf-account-breakdown" class="d-flex flex-wrap gap-2"></div>
 						</div>
 
@@ -153,9 +153,9 @@ lotus_fin.cash_forecast.Controller = class Controller {
 								<div>
 									<h3 class="lotus-card-title">
 										<span>📈</span>
-										<span>${__("Quỹ đạo Dòng tiền 30 Ngày (Daily EOD Trajectory)")}</span>
+										<span>${__("30-Day Cash Trajectory (Daily EOD Balances)")}</span>
 									</h3>
-									<p class="lotus-card-subtitle">${__("Dòng tiền cuối ngày theo các sự kiện thanh toán đã xác nhận")}</p>
+									<p class="lotus-card-subtitle">${__("End-of-day balances projected from verified settled accounting events")}</p>
 								</div>
 								<span id="cf-points-count" class="lotus-badge lotus-badge-primary">30 Daily Points</span>
 							</div>
@@ -164,14 +164,14 @@ lotus_fin.cash_forecast.Controller = class Controller {
 								<table class="lotus-table">
 									<thead>
 										<tr>
-											<th style="width: 25%;">${__("Ngày (Date)")}</th>
-											<th style="width: 35%;">${__("Số dư dự báo (EOD Cash)")}</th>
-											<th style="width: 25%;">${__("Sự kiện quyết toán")}</th>
-											<th style="width: 15%; text-align: center;">${__("Trạng thái")}</th>
+											<th style="width: 25%;">${__("Date")}</th>
+											<th style="width: 35%;">${__("Projected Balance (EOD Cash)")}</th>
+											<th style="width: 25%;">${__("Settlement Events")}</th>
+											<th style="width: 15%; text-align: center;">${__("Status")}</th>
 										</tr>
 									</thead>
 									<tbody id="cf-points-tbody">
-										<tr><td colspan="4" class="text-center text-muted py-4">${__("Chưa có dữ liệu dự báo được tạo.")}</td></tr>
+										<tr><td colspan="4" class="text-center text-muted py-4">${__("No forecast data generated yet.")}</td></tr>
 									</tbody>
 								</table>
 							</div>
@@ -183,9 +183,9 @@ lotus_fin.cash_forecast.Controller = class Controller {
 								<div>
 									<h3 class="lotus-card-title">
 										<span>📑</span>
-										<span>${__("Tier 2: Nghĩa vụ Thanh toán (AR / AP Due Dates)")}</span>
+										<span>${__("Tier 2: Contractual Obligations (AR / AP Due Dates)")}</span>
 									</h3>
-									<p class="lotus-card-subtitle">${__("Hạn nợ hợp đồng của Hóa đơn Bán hàng (AR) & Hóa đơn Mua hàng (AP)")}</p>
+									<p class="lotus-card-subtitle">${__("Contractual due dates from Sales Invoices (AR) & Purchase Invoices (AP)")}</p>
 								</div>
 							</div>
 
@@ -193,15 +193,15 @@ lotus_fin.cash_forecast.Controller = class Controller {
 								<table class="lotus-table">
 									<thead>
 										<tr>
-											<th style="width: 12%; text-align: center;">${__("Loại")}</th>
-											<th style="width: 22%;">${__("Mã đối tác (Hash)")}</th>
-											<th style="width: 20%;">${__("Hạn thanh toán")}</th>
-											<th style="width: 26%;">${__("Số tiền còn lại")}</th>
-											<th style="width: 20%;">${__("Chứng từ gốc")}</th>
+											<th style="width: 12%; text-align: center;">${__("Type")}</th>
+											<th style="width: 22%;">${__("Party (Hash)")}</th>
+											<th style="width: 20%;">${__("Due Date")}</th>
+											<th style="width: 26%;">${__("Remaining Amount")}</th>
+											<th style="width: 20%;">${__("Source Voucher")}</th>
 										</tr>
 									</thead>
 									<tbody id="cf-obligations-tbody">
-										<tr><td colspan="5" class="text-center text-muted py-4">${__("Không có nghĩa vụ công nợ tồn đọng.")}</td></tr>
+										<tr><td colspan="5" class="text-center text-muted py-4">${__("No outstanding contractual obligations.")}</td></tr>
 									</tbody>
 								</table>
 							</div>
@@ -220,7 +220,7 @@ lotus_fin.cash_forecast.Controller = class Controller {
 								<span id="cf-explanation-badge" class="lotus-badge lotus-badge-ai">Bounded AI</span>
 							</div>
 							<div id="cf-copilot-content" style="font-size: 13px; line-height: 1.6; color: var(--lotus-text-secondary);">
-								<p class="text-muted">${__("Nhấn nút <b>Chạy dự báo dòng tiền</b> để AI tổng hợp bằng chứng sổ cái và đưa ra hướng dẫn quản trị.")}</p>
+								<p class="text-muted">${__("Click <b>Run Cash Forecast</b> to synthesize ledger evidence and generate management guidance.")}</p>
 							</div>
 						</div>
 
@@ -229,25 +229,25 @@ lotus_fin.cash_forecast.Controller = class Controller {
 							<div class="lotus-card-header mb-2">
 								<h3 class="lotus-card-title" style="font-size: 14px;">
 									<span>🎯</span>
-									<span>${__("Khuyến nghị Hành động (Next Checks)")}</span>
+									<span>${__("Recommended Next Checks")}</span>
 								</h3>
 							</div>
 							<ul id="cf-next-checks-list" class="list-unstyled mb-0 d-flex flex-column gap-2" style="font-size: 13px;">
 								<li>
 									<a href="/app/bank-reconciliation-tool" class="lotus-action-btn w-100 justify-content-between" style="text-decoration: none;">
-										<span>🏦 Đối chiếu sao kê ngân hàng</span>
+										<span>🏦 Bank Reconciliation Tool</span>
 										<span>&rarr;</span>
 									</a>
 								</li>
 								<li>
 									<a href="/app/query-report/Accounts%20Receivable?status=Overdue" class="lotus-action-btn w-100 justify-content-between" style="text-decoration: none;">
-										<span>⚠️ Thu hồi nợ quá hạn AR</span>
+										<span>⚠️ Overdue AR Collection Report</span>
 										<span>&rarr;</span>
 									</a>
 								</li>
 								<li>
 									<a href="/app/purchase-invoice" class="lotus-action-btn w-100 justify-content-between" style="text-decoration: none;">
-										<span>📦 Xác nhận lịch thanh toán AP</span>
+										<span>📦 Pending AP Payment Vouchers</span>
 										<span>&rarr;</span>
 									</a>
 								</li>
@@ -257,11 +257,11 @@ lotus_fin.cash_forecast.Controller = class Controller {
 						<!-- Limitations & Disclosures -->
 						<div class="lotus-card" style="background: var(--lotus-surface-app); border: 1px dashed var(--lotus-border);">
 							<div class="text-muted" style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
-								🛡️ ${__("Giới hạn Phạm vi Hợp đồng (Contract Limitations)")}
+								🛡️ ${__("Contract Scope Limitations")}
 							</div>
 							<div id="cf-limitations-list" style="font-size: 12px; color: var(--lotus-text-muted); line-height: 1.6;">
-								<div>• Phạm vi mô hình tập trung vào Thương mại AR/AP và Số dư đầu kỳ GL.</div>
-								<div>• Không tự ý suy diễn các khoản thuế, lương, và chi phí dịch vụ chưa có chứng từ.</div>
+								<div>• Model strictly covers Trade AR/AP and Opening GL Cash Balances.</div>
+								<div>• Does not speculate on unvouchered payroll, taxes, or unbooked accruals.</div>
 							</div>
 						</div>
 					</div>
@@ -292,9 +292,9 @@ lotus_fin.cash_forecast.Controller = class Controller {
 		$("#cf-reconciliation-status").text("").attr("class", "lotus-badge lotus-badge-neutral");
 		$("#cf-account-breakdown").empty();
 		$("#cf-verification-badge").empty();
-		$("#cf-points-tbody").html('<tr><td colspan="4" class="text-center text-muted py-4">Đang tải dữ liệu dự báo cho công ty đã chọn...</td></tr>');
-		$("#cf-obligations-tbody").html('<tr><td colspan="5" class="text-center text-muted py-4">Đang tải danh sách nghĩa vụ...</td></tr>');
-		$("#cf-copilot-content").html('<p class="text-muted">Đang kết nối AI Copilot...</p>');
+		$("#cf-points-tbody").html('<tr><td colspan="4" class="text-center text-muted py-4">Loading forecast for selected company...</td></tr>');
+		$("#cf-obligations-tbody").html('<tr><td colspan="5" class="text-center text-muted py-4">Loading contractual obligations...</td></tr>');
+		$("#cf-copilot-content").html('<p class="text-muted">Connecting to AI Copilot...</p>');
 		this.fetch_forecast();
 	}
 
@@ -317,7 +317,7 @@ lotus_fin.cash_forecast.Controller = class Controller {
 				return;
 			}
 			if (r.exc) {
-				me.render_error("Không thể xác định phạm vi tài khoản tiền mặt.");
+				me.render_error("Unable to resolve verified cash account scope.");
 				return;
 			}
 			const scope = r.message;
@@ -340,7 +340,7 @@ lotus_fin.cash_forecast.Controller = class Controller {
 					return;
 				}
 				if (r2.exc) {
-					me.render_error("Lỗi máy chủ khi tính toán dự báo dòng tiền.");
+					me.render_error("Server error during cash forecast calculation.");
 					return;
 				}
 				const resp = r2.message;
@@ -352,7 +352,7 @@ lotus_fin.cash_forecast.Controller = class Controller {
 			});
 		}).catch(function () {
 			if (request_token === me.request_generation) {
-				me.render_error("Không thể nạp dữ liệu dự báo dòng tiền.");
+				me.render_error("Failed to fetch cash forecast data.");
 			}
 		});
 	}
@@ -364,9 +364,9 @@ lotus_fin.cash_forecast.Controller = class Controller {
 			: (scope.scope ? scope.scope.length : 0);
 		const approval = scope.approval || "APPROVED";
 		let html = `<div class="d-flex align-items-center gap-2">
-			<span class="lotus-badge lotus-badge-success">Phạm vi tài khoản: ${count} tài khoản hợp lệ — ${approval}</span>`;
+			<span class="lotus-badge lotus-badge-success">Account Scope: ${count} verified accounts — ${approval}</span>`;
 		if (scope.unapproved_excluded && scope.unapproved_excluded.length > 0) {
-			html += `<span class="lotus-badge lotus-badge-warning">${scope.unapproved_excluded.length} tài khoản chưa phê duyệt bị loại trừ</span>`;
+			html += `<span class="lotus-badge lotus-badge-warning">${scope.unapproved_excluded.length} unapproved accounts excluded</span>`;
 		}
 		html += `</div>`;
 		el.html(html);
@@ -375,24 +375,24 @@ lotus_fin.cash_forecast.Controller = class Controller {
 	render_scope_needs_review(scope) {
 		const approval = scope.approval || "MISSING_CONFIG";
 		const reasons = {
-			MISSING_CONFIG: "Chưa cấu hình danh sách tài khoản tiền/ngân hàng được phê duyệt cho công ty này.",
-			INVALID_CONFIG: "Cấu hình phạm vi tài khoản tiền mặt bị trống hoặc không hợp lệ.",
-			STALE_CONFIG: "Phạm vi tài khoản tham chiếu đến tài khoản không còn tồn tại hoặc đã bị vô hiệu hóa."
+			MISSING_CONFIG: "No approved cash/bank accounts configured for this company.",
+			INVALID_CONFIG: "Cash account configuration is empty or invalid.",
+			STALE_CONFIG: "Configured accounts do not exist or are disabled."
 		};
-		const reason = reasons[approval] || "Không thể xác nhận phạm vi tài khoản tiền mặt được phê duyệt.";
+		const reason = reasons[approval] || "Unable to confirm approved cash account scope.";
 		$("#cf-scope-status").html(`
 			<div class="lotus-banner lotus-banner-warning">
-				<b>Cần kiểm tra lại phạm vi tài khoản (${approval}):</b><br/>
-				${reason} Mô hình dự báo tạm khóa cho đến khi quản trị viên tài chính phê duyệt danh mục tài khoản trên hồ sơ Công ty.
+				<b>Account Scope Review Required (${approval}):</b><br/>
+				${reason} Forecast engine remains locked until an accounting manager approves account scope in Company settings.
 			</div>
 		`);
 		$("#cf-opening-amount").text("-- VND");
 		$("#cf-reconciliation-status").text("").attr("class", "lotus-badge lotus-badge-neutral");
 		$("#cf-account-breakdown").empty();
-		$("#cf-verification-badge").html('<span class="lotus-badge lotus-badge-warning">Cần duyệt cấu hình</span>');
-		$("#cf-points-tbody").html('<tr><td colspan="4" class="text-center text-muted py-4">Dự báo tạm khóa: Cần kiểm tra lại phạm vi tài khoản.</td></tr>');
-		$("#cf-obligations-tbody").html('<tr><td colspan="5" class="text-center text-muted py-4">Dự báo tạm khóa: Cần kiểm tra lại phạm vi tài khoản.</td></tr>');
-		$("#cf-copilot-content").html('<p class="text-muted">Vui lòng cấu hình tài khoản tiền mặt để kích hoạt dự báo.</p>');
+		$("#cf-verification-badge").html('<span class="lotus-badge lotus-badge-warning">Pending Scope Approval</span>');
+		$("#cf-points-tbody").html('<tr><td colspan="4" class="text-center text-muted py-4">Forecast temporarily locked: Account Scope Review Required.</td></tr>');
+		$("#cf-obligations-tbody").html('<tr><td colspan="5" class="text-center text-muted py-4">Forecast temporarily locked: Account Scope Review Required.</td></tr>');
+		$("#cf-copilot-content").html('<p class="text-muted">Please configure approved cash accounts to activate forecast.</p>');
 	}
 
 	render_dashboard(resp) {
@@ -401,36 +401,36 @@ lotus_fin.cash_forecast.Controller = class Controller {
 		if (resp.status === "FORBIDDEN" || (resp.reason_code && resp.reason_code === "UNAUTHORIZED_ACCESS")) {
 			alertArea.html(`
 				<div class="lotus-banner lotus-banner-danger mb-4">
-					<h5 style="margin-top: 0; color: #b91c1c;">Từ chối truy cập (FORBIDDEN)</h5>
-					<p class="mb-2">Bạn không có quyền truy cập dữ liệu dự báo tài chính của công ty được yêu cầu.</p>
-					<button class="lotus-btn lotus-btn-primary lotus-btn-sm" onclick="frappe.set_route('Form', 'Company')">Chuyển công ty</button>
+					<h5 style="margin-top: 0; color: #b91c1c;">Access Denied (FORBIDDEN)</h5>
+					<p class="mb-2">You do not have permission to view financial forecast data for this company.</p>
+					<button class="lotus-btn lotus-btn-primary lotus-btn-sm" onclick="frappe.set_route('Form', 'Company')">Change Company</button>
 				</div>
 			`);
 			$("#cf-opening-amount").text("-- VND");
 			$("#cf-reconciliation-status").text("").attr("class", "lotus-badge lotus-badge-neutral");
 			$("#cf-account-breakdown").empty();
 			$("#cf-verification-badge").empty();
-			$("#cf-points-tbody").html('<tr><td colspan="4" class="text-center text-muted py-4">Từ chối truy cập.</td></tr>');
-			$("#cf-obligations-tbody").html('<tr><td colspan="5" class="text-center text-muted py-4">Từ chối truy cập.</td></tr>');
-			$("#cf-copilot-content").html('<p class="text-muted">Từ chối truy cập.</p>');
+			$("#cf-points-tbody").html('<tr><td colspan="4" class="text-center text-muted py-4">Access Denied.</td></tr>');
+			$("#cf-obligations-tbody").html('<tr><td colspan="5" class="text-center text-muted py-4">Access Denied.</td></tr>');
+			$("#cf-copilot-content").html('<p class="text-muted">Access Denied.</p>');
 			return;
 		}
 
 		if (resp.status === "SOURCE_ERROR" || resp.status === "TIMEOUT") {
 			alertArea.html(`
 				<div class="lotus-banner lotus-banner-danger mb-4">
-					<h5 style="margin-top: 0; color: #b91c1c;">Lỗi Nguồn Dữ liệu Tài chính</h5>
-					<p class="mb-1">Một nguồn dữ liệu bắt buộc (AR / AP / Trial Balance) không thể đọc được. Dự báo bị dừng để đảm bảo tính an toàn dữ liệu.</p>
-					<p class="text-muted mb-0" style="font-size: 12px;">${(resp.limitations && resp.limitations[0]) || "Nguồn dữ liệu tạm thời không khả dụng."}</p>
+					<h5 style="margin-top: 0; color: #b91c1c;">Financial Data Source Error</h5>
+					<p class="mb-1">A mandatory data source (AR / AP / Trial Balance) could not be retrieved. Forecast halted for fail-closed data integrity.</p>
+					<p class="text-muted mb-0" style="font-size: 12px;">${(resp.limitations && resp.limitations[0]) || "Data source temporarily unavailable."}</p>
 				</div>
 			`);
 			$("#cf-opening-amount").text("-- VND");
 			$("#cf-reconciliation-status").text("").attr("class", "lotus-badge lotus-badge-neutral");
 			$("#cf-account-breakdown").empty();
-			$("#cf-verification-badge").html('<span class="lotus-badge lotus-badge-danger">Lỗi nguồn dữ liệu</span>');
-			$("#cf-points-tbody").html('<tr><td colspan="4" class="text-center text-muted py-4">Dự báo tạm dừng do lỗi nguồn dữ liệu.</td></tr>');
-			$("#cf-obligations-tbody").html('<tr><td colspan="5" class="text-center text-muted py-4">Dự báo tạm dừng do lỗi nguồn dữ liệu.</td></tr>');
-			$("#cf-copilot-content").html('<p class="text-muted">Vui lòng xử lý lỗi nguồn dữ liệu và thử lại.</p>');
+			$("#cf-verification-badge").html('<span class="lotus-badge lotus-badge-danger">Source Error</span>');
+			$("#cf-points-tbody").html('<tr><td colspan="4" class="text-center text-muted py-4">Forecast halted due to source error.</td></tr>');
+			$("#cf-obligations-tbody").html('<tr><td colspan="5" class="text-center text-muted py-4">Forecast halted due to source error.</td></tr>');
+			$("#cf-copilot-content").html('<p class="text-muted">Please resolve underlying data source error and retry.</p>');
 			return;
 		}
 
@@ -438,10 +438,10 @@ lotus_fin.cash_forecast.Controller = class Controller {
 			const isInconsistent = resp.status === "INCONSISTENT_DATA";
 			alertArea.html(`
 				<div class="lotus-banner ${isInconsistent ? 'lotus-banner-danger' : 'lotus-banner-warning'} mb-4">
-					<h5 style="margin-top: 0; color: ${isInconsistent ? '#b91c1c' : '#c2410c'};">${isInconsistent ? "Dữ liệu Sổ cái Không đồng nhất" : "Số dư Tiền chưa được Xác thực"}</h5>
+					<h5 style="margin-top: 0; color: ${isInconsistent ? '#b91c1c' : '#c2410c'};">${isInconsistent ? "Inconsistent Ledger Data" : "Unverified Opening Cash Balance"}</h5>
 					<p class="mb-1">${isInconsistent
-						? "Sổ cái General Ledger không khớp với Bảng cân đối thử Trial Balance cho danh mục tài khoản được chỉ định. Dự báo bị dừng."
-						: "Chưa có bằng chứng đối chiếu số dư đầu kỳ, không thể tính toán quỹ đạo dòng tiền."}</p>
+						? "General Ledger (GL) does not equal Trial Balance for designated accounts. Forecast halted."
+						: "Missing verifiable reconciliation baseline; cannot compute cash trajectory."}</p>
 					<p class="text-muted mb-0" style="font-size: 12px;">${(resp.limitations && resp.limitations[0]) || ""}</p>
 				</div>
 			`);
@@ -450,11 +450,11 @@ lotus_fin.cash_forecast.Controller = class Controller {
 				$("#cf-reconciliation-status").text(resp.opening_cash.reconciliation).attr("class", "lotus-badge lotus-badge-warning");
 			}
 			$("#cf-verification-badge").html(isInconsistent
-				? '<span class="lotus-badge lotus-badge-danger">Sổ cái không khớp</span>'
-				: '<span class="lotus-badge lotus-badge-warning">Chưa đối chiếu</span>');
-			$("#cf-points-tbody").html('<tr><td colspan="4" class="text-center text-muted py-4">Dự báo tạm dừng: Số dư đầu kỳ chưa được xác thực.</td></tr>');
-			$("#cf-obligations-tbody").html('<tr><td colspan="5" class="text-center text-muted py-4">Dự báo tạm dừng: Số dư đầu kỳ chưa được xác thực.</td></tr>');
-			$("#cf-copilot-content").html('<p class="text-muted">Vui lòng đối chiếu sổ cái, sau đó tính toán lại dự báo.</p>');
+				? '<span class="lotus-badge lotus-badge-danger">Ledger Mismatch</span>'
+				: '<span class="lotus-badge lotus-badge-warning">Unreconciled</span>');
+			$("#cf-points-tbody").html('<tr><td colspan="4" class="text-center text-muted py-4">Forecast halted: Opening balance is unverified.</td></tr>');
+			$("#cf-obligations-tbody").html('<tr><td colspan="5" class="text-center text-muted py-4">Forecast halted: Opening balance is unverified.</td></tr>');
+			$("#cf-copilot-content").html('<p class="text-muted">Please reconcile ledger accounts and rerun forecast.</p>');
 			return;
 		}
 
@@ -462,17 +462,17 @@ lotus_fin.cash_forecast.Controller = class Controller {
 		const isLedgerVerified = recon === "ERP_GL_EQUALS_TRIAL_BALANCE_NOT_BANK_RECONCILED"
 			|| recon === "ERP_GL_EQUALS_TRIAL_BALANCE_INTRADAY_UNCLOSED";
 		$("#cf-verification-badge").html(isLedgerVerified
-			? '<span class="lotus-badge lotus-badge-success">🛡️ Sổ cái đã Đối chiếu Hợp lệ</span>'
-			: '<span class="lotus-badge lotus-badge-warning">⚠️ Sổ cái Chưa đối chiếu</span>');
+			? '<span class="lotus-badge lotus-badge-success">🛡️ Ledger Reconciled & Verified</span>'
+			: '<span class="lotus-badge lotus-badge-warning">⚠️ Unreconciled Ledger</span>');
 
 		// Check Shortfall Alerts
 		if (resp.shortfall_events && resp.shortfall_events.length > 0) {
 			const sf = resp.shortfall_events[0];
 			const isInherited = sf.breach_kind === "INHERITED_FROM_OPENING";
-			const title = isInherited ? "Cảnh báo Thâm hụt Kế thừa từ Đầu kỳ" : "CẢNH BÁO NGUY CƠ THÂM HỤT THANH KHOẢN (LIQUIDITY SHORTFALL)";
+			const title = isInherited ? "Inherited Opening Cash Deficit Alert" : "CRITICAL LIQUIDITY SHORTFALL ALERT";
 			alertArea.append(`
 				<div class="lotus-banner ${isInherited ? 'lotus-banner-warning' : 'lotus-banner-danger'} mb-4">
-					<b>${title}:</b> Dòng tiền dự kiến rơi xuống dưới 0 vào ngày <b>${sf.first_date}</b>, chạm đáy thâm hụt <b>${format_money(sf.minimum_modeled_cash, "VND")}</b> vào ngày <b>${sf.minimum_date}</b>.
+					<b>${title}:</b> Projected cash drops below zero on <b>${sf.first_date}</b>, reaching peak deficit of <b>${format_money(sf.minimum_modeled_cash, "VND")}</b> on <b>${sf.minimum_date}</b>.
 				</div>
 			`);
 		}
@@ -481,7 +481,7 @@ lotus_fin.cash_forecast.Controller = class Controller {
 		if (resp.opening_cash && resp.opening_cash.has_constituent_deficit) {
 			alertArea.append(`
 				<div class="lotus-banner lotus-banner-warning mb-4">
-					<b>Cảnh báo Lệch tài khoản nội bộ:</b> Một hoặc nhiều tài khoản ngân hàng thành viên bị âm số dư, mặc dù tổng dòng tiền hợp nhất vẫn dương. Cần điều chuyển vốn nội bộ.
+					<b>Internal Account Imbalance Alert:</b> One or more constituent bank accounts have negative balances despite positive consolidated cash. Internal liquidity transfer recommended.
 				</div>
 			`);
 		}
@@ -512,8 +512,8 @@ lotus_fin.cash_forecast.Controller = class Controller {
 		if (!resp.forecast_points || resp.forecast_points.length === 0) {
 			tbody.html(`
 				<tr><td colspan="4" class="text-center text-muted py-4">
-					<b>Không tìm thấy sự kiện thanh toán tương lai đã xác nhận.</b><br/>
-					Mô hình dừng lại theo chính sách an toàn tất định.
+					<b>No confirmed future payment events found.</b><br/>
+					Model halted under deterministic fail-closed safety policy.
 				</td></tr>
 			`);
 		} else {
@@ -527,7 +527,7 @@ lotus_fin.cash_forecast.Controller = class Controller {
 						<td style="${isNeg ? 'color: #dc2626; font-weight: 700;' : 'color: var(--lotus-primary); font-weight: 600;'}">
 							${format_money(p.modeled_cash, resp.currency || "VND")}
 						</td>
-						<td>${eventsCount > 0 ? `<span class="lotus-badge lotus-badge-primary">${eventsCount} sự kiện</span>` : '<span class="text-muted">—</span>'}</td>
+						<td>${eventsCount > 0 ? `<span class="lotus-badge lotus-badge-primary">${eventsCount} events</span>` : '<span class="text-muted">—</span>'}</td>
 						<td style="text-align: center;"><span class="lotus-badge lotus-badge-neutral">${p.status}</span></td>
 					</tr>
 				`);
@@ -537,7 +537,7 @@ lotus_fin.cash_forecast.Controller = class Controller {
 		// Render Obligations
 		const obTbody = $("#cf-obligations-tbody").empty();
 		if (!resp.obligations || resp.obligations.length === 0) {
-			obTbody.html('<tr><td colspan="5" class="text-center text-muted py-4">Không có nghĩa vụ công nợ tồn đọng.</td></tr>');
+			obTbody.html('<tr><td colspan="5" class="text-center text-muted py-4">No outstanding contractual obligations.</td></tr>');
 		} else {
 			resp.obligations.forEach(o => {
 				const isAR = o.type === "AR";
@@ -556,7 +556,7 @@ lotus_fin.cash_forecast.Controller = class Controller {
 		// Render Copilot Explanation
 		const copilotDiv = $("#cf-copilot-content").empty();
 		if (resp.explanation) {
-			let factsHtml = "<div class='mb-2'><b>Bằng chứng Sổ cái Đã xác thực:</b></div><ul class='pl-3 mb-3' style='line-height: 1.6;'>";
+			let factsHtml = "<div class='mb-2'><b>Verified Ledger Evidence Facts:</b></div><ul class='pl-3 mb-3' style='line-height: 1.6;'>";
 			(resp.explanation.facts || []).forEach(f => {
 				factsHtml += `<li>${frappe.utils.escape_html(f.statement)}</li>`;
 			});
@@ -564,7 +564,7 @@ lotus_fin.cash_forecast.Controller = class Controller {
 
 			let driversHtml = "";
 			if (resp.explanation.drivers && resp.explanation.drivers.length > 0) {
-				driversHtml = "<div class='mb-2'><b>Nhận định & Diễn giải AI:</b></div><div class='p-3 rounded-xl' style='background: var(--lotus-surface-subtle); border-left: 3px solid var(--lotus-ai-magic); line-height: 1.6;'>" +
+				driversHtml = "<div class='mb-2'><b>AI Synthesis & Operational Insights:</b></div><div class='p-3 rounded-xl' style='background: var(--lotus-surface-subtle); border-left: 3px solid var(--lotus-ai-magic); line-height: 1.6;'>" +
 					resp.explanation.drivers.map(d => frappe.utils.escape_html(d.statement)).join("<br/>") +
 					"</div>";
 			}
@@ -572,14 +572,14 @@ lotus_fin.cash_forecast.Controller = class Controller {
 			copilotDiv.html(factsHtml + driversHtml);
 		} else {
 			copilotDiv.html(`
-				<p class="text-muted">Đã tính toán dự báo tất định. Bấm <b>Chạy dự báo dòng tiền</b> để yêu cầu AI tổng hợp phân tích.</p>
+				<p class="text-muted">Deterministic forecast calculated. Click <b>Run Cash Forecast</b> to generate AI synthesis & analysis.</p>
 			`);
 		}
 	}
 
 	render_error(msg) {
 		frappe.msgprint({
-			title: __("Thông báo Dòng tiền"),
+			title: __("Cash Forecast Notification"),
 			indicator: "orange",
 			message: msg
 		});

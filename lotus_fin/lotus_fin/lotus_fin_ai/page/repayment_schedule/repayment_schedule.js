@@ -4,7 +4,7 @@ frappe.provide("lotus_fin.repayment_page");
 frappe.pages["repayment-schedule"].on_page_load = function (wrapper) {
 	frappe.ui.make_app_page({
 		parent: wrapper,
-		title: __("Lịch Trả Nợ & Sốc Lãi Suất (AI006)"),
+		title: __("Debt Repayment Schedule & Rate Shock (AI006)"),
 		single_column: true
 	});
 
@@ -65,7 +65,7 @@ lotus_fin.repayment_page.Controller = class Controller {
 			frappe.set_route("lotus-copilot");
 		});
 
-		this.page.add_inner_button(__("🏦 Gói vay (AI005)"), function() {
+		this.page.add_inner_button(__("🏦 Financing (AI005)"), function() {
 			frappe.set_route("financing-copilot");
 		});
 
@@ -73,7 +73,7 @@ lotus_fin.repayment_page.Controller = class Controller {
 			frappe.set_route("what-if-studio");
 		});
 
-		this.page.set_primary_action(__("Tính toán Lịch trả nợ"), function () {
+		this.page.set_primary_action(__("Calculate Repayment Schedule"), function () {
 			me.calculate_schedule();
 		}, "octicon octicon-calendar");
 	}
@@ -89,8 +89,8 @@ lotus_fin.repayment_page.Controller = class Controller {
 								<span class="lotus-brand-badge">Lotus Fin • Debt Repayment Engine (AI006)</span>
 								<span class="lotus-badge lotus-badge-ai">Amortization & Stress Engine</span>
 							</div>
-							<h1 class="lotus-fh-title">📑 ${__("Mô phỏng Lịch Trả Nợ & Kiểm tra Sốc Lãi suất")}</h1>
-							<p class="lotus-fh-subtitle">${__("Lập lịch trả nợ gốc lãi, so sánh phương thức trả nợ (PMT / Gốc đều) và đánh giá áp lực chi phí khi lãi suất tăng (+bps)")}</p>
+							<h1 class="lotus-fh-title">📑 ${__("Debt Repayment Simulation & Interest Rate Shock Testing")}</h1>
+							<p class="lotus-fh-subtitle">${__("Simulate amortization schedules (Equal Installment PMT vs. Equal Principal) and test cashflow resilience under interest rate shocks (+bps)")}</p>
 						</div>
 						<div class="text-right">
 							<span class="lotus-badge lotus-badge-success">Multi-Scenario Simulator</span>
@@ -102,37 +102,37 @@ lotus_fin.repayment_page.Controller = class Controller {
 				<div class="lotus-card mb-4">
 					<div class="lotus-card-header mb-3">
 						<div>
-							<h3 class="lotus-card-title">🎛️ ${__("Thông số Khoản vay & Cấu hình Kịch bản Sốc lãi")}</h3>
-							<p class="lotus-card-subtitle">${__("Kiểm tra khả năng chịu đựng chi phí vốn khi lãi suất thị trường biến động")}</p>
+							<h3 class="lotus-card-title">🎛️ ${__("Loan Parameters & Interest Rate Shock Settings")}</h3>
+							<p class="lotus-card-subtitle">${__("Assess capital cost sensitivity under volatile financial market interest rates")}</p>
 						</div>
 					</div>
 					<div class="row">
 						<div class="col-md-3 mb-3">
-							<label class="text-muted font-weight-bold" style="font-size: 12px; margin-bottom: 6px; display: block;">Gốc khoản vay (VND)</label>
+							<label class="text-muted font-weight-bold" style="font-size: 12px; margin-bottom: 6px; display: block;">Loan Principal (VND)</label>
 							<input type="number" id="inp-principal" class="lotus-sim-input" value="1000000000" step="50000000" />
 							<small class="text-muted mt-1 d-block" id="txt-principal-formatted">1.000.000.000 VND</small>
 						</div>
 						<div class="col-md-2 mb-3">
-							<label class="text-muted font-weight-bold" style="font-size: 12px; margin-bottom: 6px; display: block;">Lãi suất cơ sở (%/năm)</label>
+							<label class="text-muted font-weight-bold" style="font-size: 12px; margin-bottom: 6px; display: block;">Base Interest Rate (%/Yr)</label>
 							<input type="number" id="inp-rate" class="lotus-sim-input" value="8.5" step="0.1" />
-							<small class="text-muted mt-1 d-block">Lãi suất ban đầu</small>
+							<small class="text-muted mt-1 d-block">Initial base rate</small>
 						</div>
 						<div class="col-md-2 mb-3">
-							<label class="text-muted font-weight-bold" style="font-size: 12px; margin-bottom: 6px; display: block;">Thời hạn (Tháng)</label>
+							<label class="text-muted font-weight-bold" style="font-size: 12px; margin-bottom: 6px; display: block;">Tenure (Months)</label>
 							<input type="number" id="inp-term" class="lotus-sim-input" value="12" step="1" />
-							<small class="text-muted mt-1 d-block">Số kỳ trả nợ</small>
+							<small class="text-muted mt-1 d-block">Total installment periods</small>
 						</div>
 						<div class="col-md-3 mb-3">
-							<label class="text-muted font-weight-bold" style="font-size: 12px; margin-bottom: 6px; display: block;">Phương thức trả nợ</label>
+							<label class="text-muted font-weight-bold" style="font-size: 12px; margin-bottom: 6px; display: block;">Repayment Method</label>
 							<select id="sel-method" class="lotus-sim-input">
-								<option value="EQUAL_INSTALLMENT" selected>Trả góp đều (PMT: Gốc + Lãi cố định)</option>
-								<option value="EQUAL_PRINCIPAL">Gốc đều hàng tháng (Lãi giảm dần)</option>
+								<option value="EQUAL_INSTALLMENT" selected>Equal Installment (PMT: Fixed Principal + Interest)</option>
+								<option value="EQUAL_PRINCIPAL">Equal Principal (Declining Balance Interest)</option>
 							</select>
 						</div>
 						<div class="col-md-2 mb-3">
-							<label class="text-muted font-weight-bold" style="font-size: 12px; margin-bottom: 6px; display: block;">Sốc lãi suất (+bps)</label>
+							<label class="text-muted font-weight-bold" style="font-size: 12px; margin-bottom: 6px; display: block;">Interest Rate Shock (+bps)</label>
 							<select id="sel-shock-bps" class="lotus-sim-input" style="border-color: #fca5a5;">
-								<option value="0" selected>0 bps (Chuẩn)</option>
+								<option value="0" selected>0 bps (Baseline)</option>
 								<option value="100">+100 bps (+1.0%)</option>
 								<option value="200">+200 bps (+2.0%)</option>
 								<option value="300">+300 bps (+3.0%)</option>
@@ -141,7 +141,7 @@ lotus_fin.repayment_page.Controller = class Controller {
 					</div>
 					<div class="mt-2 text-right">
 						<button class="lotus-btn lotus-btn-primary btn-calc-schedule">
-							<span>⚡ ${__("Tính toán Lịch & Stress Test")}</span>
+							<span>⚡ ${__("Calculate Schedule & Stress Test")}</span>
 						</button>
 					</div>
 				</div>
@@ -149,24 +149,24 @@ lotus_fin.repayment_page.Controller = class Controller {
 				<!-- KPI Summary Cards (Material 3 Metric Grid) -->
 				<div class="lotus-metric-grid mb-4">
 					<div class="lotus-metric-card">
-						<div class="lotus-metric-label">Trả hàng tháng (Kỳ 1)</div>
+						<div class="lotus-metric-label">Monthly Payment (Period 1)</div>
 						<div class="lotus-metric-value" style="color: var(--lotus-primary);" id="kpi-monthly-pmt">-</div>
-						<div class="lotus-metric-meta" id="kpi-monthly-sub">Gốc + Lãi kỳ đầu</div>
+						<div class="lotus-metric-meta" id="kpi-monthly-sub">Initial Principal + Interest</div>
 					</div>
 					<div class="lotus-metric-card">
-						<div class="lotus-metric-label">Tổng lãi phải trả</div>
+						<div class="lotus-metric-label">Total Interest Payable</div>
 						<div class="lotus-metric-value" style="color: #ea580c;" id="kpi-total-interest">-</div>
-						<div class="lotus-metric-meta">Suốt thời gian vay</div>
+						<div class="lotus-metric-meta">Over Entire Loan Tenure</div>
 					</div>
 					<div class="lotus-metric-card">
-						<div class="lotus-metric-label">Tổng chi phí khoản vay</div>
+						<div class="lotus-metric-label">Total Loan Obligation</div>
 						<div class="lotus-metric-value" style="color: var(--lotus-text-primary);" id="kpi-total-payment">-</div>
-						<div class="lotus-metric-meta">Gốc + Toàn bộ Lãi</div>
+						<div class="lotus-metric-meta">Principal + All Interest</div>
 					</div>
 					<div class="lotus-metric-card">
-						<div class="lotus-metric-label">Tác động Sốc lãi suất</div>
+						<div class="lotus-metric-label">Rate Shock Impact</div>
 						<div class="lotus-metric-value" id="kpi-shock-impact" style="color: #dc2626;">0 VND</div>
-						<div class="lotus-metric-meta" id="kpi-shock-sub">Chi phí lãi tăng thêm</div>
+						<div class="lotus-metric-meta" id="kpi-shock-sub">Additional Interest Cost</div>
 					</div>
 				</div>
 
@@ -174,10 +174,10 @@ lotus_fin.repayment_page.Controller = class Controller {
 				<div class="lotus-card mb-4" style="background: linear-gradient(135deg, rgba(22, 163, 74, 0.04) 0%, rgba(37, 99, 235, 0.04) 100%); border: 1px solid rgba(22, 163, 74, 0.25);">
 					<div class="d-flex align-items-center gap-2 mb-2">
 						<span style="font-size: 20px;">💡</span>
-						<h3 class="lotus-card-title" style="color: #166534;">${__("Khuyến nghị Lập kế hoạch Trả nợ từ AI Advisor")}</h3>
+						<h3 class="lotus-card-title" style="color: #166534;">${__("AI Debt Advisory & Cashflow Structuring Insights")}</h3>
 					</div>
 					<div id="ai-repayment-advisor" style="font-size: 13px; line-height: 1.6; color: var(--lotus-text-primary);">
-						Đang phân tích cấu trúc trả nợ...
+						Analyzing repayment structure and solvency...
 					</div>
 				</div>
 
@@ -185,20 +185,20 @@ lotus_fin.repayment_page.Controller = class Controller {
 				<div class="lotus-card">
 					<div class="lotus-card-header mb-3">
 						<div>
-							<h3 class="lotus-card-title">📅 ${__("Bảng Chi tiết Lịch trả nợ từng kỳ (Amortization Schedule)")}</h3>
-							<p class="lotus-card-subtitle" id="txt-periods-count">12 kỳ thanh toán</p>
+							<h3 class="lotus-card-title">📅 ${__("Period-by-Period Amortization Schedule")}</h3>
+							<p class="lotus-card-subtitle" id="txt-periods-count">12 payment periods</p>
 						</div>
 					</div>
 					<div class="lotus-table-container">
 						<table class="lotus-table">
 							<thead>
 								<tr>
-									<th style="width: 80px; text-align: center;">Kỳ #</th>
-									<th style="text-align: right;">Dư nợ đầu kỳ</th>
-									<th style="text-align: right;">Tiền gốc</th>
-									<th style="text-align: right;">Tiền lãi</th>
-									<th style="text-align: right;">Tổng trả / kỳ</th>
-									<th style="text-align: right;">Dư nợ cuối kỳ</th>
+									<th style="width: 80px; text-align: center;">Period #</th>
+									<th style="text-align: right;">Beginning Balance</th>
+									<th style="text-align: right;">Principal</th>
+									<th style="text-align: right;">Interest</th>
+									<th style="text-align: right;">Total Payment</th>
+									<th style="text-align: right;">Ending Balance</th>
 								</tr>
 							</thead>
 							<tbody id="schedule-tbody">
@@ -329,19 +329,19 @@ lotus_fin.repayment_page.Controller = class Controller {
 		
 		if (shockBps > 0) {
 			this.main.find("#kpi-shock-impact").text(`+${format_money(shockAddedCost)}`).css("color", "#dc2626");
-			this.main.find("#kpi-shock-sub").text(`Ứng với kịch bản +${shockBps} bps lãi suất (${(stressedAnnualRate * 100).toFixed(1)}%)`);
+			this.main.find("#kpi-shock-sub").text(`Under +${shockBps} bps rate shock (${(stressedAnnualRate * 100).toFixed(1)}%)`);
 		} else {
 			this.main.find("#kpi-shock-impact").text("0 VND").css("color", "#16a34a");
-			this.main.find("#kpi-shock-sub").text("Chưa áp dụng kịch bản sốc");
+			this.main.find("#kpi-shock-sub").text("No rate shock applied");
 		}
 
-		this.main.find("#txt-periods-count").text(`${term} kỳ thanh toán (${method === 'EQUAL_INSTALLMENT' ? 'Trả góp đều PMT' : 'Gốc đều'})`);
+		this.main.find("#txt-periods-count").text(`${term} Payment Periods (${method === 'EQUAL_INSTALLMENT' ? 'Equal Installment (PMT)' : 'Equal Principal'})`);
 
 		let advisorHtml = `
-			<p class="mb-2"><b>Nhận định cấu trúc dòng tiền:</b> Với khoản vay <b>${format_money(principal)}</b> kỳ hạn <b>${term} tháng</b>:</p>
+			<p class="mb-2"><b>Cashflow Structuring Insight:</b> For a loan principal of <b>${format_money(principal)}</b> with tenure of <b>${term} months</b>:</p>
 			<ul class="mb-0 pl-3" style="line-height: 1.6;">
-				<li>Phương thức thanh toán <b>${method === 'EQUAL_INSTALLMENT' ? 'Trả góp đều (PMT)' : 'Gốc đều hàng tháng'}</b> giúp doanh nghiệp ${method === 'EQUAL_INSTALLMENT' ? 'cố định nghĩa vụ chi trả mỗi tháng (' + format_money(firstPmt) + ')' : 'giảm nhanh dư nợ gốc và tiết kiệm chi phí lãi dần về cuối kỳ'}.</li>
-				${shockBps > 0 ? `<li class="text-danger font-weight-bold">Cảnh báo Sốc lãi suất (+${shockBps} bps): Chi phí lãi phát sinh thêm ${format_money(shockAddedCost)} trong toàn kỳ. Cần đảm bảo biên lợi nhuận hoạt động đủ để bù đắp chi phí vốn tăng.</li>` : '<li>Lãi suất danh nghĩa đang ở mức an toàn. Doanh nghiệp nên duy trì bộ đệm tiền mặt tối thiểu 1-2 kỳ trả nợ để phòng ngừa rủi ro chậm luân chuyển AR.</li>'}
+				<li>Payment method <b>${method === 'EQUAL_INSTALLMENT' ? 'Equal Installments (PMT)' : 'Equal Principal Monthly'}</b> allows the business to ${method === 'EQUAL_INSTALLMENT' ? 'fix monthly obligations (' + format_money(firstPmt) + ')' : 'accelerate principal reduction and reduce total interest costs over time'}.</li>
+				${shockBps > 0 ? `<li class="text-danger font-weight-bold">CRITICAL RATE SHOCK ALERT (+${shockBps} bps): Additional interest cost of ${format_money(shockAddedCost)} across the loan term. Ensure operating margins can absorb increased financing costs.</li>` : '<li>Nominal rate remains within safe parameters. Maintain a cash reserve buffer of 1-2 installment periods to safeguard against AR collection delays.</li>'}
 			</ul>
 		`;
 		this.main.find("#ai-repayment-advisor").html(advisorHtml);

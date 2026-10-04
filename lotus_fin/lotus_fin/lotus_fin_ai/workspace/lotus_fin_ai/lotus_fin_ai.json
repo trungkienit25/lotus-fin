@@ -1,6 +1,6 @@
 {
  "charts": [],
- "content": "[{\"id\":\"hdr_1\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h3\\\"><b>Lotus Fin AI — Trung tâm Quản trị Tài chính & Trợ lý Copilot</b></span>\",\"col\":12}},{\"id\":\"sc_1\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"🤖 Lotus Fin AI Copilot\",\"col\":3}},{\"id\":\"sc_2\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"📊 Sức khỏe Tài chính (AI001)\",\"col\":3}},{\"id\":\"sc_4\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"💧 Dự báo Dòng tiền (AI002)\",\"col\":3}},{\"id\":\"sc_5\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"⚠️ Tín hiệu Rủi ro (AI003)\",\"col\":3}},{\"id\":\"sc_3\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"🔮 What-If Stress Studio (AI004)\",\"col\":3}},{\"id\":\"sc_6\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"🏦 Gói vay & Tài trợ (AI005)\",\"col\":3}},{\"id\":\"sc_7\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"📑 Lịch trả nợ (AI006)\",\"col\":3}},{\"id\":\"card_modules\",\"type\":\"card\",\"data\":{\"card_name\":\"AI Financial Management\",\"col\":12}}]",
+ "content": "[{\"id\":\"hdr_1\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h3\\\"><b>Lotus Fin AI — Intelligent Financial Management & Copilot Hub</b></span>\",\"col\":12}},{\"id\":\"sc_1\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"🤖 Lotus Fin AI Copilot\",\"col\":3}},{\"id\":\"sc_2\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"📊 Financial Health (AI001)\",\"col\":3}},{\"id\":\"sc_4\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"💧 Cash Flow Forecast (AI002)\",\"col\":3}},{\"id\":\"sc_5\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"⚠️ Risk Signals (AI003)\",\"col\":3}},{\"id\":\"sc_3\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"🔮 What-If Stress Studio (AI004)\",\"col\":3}},{\"id\":\"sc_6\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"🏦 Financing & Loans (AI005)\",\"col\":3}},{\"id\":\"sc_7\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"📑 Debt Repayment Schedule (AI006)\",\"col\":3}},{\"id\":\"card_modules\",\"type\":\"card\",\"data\":{\"card_name\":\"AI Financial Management\",\"col\":12}}]",
  "creation": "2026-09-30 22:30:00.000000",
  "custom_blocks": [],
  "docstatus": 0,
@@ -158,7 +158,7 @@
    "color": "Green",
    "doc_view": "",
    "format": "",
-   "label": "📊 Sức khỏe Tài chính (AI001)",
+   "label": "📊 Financial Health (AI001)",
    "link_to": "financial-health",
    "type": "Page"
   },
@@ -166,7 +166,7 @@
    "color": "Cyan",
    "doc_view": "",
    "format": "",
-   "label": "💧 Dự báo Dòng tiền (AI002)",
+   "label": "💧 Cash Flow Forecast (AI002)",
    "link_to": "cash-forecast",
    "type": "Page"
   },
@@ -174,7 +174,7 @@
    "color": "Orange",
    "doc_view": "",
    "format": "",
-   "label": "⚠️ Tín hiệu Rủi ro (AI003)",
+   "label": "⚠️ Risk Signals (AI003)",
    "link_to": "risk-signal",
    "type": "Page"
   },
@@ -190,7 +190,7 @@
    "color": "Grey",
    "doc_view": "",
    "format": "",
-   "label": "🏦 Gói vay & Tài trợ (AI005)",
+   "label": "🏦 Financing & Loans (AI005)",
    "link_to": "financing-copilot",
    "type": "Page"
   },
@@ -198,7 +198,7 @@
    "color": "Red",
    "doc_view": "",
    "format": "",
-   "label": "📑 Lịch trả nợ (AI006)",
+   "label": "📑 Debt Repayment Schedule (AI006)",
    "link_to": "repayment-schedule",
    "type": "Page"
   }

@@ -96,12 +96,12 @@ def sync_lotus_workspace():
     # 3. Create direct Left-Sidebar Navigation Workspaces for all 7 modules (First/Top sequence)
     sidebar_items = [
         ("Lotus Fin AI Copilot", "🤖 Lotus Fin AI Copilot", "lotus-copilot", 0.1),
-        ("Financial Health AI", "📊 Sức khỏe tài chính", "financial-health", 0.2),
-        ("Cash Forecast AI", "💧 Dự báo dòng tiền", "cash-forecast", 0.3),
-        ("Risk Signal AI", "⚠️ Tín hiệu rủi ro", "risk-signal", 0.4),
+        ("Financial Health AI", "📊 Financial Health", "financial-health", 0.2),
+        ("Cash Forecast AI", "💧 Cash Forecast", "cash-forecast", 0.3),
+        ("Risk Signal AI", "⚠️ Risk Signals", "risk-signal", 0.4),
         ("What If Studio AI", "🔮 What-If Studio", "what-if-studio", 0.5),
-        ("Financing Copilot AI", "🏦 Gói vay & Tài trợ", "financing-copilot", 0.6),
-        ("Repayment Schedule AI", "📑 Lịch trả nợ", "repayment-schedule", 0.7),
+        ("Financing Copilot AI", "🏦 Financing Copilot", "financing-copilot", 0.6),
+        ("Repayment Schedule AI", "📑 Repayment Schedule", "repayment-schedule", 0.7),
     ]
 
     for ws_name, ws_label, p_name, seq in sidebar_items:

@@ -57,11 +57,11 @@ lotus_fin.what_if_page.Controller = class Controller {
 			frappe.set_route("lotus-copilot");
 		});
 
-		this.page.add_inner_button(__("📊 Sức khỏe tài chính"), function() {
+		this.page.add_inner_button(__("📊 Financial Health"), function() {
 			frappe.set_route("financial-health");
 		});
 
-		this.page.set_primary_action(__("Chạy mô phỏng Stress-Test"), function () {
+		this.page.set_primary_action(__("Run Stress-Test Simulation"), function () {
 			if (me.studio && typeof me.studio.run_simulation === "function") {
 				me.studio.run_simulation();
 			}
@@ -76,7 +76,7 @@ lotus_fin.what_if_page.Controller = class Controller {
 					<div>
 						<span class="lotus-brand-badge">Lotus Fin &bull; AI-F004 / AI-F005</span>
 						<h1 class="lotus-fh-title">🔮 ${__("What-If Scenario Simulation & Cash Stress-Testing Studio")}</h1>
-						<p class="lotus-fh-subtitle">${__("Mô hình phân tích áp lực định lượng 9 chỉ số: Doanh thu, AR/AP, Định phí và Gói tài trợ vốn")}</p>
+						<p class="lotus-fh-subtitle">${__("9-KPI quantitative stress engine: Revenue, AR/AP, Fixed Costs, and Financing Injections")}</p>
 					</div>
 					<div class="text-right">
 						<span class="lotus-meta-tag status-ok">Engine: 9-KPI Deterministic Model</span>

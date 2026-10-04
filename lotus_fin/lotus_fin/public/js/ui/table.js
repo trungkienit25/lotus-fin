@@ -11,7 +11,7 @@ lotus_fin.ui.Table = class Table {
 	constructor(opts = {}) {
 		this.columns = opts.columns || [];
 		this.data = opts.data || [];
-		this.emptyMessage = opts.emptyMessage || "Không có dữ liệu hiển thị";
+		this.emptyMessage = opts.emptyMessage || "No data available";
 		this.render();
 	}
 

@@ -17,7 +17,7 @@ lotus_fin.core.format_currency = function (value, currency = "VND") {
 	if (value === null || value === undefined || isNaN(value)) {
 		return "—";
 	}
-	return frappe.format(value, { fieldtype: "Currency", currency: currency });
+	return Math.round(Number(value)).toLocaleString("vi-VN") + " " + currency;
 };
 
 lotus_fin.core.format_percent = function (value, decimals = 1) {
@@ -83,7 +83,7 @@ lotus_fin.ui.Button = class Button {
 		}
 	}
 
-	set_loading(loading = true, loadingText = "Đang xử lý...") {
+	set_loading(loading = true, loadingText = "Processing...") {
 		this.isLoading = loading;
 		this.$el.prop("disabled", loading);
 		if (loading) {
@@ -226,7 +226,7 @@ lotus_fin.ui.Table = class Table {
 	constructor(opts = {}) {
 		this.columns = opts.columns || [];
 		this.data = opts.data || [];
-		this.emptyMessage = opts.emptyMessage || "Không có dữ liệu hiển thị";
+		this.emptyMessage = opts.emptyMessage || "No data available";
 		this.render();
 	}
 
@@ -301,7 +301,7 @@ lotus_fin.components.ChatCopilot = class ChatCopilot {
 	constructor(opts) {
 		this.parent = $(opts.parent);
 		this.get_company = opts.get_company || (() => frappe.defaults.get_user_default("Company") || frappe.defaults.get_global_default("company"));
-		this.title = opts.title || __("Lotus Fin AI Copilot — Đối thoại & Điều phối Nghiệp vụ");
+		this.title = opts.title || __("Lotus Fin AI Copilot — Financial Intelligence & Action Coordination");
 		this.badge = opts.badge || __("Deterministic Tool Calling • Real-time Accounting Data");
 		this.min_height = opts.min_height || "480px";
 		this.show_quick_pills = opts.show_quick_pills !== false;
@@ -314,14 +314,14 @@ lotus_fin.components.ChatCopilot = class ChatCopilot {
 	render() {
 		const quickPillsHtml = this.show_quick_pills ? `
 			<div class="mb-3">
-				<span class="text-muted" style="font-size: 11px; font-weight: 600;">💡 Gợi ý câu hỏi nhanh (AI001 - AI007):</span>
+				<span class="text-muted" style="font-size: 11px; font-weight: 600;">💡 Quick Suggestions (AI001 - AI007):</span>
 				<div class="mt-1 d-flex flex-wrap gap-1">
-					<span class="lotus-quick-pill" data-query="Sức khỏe tài chính năm nay của công ty thế nào?">📊 Sức khỏe tài chính (F001)</span>
-					<span class="lotus-quick-pill" data-query="Dự báo dòng tiền 30 ngày tới và các mốc thâm hụt">💧 Dự báo dòng tiền (F002)</span>
-					<span class="lotus-quick-pill" data-query="Kiểm tra tín hiệu rủi ro nợ quá hạn AR spike và AP cluster">⚠️ Tín hiệu rủi ro (F003)</span>
-					<span class="lotus-quick-pill" data-query="Nếu doanh thu giảm 20% và khách nợ trễ 15 ngày thì dòng tiền thế nào?">🔮 What-If: Doanh thu -20%, nợ trễ 15 ngày (F004)</span>
-					<span class="lotus-quick-pill" data-query="Tư vấn vay 1 tỷ vốn lưu động 12 tháng có gói nào phù hợp?">🏦 Tư vấn gói vay 1 tỷ (F005)</span>
-					<span class="lotus-quick-pill" data-query="Lập lịch trả nợ vay 1 tỷ lãi 8.5% trong 12 tháng và sốc lãi suất tăng 200 bps">📑 Lập lịch trả nợ & Sốc lãi suất (F006)</span>
+					<span class="lotus-quick-pill" data-query="How is our company financial health this year?">📊 Financial Health (F001)</span>
+					<span class="lotus-quick-pill" data-query="Forecast cash flow for the next 30 days and detect shortfalls">💧 Cash Flow Forecast (F002)</span>
+					<span class="lotus-quick-pill" data-query="Check risk signals for overdue AR spikes and AP clusters">⚠️ Risk Signals (F003)</span>
+					<span class="lotus-quick-pill" data-query="If revenue drops 20% and collections delay 15 days, how is cash flow impacted?">🔮 What-If: Sales -20%, AR Delay +15D (F004)</span>
+					<span class="lotus-quick-pill" data-query="Advise loan options for 1B VND working capital in 12 months">🏦 Financing Advice 1B VND (F005)</span>
+					<span class="lotus-quick-pill" data-query="Calculate 1B VND loan schedule at 8.5% for 12 months with +200 bps rate shock">📑 Repayment Schedule & Rate Shock (F006)</span>
 				</div>
 			</div>
 		` : "";
@@ -333,12 +333,12 @@ lotus_fin.components.ChatCopilot = class ChatCopilot {
 						<span style="font-size: 16px;">🤖 <b>${this.title}</b></span>
 						<span class="lotus-ai-badge">${this.badge}</span>
 					</div>
-					<button class="lotus-btn-secondary btn-clear-chat" style="font-size: 11px; padding: 4px 12px;" title="${__("Xóa lịch sử trò chuyện")}">
-						🗑️ ${__("Làm mới chat")}
+					<button class="lotus-btn-secondary btn-clear-chat" style="font-size: 11px; padding: 4px 12px;" title="${__("Clear conversation history")}">
+						🗑️ ${__("Reset Chat")}
 					</button>
 				</div>
 				<p class="text-muted" style="font-size: 13px; margin-bottom: 14px; line-height: 1.5;">
-					${__("Hỏi đáp bằng ngôn ngữ tự nhiên. AI hoạt động theo cơ chế <b>Agentic Tool Calling</b>: hiểu ngữ cảnh, gọi các công cụ tài chính chuyên sâu (F001 Sức khỏe, F002 Dòng tiền, F003 Rủi ro, F004 What-If, F005 Vay vốn, F006 Trả nợ) để tính toán chính xác và giải thích minh bạch.")}
+					${__("Natural language financial inquiry. AI operates via <b>Agentic Tool Calling</b>: understands context, orchestrates specialized financial tools (F001 Health, F002 Cash Flow, F003 Risk, F004 What-If, F005 Financing, F006 Repayment) to compute deterministic answers with transparent evidence.")}
 				</p>
 				${quickPillsHtml}
 				<div class="lotus-chat-container">
@@ -346,9 +346,9 @@ lotus_fin.components.ChatCopilot = class ChatCopilot {
 						<!-- Messages dynamically rendered here -->
 					</div>
 					<div class="lotus-chat-input-bar">
-						<input type="text" class="lotus-copilot-input input-copilot-query" placeholder="${__("Nhập câu hỏi tài chính bằng ngôn ngữ tự nhiên (Ví dụ: Doanh thu năm nay bao nhiêu? Tư vấn gói vay 1 tỷ?)...")}" />
+						<input type="text" class="lotus-copilot-input input-copilot-query" placeholder="${__("Enter financial inquiry (e.g., What is our revenue this year? Advise loan options for 1B VND?)...")}" />
 						<button class="lotus-chat-send-btn btn-ask-copilot">
-							<span>🚀 ${__("Gửi")}</span>
+							<span>🚀 ${__("Send")}</span>
 						</button>
 					</div>
 				</div>
@@ -402,14 +402,14 @@ lotus_fin.components.ChatCopilot = class ChatCopilot {
 							<b style="color: #0369a1;">Lotus Fin AI Copilot</b>
 						</div>
 						<div>
-							Xin chào! Tôi là trợ lý tài chính thông minh của bạn. Tôi hoạt động theo cơ chế <b>Agentic Tool Calling</b>: Tôi hiểu câu hỏi bằng ngôn ngữ tự nhiên và tự động điều phối các công cụ kế toán chuyên sâu (không tự bịa số liệu):
+							Hello! I am your AI Financial Copilot. I operate via deterministic <b>Agentic Tool Calling</b>: I understand natural language inquiries and autonomously coordinate verified accounting tools (with zero hallucinations):
 							<ul class="mb-0 mt-2 pl-3" style="line-height: 1.6;">
-								<li><b>F001 Sức khỏe tài chính:</b> Doanh thu, giá vốn, lãi gộp, số dư tiền mặt, công nợ AR/AP.</li>
-								<li><b>F002 Dự báo dòng tiền:</b> Quỹ đạo tiền mặt 30 ngày và nguy cơ thiếu hụt.</li>
-								<li><b>F003 Tín hiệu rủi ro:</b> Giám sát đột biến nợ quá hạn và áp lực thanh toán dồn ứ.</li>
-								<li><b>F004 Mô phỏng What-If:</b> Stress-test khi doanh số biến động hoặc khách hàng trả chậm.</li>
-								<li><b>F005 Tư vấn giải pháp vay:</b> Đối chiếu gói tín dụng ngân hàng theo điều kiện doanh nghiệp.</li>
-								<li><b>F006 Lập lịch trả nợ:</b> Tính toán lịch trả gốc lãi và kiểm tra khả năng chịu đựng khi sốc lãi suất (+bps).</li>
+								<li><b>F001 Financial Health:</b> Revenue, COGS, gross margin, cash balance, and AR/AP aging.</li>
+								<li><b>F002 Cash Flow Forecast:</b> 30-day cash trajectory and liquidity deficit detection.</li>
+								<li><b>F003 Risk Signals:</b> Continuous monitoring of overdue AR spikes and AP payment clusters.</li>
+								<li><b>F004 What-If Studio:</b> Multi-variable stress testing across 9 mission-critical financial KPIs.</li>
+								<li><b>F005 Financing Advisor:</b> Deterministic SME loan package matching against bank criteria.</li>
+								<li><b>F006 Repayment Schedule:</b> Principal and interest amortization simulation under rate shocks (+bps).</li>
 							</ul>
 						</div>
 					</div>
@@ -423,7 +423,7 @@ lotus_fin.components.ChatCopilot = class ChatCopilot {
 		const me = this;
 		const company = this.get_company();
 		if (!company) {
-			frappe.msgprint(__("Vui lòng chọn công ty trước khi trò chuyện với AI Copilot."));
+			frappe.msgprint(__("Please select a company before chatting with AI Copilot."));
 			return;
 		}
 		if (!query || !query.trim()) return;
@@ -443,7 +443,7 @@ lotus_fin.components.ChatCopilot = class ChatCopilot {
 				<div class="lotus-msg-bubble">
 					<span class="lotus-chat-loading-dots">
 						<i class="octicon octicon-sync"></i> 
-						<span>Đang phân tích ý định và kích hoạt công cụ kế toán...</span>
+						<span>Analyzing intent and activating accounting tools...</span>
 					</span>
 				</div>
 			</div>
@@ -464,7 +464,7 @@ lotus_fin.components.ChatCopilot = class ChatCopilot {
 
 				if (r.exc || !r.message) {
 					me.append_copilot_msg({
-						reply: "Rất tiếc, máy chủ phản hồi lỗi khi xử lý câu hỏi. Vui lòng thử lại sau.",
+						reply: "Server encountered an error processing inquiry. Please try again later.",
 						tool_called: null
 					});
 					return;
@@ -478,7 +478,7 @@ lotus_fin.components.ChatCopilot = class ChatCopilot {
 				me.$thread.find("#lotus-chat-loading").remove();
 				me.$sendBtn.prop("disabled", false);
 				me.append_copilot_msg({
-					reply: "Không thể kết nối tới dịch vụ AI Copilot. Vui lòng kiểm tra kết nối mạng.",
+					reply: "Unable to connect to AI Copilot service. Please verify your network connection.",
 					tool_called: null
 				});
 				me.$thread.scrollTop(me.$thread[0].scrollHeight);
@@ -496,7 +496,7 @@ lotus_fin.components.ChatCopilot = class ChatCopilot {
 			toolBadgeHtml = `
 				<div class="lotus-chat-tool-badge">
 					<span>⚙️</span>
-					<span>Đã chạy công cụ: <b>${frappe.utils.escape_html(toolLabel)}</b> (<code>${frappe.utils.escape_html(toolCalled)}</code>)</span>
+					<span>Executed Tool: <b>${frappe.utils.escape_html(toolLabel)}</b> (<code>${frappe.utils.escape_html(toolCalled)}</code>)</span>
 				</div>
 			`;
 		}
@@ -527,19 +527,19 @@ lotus_fin.components.ChatCopilot = class ChatCopilot {
 			const intStr = frappe.format(output.total_interest, { fieldtype: "Currency", currency: "VND" });
 			const shockHtml = output.shock_bps > 0 ? `
 				<div class="mt-1 text-danger font-weight-bold" style="font-size: 11px;">
-					⚠️ Sốc lãi (+${output.shock_bps} bps): Chi phí lãi tăng thêm +${frappe.format(output.shock_added_interest, { fieldtype: "Currency", currency: "VND" })}
+					⚠️ Rate Shock (+${output.shock_bps} bps): Additional interest cost +${frappe.format(output.shock_added_interest, { fieldtype: "Currency", currency: "VND" })}
 				</div>
 			` : "";
 
 			return `
 				<div class="lotus-chat-widget">
 					<div class="d-flex justify-content-between align-items-center">
-						<b>📑 Tóm tắt Kế hoạch Trả nợ:</b>
-						<a href="/desk/repayment-schedule" class="badge badge-light" style="border: 1px solid #cbd5e1;">Mở Studio &rarr;</a>
+						<b>📑 Repayment Schedule Summary:</b>
+						<a href="/desk/repayment-schedule" class="badge badge-light" style="border: 1px solid #cbd5e1;">Open Studio &rarr;</a>
 					</div>
 					<div class="row mt-2" style="font-size: 12px;">
-						<div class="col-6">Trả hàng tháng: <b class="text-primary">${pmtStr}</b></div>
-						<div class="col-6">Tổng tiền lãi: <b class="text-warning">${intStr}</b></div>
+						<div class="col-6">Monthly Payment: <b class="text-primary">${pmtStr}</b></div>
+						<div class="col-6">Total Interest: <b class="text-warning">${intStr}</b></div>
 					</div>
 					${shockHtml}
 				</div>
@@ -561,7 +561,7 @@ lotus_fin.components.ChatCopilot = class ChatCopilot {
 							<span class="badge badge-success">${p.match_score}/100</span>
 						</div>
 						<div class="mt-1 text-muted" style="font-size: 11px;">
-							Lãi suất: <b class="text-success">${rate}%/năm</b> &bull; Lãi tạm tính: <b>~${interest}/tháng</b> &bull; Giải ngân: <b>${p.disbursement_speed_days} ngày</b>
+							Interest Rate: <b class="text-success">${rate}%/yr</b> &bull; Est. Interest: <b>~${interest}/month</b> &bull; Disbursement: <b>${p.disbursement_speed_days} Days</b>
 						</div>
 					</div>
 				`;
@@ -569,8 +569,8 @@ lotus_fin.components.ChatCopilot = class ChatCopilot {
 			return `
 				<div class="lotus-chat-widget">
 					<div class="d-flex justify-content-between align-items-center mb-2">
-						<b>🏆 Thẻ tóm tắt gói vay phù hợp:</b>
-						<a href="/desk/financing-copilot" class="badge badge-light" style="border: 1px solid #cbd5e1;">Xem toàn bộ &rarr;</a>
+						<b>🏆 Matched Financing Packages:</b>
+						<a href="/desk/financing-copilot" class="badge badge-light" style="border: 1px solid #cbd5e1;">View All &rarr;</a>
 					</div>
 					<div>${cards}</div>
 				</div>
@@ -582,11 +582,11 @@ lotus_fin.components.ChatCopilot = class ChatCopilot {
 			return `
 				<div class="lotus-chat-widget">
 					<div class="d-flex justify-content-between align-items-center">
-						<b>⚠️ Trạng thái Tín hiệu Rủi ro:</b>
-						<a href="/desk/risk-signal" class="badge badge-light" style="border: 1px solid #cbd5e1;">Mở Risk Agent &rarr;</a>
+						<b>⚠️ Risk Signal Status:</b>
+						<a href="/desk/risk-signal" class="badge badge-light" style="border: 1px solid #cbd5e1;">Open Risk Agent &rarr;</a>
 					</div>
 					<div class="mt-1" style="font-size: 12px;">
-						Tín hiệu: <code>${frappe.utils.escape_html(output.signal_id)}</code> &bull; Mức độ: <b class="text-warning">${output.severity}</b> &bull; Status: <b>${output.status}</b>
+						Signal: <code>${frappe.utils.escape_html(output.signal_id)}</code> &bull; Severity: <b class="text-warning">${output.severity}</b> &bull; Status: <b>${output.status}</b>
 					</div>
 				</div>
 			`;
@@ -605,8 +605,8 @@ lotus_fin.components.ChatCopilot = class ChatCopilot {
 				return `
 					<div class="lotus-chat-widget">
 						<div class="d-flex justify-content-between align-items-center mb-2">
-							<b>📋 Chỉ số tài chính trích xuất:</b>
-							<a href="/desk/financial-health" class="badge badge-light" style="border: 1px solid #cbd5e1;">Xem Báo cáo &rarr;</a>
+							<b>📋 Extracted Financial Metrics:</b>
+							<a href="/desk/financial-health" class="badge badge-light" style="border: 1px solid #cbd5e1;">View Report &rarr;</a>
 						</div>
 						<div class="d-flex flex-wrap">${pills}</div>
 					</div>
@@ -631,8 +631,8 @@ lotus_fin.components.ChatCopilot = class ChatCopilot {
 			return `
 				<div class="lotus-chat-widget">
 					<div class="d-flex justify-content-between align-items-center mb-2">
-						<b>🔮 Kết quả mô phỏng 9-KPI:</b>
-						<a href="/desk/what-if-studio" class="badge badge-light" style="border: 1px solid #cbd5e1;">Mở Studio &rarr;</a>
+						<b>🔮 What-If 9-KPI Simulation:</b>
+						<a href="/desk/what-if-studio" class="badge badge-light" style="border: 1px solid #cbd5e1;">Open Studio &rarr;</a>
 					</div>
 					<div>${rows}</div>
 				</div>
@@ -677,183 +677,183 @@ lotus_fin.components.WhatIfStudio = class WhatIfStudio {
 						<span class="lotus-ai-badge" style="background: #ede9fe; color: #6d28d9;">${this.badge}</span>
 					</div>
 					<div class="d-flex gap-1">
-						<button class="lotus-btn-secondary btn-reset-sim-defaults" style="font-size: 11px; padding: 4px 12px;" title="${__("Khôi phục kịch bản gốc")}">
-							↺ ${__("Mặc định")}
+						<button class="lotus-btn-secondary btn-reset-sim-defaults" style="font-size: 11px; padding: 4px 12px;" title="${__("Reset to default scenario")}">
+							↺ ${__("Default")}
 						</button>
 					</div>
 				</div>
 				<p class="text-muted" style="font-size: 12px; margin-bottom: 14px;">
-					${__("Mô phỏng áp lực tài chính đa biến theo tiêu chuẩn định lượng (Stress-Testing). Khảo sát tác động đồng thời của biến động doanh số, độ trễ thanh toán AR/AP, chi phí vận hành định phí và gói tài trợ vốn lên 9 chỉ số sống còn của doanh nghiệp.")}
+					${__("Multi-variable quantitative stress-testing simulation. Evaluate the simultaneous impact of sales shocks, AR/AP payment delays, fixed OPEX changes, and capital financing injections across 9 mission-critical business KPIs.")}
 				</p>
 
-				<!-- Kịch bản stress-test mẫu cấu hình sẵn -->
+				<!-- Preconfigured stress presets -->
 				<div class="mb-3">
-					<span class="text-muted" style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">🎯 ${__("Kịch bản áp lực tiêu biểu (Stress Presets):")}</span>
+					<span class="text-muted" style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">🎯 ${__("Preconfigured Stress Presets:")}</span>
 					<div class="lotus-preset-scenarios mt-1">
 						<button class="lotus-preset-btn" data-preset="sales_slump">
-							📉 <b>${__("Khủng hoảng cầu (Sales Slump -30%)")}</b>
+							📉 <b>${__("Demand Shock (Sales Slump -30%)")}</b>
 						</button>
 						<button class="lotus-preset-btn" data-preset="credit_crunch">
-							⏱️ <b>${__("Nợ đọng kéo dài (AR Delay +30 ngày)")}</b>
+							⏱️ <b>${__("Delayed Collections (AR Delay +30 Days)")}</b>
 						</button>
 						<button class="lotus-preset-btn" data-preset="cost_inflation">
-							📈 <b>${__("Lạm phát chi phí (OPEX +20%, Lương +10%)")}</b>
+							📈 <b>${__("Cost Inflation (OPEX +20%, Payroll +10%)")}</b>
 						</button>
 						<button class="lotus-preset-btn" data-preset="black_swan">
-							⚡ <b>${__("Cú sốc kép (Doanh thu -25%, Khách trễ 20N, Chi phí +15%)")}</b>
+							⚡ <b>${__("Compound Crisis (Sales -25%, AR +20D, OPEX +15%)")}</b>
 						</button>
 						<button class="lotus-preset-btn" data-preset="growth_injection">
-							🚀 <b>${__("Tăng tốc mở rộng (Doanh số +30%, Vay 500tr)")}</b>
+							🚀 <b>${__("Growth Expansion (Sales +30%, Debt 500M)")}</b>
 						</button>
 					</div>
 				</div>
 
-				<!-- Khối tham số 1: Thị trường & Doanh thu & Công nợ -->
+				<!-- Parameter block 1: Market & Revenue & Receivables -->
 				<div class="lotus-sim-group-title">
-					<span>📊 Nhóm 1: Doanh thu & Chu kỳ Công nợ thương mại (AR / AP)</span>
+					<span>📊 Group 1: Revenue & Working Capital Cycles (AR / AP)</span>
 				</div>
 				<div class="lotus-sim-grid-section">
 					<div class="lotus-sim-box">
 						<div class="lotus-sim-box-title">
-							<span>${__("Biến động Doanh thu thuần")}</span>
+							<span>${__("Net Revenue Change")}</span>
 							<span class="lotus-sim-val-badge negative" id="val-sim-sales">-15%</span>
 						</div>
 						<input type="range" class="custom-range" id="input-sim-sales" min="-50" max="50" step="5" value="-15">
 						<div class="d-flex justify-content-between text-muted" style="font-size: 10px; margin-top: 4px;">
-							<span>-50% (Suy thoái sâu)</span>
-							<span>0% (Cơ sở)</span>
-							<span>+50% (Tăng trưởng)</span>
+							<span>-50% (Deep Slump)</span>
+							<span>0% (Baseline)</span>
+							<span>+50% (High Growth)</span>
 						</div>
-						<div class="lotus-sim-subhint">${__("Tác động trực tiếp đến dòng tiền vào và biên lợi nhuận gộp.")}</div>
+						<div class="lotus-sim-subhint">${__("Directly impacts cash inflow and gross profit margin.")}</div>
 					</div>
 
 					<div class="lotus-sim-box">
 						<div class="lotus-sim-box-title">
-							<span>${__("Khách hàng thanh toán chậm (DSO Shift)")}</span>
-							<span class="lotus-sim-val-badge" id="val-sim-delay">+15 ngày</span>
+							<span>${__("Customer Payment Delay (DSO Shift)")}</span>
+							<span class="lotus-sim-val-badge" id="val-sim-delay">+15 Days</span>
 						</div>
 						<input type="range" class="custom-range" id="input-sim-delay" min="0" max="60" step="5" value="15">
 						<div class="d-flex justify-content-between text-muted" style="font-size: 10px; margin-top: 4px;">
-							<span>0 ngày (Đúng hạn)</span>
-							<span>+30 ngày</span>
-							<span>+60 ngày (Nợ khó đòi)</span>
+							<span>0 Days (On-Time)</span>
+							<span>+30 Days</span>
+							<span>+60 Days (Delinquent)</span>
 						</div>
-						<div class="lotus-sim-subhint">${__("Làm tăng công nợ AR treo và kéo dài chu kỳ tiền mặt CCC.")}</div>
+						<div class="lotus-sim-subhint">${__("Increases uncollected AR and lengthens Cash Conversion Cycle.")}</div>
 					</div>
 
 					<div class="lotus-sim-box">
 						<div class="lotus-sim-box-title">
-							<span>${__("Đàm phán giãn nợ Nhà cung cấp (DPO Shift)")}</span>
-							<span class="lotus-sim-val-badge" id="val-sim-supplier">0 ngày</span>
+							<span>${__("Supplier Payment Extension (DPO Shift)")}</span>
+							<span class="lotus-sim-val-badge" id="val-sim-supplier">0 Days</span>
 						</div>
 						<input type="range" class="custom-range" id="input-sim-supplier" min="-30" max="60" step="5" value="0">
 						<div class="d-flex justify-content-between text-muted" style="font-size: 10px; margin-top: 4px;">
-							<span>-30 ngày (Bị siết nợ)</span>
-							<span>0 ngày</span>
-							<span>+60 ngày (Tối ưu vốn)</span>
+							<span>-30 Days (Tight Credit)</span>
+							<span>0 Days</span>
+							<span>+60 Days (Capital Optimization)</span>
 						</div>
-						<div class="lotus-sim-subhint">${__("Hoãn thanh toán phải trả AP để bảo toàn số dư tiền mặt.")}</div>
+						<div class="lotus-sim-subhint">${__("Postpones AP disbursements to conserve cash buffer.")}</div>
 					</div>
 				</div>
 
-				<!-- Khối tham số 2: Chi phí vận hành & Cú sốc phát sinh -->
+				<!-- Parameter block 2: Operating Expenses & Shocks -->
 				<div class="lotus-sim-group-title">
-					<span>🏢 Nhóm 2: Chi phí vận hành (OPEX), Quỹ lương & Cú sốc đột xuất</span>
+					<span>🏢 Group 2: Operating Expenses (OPEX), Payroll & One-Off Shocks</span>
 				</div>
 				<div class="lotus-sim-grid-section">
 					<div class="lotus-sim-box">
 						<div class="lotus-sim-box-title">
-							<span>${__("Biến động Chi phí Vận hành (OPEX)")}</span>
+							<span>${__("Operating Expenses Change (OPEX)")}</span>
 							<span class="lotus-sim-val-badge" id="val-sim-opex">0%</span>
 						</div>
 						<input type="range" class="custom-range" id="input-sim-opex" min="-30" max="50" step="5" value="0">
 						<div class="d-flex justify-content-between text-muted" style="font-size: 10px; margin-top: 4px;">
-							<span>-30% (Thắt chặt chi phí)</span>
+							<span>-30% (Austerity)</span>
 							<span>0%</span>
-							<span>+50% (Đội chi phí)</span>
+							<span>+50% (Overrun)</span>
 						</div>
-						<div class="lotus-sim-subhint">${__("Thuê mặt bằng, marketing, logistic, điện nước, hành chính...")}</div>
+						<div class="lotus-sim-subhint">${__("Leasing, marketing, logistics, utilities, admin overhead...")}</div>
 					</div>
 
 					<div class="lotus-sim-box">
 						<div class="lotus-sim-box-title">
-							<span>${__("Biến động Quỹ lương & Nhân sự (Payroll)")}</span>
+							<span>${__("Payroll & Compensation Change")}</span>
 							<span class="lotus-sim-val-badge" id="val-sim-payroll">0%</span>
 						</div>
 						<input type="range" class="custom-range" id="input-sim-payroll" min="-30" max="40" step="5" value="0">
 						<div class="d-flex justify-content-between text-muted" style="font-size: 10px; margin-top: 4px;">
-							<span>-30% (Cắt giảm nhân sự)</span>
+							<span>-30% (Downsizing)</span>
 							<span>0%</span>
-							<span>+40% (Mở rộng tuyển dụng)</span>
+							<span>+40% (Aggressive Hiring)</span>
 						</div>
-						<div class="lotus-sim-subhint">${__("Lương cứng, bảo hiểm, thưởng định kỳ của toàn công ty.")}</div>
+						<div class="lotus-sim-subhint">${__("Base salaries, social insurance, and company-wide compensation.")}</div>
 					</div>
 
 					<div class="lotus-sim-box">
 						<div class="lotus-sim-box-title">
-							<span>${__("Chi phí đột xuất phát sinh (One-off Shock)")}</span>
+							<span>${__("One-Off Shock Expense")}</span>
 							<span class="lotus-sim-val-badge" id="val-sim-one-off">0 VND</span>
 						</div>
 						<select class="lotus-sim-input" id="input-sim-one-off">
-							<option value="0" selected>${__("Không phát sinh (0 VND)")}</option>
-							<option value="50000000">50.000.000 VND (Sửa chữa máy móc/thiết bị)</option>
-							<option value="100000000">100.000.000 VND (Truy thu thuế / phạt hành chính)</option>
-							<option value="200000000">200.000.000 VND (Đặt cọc mở rộng chi nhánh mới)</option>
+							<option value="0" selected>${__("None (0 VND)")}</option>
+							<option value="50000000">50,000,000 VND (Equipment Repair / Overhaul)</option>
+							<option value="100000000">100,000,000 VND (Tax Arrears / Regulatory Penalty)</option>
+							<option value="200000000">200,000,000 VND (New Branch Lease Deposit)</option>
 						</select>
-						<div class="lotus-sim-subhint">${__("Khoản rút tiền đột xuất một lần tạo áp lực thanh khoản ngay lập tức.")}</div>
+						<div class="lotus-sim-subhint">${__("Lump-sum cash outflow creating immediate liquidity pressure.")}</div>
 					</div>
 				</div>
 
-				<!-- Khối tham số 3: Tiếp nhận vốn vay & Lãi suất tài trợ -->
+				<!-- Parameter block 3: Debt Financing & Capital Injection -->
 				<div class="lotus-sim-group-title">
-					<span>💰 Nhóm 3: Tài trợ Vốn vay & Cấu trúc Tín dụng bổ sung (AI-F005)</span>
+					<span>💰 Group 3: Debt Financing & Capital Injection (AI-F005)</span>
 				</div>
 				<div class="lotus-sim-grid-section">
 					<div class="lotus-sim-box">
 						<div class="lotus-sim-box-title">
-							<span>${__("Gói Tín dụng Tiếp nhận")}</span>
+							<span>${__("Debt Financing Facility")}</span>
 						</div>
 						<select class="lotus-sim-input" id="input-sim-financing">
-							<option value="0">${__("Không nhận vốn bổ sung (Tự cân đối)")}</option>
-							<option value="200000000">200.000.000 VND (Vay thấu chi / hạn mức)</option>
-							<option value="300000000" selected>300.000.000 VND (Vay bổ sung VLĐ ngắn hạn)</option>
-							<option value="500000000">500.000.000 VND (Vay trung hạn mở rộng)</option>
-							<option value="1000000000">1.000.000.000 VND (Gói hợp vốn ngân hàng)</option>
+							<option value="0">${__("No External Debt (Self-Funded)")}</option>
+							<option value="200000000">200,000,000 VND (Overdraft / Working Capital Line)</option>
+							<option value="300000000" selected>300,000,000 VND (Short-Term Working Capital Loan)</option>
+							<option value="500000000">500,000,000 VND (Medium-Term Expansion Loan)</option>
+							<option value="1000000000">1,000,000,000 VND (Syndicated Bank Facility)</option>
 						</select>
-						<div class="lotus-sim-subhint">${__("Số tiền giải ngân sẽ bơm trực tiếp vào dòng tiền ròng của kỳ.")}</div>
+						<div class="lotus-sim-subhint">${__("Disbursed proceeds are directly injected into net cash flow.")}</div>
 					</div>
 
 					<div class="lotus-sim-box">
 						<div class="lotus-sim-box-title">
-							<span>${__("Thời hạn vay (Kỳ hạn)")}</span>
+							<span>${__("Loan Tenure (Months)")}</span>
 						</div>
 						<select class="lotus-sim-input" id="input-sim-fin-term">
-							<option value="6">6 tháng (Vay lưu động ngắn hạn)</option>
-							<option value="12" selected>12 tháng (Tiêu chuẩn tài trợ 1 năm)</option>
-							<option value="24">24 tháng (Trung hạn)</option>
-							<option value="36">36 tháng (Đầu tư dài hạn)</option>
+							<option value="6">6 Months (Short-term Working Capital)</option>
+							<option value="12" selected>12 Months (Standard 1-Year Facility)</option>
+							<option value="24">24 Months (Medium-term Facility)</option>
+							<option value="36">36 Months (Long-term CAPEX Facility)</option>
 						</select>
-						<div class="lotus-sim-subhint">${__("Ảnh hưởng đến tốc độ phân bổ hoàn trả và chi phí lãi.")}</div>
+						<div class="lotus-sim-subhint">${__("Determines repayment amortization pace and monthly interest.")}</div>
 					</div>
 
 					<div class="lotus-sim-box">
 						<div class="lotus-sim-box-title">
-							<span>${__("Lãi suất danh nghĩa hàng năm (%/năm)")}</span>
-							<span class="lotus-sim-val-badge positive" id="val-sim-rate">9.5%/năm</span>
+							<span>${__("Annual Nominal Interest Rate (%/Year)")}</span>
+							<span class="lotus-sim-val-badge positive" id="val-sim-rate">9.5%/yr</span>
 						</div>
 						<input type="range" class="custom-range" id="input-sim-rate" min="5" max="18" step="0.5" value="9.5">
 						<div class="d-flex justify-content-between text-muted" style="font-size: 10px; margin-top: 4px;">
-							<span>5.0% (Ưu đãi)</span>
-							<span>9.5% (Thị trường)</span>
-							<span>18.0% (Tín chấp cao)</span>
+							<span>5.0% (Concessional)</span>
+							<span>9.5% (Market Rate)</span>
+							<span>18.0% (Unsecured/High Risk)</span>
 						</div>
-						<div class="lotus-sim-subhint">${__("Chi phí lãi vay phát sinh được trừ vào dòng tiền thuần kỳ.")}</div>
+						<div class="lotus-sim-subhint">${__("Interest expenses are deducted from net operational cash flow.")}</div>
 					</div>
 				</div>
 
 				<div class="mb-3 d-flex gap-2">
 					<button class="lotus-sim-btn btn-run-simulation" style="padding: 10px 24px; font-size: 14px; background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%); box-shadow: 0 2px 6px rgba(13, 148, 136, 0.3);">
-						🚀 ${__("Chạy mô phỏng Stress-Test (Định lượng 9 KPIs)")}
+						🚀 ${__("Run Stress-Test Simulation (9-KPI Engine)")}
 					</button>
 				</div>
 				<div class="lotus-simulation-result-container">
@@ -877,12 +877,12 @@ lotus_fin.components.WhatIfStudio = class WhatIfStudio {
 		});
 
 		this.$el.on("input", "#input-sim-delay", function () {
-			me.$el.find("#val-sim-delay").text("+" + $(this).val() + " ngày");
+			me.$el.find("#val-sim-delay").text("+" + $(this).val() + " Days");
 		});
 
 		this.$el.on("input", "#input-sim-supplier", function () {
 			const val = $(this).val();
-			me.$el.find("#val-sim-supplier").text((val > 0 ? "+" : "") + val + " ngày");
+			me.$el.find("#val-sim-supplier").text((val > 0 ? "+" : "") + val + " Days");
 		});
 
 		this.$el.on("input", "#input-sim-opex", function () {
@@ -907,7 +907,7 @@ lotus_fin.components.WhatIfStudio = class WhatIfStudio {
 		});
 
 		this.$el.on("input", "#input-sim-rate", function () {
-			me.$el.find("#val-sim-rate").text($(this).val() + "%/năm");
+			me.$el.find("#val-sim-rate").text($(this).val() + "%/yr");
 		});
 
 		this.$el.on("click", ".lotus-preset-btn", function () {
@@ -979,7 +979,7 @@ lotus_fin.components.WhatIfStudio = class WhatIfStudio {
 		const finTerm = parseInt(this.$el.find("#input-sim-fin-term").val()) || 12;
 		const finRate = (parseFloat(this.$el.find("#input-sim-rate").val()) || 9.5) / 100.0;
 
-		this.$result.html(`<div class="text-muted p-3 text-center"><i class="octicon octicon-sync"></i> ${__("Đang chạy mô hình stress-test 9 lớp chỉ số tài chính...")}</div>`);
+		this.$result.html(`<div class="text-muted p-3 text-center"><i class="octicon octicon-sync"></i> ${__("Running 9-layer financial stress-testing model...")}</div>`);
 
 		frappe.call({
 			method: "lotus_fin.AI005.service.simulate_what_if",
@@ -997,7 +997,7 @@ lotus_fin.components.WhatIfStudio = class WhatIfStudio {
 			},
 			callback(r) {
 				if (r.exc || !r.message) {
-					me.$result.html(`<div class="lotus-banner lotus-banner-danger">${__("Không thể chạy mô phỏng kịch bản. Vui lòng kiểm tra tham số đầu vào.")}</div>`);
+					me.$result.html(`<div class="lotus-banner lotus-banner-danger">${__("Failed to run scenario simulation. Please check input parameters.")}</div>`);
 					return;
 				}
 				me.render_simulation_result(r.message);
@@ -1023,7 +1023,7 @@ lotus_fin.components.WhatIfStudio = class WhatIfStudio {
 		const impactCardsHtml = `
 			<div class="lotus-impact-cards-grid mt-3">
 				<div class="lotus-impact-card ${endingCashStatus}">
-					<div class="lotus-impact-card-title">💵 ${__("Tiền mặt cuối kỳ (Ending Cash)")}</div>
+					<div class="lotus-impact-card-title">💵 ${__("Ending Cash Balance")}</div>
 					<div class="lotus-impact-card-val">${this.format_sim_val(endingCash.simulation, { is_currency: true })}</div>
 					<div class="lotus-impact-card-delta ${endingCash.absolute_change < 0 ? 'delta-down' : 'delta-up'}">
 						<span>${endingCash.absolute_change >= 0 ? '▲ +' : '▼ '}${this.format_sim_val(endingCash.absolute_change, { is_currency: true })}</span>
@@ -1032,7 +1032,7 @@ lotus_fin.components.WhatIfStudio = class WhatIfStudio {
 				</div>
 
 				<div class="lotus-impact-card ${ncfStatus}">
-					<div class="lotus-impact-card-title">🌊 ${__("Dòng tiền thuần (Net Cash Flow)")}</div>
+					<div class="lotus-impact-card-title">🌊 ${__("Net Cash Flow")}</div>
 					<div class="lotus-impact-card-val">${this.format_sim_val(ncf.simulation, { is_currency: true })}</div>
 					<div class="lotus-impact-card-delta ${ncf.absolute_change < 0 ? 'delta-down' : 'delta-up'}">
 						<span>${ncf.absolute_change >= 0 ? '▲ +' : '▼ '}${this.format_sim_val(ncf.absolute_change, { is_currency: true })}</span>
@@ -1040,7 +1040,7 @@ lotus_fin.components.WhatIfStudio = class WhatIfStudio {
 				</div>
 
 				<div class="lotus-impact-card status-healthy">
-					<div class="lotus-impact-card-title">📈 ${__("Doanh thu sau sốc (Revenue)")}</div>
+					<div class="lotus-impact-card-title">📈 ${__("Post-Shock Net Revenue")}</div>
 					<div class="lotus-impact-card-val">${this.format_sim_val(rev.simulation, { is_currency: true })}</div>
 					<div class="lotus-impact-card-delta ${rev.absolute_change < 0 ? 'delta-down' : 'delta-up'}">
 						<span>${rev.absolute_change >= 0 ? '▲ +' : '▼ '}${this.format_sim_val(rev.absolute_change, { is_currency: true })}</span>
@@ -1048,7 +1048,7 @@ lotus_fin.components.WhatIfStudio = class WhatIfStudio {
 				</div>
 
 				<div class="lotus-impact-card ${ccc.simulation > 90 ? 'status-warning' : 'status-healthy'}">
-					<div class="lotus-impact-card-title">⏳ ${__("Chu kỳ tiền mặt (Cash Conversion Cycle)")}</div>
+					<div class="lotus-impact-card-title">⏳ ${__("Cash Conversion Cycle (CCC)")}</div>
 					<div class="lotus-impact-card-val">${this.format_sim_val(ccc.simulation, { is_days: true })}</div>
 					<div class="lotus-impact-card-delta ${ccc.absolute_change > 0 ? 'delta-down' : 'delta-up'}">
 						<span>${ccc.absolute_change >= 0 ? '▲ +' : '▼ '}${this.format_sim_val(ccc.absolute_change, { is_days: true })}</span>
@@ -1058,15 +1058,15 @@ lotus_fin.components.WhatIfStudio = class WhatIfStudio {
 		`;
 
 		const kpiList = [
-			{ id: "revenue", label: __("1. Doanh thu thuần (Revenue)"), desc: __("Quy mô bán hàng sau cú sốc"), is_currency: true },
-			{ id: "gross_profit", label: __("2. Lợi nhuận gộp (Gross Profit)"), desc: __("Lãi gộp đóng góp trang trải định phí"), is_currency: true },
-			{ id: "gross_margin", label: __("3. Biên lợi nhuận gộp (Gross Margin)"), desc: __("Tỷ suất sinh lời trực tiếp"), is_ratio: true },
-			{ id: "ar_outstanding", label: __("4. Công nợ phải thu (AR)"), desc: __("Vốn lưu động đang bị khách hàng chiếm dụng"), is_currency: true },
-			{ id: "dso", label: __("5. Số ngày thu tiền bình quân (DSO)"), desc: __("Độ trễ dòng tiền vào"), is_days: true },
-			{ id: "net_cash_flow", label: __("6. Dòng tiền thuần kỳ (Net Cash Flow)"), desc: __("Dòng tiền vào trừ toàn bộ chi trả và lãi vay"), is_currency: true },
-			{ id: "ending_cash", label: __("7. Số dư tiền mặt cuối kỳ (Ending Cash)"), desc: __("Bộ đệm thanh khoản tiền & ngân hàng"), is_currency: true },
-			{ id: "ccc", label: __("8. Chu kỳ chuyển hóa tiền (CCC)"), desc: __("Thời gian từ chi tiền mua hàng đến khi thu được tiền"), is_days: true },
-			{ id: "cash_shortfall", label: __("9. Mức độ thâm hụt thanh khoản (Shortfall)"), desc: __("Chênh lệch thiếu hụt so với bộ đệm an toàn 50tr VND"), is_currency: true }
+			{ id: "revenue", label: __("1. Net Revenue (Revenue)"), desc: __("Sales volume after simulated shock"), is_currency: true },
+			{ id: "gross_profit", label: __("2. Gross Profit"), desc: __("Gross profit contribution to fixed overhead"), is_currency: true },
+			{ id: "gross_margin", label: __("3. Gross Margin (%)"), desc: __("Direct product profitability margin"), is_ratio: true },
+			{ id: "ar_outstanding", label: __("4. Accounts Receivable (AR)"), desc: __("Working capital locked in uncollected receivables"), is_currency: true },
+			{ id: "dso", label: __("5. Days Sales Outstanding (DSO)"), desc: __("Average customer collection latency"), is_days: true },
+			{ id: "net_cash_flow", label: __("6. Net Cash Flow"), desc: __("Cash inflows minus all cash operating outflows and debt service"), is_currency: true },
+			{ id: "ending_cash", label: __("7. Ending Cash Balance"), desc: __("Total available liquidity buffer across accounts"), is_currency: true },
+			{ id: "ccc", label: __("8. Cash Conversion Cycle (CCC)"), desc: __("Days from cash outflow for inventory to cash receipt"), is_days: true },
+			{ id: "cash_shortfall", label: __("9. Liquidity Shortfall Deficit"), desc: __("Deficit amount relative to 50M VND safety reserve buffer"), is_currency: true }
 		];
 
 		let rowsHtml = "";
@@ -1106,10 +1106,10 @@ lotus_fin.components.WhatIfStudio = class WhatIfStudio {
 		if (res.shortfall_events && res.shortfall_events.length > 0) {
 			const eventsHtml = res.shortfall_events.map(e => `
 				<li class="mb-1">
-					<b>[${frappe.utils.escape_html(e.date || "Kỳ phân tích")} - ${e.urgency_level || "CRITICAL"}]:</b> 
-					Số dư tiền giảm sâu còn <b>${frappe.format(e.projected_cash, { fieldtype: "Currency", currency: "VND" })}</b>, 
-					thâm hụt dòng tiền <b>${frappe.format(e.deficit_amount, { fieldtype: "Currency", currency: "VND" })}</b>.
-					<div class="text-danger mt-1">👉 <b>Hành động xử lý:</b> ${frappe.utils.escape_html(e.recommended_action || "Cần bù đắp thanh khoản khẩn cấp.")}</div>
+					<b>[${frappe.utils.escape_html(e.date || "Analysis Horizon")} - ${e.urgency_level || "CRITICAL"}]:</b> 
+					Projected cash balance drops to <b>${frappe.format(e.projected_cash, { fieldtype: "Currency", currency: "VND" })}</b>, 
+					resulting in a cash deficit of <b>${frappe.format(e.deficit_amount, { fieldtype: "Currency", currency: "VND" })}</b>.
+					<div class="text-danger mt-1">👉 <b>Action Plan:</b> ${frappe.utils.escape_html(e.recommended_action || "Urgent liquidity infusion required.")}</div>
 				</li>
 			`).join("");
 			shortfallAlert = `
@@ -1117,7 +1117,7 @@ lotus_fin.components.WhatIfStudio = class WhatIfStudio {
 					<div class="d-flex align-items-start">
 						<span style="font-size: 20px; margin-right: 10px;">⚠️</span>
 						<div>
-							<b style="color: #b91c1c; font-size: 13px;">CẢNH BÁO RỦI RO THANH KHOẢN TRỌNG YẾU (LIQUIDITY STRESS ALERT):</b>
+							<b style="color: #b91c1c; font-size: 13px;">CRITICAL LIQUIDITY STRESS ALERT:</b>
 							<ul class="mb-0 pl-3 mt-1" style="font-size: 12px; line-height: 1.6;">${eventsHtml}</ul>
 						</div>
 					</div>
@@ -1129,9 +1129,9 @@ lotus_fin.components.WhatIfStudio = class WhatIfStudio {
 					<div class="d-flex align-items-center">
 						<span style="font-size: 20px; margin-right: 10px;">🛡️</span>
 						<div>
-							<b style="color: #15803d; font-size: 13px;">KỊCH BẢN VƯỢT QUA BÀI KIỂM TRA ÁP LỰC (STRESS TEST PASSED):</b>
+							<b style="color: #15803d; font-size: 13px;">STRESS TEST PASSED (NO SHORTFALL):</b>
 							<div class="text-muted" style="font-size: 12px; margin-top: 2px;">
-								Dưới các giả định sốc đã áp dụng, doanh nghiệp vẫn bảo toàn được số dư tiền mặt trên ngưỡng an toàn tối thiểu và không bị âm dòng tiền thanh khoản.
+								Under all applied shock assumptions, the business successfully maintains its cash buffer above the minimum threshold without liquidity insolvency.
 							</div>
 						</div>
 					</div>
@@ -1145,12 +1145,12 @@ lotus_fin.components.WhatIfStudio = class WhatIfStudio {
 				<table class="lotus-table">
 					<thead>
 						<tr>
-							<th style="width: 32%;">${__("Chỉ số KPI Chiến lược")}</th>
-							<th style="width: 15%;">${__("Kỳ cơ sở (Baseline)")}</th>
-							<th style="width: 17%;">${__("Sau mô phỏng (Scenario)")}</th>
-							<th style="width: 15%;">${__("Biến động tuyệt đối (Δ)")}</th>
-							<th style="width: 11%;">${__("Tỷ lệ %")}</th>
-							<th style="width: 10%;">${__("Đánh giá")}</th>
+							<th style="width: 32%;">${__("Strategic Financial KPI")}</th>
+							<th style="width: 15%;">${__("Baseline")}</th>
+							<th style="width: 17%;">${__("Simulated (Scenario)")}</th>
+							<th style="width: 15%;">${__("Absolute Change (Δ)")}</th>
+							<th style="width: 11%;">${__("Ratio %")}</th>
+							<th style="width: 10%;">${__("Health Status")}</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -1168,7 +1168,7 @@ lotus_fin.components.WhatIfStudio = class WhatIfStudio {
 			return `${(val * 100).toFixed(2)}%`;
 		}
 		if (meta.is_days) {
-			return `${val.toFixed(1)} ngày`;
+			return `${val.toFixed(1)} Days`;
 		}
 		return frappe.format(val, { fieldtype: "Currency", currency: "VND" });
 	}
@@ -1180,12 +1180,12 @@ lotus_fin.components.WhatIfStudio = class WhatIfStudio {
 frappe.ui.form.on("Sales Invoice", {
 	refresh(frm) {
 		if (!frm.is_new()) {
-			frm.add_custom_button(__('🤖 AI Đánh giá rủi ro'), function() {
+			frm.add_custom_button(__('🤖 AI Invoice Risk Assessment'), function() {
 				frappe.call({
 					method: "lotus_fin.api.ai_insights.analyze_invoice_risk",
 					args: { invoice_name: frm.doc.name },
 					freeze: true,
-					freeze_message: __("AI đang phân tích lịch sử khách hàng và đánh giá rủi ro..."),
+					freeze_message: __("AI is analyzing customer history and assessing risk..."),
 					callback: function(r) {
 						if (r.message && r.message.status === "success") {
 							const res = r.message;
@@ -1193,11 +1193,11 @@ frappe.ui.form.on("Sales Invoice", {
 							if (res.risk_level === "MEDIUM") indicator = "orange";
 							if (res.risk_level === "HIGH") indicator = "red";
 							frappe.msgprint({
-								title: __("Kết quả Phân tích AI"),
+								title: __("AI Risk Assessment Result"),
 								indicator: indicator,
 								message: `<div style="font-size: 13px; line-height: 1.6;">
-									<b>Mức độ rủi ro:</b> <span class="badge badge-${indicator}">${res.risk_level}</span><br>
-									<b>Nhận định:</b> ${res.analysis}
+									<b>Risk Level:</b> <span class="badge badge-${indicator}">${res.risk_level}</span><br>
+									<b>Analysis:</b> ${res.analysis}
 								</div>`
 							});
 						}
