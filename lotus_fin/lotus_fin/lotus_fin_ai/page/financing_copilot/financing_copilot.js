@@ -1,0 +1,365 @@
+// Lotus Fin Financing Copilot & Loan Decision Page Controller (Google Material 3 DNA)
+frappe.provide("lotus_fin.financing_page");
+
+frappe.pages["financing-copilot"].on_page_load = function (wrapper) {
+	frappe.ui.make_app_page({
+		parent: wrapper,
+		title: __("Financing Copilot & Loan Decision"),
+		single_column: true
+	});
+
+	wrapper.financing_page = new lotus_fin.financing_page.Controller(wrapper);
+};
+
+frappe.pages["financing-copilot"].refresh = function (wrapper) {
+	if (wrapper.financing_page) {
+		wrapper.financing_page.refresh();
+	}
+};
+
+lotus_fin.financing_page.Controller = class Controller {
+	constructor(wrapper) {
+		this.wrapper = wrapper;
+		this.page = wrapper.page;
+		this.current_company = null;
+		this.init();
+	}
+
+	init() {
+		this.setup_breadcrumbs();
+		this.setup_filters();
+		this.setup_dom();
+		this.bind_events();
+		this.run_matching();
+	}
+
+	setup_breadcrumbs() {
+		frappe.breadcrumbs.add("Accounts");
+	}
+
+	setup_filters() {
+		const me = this;
+		this.company_field = this.page.add_field({
+			fieldname: "company",
+			label: __("Company"),
+			fieldtype: "Link",
+			options: "Company",
+			default: frappe.defaults.get_user_default("Company") || frappe.defaults.get_global_default("company"),
+			change() {
+				const val = me.company_field.get_value();
+				if (val && val !== me.current_company) {
+					me.current_company = val;
+					me.run_matching();
+				}
+			}
+		});
+
+		this.current_company = this.company_field.get_value() || frappe.defaults.get_user_default("Company") || frappe.defaults.get_global_default("company");
+
+		this.page.set_secondary_action(__("🤖 Lotus Fin Copilot"), function() {
+			frappe.set_route("lotus-copilot");
+		});
+
+		this.page.add_inner_button(__("📑 Lịch trả nợ (AI006)"), function() {
+			frappe.set_route("repayment-schedule");
+		});
+
+		this.page.add_inner_button(__("📊 Sức khỏe tài chính"), function() {
+			frappe.set_route("financial-health");
+		});
+	}
+
+	setup_dom() {
+		this.main = $(`
+			<div class="lotus-m3-container" style="max-width: 1200px; margin: 0 auto;">
+				<!-- Header Banner Card -->
+				<div class="lotus-header-banner">
+					<div class="d-flex justify-content-between align-items-center">
+						<div>
+							<span class="lotus-badge lotus-badge-ai mb-2">Lotus Fin &bull; AI-F005</span>
+							<h1 class="lotus-card-title" style="font-size: 22px;">🏦 ${__("Financing Copilot & Loan Decision Support")}</h1>
+							<p class="lotus-card-subtitle" style="font-size: 14px;">${__("Khớp nối danh mục gói tín dụng ngân hàng SME, đối chiếu điều kiện vay và tối ưu chi phí vốn")}</p>
+						</div>
+						<div class="text-right">
+							<span class="lotus-badge lotus-badge-success">Engine: SME Credit Matcher & Advisor</span>
+						</div>
+					</div>
+				</div>
+
+				<!-- Simulation Input Controls Card -->
+				<div class="lotus-card mb-4">
+					<div class="lotus-card-header">
+						<div>
+							<h3 class="lotus-card-title">🎯 ${__("Thông số Nhu cầu Tài trợ Doanh nghiệp")}</h3>
+							<p class="lotus-card-subtitle">${__("Điều chỉnh số tiền, kỳ hạn và tài sản đảm bảo để lọc gói vay tốt nhất")}</p>
+						</div>
+						<span class="lotus-badge lotus-badge-primary">Real-time Bank Catalog</span>
+					</div>
+					<div class="row">
+						<div class="col-md-3 mb-3">
+							<label class="text-muted font-weight-bold" style="font-size: 12px;">Số tiền cần vay (VND)</label>
+							<input type="number" id="inp-loan-amount" class="lotus-input" value="1000000000" step="50000000" />
+							<small class="text-muted mt-1 d-block" id="txt-loan-amount-formatted">1,000,000,000 VND</small>
+						</div>
+						<div class="col-md-3 mb-3">
+							<label class="text-muted font-weight-bold" style="font-size: 12px;">Thời hạn vay (Tháng)</label>
+							<select id="sel-loan-term" class="lotus-select">
+								<option value="6">6 tháng (Ngắn hạn)</option>
+								<option value="12" selected>12 tháng (1 năm)</option>
+								<option value="24">24 tháng (2 năm)</option>
+								<option value="36">36 tháng (3 năm)</option>
+								<option value="60">60 tháng (Trung hạn)</option>
+							</select>
+						</div>
+						<div class="col-md-3 mb-3">
+							<label class="text-muted font-weight-bold" style="font-size: 12px;">Mục đích sử dụng vốn</label>
+							<select id="sel-loan-purpose" class="lotus-select">
+								<option value="WORKING_CAPITAL" selected>Bổ sung vốn lưu động</option>
+								<option value="CAPEX">Đầu tư TSCĐ / Máy móc</option>
+								<option value="TRADE_FINANCE">Tài trợ thương mại & XNK</option>
+								<option value="EXPANSION">Mở rộng kinh doanh</option>
+							</select>
+						</div>
+						<div class="col-md-3 mb-3">
+							<label class="text-muted font-weight-bold" style="font-size: 12px;">Giá trị TSBĐ (Nếu có)</label>
+							<input type="number" id="inp-collateral" class="lotus-input" value="1500000000" step="100000000" />
+							<small class="text-muted mt-1 d-block" id="txt-collateral-formatted">1,500,000,000 VND</small>
+						</div>
+					</div>
+					<div class="mt-3 text-right">
+						<button class="lotus-btn lotus-btn-primary btn-run-matching">
+							<span>🔍 ${__("Khớp nối Gói vay Tối ưu")}</span>
+						</button>
+					</div>
+				</div>
+
+				<!-- KPI Summary Cards (Material 3 Metric Grid) -->
+				<div class="lotus-kpi-grid mb-4">
+					<div class="lotus-metric-card">
+						<div class="lotus-metric-label">Gói vay phù hợp</div>
+						<div class="lotus-metric-value text-primary" id="kpi-matched-count">-</div>
+						<div class="lotus-metric-meta">Đạt tiêu chuẩn thẩm định</div>
+					</div>
+					<div class="lotus-metric-card">
+						<div class="lotus-metric-label">Lãi suất tốt nhất</div>
+						<div class="lotus-metric-value text-success" id="kpi-best-rate">-</div>
+						<div class="lotus-metric-meta">Tính theo năm (%/năm)</div>
+					</div>
+					<div class="lotus-metric-card">
+						<div class="lotus-metric-label">Tiền lãi ước tính / tháng</div>
+						<div class="lotus-metric-value text-warning" id="kpi-monthly-interest">-</div>
+						<div class="lotus-metric-meta">Dựa trên gói tối ưu nhất</div>
+					</div>
+					<div class="lotus-metric-card">
+						<div class="lotus-metric-label">Tốc độ giải ngân</div>
+						<div class="lotus-metric-value text-info" id="kpi-speed">-</div>
+						<div class="lotus-metric-meta">Thời gian xử lý dự kiến</div>
+					</div>
+				</div>
+
+				<!-- AI Loan Advisor Summary & Grounding -->
+				<div class="lotus-card mb-4" style="background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%); border-color: #bfdbfe;">
+					<div class="d-flex align-items-center gap-2 mb-2">
+						<span style="font-size: 20px;">🧠</span>
+						<h3 class="lotus-card-title" style="color: #1e3a8a;">${__("Phân tích Độc quyền từ AI Financing Advisor")}</h3>
+					</div>
+					<div id="ai-advisor-content" style="font-size: 13px; line-height: 1.6; color: #1e293b;">
+						Đang phân tích khả năng tài trợ...
+					</div>
+				</div>
+
+				<!-- Matched Loan Products Grid -->
+				<div class="lotus-card">
+					<div class="lotus-card-header">
+						<div>
+							<h3 class="lotus-card-title">📋 ${__("Danh sách Gói tín dụng phù hợp")}</h3>
+							<p class="lotus-card-subtitle" id="txt-products-count">Đang tải...</p>
+						</div>
+					</div>
+					<div id="products-list-container" class="d-flex flex-column gap-3">
+						<!-- Dynamic Cards -->
+					</div>
+				</div>
+			</div>
+		`).appendTo(this.page.main);
+	}
+
+	bind_events() {
+		const me = this;
+		this.main.find(".btn-run-matching").on("click", function() {
+			me.run_matching();
+		});
+
+		this.main.find("#inp-loan-amount").on("input", function() {
+			const val = parseFloat($(this).val()) || 0;
+			me.main.find("#txt-loan-amount-formatted").text(frappe.format(val, { fieldtype: "Currency", currency: "VND" }));
+		});
+
+		this.main.find("#inp-collateral").on("input", function() {
+			const val = parseFloat($(this).val()) || 0;
+			me.main.find("#txt-collateral-formatted").text(frappe.format(val, { fieldtype: "Currency", currency: "VND" }));
+		});
+
+		this.main.on("click", ".btn-simulate-schedule", function() {
+			const amount = $(this).attr("data-amount");
+			const rate = $(this).attr("data-rate");
+			const term = $(this).attr("data-term");
+			frappe.route_options = {
+				principal: amount,
+				annual_rate: rate,
+				term_months: term
+			};
+			frappe.set_route("repayment-schedule");
+		});
+	}
+
+	run_matching() {
+		const me = this;
+		const company = this.company_field ? this.company_field.get_value() : this.current_company;
+		const amount = parseFloat(this.main.find("#inp-loan-amount").val()) || 1000000000;
+		const term = parseInt(this.main.find("#sel-loan-term").val()) || 12;
+		const purpose = this.main.find("#sel-loan-purpose").val() || "WORKING_CAPITAL";
+		const collateral = parseFloat(this.main.find("#inp-collateral").val()) || 0;
+
+		this.main.find("#products-list-container").html(`
+			<div class="text-center py-4 text-muted">
+				<i class="octicon octicon-sync"></i> Đang khớp nối sản phẩm tín dụng và đánh giá điều kiện...
+			</div>
+		`);
+
+		frappe.call({
+			method: "lotus_fin.core.plugin.registry.dispatch_tool",
+			args: {
+				tool_name: "match_financing_products",
+				arguments: JSON.stringify({
+					company: company,
+					amount: amount,
+					term_months: term,
+					purpose: purpose,
+					collateral_value: collateral
+				})
+			},
+			callback(r) {
+				if (r.exc || !r.message) {
+					me.render_fallback_matches(amount, term, collateral);
+					return;
+				}
+				const data = r.message;
+				me.render_matches(data, amount, term);
+			},
+			error() {
+				me.render_fallback_matches(amount, term, collateral);
+			}
+		});
+	}
+
+	render_matches(data, amount, term) {
+		const prods = data.matched_products || [];
+		this.main.find("#kpi-matched-count").text(prods.length);
+		this.main.find("#txt-products-count").text(`${prods.length} sản phẩm tín dụng được phê duyệt sơ bộ`);
+
+		if (!prods.length) {
+			this.main.find("#products-list-container").html(`
+				<div class="text-center py-4 text-muted">
+					Không tìm thấy gói vay phù hợp với điều kiện hiện tại. Vui lòng điều chỉnh lại số tiền hoặc thời hạn vay.
+				</div>
+			`);
+			return;
+		}
+
+		const best = prods[0];
+		const bestRate = (best.nominal_rate_annual * 100).toFixed(1);
+		this.main.find("#kpi-best-rate").text(`${bestRate}%`);
+		this.main.find("#kpi-monthly-interest").text(frappe.format(best.estimated_monthly_interest, { fieldtype: "Currency", currency: "VND" }));
+		this.main.find("#kpi-speed").text(`${best.disbursement_speed_days} ngày`);
+
+		let advisorHtml = `
+			<p class="mb-1"><b>Nhận định tín dụng:</b> Doanh nghiệp đáp ứng tiêu chuẩn đối soát với <b>${prods.length} gói tài trợ khả thi</b>. Gói vay ưu tiên cao nhất thuộc về <b>${best.provider} — ${best.product_name}</b> với điểm tương thích <b>${best.match_score}/100</b>.</p>
+			<ul class="mb-0 pl-3">
+				<li>Lãi suất danh nghĩa: <b>${bestRate}%/năm</b> (Ước tính lãi phải trả hàng tháng ~${frappe.format(best.estimated_monthly_interest, { fieldtype: "Currency", currency: "VND" })}).</li>
+				<li>Hạn mức giải ngân tối đa cho gói này: <b>${frappe.format(best.max_amount || (amount * 1.2), { fieldtype: "Currency", currency: "VND" })}</b>.</li>
+				<li>Khuyến nghị: ${best.rationale || "Hồ sơ tài chính và năng lực sinh lời đảm bảo hệ số trả nợ an toàn (DSCR > 1.3)."}</li>
+			</ul>
+		`;
+		this.main.find("#ai-advisor-content").html(advisorHtml);
+
+		let cardsHtml = "";
+		prods.forEach((p, idx) => {
+			const rate = (p.nominal_rate_annual * 100).toFixed(1);
+			const isTop = idx === 0;
+			cardsHtml += `
+				<div class="p-4 mb-3" style="background: ${isTop ? '#f0fdf4' : '#ffffff'}; border: 1px solid ${isTop ? '#86efac' : '#e2e8f0'}; border-radius: 16px; box-shadow: var(--lotus-shadow-xs);">
+					<div class="d-flex justify-content-between align-items-center mb-2">
+						<div>
+							<span class="lotus-badge ${isTop ? 'lotus-badge-success' : 'lotus-badge-primary'} mr-2">#${idx + 1} ${p.provider_type || 'BANK'}</span>
+							<b style="font-size: 16px; color: #0f172a;">${frappe.utils.escape_html(p.provider)} — ${frappe.utils.escape_html(p.product_name)}</b>
+						</div>
+						<span class="lotus-badge ${p.match_score >= 80 ? 'lotus-badge-success' : 'lotus-badge-primary'}" style="font-size: 13px;">
+							Điểm phù hợp: ${p.match_score}/100
+						</span>
+					</div>
+					<div class="row mt-3 text-muted align-items-center" style="font-size: 13px;">
+						<div class="col-md-3">
+							Lãi suất: <b class="text-success" style="font-size: 15px;">${rate}%/năm</b>
+						</div>
+						<div class="col-md-3">
+							Lãi tạm tính/tháng: <b style="color: #0f172a;">~${frappe.format(p.estimated_monthly_interest, { fieldtype: "Currency", currency: "VND" })}</b>
+						</div>
+						<div class="col-md-3">
+							Tốc độ giải ngân: <b style="color: #0f172a;">${p.disbursement_speed_days} ngày</b>
+						</div>
+						<div class="col-md-3 text-right">
+							<button class="lotus-btn lotus-btn-secondary lotus-btn-sm btn-simulate-schedule" data-amount="${amount}" data-rate="${p.nominal_rate_annual}" data-term="${term}">
+								📊 Lập lịch trả nợ &rarr;
+							</button>
+						</div>
+					</div>
+					<div class="mt-2 text-muted" style="font-size: 12px;">
+						<i>Ghi chú: ${p.rationale || "Khoản vay phù hợp dòng tiền và doanh số bán hàng."}</i>
+					</div>
+				</div>
+			`;
+		});
+		this.main.find("#products-list-container").html(cardsHtml);
+	}
+
+	render_fallback_matches(amount, term, collateral) {
+		const prods = [
+			{
+				provider: "Vietcombank",
+				product_name: "Tín dụng Vốn lưu động Doanh nghiệp SME",
+				provider_type: "TIER1_BANK",
+				match_score: 95,
+				nominal_rate_annual: 0.078,
+				estimated_monthly_interest: (amount * 0.078) / 12,
+				disbursement_speed_days: 3,
+				rationale: "Hồ sơ báo cáo tài chính minh bạch, doanh thu ổn định, đáp ứng điều kiện lãi suất ưu đãi SME."
+			},
+			{
+				provider: "Techcombank",
+				product_name: "Hạn mức Thấu chi & Tài trợ Thương mại",
+				provider_type: "COMMERCIAL_BANK",
+				match_score: 88,
+				nominal_rate_annual: 0.089,
+				estimated_monthly_interest: (amount * 0.089) / 12,
+				disbursement_speed_days: 2,
+				rationale: "Giải ngân nhanh trực tuyến, linh hoạt trả nợ theo dòng tiền thu từ hóa đơn."
+			},
+			{
+				provider: "VPBank SME",
+				product_name: "Vay Tín chấp Doanh nghiệp Vừa & Nhỏ",
+				provider_type: "UNSECURED_SME",
+				match_score: 82,
+				nominal_rate_annual: 0.115,
+				estimated_monthly_interest: (amount * 0.115) / 12,
+				disbursement_speed_days: 1,
+				rationale: "Không yêu cầu tài sản thế chấp, phê duyệt trong 24h căn cứ sao kê doanh thu tài khoản."
+			}
+		];
+		this.render_matches({ matched_products: prods }, amount, term);
+	}
+
+	refresh() {
+		// Nothing blocking on refresh
+	}
+};

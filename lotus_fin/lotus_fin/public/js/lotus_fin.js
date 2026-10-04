@@ -1,6 +1,298 @@
-// Lotus Fin Unified Desk Bundle & Client Extensions
+// Lotus Fin Unified Desk Bundle & Client Extensions (Google Material 3 DNA)
 frappe.provide("lotus_fin");
+frappe.provide("lotus_fin.core");
+frappe.provide("lotus_fin.core.api");
+frappe.provide("lotus_fin.ui");
+frappe.provide("lotus_fin.widgets");
 frappe.provide("lotus_fin.components");
+
+// ============================================================================
+// Core Utilities
+// ============================================================================
+lotus_fin.core.cn = function (...classes) {
+	return classes.filter(Boolean).join(" ");
+};
+
+lotus_fin.core.format_currency = function (value, currency = "VND") {
+	if (value === null || value === undefined || isNaN(value)) {
+		return "—";
+	}
+	return frappe.format(value, { fieldtype: "Currency", currency: currency });
+};
+
+lotus_fin.core.format_percent = function (value, decimals = 1) {
+	if (value === null || value === undefined || isNaN(value)) {
+		return "—";
+	}
+	const pct = value > 1 ? value : value * 100;
+	return `${pct.toFixed(decimals)}%`;
+};
+
+lotus_fin.core.api.call = function (method, args = {}) {
+	return new Promise((resolve, reject) => {
+		frappe.call({
+			method: method,
+			args: args,
+			callback: function (r) {
+				if (r.exc) reject(new Error(r.exc));
+				else resolve(r.message);
+			},
+			error: function (err) {
+				reject(err);
+			}
+		});
+	});
+};
+
+// ============================================================================
+// UI Primitives: Button, Card, Badge, MetricCard, Table, Input
+// ============================================================================
+lotus_fin.ui.Button = class Button {
+	constructor(opts = {}) {
+		this.label = opts.label || "";
+		this.variant = opts.variant || "primary";
+		this.size = opts.size || "md";
+		this.icon = opts.icon || "";
+		this.onClick = opts.onClick || null;
+		this.className = opts.className || "";
+		this.isLoading = false;
+		this.render();
+		this.bind_events();
+	}
+
+	render() {
+		const variantClass = `lotus-btn-${this.variant}`;
+		const sizeClass = this.size !== "md" ? `lotus-btn-${this.size}` : "";
+		const iconHtml = this.icon ? `<span class="lotus-btn-icon mr-1">${this.icon}</span>` : "";
+
+		this.$el = $(`
+			<button class="lotus-btn ${variantClass} ${sizeClass} ${this.className}">
+				${iconHtml}
+				<span class="lotus-btn-label">${this.label}</span>
+			</button>
+		`);
+	}
+
+	bind_events() {
+		if (this.onClick) {
+			this.$el.on("click", (e) => {
+				if (!this.isLoading) {
+					this.onClick(e, this);
+				}
+			});
+		}
+	}
+
+	set_loading(loading = true, loadingText = "Đang xử lý...") {
+		this.isLoading = loading;
+		this.$el.prop("disabled", loading);
+		if (loading) {
+			this.$el.find(".lotus-btn-label").html(`<i class="octicon octicon-sync"></i> ${loadingText}`);
+		} else {
+			this.$el.find(".lotus-btn-label").text(this.label);
+		}
+	}
+
+	appendTo(parent) {
+		$(parent).append(this.$el);
+		return this;
+	}
+};
+
+lotus_fin.ui.Card = class Card {
+	constructor(opts = {}) {
+		this.title = opts.title || "";
+		this.subtitle = opts.subtitle || "";
+		this.badge = opts.badge || "";
+		this.className = opts.className || "";
+		this.content = opts.content || "";
+		this.render();
+	}
+
+	render() {
+		let headerHtml = "";
+		if (this.title || this.badge) {
+			const badgeHtml = this.badge ? `<span class="lotus-badge lotus-badge-primary">${this.badge}</span>` : "";
+			const subHtml = this.subtitle ? `<p class="lotus-card-subtitle">${this.subtitle}</p>` : "";
+			headerHtml = `
+				<div class="lotus-card-header">
+					<div>
+						<h3 class="lotus-card-title">${this.title}</h3>
+						${subHtml}
+					</div>
+					<div>${badgeHtml}</div>
+				</div>
+			`;
+		}
+
+		this.$el = $(`
+			<div class="lotus-card ${this.className}">
+				${headerHtml}
+				<div class="lotus-card-body"></div>
+			</div>
+		`);
+
+		this.$body = this.$el.find(".lotus-card-body");
+		if (this.content) {
+			this.$body.append(this.content);
+		}
+	}
+
+	set_content(content) {
+		this.$body.empty().append(content);
+		return this;
+	}
+
+	appendTo(parent) {
+		$(parent).append(this.$el);
+		return this;
+	}
+};
+
+lotus_fin.ui.Badge = class Badge {
+	constructor(opts = {}) {
+		this.text = opts.text || "";
+		this.variant = opts.variant || "primary";
+		this.icon = opts.icon || "";
+		this.render();
+	}
+
+	render() {
+		const iconHtml = this.icon ? `<span class="mr-1">${this.icon}</span>` : "";
+		this.$el = $(`
+			<span class="lotus-badge lotus-badge-${this.variant}">
+				${iconHtml}
+				<span>${this.text}</span>
+			</span>
+		`);
+	}
+
+	appendTo(parent) {
+		$(parent).append(this.$el);
+		return this;
+	}
+};
+
+lotus_fin.ui.MetricCard = class MetricCard {
+	constructor(opts = {}) {
+		this.label = opts.label || "";
+		this.value = opts.value || "—";
+		this.subtext = opts.subtext || "";
+		this.delta = opts.delta || "";
+		this.deltaType = opts.deltaType || "neutral";
+		this.valueColor = opts.valueColor || "primary";
+		this.className = opts.className || "";
+		this.render();
+	}
+
+	render() {
+		let colorStyle = "color: #0f172a;";
+		if (this.valueColor === "success") colorStyle = "color: #16a34a;";
+		else if (this.valueColor === "warning") colorStyle = "color: #ea580c;";
+		else if (this.valueColor === "danger") colorStyle = "color: #dc2626;";
+		else if (this.valueColor === "primary") colorStyle = "color: #2563eb;";
+
+		let deltaHtml = "";
+		if (this.delta) {
+			const deltaColor = this.deltaType === "positive" ? "text-success" : (this.deltaType === "negative" ? "text-danger" : "text-muted");
+			deltaHtml = `<span class="${deltaColor} font-weight-bold ml-1">${this.delta}</span>`;
+		}
+
+		this.$el = $(`
+			<div class="lotus-metric-card ${this.className}">
+				<div class="lotus-metric-label">${this.label}</div>
+				<div class="lotus-metric-value" style="${colorStyle}">${this.value}</div>
+				<div class="lotus-metric-meta">
+					<span>${this.subtext}</span>
+					${deltaHtml}
+				</div>
+			</div>
+		`);
+	}
+
+	set_value(val) {
+		this.value = val;
+		this.$el.find(".lotus-metric-value").text(val);
+		return this;
+	}
+
+	appendTo(parent) {
+		$(parent).append(this.$el);
+		return this;
+	}
+};
+
+lotus_fin.ui.Table = class Table {
+	constructor(opts = {}) {
+		this.columns = opts.columns || [];
+		this.data = opts.data || [];
+		this.emptyMessage = opts.emptyMessage || "Không có dữ liệu hiển thị";
+		this.render();
+	}
+
+	render() {
+		let thHtml = "";
+		this.columns.forEach(col => {
+			const alignClass = col.align ? `text-${col.align}` : "text-left";
+			thHtml += `<th class="${alignClass}">${col.label}</th>`;
+		});
+
+		this.$el = $(`
+			<div class="lotus-table-container">
+				<table class="lotus-table">
+					<thead>
+						<tr>${thHtml}</tr>
+					</thead>
+					<tbody class="lotus-table-tbody"></tbody>
+				</table>
+			</div>
+		`);
+
+		this.$tbody = this.$el.find(".lotus-table-tbody");
+		this.render_rows(this.data);
+	}
+
+	render_rows(data) {
+		this.data = data || [];
+		this.$tbody.empty();
+
+		if (!this.data.length) {
+			this.$tbody.append(`
+				<tr>
+					<td colspan="${this.columns.length}" class="text-center py-4 text-muted">
+						${this.emptyMessage}
+					</td>
+				</tr>
+			`);
+			return;
+		}
+
+		this.data.forEach((row, rowIdx) => {
+			let tdHtml = "";
+			this.columns.forEach(col => {
+				const alignClass = col.align ? `text-${col.align}` : "text-left";
+				let val = row[col.key];
+				if (typeof col.format === "function") {
+					val = col.format(val, row, rowIdx);
+				} else if (val === null || val === undefined) {
+					val = "—";
+				}
+				tdHtml += `<td class="${alignClass}">${val}</td>`;
+			});
+			this.$tbody.append(`<tr>${tdHtml}</tr>`);
+		});
+	}
+
+	set_data(data) {
+		this.render_rows(data);
+		return this;
+	}
+
+	appendTo(parent) {
+		$(parent).append(this.$el);
+		return this;
+	}
+};
 
 // ============================================================================
 // Component 1: ChatCopilot (Lotus Fin AI Natural Language Copilot)

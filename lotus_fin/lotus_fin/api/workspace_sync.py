@@ -100,3 +100,4 @@ def sync_lotus_workspace():
 
     print("Successfully synchronized Lotus Fin AI Workspace & all 7 Pages!")
     return {"status": "success", "shortcuts_count": len(ws.shortcuts), "links_count": len(ws.links)}
+

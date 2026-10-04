@@ -35,14 +35,14 @@ scheduler_events = {
 	]
 }
 
-app_home = "/desk/financial-health"
+app_home = "/app/lotus-copilot"
 
 add_to_apps_screen = [
 	{
 		"name": "lotus_fin",
 		"logo": "/assets/erpnext/images/erpnext-logo.svg",
 		"title": "Lotus Fin AI",
-		"route": "/desk/financial-health",
+		"route": "/app/lotus-copilot",
 	}
 ]
 
