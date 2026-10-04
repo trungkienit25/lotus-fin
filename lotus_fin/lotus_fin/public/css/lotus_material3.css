@@ -1,0 +1,414 @@
+/* ==========================================================================
+   Lotus Fin AI — Google Material 3 UI Components & Utilities
+   ========================================================================== */
+
+@import url("./lotus_tokens.css");
+
+/* --------------------------------------------------------------------------
+   1. Base Surface & Layout
+   -------------------------------------------------------------------------- */
+.lotus-m3-container,
+.lotus-financial-health-container {
+	font-family: var(--lotus-font-family);
+	background-color: var(--lotus-surface-app);
+	min-height: 100vh;
+	padding: 24px 32px 80px 32px;
+	color: var(--lotus-text-primary);
+	-webkit-font-smoothing: antialiased;
+}
+
+/* --------------------------------------------------------------------------
+   2. Material 3 Floating Cards (Surfaces)
+   -------------------------------------------------------------------------- */
+.lotus-card,
+.lotus-section-card,
+.lotus-fh-header-card {
+	background-color: var(--lotus-surface-card);
+	border: 1px solid var(--lotus-border);
+	border-radius: var(--lotus-radius-xl); /* 20px bo góc lớn chuẩn Google Material 3 */
+	padding: 24px 28px;
+	margin-bottom: 24px;
+	box-shadow: var(--lotus-shadow-sm);
+	transition: var(--lotus-transition-base);
+	position: relative;
+	overflow: hidden;
+}
+
+.lotus-card:hover {
+	box-shadow: var(--lotus-shadow-md);
+	border-color: #cbd5e1;
+}
+
+.lotus-card-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 20px;
+}
+
+.lotus-card-title {
+	font-size: 16px;
+	font-weight: 600;
+	color: var(--lotus-text-primary);
+	margin: 0;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.lotus-card-subtitle {
+	font-size: 13px;
+	color: var(--lotus-text-secondary);
+	margin-top: 4px;
+	margin-bottom: 0;
+}
+
+/* Header Banner Card */
+.lotus-header-banner {
+	background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+	border: 1px solid var(--lotus-border);
+	border-radius: var(--lotus-radius-xl);
+	padding: 24px 32px;
+	margin-bottom: 24px;
+	box-shadow: var(--lotus-shadow-sm);
+	position: relative;
+}
+
+.lotus-header-banner::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 4px;
+	background: var(--lotus-ai-gradient);
+}
+
+/* --------------------------------------------------------------------------
+   3. Pill-Shaped Buttons (Shape Language)
+   -------------------------------------------------------------------------- */
+.lotus-btn,
+.lotus-btn-pill {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	font-family: var(--lotus-font-family);
+	font-size: 13px;
+	font-weight: 500;
+	line-height: 1;
+	border-radius: var(--lotus-radius-pill); /* 100% Pill-shaped */
+	padding: 10px 22px;
+	border: 1px solid transparent;
+	cursor: pointer;
+	transition: var(--lotus-transition-fast);
+	user-select: none;
+	text-decoration: none !important;
+}
+
+.lotus-btn:active {
+	transform: scale(0.97); /* Micro-interaction click */
+}
+
+.lotus-btn-primary {
+	background-color: var(--lotus-primary);
+	color: #ffffff !important;
+	border-color: var(--lotus-primary);
+	box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+}
+
+.lotus-btn-primary:hover {
+	background-color: var(--lotus-primary-hover);
+	border-color: var(--lotus-primary-hover);
+	box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+}
+
+.lotus-btn-secondary {
+	background-color: #ffffff;
+	color: var(--lotus-text-primary) !important;
+	border-color: var(--lotus-border-subtle);
+	box-shadow: var(--lotus-shadow-xs);
+}
+
+.lotus-btn-secondary:hover {
+	background-color: var(--lotus-surface-subtle);
+	border-color: #94a3b8;
+}
+
+.lotus-btn-ai {
+	background: var(--lotus-ai-gradient);
+	color: #ffffff !important;
+	border: none;
+	box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
+}
+
+.lotus-btn-ai:hover {
+	filter: brightness(1.08);
+	box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+}
+
+.lotus-btn-sm {
+	padding: 6px 14px;
+	font-size: 12px;
+}
+
+.lotus-btn-lg {
+	padding: 12px 28px;
+	font-size: 14px;
+	font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
+   4. Status Badges, Chips & Quick Prompts (Pill-shaped)
+   -------------------------------------------------------------------------- */
+.lotus-badge,
+.lotus-badge-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	border-radius: var(--lotus-radius-pill);
+	padding: 4px 12px;
+	font-size: 12px;
+	font-weight: 500;
+	line-height: 1.2;
+}
+
+.lotus-badge-primary {
+	background-color: var(--lotus-primary-light);
+	color: var(--lotus-primary);
+	border: 1px solid var(--lotus-primary-subtle);
+}
+
+.lotus-badge-success {
+	background-color: var(--lotus-success-bg);
+	color: var(--lotus-success);
+	border: 1px solid var(--lotus-success-border);
+}
+
+.lotus-badge-warning {
+	background-color: var(--lotus-warning-bg);
+	color: var(--lotus-warning);
+	border: 1px solid var(--lotus-warning-border);
+}
+
+.lotus-badge-danger {
+	background-color: var(--lotus-danger-bg);
+	color: var(--lotus-danger);
+	border: 1px solid var(--lotus-danger-border);
+}
+
+.lotus-badge-ai {
+	background: linear-gradient(135deg, #e0e7ff 0%, #ede9fe 100%);
+	color: #4338ca;
+	border: 1px solid #c7d2fe;
+}
+
+/* Quick Prompts Chips */
+.lotus-quick-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	background-color: #ffffff;
+	border: 1px solid var(--lotus-border);
+	color: var(--lotus-text-secondary);
+	font-size: 12px;
+	font-weight: 500;
+	padding: 6px 16px;
+	border-radius: var(--lotus-radius-pill);
+	cursor: pointer;
+	transition: var(--lotus-transition-fast);
+	box-shadow: var(--lotus-shadow-xs);
+	user-select: none;
+}
+
+.lotus-quick-pill:hover {
+	background-color: var(--lotus-primary-light);
+	border-color: var(--lotus-primary-active);
+	color: var(--lotus-primary);
+	transform: translateY(-1px);
+	box-shadow: var(--lotus-shadow-sm);
+}
+
+.lotus-quick-pill:active {
+	transform: scale(0.96);
+}
+
+/* --------------------------------------------------------------------------
+   5. Outlined Form Controls (Material 3 Style)
+   -------------------------------------------------------------------------- */
+.lotus-input,
+.lotus-select {
+	font-family: var(--lotus-font-family);
+	font-size: 13px;
+	color: var(--lotus-text-primary);
+	background-color: #ffffff;
+	border: 1px solid var(--lotus-border);
+	border-radius: var(--lotus-radius-md); /* 12px */
+	padding: 10px 14px;
+	width: 100%;
+	transition: var(--lotus-transition-fast);
+	outline: none;
+}
+
+.lotus-input:focus,
+.lotus-select:focus {
+	border-color: var(--lotus-border-focus);
+	box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* --------------------------------------------------------------------------
+   6. Metric KPI Cards
+   -------------------------------------------------------------------------- */
+.lotus-kpi-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+	gap: 16px;
+	margin-bottom: 24px;
+}
+
+.lotus-metric-card,
+.lotus-kpi-card {
+	background-color: var(--lotus-surface-card);
+	border: 1px solid var(--lotus-border);
+	border-radius: var(--lotus-radius-lg); /* 16px */
+	padding: 20px 24px;
+	box-shadow: var(--lotus-shadow-xs);
+	transition: var(--lotus-transition-base);
+}
+
+.lotus-metric-card:hover {
+	box-shadow: var(--lotus-shadow-sm);
+	border-color: #cbd5e1;
+	transform: translateY(-2px);
+}
+
+.lotus-metric-label {
+	font-size: 12px;
+	font-weight: 500;
+	color: var(--lotus-text-secondary);
+	margin-bottom: 6px;
+}
+
+.lotus-metric-value {
+	font-size: 24px;
+	font-weight: 700;
+	color: var(--lotus-text-primary);
+	letter-spacing: -0.02em;
+	line-height: 1.2;
+	margin-bottom: 4px;
+}
+
+.lotus-metric-meta {
+	font-size: 11px;
+	color: var(--lotus-text-muted);
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+/* --------------------------------------------------------------------------
+   7. Tables (Clean Borderless Rows)
+   -------------------------------------------------------------------------- */
+.lotus-table-container {
+	border: 1px solid var(--lotus-border);
+	border-radius: var(--lotus-radius-md);
+	overflow: hidden;
+	background-color: #ffffff;
+}
+
+.lotus-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 13px;
+	text-align: left;
+}
+
+.lotus-table th {
+	background-color: var(--lotus-surface-subtle);
+	color: var(--lotus-text-secondary);
+	font-weight: 600;
+	padding: 12px 16px;
+	border-bottom: 1px solid var(--lotus-border);
+}
+
+.lotus-table td {
+	padding: 14px 16px;
+	color: var(--lotus-text-primary);
+	border-bottom: 1px solid #f1f5f9;
+}
+
+.lotus-table tr:last-child td {
+	border-bottom: none;
+}
+
+.lotus-table tr:hover td {
+	background-color: #f8fafc;
+}
+
+/* --------------------------------------------------------------------------
+   8. Chat Copilot Interface (Material 3 Style)
+   -------------------------------------------------------------------------- */
+.lotus-chat-m3 {
+	display: flex;
+	flex-direction: column;
+	background-color: #ffffff;
+	border: 1px solid var(--lotus-border);
+	border-radius: var(--lotus-radius-xl);
+	overflow: hidden;
+	box-shadow: var(--lotus-shadow-sm);
+}
+
+.lotus-chat-thread-m3 {
+	flex: 1;
+	padding: 24px;
+	background-color: #f8fafc;
+	overflow-y: auto;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.lotus-msg-m3 {
+	display: flex;
+	gap: 12px;
+	max-width: 85%;
+}
+
+.lotus-msg-m3.user {
+	align-self: flex-end;
+	flex-direction: row-reverse;
+}
+
+.lotus-msg-m3.copilot {
+	align-self: flex-start;
+}
+
+.lotus-msg-bubble-m3 {
+	padding: 14px 18px;
+	border-radius: 18px;
+	font-size: 13px;
+	line-height: 1.6;
+	box-shadow: var(--lotus-shadow-xs);
+}
+
+.lotus-msg-m3.user .lotus-msg-bubble-m3 {
+	background-color: var(--lotus-primary);
+	color: #ffffff;
+	border-bottom-right-radius: 4px;
+}
+
+.lotus-msg-m3.copilot .lotus-msg-bubble-m3 {
+	background-color: #ffffff;
+	color: var(--lotus-text-primary);
+	border: 1px solid var(--lotus-border);
+	border-bottom-left-radius: 4px;
+}
+
+.lotus-chat-input-bar-m3 {
+	padding: 16px 20px;
+	background-color: #ffffff;
+	border-top: 1px solid var(--lotus-border);
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
