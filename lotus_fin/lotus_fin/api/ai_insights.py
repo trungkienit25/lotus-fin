@@ -303,4 +303,4 @@ def get_risk_signal_evidence(
         "status": result.outcome,
         "payload": dict(result.fresh_payload) if result.fresh_payload else None,
     }
->>>>>>> origin/feature/ai003-risk-signal
+

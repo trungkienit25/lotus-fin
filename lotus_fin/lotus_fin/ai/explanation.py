@@ -7,6 +7,7 @@ from decimal import Decimal
 import json
 import logging
 import os
+import sys
 import time
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
@@ -44,15 +45,27 @@ class LLMExplanationProvider:
 
     def __init__(
         self,
+        api_key: Optional[str] = None,
         provider_type: Optional[str] = None,
         model_name: Optional[str] = None,
-        api_key: Optional[str] = None,
         timeout_seconds: float = 10.0,
         mock_handler: Optional[Callable[[Dict[str, Any]], str]] = None
     ):
         gemini_key = os.environ.get("GEMINI_API_KEY")
         self.api_key = api_key or gemini_key or os.environ.get("LOTUS_LLM_API_KEY") or os.environ.get("OPENAI_API_KEY", "")
-        self.provider_type = provider_type or os.environ.get("LOTUS_AI_PROVIDER") or os.environ.get("LOTUS_LLM_PROVIDER") or ("gemini" if gemini_key else "mock")
+        
+        in_test = False
+        try:
+            import frappe
+            in_test = bool(getattr(frappe.flags, "in_test", False))
+        except Exception:
+            pass
+        if "unittest" in sys.modules:
+            in_test = True
+
+        default_provider = "mock" if (in_test or not self.api_key) else (os.environ.get("LOTUS_AI_PROVIDER") or os.environ.get("LOTUS_LLM_PROVIDER") or "gemini")
+        self.provider_type = provider_type or default_provider
+
         if self.provider_type in ["gemini", "google"]:
             cand = model_name or os.environ.get("LOTUS_LLM_MODEL") or "gemini-flash-lite-latest"
             if cand in ["gemini-1.5-flash", "gemini-flash-latest", "gemini-2.5-flash"]:
@@ -93,6 +106,14 @@ class LLMExplanationProvider:
         ap = metrics_by_id.get("ap_outstanding")
         if ap and ap.get("status") == "AVAILABLE":
             facts.append(f"Accounts payable outstanding is {ap['value']} {payload.get('currency', 'VND')}.")
+
+        comp = payload.get("comparison")
+        if isinstance(comp, dict) and comp.get("status") == "AVAILABLE" and comp.get("metrics"):
+            for comp_k, comp_v in comp["metrics"].items():
+                if isinstance(comp_v, dict) and comp_v.get("previous") is not None:
+                    facts.append(
+                        f"Compared to previous period, {comp_k} changed from {comp_v['previous']} to {comp_v.get('current', '')}."
+                    )
 
         if not facts:
             facts.append("Core financial metrics are unavailable or incomplete for this period.")

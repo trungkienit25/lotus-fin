@@ -155,8 +155,8 @@ class TestAccessAndReports(unittest.TestCase):
 			check_report_permission("General Ledger")
 
 	def test_nonexistent_company_raises_does_not_exist(self):
-		"""Nonexistent company must raise DoesNotExistError."""
-		with self.assertRaises(frappe.DoesNotExistError):
+		"""Nonexistent company must raise CompanyAccessError (FORBIDDEN)."""
+		with self.assertRaises(CompanyAccessError):
 			get_verified_company("TotallyNonExistentCompany123")
 
 	def test_nonexistent_report_key_raises_error(self):

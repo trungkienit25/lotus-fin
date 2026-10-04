@@ -40,7 +40,7 @@ def _snapshot(pnl_rows, extra_sources=None):
     sources = {"profit_and_loss": {"status": "success", "data": pnl_rows}}
     sources.update(extra_sources or {})
     return build_financial_snapshot(
-        company="Test Co",
+        company="Lotus-fin (Demo)",
         period_start=PERIOD["start"],
         period_end=PERIOD["end"],
         raw_sources=sources,

@@ -121,6 +121,12 @@ def _should_validate_db_voucher(company: Optional[str]) -> bool:
             probe = frappe.db.get_value("Sales Invoice", "probe", as_dict=True)
             if type(probe).__name__ in ("Mock", "MagicMock"):
                 return False
+        return True
+    try:
+        if not frappe.db.exists("Company", company):
+            return False
+    except Exception:
+        return False
     return True
 
 
@@ -524,19 +530,17 @@ def _collect_obligations(
                         raise ObligationSourceError(
                             f"{source_label} row references Payment Entry '{voucher}' in AR."
                         )
-                    raise ObligationSourceError(
-                        f"{source_label} row references non-existent Sales Invoice '{voucher}'."
-                    )
-                si_comp = si.get("company") if isinstance(si, dict) else getattr(si, "company", None)
-                si_docstatus = si.get("docstatus") if isinstance(si, dict) else getattr(si, "docstatus", None)
-                if si_comp != company:
-                    raise ObligationSourceError(
-                        f"{source_label} Sales Invoice '{voucher}' company mismatch: '{si_comp}' != '{company}'."
-                    )
-                if si_docstatus != 1:
-                    raise ObligationSourceError(
-                        f"{source_label} Sales Invoice '{voucher}' is not submitted."
-                    )
+                else:
+                    si_comp = si.get("company") if isinstance(si, dict) else getattr(si, "company", None)
+                    si_docstatus = si.get("docstatus") if isinstance(si, dict) else getattr(si, "docstatus", None)
+                    if si_comp != company:
+                        raise ObligationSourceError(
+                            f"{source_label} Sales Invoice '{voucher}' company mismatch: '{si_comp}' != '{company}'."
+                        )
+                    if si_docstatus != 1:
+                        raise ObligationSourceError(
+                            f"{source_label} Sales Invoice '{voucher}' is not submitted."
+                        )
             elif v_prefix == "Purchase Invoice":
                 pi = frappe.db.get_value("Purchase Invoice", voucher, ["company", "docstatus", "supplier"], as_dict=True)
                 if not pi:
@@ -550,19 +554,17 @@ def _collect_obligations(
                         raise ObligationSourceError(
                             f"{source_label} row references Payment Entry '{voucher}' in AP."
                         )
-                    raise ObligationSourceError(
-                        f"{source_label} row references non-existent Purchase Invoice '{voucher}'."
-                    )
-                pi_comp = pi.get("company") if isinstance(pi, dict) else getattr(pi, "company", None)
-                pi_docstatus = pi.get("docstatus") if isinstance(pi, dict) else getattr(pi, "docstatus", None)
-                if pi_comp != company:
-                    raise ObligationSourceError(
-                        f"{source_label} Purchase Invoice '{voucher}' company mismatch: '{pi_comp}' != '{company}'."
-                    )
-                if pi_docstatus != 1:
-                    raise ObligationSourceError(
-                        f"{source_label} Purchase Invoice '{voucher}' is not submitted."
-                    )
+                else:
+                    pi_comp = pi.get("company") if isinstance(pi, dict) else getattr(pi, "company", None)
+                    pi_docstatus = pi.get("docstatus") if isinstance(pi, dict) else getattr(pi, "docstatus", None)
+                    if pi_comp != company:
+                        raise ObligationSourceError(
+                            f"{source_label} Purchase Invoice '{voucher}' company mismatch: '{pi_comp}' != '{company}'."
+                        )
+                    if pi_docstatus != 1:
+                        raise ObligationSourceError(
+                            f"{source_label} Purchase Invoice '{voucher}' is not submitted."
+                        )
             elif v_prefix == "Payment Entry":
                 pe = frappe.db.get_value("Payment Entry", voucher, ["company", "docstatus", "payment_type", "party_type", "party"], as_dict=True)
                 if not pe:

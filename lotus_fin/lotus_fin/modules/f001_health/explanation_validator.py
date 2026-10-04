@@ -35,6 +35,7 @@ def build_minimized_model_payload(snapshot: Dict[str, Any]) -> Dict[str, Any]:
     if snapshot.get("comparison") and snapshot["comparison"].get("status") == "AVAILABLE":
         comp = snapshot["comparison"]
         comparison_summary = {
+            "status": comp.get("status", "AVAILABLE"),
             "type": comp.get("type"),
             "previous_period": comp.get("previous_period"),
             "metrics": comp.get("metrics")

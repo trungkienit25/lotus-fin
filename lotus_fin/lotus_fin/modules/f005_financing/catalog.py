@@ -4,6 +4,7 @@ Contains public credit offerings from Vietnamese banks and financial institution
 All data points are based on published public credit tariffs with audit source refs.
 """
 
+from decimal import Decimal
 from typing import Any, Dict, List, Optional
 
 from .models import FinancingProduct, ProductType, RateType

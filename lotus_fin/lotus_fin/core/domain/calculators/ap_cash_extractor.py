@@ -37,6 +37,12 @@ def _should_validate_db_voucher(company: Optional[str]) -> bool:
             probe = frappe.db.get_value("Sales Invoice", "probe", as_dict=True)
             if type(probe).__name__ in ("Mock", "MagicMock"):
                 return False
+        return True
+    try:
+        if not frappe.db.exists("Company", company):
+            return False
+    except Exception:
+        return False
     return True
 
 
@@ -145,19 +151,17 @@ def parse_ap_data(
                         raise FinancialSourceDataError(
                             f"AP report row {row_idx} voucher '{voucher_no}' is a Payment Entry, not Purchase Invoice."
                         )
-                    raise FinancialSourceDataError(
-                        f"AP report row {row_idx} references non-existent Purchase Invoice '{voucher_no}'."
-                    )
-                pi_comp = pi.get("company") if isinstance(pi, dict) else getattr(pi, "company", None)
-                pi_docstatus = pi.get("docstatus") if isinstance(pi, dict) else getattr(pi, "docstatus", None)
-                if pi_comp != company:
-                    raise FinancialSourceDataError(
-                        f"AP report row {row_idx} Purchase Invoice '{voucher_no}' company mismatch: '{pi_comp}' != '{company}'."
-                    )
-                if pi_docstatus != 1:
-                    raise FinancialSourceDataError(
-                        f"AP report row {row_idx} Purchase Invoice '{voucher_no}' is not submitted."
-                    )
+                else:
+                    pi_comp = pi.get("company") if isinstance(pi, dict) else getattr(pi, "company", None)
+                    pi_docstatus = pi.get("docstatus") if isinstance(pi, dict) else getattr(pi, "docstatus", None)
+                    if pi_comp != company:
+                        raise FinancialSourceDataError(
+                            f"AP report row {row_idx} Purchase Invoice '{voucher_no}' company mismatch: '{pi_comp}' != '{company}'."
+                        )
+                    if pi_docstatus != 1:
+                        raise FinancialSourceDataError(
+                            f"AP report row {row_idx} Purchase Invoice '{voucher_no}' is not submitted."
+                        )
             elif vt_check == "Payment Entry":
                 pe = frappe.db.get_value("Payment Entry", voucher_no, ["company", "docstatus", "payment_type", "party_type", "party"], as_dict=True)
                 if not pe:

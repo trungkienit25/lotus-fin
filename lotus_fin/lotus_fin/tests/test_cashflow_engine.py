@@ -43,6 +43,7 @@ class TestCashflowEnginePurePython(unittest.TestCase):
         self.start = date(2026, 9, 27)
         self.end = date(2026, 10, 26)
         candidate_paths = [
+            os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "docs", "features", "AI002", "fixture_scripts", "direct_confirmed_commitments.json")),
             os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "docs", "features", "AI002", "fixture_scripts", "direct_confirmed_commitments.json")),
             os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "docs", "features", "AI002", "fixture_scripts", "direct_confirmed_commitments.json")),
             "/home/frappe/frappe-bench/apps/lotus_fin/docs/features/AI002/fixture_scripts/direct_confirmed_commitments.json",

@@ -473,6 +473,7 @@ class TestServiceFailClosed(unittest.TestCase):
         self.addCleanup(self._validation_patcher.stop)
 
         candidate_paths = [
+            os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "docs", "features", "AI002", "fixture_scripts", "direct_confirmed_commitments.json")),
             os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "docs", "features", "AI002", "fixture_scripts", "direct_confirmed_commitments.json")),
             os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "docs", "features", "AI002", "fixture_scripts", "direct_confirmed_commitments.json")),
             "/home/frappe/frappe-bench/apps/lotus_fin/docs/features/AI002/fixture_scripts/direct_confirmed_commitments.json",
