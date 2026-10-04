@@ -293,7 +293,7 @@ lotus_fin.financing_page.Controller = class Controller {
 			<ul class="mb-0 pl-3" style="line-height: 1.6;">
 				<li>Lãi suất danh nghĩa: <b>${bestRate}%/năm</b> (Ước tính lãi phải trả hàng tháng ~<b>${format_money(best.estimated_monthly_interest)}</b>).</li>
 				<li>Hạn mức giải ngân tối đa cho gói này: <b>${format_money(best.max_amount || (amount * 1.2))}</b>.</li>
-				<li>Khuyến nghị: ${(best.matched_reasons && best.matched_reasons[0]) || "Hồ sơ tài chính và năng lực sinh lời đảm bảo hệ số an toàn nợ."}</li>
+				<li>Khuyến nghị: ${frappe.utils.escape_html((best.matched_reasons && best.matched_reasons[0]) || best.rationale || "Hồ sơ tài chính và năng lực sinh lời đảm bảo hệ số an toàn nợ.")}</li>
 			</ul>
 		`;
 		this.main.find("#ai-advisor-content").html(advisorHtml);
@@ -302,11 +302,13 @@ lotus_fin.financing_page.Controller = class Controller {
 		prods.forEach((p, idx) => {
 			const rate = (p.nominal_rate_annual * 100).toFixed(1);
 			const isTop = idx === 0;
+			const pType = frappe.utils.escape_html(p.product_type || p.provider_type || 'BANK');
+			const pNote = frappe.utils.escape_html((p.matched_reasons && p.matched_reasons.join(". ")) || p.rationale || "Khoản vay phù hợp với quy mô doanh số bán hàng.");
 			cardsHtml += `
 				<div class="p-4 mb-3" style="background: ${isTop ? '#f0fdf4' : '#ffffff'}; border: 1px solid ${isTop ? '#86efac' : 'var(--lotus-border)'}; border-radius: var(--lotus-radius-lg); box-shadow: var(--lotus-shadow-xs);">
 					<div class="d-flex justify-content-between align-items-center mb-2">
 						<div>
-							<span class="lotus-badge ${isTop ? 'lotus-badge-success' : 'lotus-badge-primary'} mr-2">#${idx + 1} ${p.product_type || p.provider_type || 'BANK'}</span>
+							<span class="lotus-badge ${isTop ? 'lotus-badge-success' : 'lotus-badge-primary'} mr-2">#${idx + 1} ${pType}</span>
 							<b style="font-size: 16px; color: var(--lotus-text-primary);">${frappe.utils.escape_html(p.provider)} — ${frappe.utils.escape_html(p.product_name)}</b>
 						</div>
 						<span class="lotus-badge ${p.match_score >= 80 ? 'lotus-badge-success' : 'lotus-badge-primary'}" style="font-size: 13px;">
@@ -330,7 +332,7 @@ lotus_fin.financing_page.Controller = class Controller {
 						</div>
 					</div>
 					<div class="mt-2 text-muted" style="font-size: 12px;">
-						<i>Ghi chú: ${(p.matched_reasons && p.matched_reasons.join(". ")) || p.rationale || "Khoản vay phù hợp với quy mô doanh số bán hàng."}</i>
+						<i>Ghi chú: ${pNote}</i>
 					</div>
 				</div>
 			`;

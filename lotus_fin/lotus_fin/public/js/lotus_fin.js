@@ -644,17 +644,12 @@ lotus_fin.components.ChatCopilot = class ChatCopilot {
 
 	format_markdown(text) {
 		if (!text) return "";
-		if (typeof frappe.markdown === "function") {
-			try {
-				return frappe.markdown(text);
-			} catch (e) {}
-		}
 		let html = frappe.utils.escape_html(text);
 		html = html.replace(/^### (.*$)/gim, '<h4 style="font-size: 13px; font-weight: 700; margin: 10px 0 4px 0; color: #0f172a;">$1</h4>');
 		html = html.replace(/^## (.*$)/gim, '<h3 style="font-size: 14px; font-weight: 700; margin: 12px 0 6px 0; color: #0f172a;">$1</h3>');
 		html = html.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
 		html = html.replace(/^\* (.*$)/gim, '<li style="margin-left: 15px;">$1</li>');
-		html = html.replace(/\n\n/g, '<br><br>');
+		html = html.replace(/\n/g, '<br>');
 		return html;
 	}
 };
