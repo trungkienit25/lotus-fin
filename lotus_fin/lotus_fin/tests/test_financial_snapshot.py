@@ -27,6 +27,7 @@ from decimal import Decimal
 import unittest
 import sys
 import os
+from unittest.mock import patch
 
 # Add repo to python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
@@ -48,6 +49,15 @@ class TestFinancialSnapshotAndEvidence(unittest.TestCase):
         self.period_start = "2026-01-01"
         self.period_end = "2026-12-31"
 
+        # Hermetic unit contract: raw_sources tests never touch a live Frappe
+        # DB. In a full unittest discovery run an earlier site suite may leave
+        # frappe connected; without this guard the WR-02 voucher-identity
+        # validation would route against that connected site and make the
+        # fixtures' outcome depend on test order.
+        patcher = patch("lotus_fin.ai.financial_snapshot.frappe", None)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
         # Independent Gold Datasets (Synthetic Controlled Fixtures conforming to Data Strategy §3 & §8)
         # Gold P&L: Revenue = 1,000,000, COGS = 600,000 -> Gross Margin = 40.00% (0.4000)
         self.gold_pnl_data = [
@@ -59,17 +69,19 @@ class TestFinancialSnapshotAndEvidence(unittest.TestCase):
         ]
 
         # Gold AR: Total = 50,000.00, Overdue = 20,000.00 -> Overdue Ratio = 40.00% (0.4000)
+        # WR-01/WR-02 contract: ERPNext AR/AP transaction rows always carry
+        # voucher identity (voucher_no/name); dict total rows are not a real
+        # Frappe v16 output shape (the verified footer is a list row separated
+        # at the envelope boundary), so fixtures contain transaction rows only.
         self.gold_ar_data = [
-            {"party": "Customer A", "outstanding_amount": 30000.00, "due_date": "2026-12-31"},
-            {"party": "Customer B", "outstanding_amount": 20000.00, "due_date": "2026-06-01"},
-            {"party": "Total", "outstanding_amount": 50000.00, "is_total_row": 1}
+            {"party": "Customer A", "voucher_no": "SINV-0001", "outstanding_amount": 30000.00, "due_date": "2026-12-31"},
+            {"party": "Customer B", "voucher_no": "SINV-0002", "outstanding_amount": 20000.00, "due_date": "2026-06-01"},
         ]
 
         # Gold AP: Total = 45,000.00
         self.gold_ap_data = [
-            {"party": "Supplier X", "outstanding_amount": 25000.00, "due_date": "2026-11-15"},
-            {"party": "Supplier Y", "outstanding_amount": 20000.00, "due_date": "2026-12-15"},
-            {"party": "Total", "outstanding_amount": 45000.00, "is_total_row": 1}
+            {"party": "Supplier X", "voucher_no": "PINV-0001", "outstanding_amount": 25000.00, "due_date": "2026-11-15"},
+            {"party": "Supplier Y", "voucher_no": "PINV-0002", "outstanding_amount": 20000.00, "due_date": "2026-12-15"},
         ]
 
         # Gold Cash & Bank: Total = 250,000.00
@@ -281,7 +293,7 @@ class TestFinancialSnapshotAndEvidence(unittest.TestCase):
     def test_zero_total_ar_with_positive_overdue_anomalous_ledger(self):
         """Anomalous state with overdue amount but zero total AR handles ratio safely without division error."""
         ar_tot, ar_overdue, ar_ratio, ar_lims = parse_ar_data([
-            {"party": "Faulty Customer", "outstanding_amount": 0.0, "overdue_amount": 500.0}
+            {"party": "Faulty Customer", "voucher_no": "SINV-0009", "outstanding_amount": 0.0, "overdue_amount": 500.0}
         ])
         self.assertEqual(ar_tot, Decimal("0.00"))
         self.assertEqual(ar_overdue, Decimal("500.00"))

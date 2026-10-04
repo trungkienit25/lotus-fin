@@ -1,0 +1,8 @@
+**
+!lotus_fin/
+!lotus_fin/**
+!docs/
+!docs/features/
+!docs/features/AI002/
+!docs/features/AI002/fixture_scripts/
+!docs/features/AI002/fixture_scripts/direct_confirmed_commitments.json

@@ -57,10 +57,10 @@ class TestGroundedLLMExplanation(unittest.TestCase):
                 {"account_name": "Cost of Goods Sold", "balance": 253760.00}
             ],
             "accounts_receivable": [
-                {"party": "Customer A", "outstanding_amount": 316000.00, "overdue_amount": 316000.00}
+                {"party": "Customer A", "voucher_no": "SINV-0001", "outstanding_amount": 316000.00, "overdue_amount": 316000.00}
             ],
             "accounts_payable": [
-                {"party": "Supplier B", "outstanding_amount": 184293.00}
+                {"party": "Supplier B", "voucher_no": "PINV-0001", "outstanding_amount": 184293.00}
             ],
             "trial_balance": [
                 {"account_type": "Cash", "balance": -117854.00}

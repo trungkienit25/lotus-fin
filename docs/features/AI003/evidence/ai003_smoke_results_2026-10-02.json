@@ -1,0 +1,71 @@
+/home/frappe/frappe-bench/apps/erpnext/erpnext/accounts/utils.py:1197: V16FrappeDeprecationWarning: It was marked on unknown for removal from v16 with note: Use `NumberFormat.from_string()` from `frappe.utils.number_format` instead
+  return get_number_format_info(number_format)[2]
+{
+  "pass": true,
+  "results": [
+    {
+      "case": "UNAUTH_FORBIDDEN",
+      "ok": true,
+      "detail": {
+        "status": "FORBIDDEN",
+        "reason_code": "UNAUTHORIZED_ACCESS"
+      }
+    },
+    {
+      "case": "UNKNOWN_COMPANY_FORBIDDEN",
+      "ok": true,
+      "detail": {
+        "status": "FORBIDDEN",
+        "reason_code": "ACCESS_DENIED"
+      }
+    },
+    {
+      "case": "AR_GOLD_HIGH",
+      "ok": true,
+      "detail": {
+        "status": "OK",
+        "finding": "TRIGGERED",
+        "severity": "HIGH",
+        "delta_pp": "72.73",
+        "reason_code": null
+      }
+    },
+    {
+      "case": "AP_GOLD_BENIGN",
+      "ok": true,
+      "detail": {
+        "status": "OK",
+        "finding": "BENIGN",
+        "observed": "0.3333",
+        "counts": [
+          4,
+          2
+        ],
+        "evidence": 1
+      }
+    },
+    {
+      "case": "EVIDENCE_REPLAY_MATCH",
+      "ok": true,
+      "detail": {
+        "status": "MATCH"
+      }
+    },
+    {
+      "case": "MULTI_SCHEDULE_FAIL_CLOSED",
+      "ok": true,
+      "detail": {
+        "status": "INCONCLUSIVE",
+        "reason_code": "UNSUPPORTED_MULTI_SCHEDULE"
+      }
+    },
+    {
+      "case": "DEMO_DISCLOSURE",
+      "ok": true,
+      "detail": {
+        "policy_scope": "DEMO_ONLY",
+        "production_calibrated": false
+      }
+    }
+  ]
+}

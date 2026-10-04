@@ -123,6 +123,25 @@ def build_comparison_block(
             "limitations": ["Cannot compare across different companies."]
         }
 
+    # AI003 foundation remediation (Bucket C): current/baseline comparison is
+    # only valid in the same currency — a mismatched label can never be diffed.
+    cur_currency = current_snapshot.get("currency")
+    prev_currency = previous_snapshot.get("currency")
+    if cur_currency and prev_currency and cur_currency != prev_currency:
+        log_event(
+            event_type=EVENT_COMPARISON_UNAVAILABLE,
+            correlation_id=correlation_id,
+            company=cur_company,
+            details={"reason": "Cross-currency comparison attempted"}
+        )
+        return {
+            "status": "UNAVAILABLE",
+            "type": "PREVIOUS_PERIOD",
+            "previous_period": previous_snapshot.get("period"),
+            "metrics": {},
+            "limitations": ["Cannot compare across different currencies."]
+        }
+
     cur_metrics = {m["metric_id"]: m for m in current_snapshot.get("metrics", [])}
     prev_metrics = {m["metric_id"]: m for m in previous_snapshot.get("metrics", [])}
 

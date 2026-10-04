@@ -1,6 +1,6 @@
 from datetime import date, timedelta
 from decimal import Decimal
-from typing import List, Tuple, Dict
+from typing import List, Optional, Tuple, Dict
 from .models import (
     OpeningCash,
     CashEvent,

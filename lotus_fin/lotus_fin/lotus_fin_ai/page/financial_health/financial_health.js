@@ -105,7 +105,13 @@ lotus_fin.financial_health.Controller = class Controller {
 			me.fetch_financial_health(true);
 		}, "octicon octicon-sync");
 
+		// AI003 entry point (additive)
+		this.page.add_inner_button(__("⚠️ Tín hiệu Rủi ro"), function () {
+			frappe.set_route("risk-signal");
+		});
+
 		this.apply_period_preset("CURRENT_YEAR");
+
 		if (this.period_field) {
 			this.period_field.set_value("CURRENT_YEAR");
 		}
@@ -208,7 +214,82 @@ lotus_fin.financial_health.Controller = class Controller {
 				</div>
 			</div>
 
-			<!-- Section 4: Recommended Next Checks / Actionability -->
+			<!-- Section 4: AI004 / AI005 What-If Scenario Simulation -->
+			<div class="lotus-section-card" id="lotus-simulator-section">
+				<div class="lotus-section-title">
+					<span>🔮 ${__("What-If Scenario Simulation & Cash Stress-Test")}</span>
+					<span class="lotus-ai-badge">${__("9-KPI Engine • AI-F004")}</span>
+				</div>
+				<div class="lotus-sim-grid">
+					<div class="lotus-sim-control">
+						<div class="lotus-sim-label">
+							<span>${__("Biến động Doanh thu (%)")}</span>
+							<b id="val-sim-sales">-15%</b>
+						</div>
+						<input type="range" class="custom-range" id="input-sim-sales" min="-50" max="50" step="5" value="-15">
+					</div>
+					<div class="lotus-sim-control">
+						<div class="lotus-sim-label">
+							<span>${__("Khách hàng chậm trả (Ngày)")}</span>
+							<b id="val-sim-delay">+15 ngày</b>
+						</div>
+						<input type="range" class="custom-range" id="input-sim-delay" min="0" max="60" step="5" value="15">
+					</div>
+					<div class="lotus-sim-control">
+						<div class="lotus-sim-label">
+							<span>${__("Dời hạn trả NCC (Ngày)")}</span>
+							<b id="val-sim-supplier">0 ngày</b>
+						</div>
+						<input type="range" class="custom-range" id="input-sim-supplier" min="-30" max="60" step="5" value="0">
+					</div>
+					<div class="lotus-sim-control">
+						<div class="lotus-sim-label">
+							<span>${__("Tiếp nhận vốn vay (VND)")}</span>
+						</div>
+						<select class="lotus-sim-input" id="input-sim-financing">
+							<option value="0">${__("Không nhận vốn")}</option>
+							<option value="300000000" selected>300.000.000 VND (12T - 9.5%)</option>
+							<option value="500000000">500.000.000 VND (12T - 9.5%)</option>
+							<option value="1000000000">1.000.000.000 VND (24T - 9.0%)</option>
+						</select>
+					</div>
+				</div>
+				<div class="mb-3 d-flex gap-2">
+					<button class="lotus-sim-btn" id="btn-run-simulation">
+						🚀 ${__("Chạy mô phỏng What-If (9 KPIs)")}
+					</button>
+				</div>
+				<div id="lotus-simulation-result">
+					<!-- Simulation table rendered here -->
+				</div>
+			</div>
+
+			<!-- Section 5: AI005 Financing Copilot & Credit Matcher -->
+			<div class="lotus-section-card" id="lotus-copilot-section">
+				<div class="lotus-section-title">
+					<span>💡 ${__("AI Financing Copilot & Credit Matcher")}</span>
+					<span class="lotus-ai-badge">${__("Decision Support • AI-F005")}</span>
+				</div>
+				<div>
+					<div class="mb-2">
+						<span class="text-muted" style="font-size: 11px;">${__("Gợi ý câu hỏi nhanh:")}</span>
+						<span class="lotus-quick-pill" data-query="Vay 500 triệu bổ sung vốn lưu động 12 tháng">${__("Vay 500tr lưu động 12T")}</span>
+						<span class="lotus-quick-pill" data-query="Doanh nghiệp cần vay 1.5 tỷ mua máy móc thiết bị mở rộng quy mô">${__("Vay 1.5 tỷ mua máy móc")}</span>
+						<span class="lotus-quick-pill" data-query="Chiết khấu hóa đơn công nợ 300 triệu trong 6 tháng">${__("Chiết khấu hóa đơn 300tr")}</span>
+					</div>
+					<div class="lotus-copilot-input-box">
+						<input type="text" class="lotus-copilot-input" id="input-copilot-query" placeholder="${__("Nhập câu hỏi hoặc nhu cầu vốn (ví dụ: Doanh nghiệp cần vay 1 tỷ trong 12 tháng để mở rộng xưởng)...")}" />
+						<button class="lotus-sim-btn" id="btn-ask-copilot">
+							🤖 ${__("Tư vấn gói vay")}
+						</button>
+					</div>
+				</div>
+				<div id="lotus-copilot-result">
+					<!-- Copilot result rendered here -->
+				</div>
+			</div>
+
+			<!-- Section 6: Recommended Next Checks / Actionability -->
 			<div class="lotus-section-card" id="lotus-action-section">
 				<div class="lotus-section-title">
 					<span>🔍 ${__("Recommended Next Review Actions")}</span>
@@ -219,7 +300,7 @@ lotus_fin.financial_health.Controller = class Controller {
 				</div>
 			</div>
 
-			<!-- Section 5: Evidence & Data Quality -->
+			<!-- Section 7: Evidence & Data Quality -->
 			<div class="lotus-section-card" id="lotus-evidence-section">
 				<div class="lotus-section-title">
 					<span>📋 ${__("Evidence & Audit Provenance")}</span>
@@ -243,6 +324,37 @@ lotus_fin.financial_health.Controller = class Controller {
 			e.preventDefault();
 			const reportName = $(this).attr("data-open-report");
 			me.open_approved_report(reportName);
+		});
+
+		// Simulator slider update events
+		this.main.on("input", "#input-sim-sales", function () {
+			me.main.find("#val-sim-sales").text($(this).val() + "%");
+		});
+		this.main.on("input", "#input-sim-delay", function () {
+			me.main.find("#val-sim-delay").text("+" + $(this).val() + " ngày");
+		});
+		this.main.on("input", "#input-sim-supplier", function () {
+			me.main.find("#val-sim-supplier").text($(this).val() + " ngày");
+		});
+
+		// Run Simulation click
+		this.main.on("click", "#btn-run-simulation", function () {
+			me.run_what_if_simulation();
+		});
+
+		// Quick pill query click
+		this.main.on("click", ".lotus-quick-pill", function () {
+			const q = $(this).attr("data-query");
+			me.main.find("#input-copilot-query").val(q);
+			me.ask_financing_copilot(q);
+		});
+
+		// Ask Copilot click
+		this.main.on("click", "#btn-ask-copilot", function () {
+			const q = me.main.find("#input-copilot-query").val();
+			if (q && q.trim()) {
+				me.ask_financing_copilot(q.trim());
+			}
 		});
 	}
 
@@ -702,4 +814,197 @@ lotus_fin.financial_health.Controller = class Controller {
 			company: this.current_company
 		});
 	}
+
+	run_what_if_simulation() {
+		const me = this;
+		const company = this.company_field ? this.company_field.get_value() : this.current_company;
+		const salesPct = (parseFloat(this.main.find("#input-sim-sales").val()) || 0) / 100.0;
+		const delayDays = parseInt(this.main.find("#input-sim-delay").val()) || 0;
+		const supplierDays = parseInt(this.main.find("#input-sim-supplier").val()) || 0;
+		const finAmount = parseFloat(this.main.find("#input-sim-financing").val()) || 0;
+
+		const container = this.main.find("#lotus-simulation-result");
+		container.html(`<div class="text-muted p-3 text-center"><i class="octicon octicon-sync"></i> ${__("Đang tính toán mô phỏng 9 chỉ số...")}</div>`);
+
+		frappe.call({
+			method: "lotus_fin.AI005.service.simulate_what_if",
+			args: {
+				company: company,
+				sales_change_pct: salesPct,
+				collection_delay_days: delayDays,
+				supplier_due_shift_days: supplierDays,
+				financing_amount: finAmount,
+				financing_term_months: finAmount > 0 ? 12 : 0,
+				financing_rate_annual: finAmount > 0 ? 0.095 : 0.0
+			},
+			callback(r) {
+				if (r.exc || !r.message) {
+					container.html(`<div class="lotus-banner lotus-banner-danger">${__("Không thể chạy mô phỏng kịch bản.")}</div>`);
+					return;
+				}
+				me.render_simulation_result(r.message);
+			}
+		});
+	}
+
+	render_simulation_result(res) {
+		const container = this.main.find("#lotus-simulation-result").empty();
+		const kpis = res.kpis_9_layer || {};
+		const kpiList = [
+			{ id: "revenue", label: __("1. Doanh thu (Revenue)"), is_currency: true },
+			{ id: "gross_profit", label: __("2. Lợi nhuận gộp (Gross Profit)"), is_currency: true },
+			{ id: "gross_margin", label: __("3. Biên LN gộp (Gross Margin)"), is_ratio: true },
+			{ id: "ar_outstanding", label: __("4. Công nợ phải thu (AR)"), is_currency: true },
+			{ id: "dso", label: __("5. Số ngày thu tiền (DSO)"), is_days: true },
+			{ id: "net_cash_flow", label: __("6. Dòng tiền thuần (Net Cash Flow)"), is_currency: true },
+			{ id: "ending_cash", label: __("7. Tiền mặt cuối kỳ (Ending Cash)"), is_currency: true },
+			{ id: "ccc", label: __("8. Chu kỳ tiền mặt (CCC)"), is_days: true },
+			{ id: "cash_shortfall", label: __("9. Thâm hụt dòng tiền (Shortfall)"), is_currency: true }
+		];
+
+		let rowsHtml = "";
+		kpiList.forEach(k => {
+			const item = kpis[k.id];
+			if (!item) return;
+
+			let baseStr = this.format_sim_val(item.baseline, k);
+			let simStr = this.format_sim_val(item.simulation, k);
+			let absStr = this.format_sim_val(item.absolute_change, k);
+			let relStr = item.relative_change !== null ? `${(item.relative_change * 100).toFixed(1)}%` : "—";
+			let statusBadge = `<span class="badge ${item.status === 'HEALTHY' ? 'badge-success' : (item.status === 'WARNING' ? 'badge-warning' : 'badge-danger')}">${item.status}</span>`;
+
+			rowsHtml += `<tr>
+				<td class="font-weight-bold">${k.label}</td>
+				<td>${baseStr}</td>
+				<td class="font-weight-bold text-primary">${simStr}</td>
+				<td>${absStr}</td>
+				<td>${relStr}</td>
+				<td>${statusBadge}</td>
+			</tr>`;
+		});
+
+		let shortfallAlert = "";
+		if (res.shortfall_events && res.shortfall_events.length > 0) {
+			const events = res.shortfall_events.map(e => `<li>${frappe.utils.escape_html(e)}</li>`).join("");
+			shortfallAlert = `<div class="lotus-banner lotus-banner-danger mt-2">
+				<div><b>⚠️ Cảnh báo thâm hụt tiền mặt (Cash Deficit):</b><ul class="mb-0 pl-3 mt-1">${events}</ul></div>
+			</div>`;
+		} else {
+			shortfallAlert = `<div class="lotus-banner lotus-banner-warning mt-2">
+				<div><b>✅ Kịch bản an toàn:</b> Dòng tiền sau mô phỏng vẫn duy trì số dư dương và không có sự kiện thâm hụt tiền mặt.</div>
+			</div>`;
+		}
+
+		container.html(`
+			<table class="lotus-table mt-2">
+				<thead>
+					<tr>
+						<th>${__("Chỉ số KPI")}</th>
+						<th>${__("Gốc (Baseline)")}</th>
+						<th>${__("Sau mô phỏng")}</th>
+						<th>${__("Biến động tuyệt đối")}</th>
+						<th>${__("Biến động tương đối")}</th>
+						<th>${__("Trạng thái")}</th>
+					</tr>
+				</thead>
+				<tbody>
+					${rowsHtml}
+				</tbody>
+			</table>
+			${shortfallAlert}
+		`);
+	}
+
+	format_sim_val(val, meta) {
+		if (val === null || val === undefined) return "—";
+		if (meta.is_ratio) {
+			return `${(val * 100).toFixed(2)}%`;
+		}
+		if (meta.is_days) {
+			return `${val.toFixed(1)} ngày`;
+		}
+		return frappe.format(val, { fieldtype: "Currency", currency: "VND" });
+	}
+
+	ask_financing_copilot(queryText) {
+		const me = this;
+		const company = this.company_field ? this.company_field.get_value() : this.current_company;
+		const container = this.main.find("#lotus-copilot-result");
+		container.html(`<div class="text-muted p-3 text-center"><i class="octicon octicon-sync"></i> ${__("AI Copilot đang phân tích nhu cầu và tìm kiếm gói tín dụng phù hợp...")}</div>`);
+
+		frappe.call({
+			method: "lotus_fin.AI005.service.ask_copilot",
+			args: {
+				company: company,
+				query: queryText
+			},
+			callback(r) {
+				if (r.exc || !r.message) {
+					container.html(`<div class="lotus-banner lotus-banner-danger">${__("Không thể kết nối tới AI Financing Advisor.")}</div>`);
+					return;
+				}
+				me.render_copilot_result(r.message);
+			}
+		});
+	}
+
+	render_copilot_result(res) {
+		const container = this.main.find("#lotus-copilot-result").empty();
+		const intent = res.parsed_intent || {};
+		const advice = res.ai_advice || {};
+		const matchRes = res.deterministic_matching_result || {};
+		const matchedProds = matchRes.matched_products || [];
+
+		// Intent Banner
+		const intentHtml = `<div class="lotus-banner lotus-banner-info mb-2">
+			<div>
+				<b>🎯 Ý định nhận diện (NLU Intent):</b> Nhu cầu vốn: <b>${frappe.format(intent.amount, { fieldtype: "Currency", currency: "VND" })}</b> &bull; Kỳ hạn: <b>${intent.term_months} tháng</b> &bull; Mục đích: <b>${intent.purpose}</b>
+			</div>
+		</div>`;
+
+		// Executive summary
+		const execSummary = advice.executive_summary ? `<div class="lotus-ai-box facts mb-2"><div class="lotus-ai-box-title">📊 Đánh giá tổng quan từ AI</div><div>${frappe.utils.escape_html(advice.executive_summary)}</div></div>` : "";
+
+		// Top Products
+		let productsHtml = "";
+		matchedProds.slice(0, 3).forEach((p, idx) => {
+			const isTop = idx === 0;
+			const ratePct = (p.nominal_rate_annual * 100).toFixed(1);
+			const interestStr = frappe.format(p.estimated_monthly_interest, { fieldtype: "Currency", currency: "VND" });
+			productsHtml += `
+				<div class="lotus-product-card ${isTop ? 'top-recommended' : ''}">
+					<div class="d-flex justify-content-between align-items-center mb-1">
+						<div>
+							<span class="font-weight-bold" style="font-size: 14px;">${idx + 1}. ${frappe.utils.escape_html(p.provider)} — ${frappe.utils.escape_html(p.product_name)}</span>
+							${isTop ? '<span class="badge badge-success ml-2">⭐ Khuyến nghị tối ưu</span>' : ''}
+						</div>
+						<span class="lotus-score-badge">Điểm: ${p.match_score}/100</span>
+					</div>
+					<div class="row mt-2" style="font-size: 12px;">
+						<div class="col-md-3"><b>Lãi suất:</b> <span class="text-success font-weight-bold">${ratePct}%/năm</span></div>
+						<div class="col-md-3"><b>Lãi ước tính:</b> ~${interestStr}/tháng</div>
+						<div class="col-md-3"><b>Giải ngân:</b> ~${p.disbursement_speed_days} ngày</div>
+						<div class="col-md-3"><b>Loại:</b> ${p.tier === 'UNSECURED_WORKING_CAPITAL' ? 'Tín chấp' : 'Thế chấp'}</div>
+					</div>
+				</div>
+			`;
+		});
+
+		// Tradeoff & Warning
+		let warningHtml = "";
+		if (advice.cashflow_impact_warning) {
+			warningHtml = `<div class="lotus-banner lotus-banner-warning mt-2">
+				<div><b>⚠️ Cảnh báo dòng tiền (Cash Flow Impact):</b> ${frappe.utils.escape_html(advice.cashflow_impact_warning)}</div>
+			</div>`;
+		}
+
+		container.html(`
+			${intentHtml}
+			${execSummary}
+			<div class="mt-2 mb-2 font-weight-bold" style="font-size: 13px;">🏆 Danh mục gói tín dụng phù hợp nhất (${matchedProds.length} gói):</div>
+			${productsHtml || '<div class="text-muted p-2">Không tìm thấy gói tín dụng phù hợp với điều kiện.</div>'}
+			${warningHtml}
+		`);
+	}
 };
+

@@ -31,6 +31,7 @@ class FinancingService:
         self.matcher = FinancingDecisionEngine(catalog=get_active_catalog())
         self.scenario_engine = WhatIfScenarioEngine()
         self.ai_advisor = FinancingAIAdvisor(provider=chosen_provider)
+
         self.intent_parser = FinancingIntentParser()
 
     def ask_financing_copilot(

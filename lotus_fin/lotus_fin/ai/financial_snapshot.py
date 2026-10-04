@@ -3,25 +3,39 @@ Lotus Fin AI001 - FinancialSnapshot & EvidenceRef Engine (Facade).
 Decoupled facade delegating to Core Clean Architecture use cases and calculators.
 """
 
-from typing import Any, Callable, Dict, List, Optional
+try:
+    import frappe
+except ImportError:
+    frappe = None
+
 from lotus_fin.core.domain.calculators.pnl_extractor import parse_pnl_data, _to_decimal as to_decimal
 from lotus_fin.core.domain.calculators.ar_extractor import parse_ar_data
 from lotus_fin.core.domain.calculators.ap_cash_extractor import parse_ap_data, parse_cash_balance
 from lotus_fin.core.domain.entities.evidence import EvidenceRef
+from lotus_fin.core.domain.errors import FinancialSourceDataError
+from lotus_fin.core.use_cases.source_validation import validate_source_payload, REPORT_ALLOWLIST
 from lotus_fin.core.use_cases.snapshot_coordinator import SnapshotCoordinator
 
 CONTRACT_VERSION = "1.0.0"
 FEATURE_ID = "AI001"
 FORMULA_VERSION = "2026.1"
 
-REPORT_ALLOWLIST = {
-    "profit_and_loss": "Profit and Loss Statement",
-    "general_ledger": "General Ledger",
-    "accounts_receivable": "Accounts Receivable",
-    "accounts_payable": "Accounts Payable",
-    "trial_balance": "Trial Balance",
-    "cash_flow": "Cash Flow"
-}
+__all__ = [
+    "build_financial_snapshot",
+    "to_decimal",
+    "parse_pnl_data",
+    "parse_ar_data",
+    "parse_ap_data",
+    "parse_cash_balance",
+    "generate_evidence_ref",
+    "validate_source_payload",
+    "FinancialSourceDataError",
+    "REPORT_ALLOWLIST",
+    "CONTRACT_VERSION",
+    "FEATURE_ID",
+    "FORMULA_VERSION",
+]
+
 
 
 def generate_evidence_ref(

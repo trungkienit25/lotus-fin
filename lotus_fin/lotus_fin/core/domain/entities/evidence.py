@@ -66,14 +66,13 @@ class EvidenceRef:
         d: Dict[str, Any] = {
             "source_type": self.source_type,
             "source_name": self.source_name,
+            "source_record_id": self.source_record_id,
             "company": self.company,
             "filters": self.filters,
             "as_of": self.as_of,
             "retrieved_at": self.retrieved_at,
             "checksum_or_version": self.checksum_or_version
         }
-        if self.source_record_id is not None:
-            d["source_record_id"] = self.source_record_id
         if self.record_count is not None:
             d["record_count"] = self.record_count
         return d

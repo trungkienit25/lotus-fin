@@ -46,7 +46,17 @@ add_to_apps_screen = [
 	}
 ]
 
-fixtures = []
+fixtures = [
+	{
+		"doctype": "Custom HTML Block",
+		"filters": [["name", "in", ["Lotus Fin AI Widget"]]]
+	},
+	{
+		"doctype": "Custom Field",
+		"filters": [["name", "in", ["Company-ai002_approved_cash_accounts"]]]
+	}
+]
+
 
 # Desk Workspaces Configuration (Filtering allowed modules for Lotus Fin)
 # ------------------
@@ -60,3 +70,6 @@ ALLOWED_WORKSPACES = [
 	"Settings",
 	"Lotus Fin AI"
 ]
+
+# Persistent Cache Keys (Preserved across clear_cache)
+persistent_cache_keys = ["ai003:evidence"]

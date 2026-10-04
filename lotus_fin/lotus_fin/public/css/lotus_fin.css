@@ -1002,3 +1002,158 @@ input[type="range"].custom-range::-moz-range-thumb:hover {
 	from { opacity: 0; transform: translateY(6px); }
 	to { opacity: 1; transform: translateY(0); }
 }
+
+/* AI004 & AI005 What-If Simulation & Financing Advisor Styles */
+.lotus-sim-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	gap: 16px;
+	margin-bottom: 16px;
+}
+
+.lotus-sim-control {
+	background: #f8fafc;
+	border: 1px solid #e2e8f0;
+	border-radius: 6px;
+	padding: 12px;
+}
+
+.lotus-sim-label {
+	font-size: 12px;
+	font-weight: 600;
+	color: #334155;
+	margin-bottom: 6px;
+	display: flex;
+	justify-content: space-between;
+}
+
+.lotus-sim-input {
+	width: 100%;
+	padding: 6px 10px;
+	font-size: 13px;
+	border: 1px solid #cbd5e1;
+	border-radius: 4px;
+	background: #ffffff;
+}
+
+.lotus-sim-btn {
+	background: #00897b;
+	color: #ffffff;
+	border: none;
+	border-radius: 6px;
+	padding: 8px 18px;
+	font-weight: 600;
+	font-size: 13px;
+	cursor: pointer;
+	transition: background 0.15s ease;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.lotus-sim-btn:hover {
+	background: #00695c;
+}
+
+/* AI Copilot Prompt & Matching Cards */
+.lotus-copilot-input-box {
+	display: flex;
+	gap: 10px;
+	margin-bottom: 12px;
+}
+
+.lotus-copilot-input {
+	flex: 1;
+	padding: 10px 14px;
+	font-size: 13px;
+	border: 1px solid #cbd5e1;
+	border-radius: 6px;
+	background: #ffffff;
+}
+
+.lotus-quick-pill {
+	display: inline-block;
+	background: #f1f5f9;
+	color: #0284c7;
+	border: 1px solid #e0f2fe;
+	border-radius: 12px;
+	padding: 3px 10px;
+	font-size: 11px;
+	margin-right: 6px;
+	margin-bottom: 8px;
+	cursor: pointer;
+	font-weight: 500;
+	transition: all 0.15s ease;
+}
+
+.lotus-quick-pill:hover {
+	background: #e0f2fe;
+	color: #0369a1;
+}
+
+.lotus-product-card {
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	padding: 14px;
+	margin-bottom: 12px;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.lotus-product-card.top-recommended {
+	border-left: 4px solid #00897b;
+	background: #f0fdf4;
+}
+
+.lotus-score-badge {
+	background: #00897b;
+	color: #ffffff;
+	padding: 2px 8px;
+	border-radius: 10px;
+	font-size: 11px;
+	font-weight: 700;
+}
+
+
+
+/* ---- AI003 Risk Signal page ---- */
+.rs-banner { padding: 10px 14px; border-radius: 8px; margin-bottom: 10px; }
+.rs-banner-demo { background: #fff7e6; border: 1px solid #f0c36d; color: #6b4e00; }
+.rs-banner-info { background: #eef4fb; border: 1px solid #9cc3e5; color: #1f4e79; }
+.rs-banner-ok { background: #edf7ed; border: 1px solid #9ccc9c; color: #1e4620; }
+.rs-banner-warning { background: #fff7e6; border: 1px solid #f0c36d; color: #6b4e00; }
+.rs-glossary { font-size: 12px; margin-bottom: 12px; }
+.rs-state, .rs-result { margin-top: 6px; }
+.rs-panel { border: 1px solid #d9d9d9; border-radius: 10px; padding: 14px 16px; background: #fff; }
+.rs-panel-muted { background: #fafafa; color: #555; }
+.rs-panel-error { border-color: #e53935; }
+.rs-panel-title { font-weight: 700; margin: 10px 0 4px; }
+.rs-header { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 6px; }
+.rs-chip { padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; display: inline-block; }
+.rs-chip-ok { background: #eef4fb; color: #1f4e79; border: 1px solid #9cc3e5; }
+.rs-chip-benign { background: #edf7ed; color: #1e4620; border: 1px solid #9ccc9c; }
+.rs-chip-watch { background: #fff3cd; color: #6b4e00; border: 1px solid #f0c36d; }
+.rs-chip-high { background: #fdecea; color: #8c1d18; border: 1px solid #e57368; }
+.rs-chip-inconclusive { background: #eceff1; color: #37474f; border: 1px solid #b0bec5; }
+.rs-chip-denied { background: #eceff1; color: #37474f; border: 1px solid #b0bec5; }
+.rs-chip-warn { background: #fff3cd; color: #6b4e00; border: 1px solid #f0c36d; }
+.rs-chip-error { background: #fdecea; color: #8c1d18; border: 1px solid #e57368; }
+.rs-chip-pending { background: #f3e5f5; color: #4a148c; border: 1px solid #ce93d8; }
+.rs-meta { color: #777; font-size: 12px; }
+.rs-reason { margin: 6px 0 2px; }
+.rs-reason-text { font-size: 13px; }
+.rs-section { margin-top: 10px; padding-top: 6px; border-top: 1px dashed #e5e5e5; }
+.rs-kv { display: flex; justify-content: space-between; gap: 12px; padding: 3px 0; }
+.rs-kv-label { color: #555; }
+.rs-kv-value { font-weight: 600; text-align: right; }
+.rs-num { font-variant-numeric: tabular-nums; }
+.rs-note { font-size: 12px; margin: 2px 0; }
+.rs-explanation { white-space: pre-wrap; font-size: 13px; }
+.rs-next { font-size: 13px; }
+.rs-evidence-row { display: flex; align-items: center; gap: 10px; margin: 6px 0; }
+.rs-evidence-live { margin-top: 10px; }
+.rs-debug { font-size: 11px; margin-top: 12px; border-top: 1px solid #eee; padding-top: 6px; }
+@media (max-width: 768px) {
+  .rs-kv { flex-direction: column; gap: 0; }
+  .rs-kv-value { text-align: left; }
+}

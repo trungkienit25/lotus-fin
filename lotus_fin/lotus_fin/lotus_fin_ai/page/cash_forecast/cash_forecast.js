@@ -70,10 +70,15 @@ lotus_fin.cash_forecast.Controller = class Controller {
 			}
 		});
 
-		// 3. Primary Run Forecast Button
+		// AI003 entry point (additive)
+		this.page.add_button(__("Risk Signal"), function () {
+			frappe.set_route("risk-signal");
+		}, "octicon octicon-pulse");
+
 		this.page.set_primary_action(__("Compute Forecast"), function () {
 			me.fetch_forecast(true);
 		}, "octicon octicon-sync");
+
 	}
 
 	setup_dom() {
@@ -227,6 +232,7 @@ lotus_fin.cash_forecast.Controller = class Controller {
 	}
 
 	fetch_forecast(want_explanation = true) {
+
 		const me = this;
 		const company = this.company_field.get_value();
 		const as_of = this.as_of_field.get_value() || "2026-09-26";

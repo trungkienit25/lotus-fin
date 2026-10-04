@@ -1,6 +1,6 @@
 {
  "charts": [],
- "content": "[{\"id\":\"hdr_1\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h3\\\"><b>Lotus Fin AI \u2014 Trung t\u00e2m T\u00e0i ch\u00ednh & Tr\u1ee3 l\u00fd Copilot</b></span>\",\"col\":12}},{\"id\":\"sc_1\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"\ud83e\udd16 Lotus Fin AI Copilot\",\"col\":3}},{\"id\":\"sc_2\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"\ud83d\udcca S\u1ee9c kh\u1ecfe T\u00e0i ch\u00ednh (AI001)\",\"col\":3}},{\"id\":\"sc_3\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"\ud83d\udd2e What-If Stress-Test Studio\",\"col\":3}},{\"id\":\"sc_4\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"\ud83d\udca7 D\u1ef1 b\u00e1o D\u00f2ng ti\u1ec1n & Runway\",\"col\":3}},{\"id\":\"card_modules\",\"type\":\"card\",\"data\":{\"card_name\":\"AI Financial Management\",\"col\":12}}]",
+ "content": "[{\"id\":\"hdr_1\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h3\\\"><b>Lotus Fin AI — Trung tâm Tài chính & Trợ lý Copilot</b></span>\",\"col\":12}},{\"id\":\"sc_1\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"🤖 Lotus Fin AI Copilot\",\"col\":3}},{\"id\":\"sc_2\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"📊 Sức khỏe Tài chính (AI001)\",\"col\":3}},{\"id\":\"sc_3\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"🔮 What-If Stress-Test Studio\",\"col\":3}},{\"id\":\"sc_4\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"💧 Dự báo Dòng tiền & Runway\",\"col\":3}},{\"id\":\"card_modules\",\"type\":\"card\",\"data\":{\"card_name\":\"AI Financial Management\",\"col\":12}}]",
  "creation": "2026-09-30 22:30:00.000000",
  "custom_blocks": [],
  "docstatus": 0,
@@ -17,7 +17,7 @@
    "hidden": 0,
    "is_query_report": 0,
    "label": "AI Financial Management",
-   "link_count": 7,
+   "link_count": 8,
    "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
@@ -70,6 +70,17 @@
    "dependencies": "",
    "hidden": 0,
    "is_query_report": 0,
+   "label": "Risk Signal",
+   "link_count": 0,
+   "link_to": "risk-signal",
+   "link_type": "Page",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
    "label": "Company Financial Accounts",
    "link_count": 0,
    "link_to": "Account",
@@ -100,7 +111,7 @@
    "type": "Link"
   }
  ],
- "modified": "2026-10-03 08:30:00.000000",
+ "modified": "2026-10-04 22:30:00.000000",
  "modified_by": "Administrator",
  "module": "Lotus Fin AI",
  "name": "Lotus Fin AI",
@@ -117,7 +128,7 @@
    "color": "Blue",
    "doc_view": "",
    "format": "",
-   "label": "\ud83e\udd16 Lotus Fin AI Copilot",
+   "label": "🤖 Lotus Fin AI Copilot",
    "link_to": "lotus-copilot",
    "type": "Page"
   },
@@ -125,7 +136,7 @@
    "color": "Green",
    "doc_view": "",
    "format": "",
-   "label": "\ud83d\udcca S\u1ee9c kh\u1ecfe T\u00e0i ch\u00ednh (AI001)",
+   "label": "📊 Sức khỏe Tài chính (AI001)",
    "link_to": "financial-health",
    "type": "Page"
   },
@@ -133,7 +144,7 @@
    "color": "Purple",
    "doc_view": "",
    "format": "",
-   "label": "\ud83d\udd2e What-If Stress-Test Studio",
+   "label": "🔮 What-If Stress-Test Studio",
    "link_to": "what-if-studio",
    "type": "Page"
   },
@@ -141,8 +152,16 @@
    "color": "Cyan",
    "doc_view": "",
    "format": "",
-   "label": "\ud83d\udca7 D\u1ef1 b\u00e1o D\u00f2ng ti\u1ec1n & Runway",
+   "label": "💧 Dự báo Dòng tiền & Runway",
    "link_to": "cash-forecast",
+   "type": "Page"
+  },
+  {
+   "color": "Orange",
+   "doc_view": "",
+   "format": "",
+   "label": "⚠️ Tín hiệu Rủi ro (AI003)",
+   "link_to": "risk-signal",
    "type": "Page"
   }
  ],

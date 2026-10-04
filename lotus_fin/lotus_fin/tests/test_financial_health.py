@@ -193,7 +193,7 @@ class TestFinancialHealthMetricsAndComparison(unittest.TestCase):
         sources = {
             "profit_and_loss": [],
             "accounts_receivable": [],
-            "accounts_payable": [{"party": "P1", "outstanding_amount": 100.0}],
+            "accounts_payable": [{"party": "P1", "voucher_no": "PINV-0001", "outstanding_amount": 100.0}],
             "trial_balance": []
         }
         snap = build_financial_snapshot(

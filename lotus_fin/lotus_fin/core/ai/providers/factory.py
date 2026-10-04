@@ -21,10 +21,7 @@ class ProviderFactory:
         elif p_name in ["openai", "chatgpt"]:
             return OpenAIProvider(model_name=model_name or "gpt-4o-mini")
         elif p_name in ["gemini", "google"]:
-            cand = model_name or os.environ.get("LOTUS_LLM_MODEL") or "gemini-flash-lite-latest"
-            if cand in ["gemini-1.5-flash", "gemini-flash-latest", "gemini-2.5-flash"]:
-                cand = "gemini-flash-lite-latest"
-            return GeminiProvider(model_name=cand)
+            return GeminiProvider(model_name=model_name or "gemini-1.5-flash")
         else:
             # Fallback to mock provider for unknown names
             return MockLLMProvider(model_name=model_name or "mock")

@@ -1,0 +1,35 @@
+{
+  "site": "ai003-verify.localhost",
+  "python": "3.14.7 (main, Sep  1 2026, 00:08:22) [GCC 12.2.0]",
+  "installed_apps": [
+    "frappe",
+    "erpnext",
+    "lotus_fin"
+  ],
+  "companies": [
+    "AI002 Fixture 2026",
+    "AI003 Gold 2026",
+    "AI003 Empty 2026"
+  ],
+  "demo_invoice_present": true,
+  "page_present": true,
+  "gl_company_years": [
+    [
+      "AI002 Fixture 2026",
+      2026,
+      30
+    ],
+    [
+      "AI003 Gold 2026",
+      2026,
+      58
+    ]
+  ],
+  "scope_column": true,
+  "init_calls": [
+    {
+      "requested": "ai003-verify.localhost",
+      "actual": "ai003-verify.localhost"
+    }
+  ]
+}
