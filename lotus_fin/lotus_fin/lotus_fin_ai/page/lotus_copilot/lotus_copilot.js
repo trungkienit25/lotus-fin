@@ -57,8 +57,24 @@ lotus_fin.copilot_page.Controller = class Controller {
 			frappe.set_route("financial-health");
 		});
 
-		this.page.add_inner_button(__("🔮 Stress-Test Studio"), function() {
+		this.page.add_inner_button(__("💧 Dòng tiền (AI002)"), function() {
+			frappe.set_route("cash-forecast");
+		});
+
+		this.page.add_inner_button(__("⚠️ Rủi ro (AI003)"), function() {
+			frappe.set_route("risk-signal");
+		});
+
+		this.page.add_inner_button(__("🔮 What-If (AI004)"), function() {
 			frappe.set_route("what-if-studio");
+		});
+
+		this.page.add_inner_button(__("🏦 Gói vay (AI005)"), function() {
+			frappe.set_route("financing-copilot");
+		});
+
+		this.page.add_inner_button(__("📑 Lịch trả nợ (AI006)"), function() {
+			frappe.set_route("repayment-schedule");
 		});
 	}
 

@@ -1,11 +1,14 @@
 """
 Lotus Fin - Agentic Copilot Service.
 
-Provides natural language understanding and dynamic dispatching to domain plugins:
+Provides natural language understanding and dynamic dispatching across all 7 domain modules:
 - F001: Financial Health & Snapshot
-- F002: Cash-flow Forecast
-- F004: What-If Scenario Simulation
-- F005: Financing Matching & Consultation
+- F002: Cash-flow Forecast Copilot
+- F003: Risk Signal Agent (AR Overdue Spike & AP Due Cluster)
+- F004: What-If Scenario Stress Testing
+- F005: Financing Copilot & Loan Matcher
+- F006: Repayment & Interest Rate Shock Engine
+- F007: Financial Assistant Orchestrator
 """
 
 from decimal import Decimal
@@ -30,17 +33,102 @@ def process_copilot_query(
     """
     Agentic Copilot entrypoint:
     1. Authenticates & validates company boundary.
-    2. Identifies user financial intent & determines appropriate tool.
-    3. Invokes tool deterministically via plugin registry.
-    4. Formulates a grounded, clear executive explanation.
+    2. Identifies user financial intent & determines appropriate tool across 7 modules.
+    3. Invokes tool deterministically via plugin registry or domain service.
+    4. Formulates a grounded, clear executive explanation with structured widget data.
     """
     verified_company = get_verified_company(company)
     q_lower = query.lower()
 
-    # Tool Route 1: Financing & Bank Loan Inquiries (F005)
+    # Tool Route 1: Repayment Schedule & Interest Rate Shock (F006)
+    if any(k in q_lower for k in ["trả nợ", "lịch trả", "gốc lãi", "lãi suất tăng", "sốc lãi", "shock lãi", "pmt"]):
+        principal = 1000000000.0
+        trieu_match = re.search(r"(\d+)\s*(triệu|tr)", q_lower)
+        ty_match = re.search(r"(\d+)\s*(tỷ|ti)", q_lower)
+        if trieu_match:
+            principal = float(trieu_match.group(1)) * 1000000.0
+        elif ty_match:
+            principal = float(ty_match.group(1)) * 1000000000.0
+
+        rate = 0.085
+        rate_match = re.search(r"(\d+(?:\.\d+)?)\s*%", q_lower)
+        if rate_match:
+            rate = float(rate_match.group(1)) / 100.0
+
+        term = 12
+        term_match = re.search(r"(\d+)\s*(tháng|t\b)", q_lower)
+        if term_match:
+            term = int(term_match.group(1))
+
+        shock_bps = 0
+        if "200" in q_lower or "+2%" in q_lower or "2%" in q_lower:
+            shock_bps = 200
+        elif "100" in q_lower or "+1%" in q_lower or "1%" in q_lower:
+            shock_bps = 100
+        elif "300" in q_lower or "+3%" in q_lower or "3%" in q_lower:
+            shock_bps = 300
+
+        # Calculate repayment schedule (AI006 logic)
+        try:
+            from lotus_fin.modules.f006_repayment.models import LoanTerms, AmortizationMethod, StressScenarioParams, StressType
+            from lotus_fin.modules.f006_repayment.engine import RepaymentEngine
+            from lotus_fin.modules.f006_repayment.stress import StressSimulationEngine
+
+            terms = LoanTerms(
+                principal=Decimal(str(principal)),
+                annual_rate=Decimal(str(rate)),
+                term_months=term,
+                amortization_method=AmortizationMethod.EQUAL_INSTALLMENT
+            )
+            engine = RepaymentEngine()
+            sched_res = engine.calculate_schedule(terms)
+
+            shock_info = ""
+            added_interest = 0.0
+            if shock_bps > 0:
+                stress_engine = StressSimulationEngine()
+                params = StressScenarioParams(stress_type=StressType.RATE_SHOCK, rate_shock_bps=shock_bps)
+                st_res = stress_engine.run_stress_test(terms, params)
+                int_kpi = next((k for k in st_res.comparison_kpis if k.kpi_name == "Total Interest"), None)
+                if int_kpi:
+                    added_interest = float(int_kpi.absolute_change)
+                    shock_info = f"\n- **Tác động sốc lãi suất (+{shock_bps} bps):** Chi phí lãi tăng thêm **+{frappe.format(added_interest, {'fieldtype': 'Currency', 'currency': 'VND'})}**."
+
+            avg_monthly = float(sched_res.summary.get("average_monthly_payment", 0.0))
+            total_int = float(sched_res.summary.get("total_interest", 0.0))
+
+            reply = (
+                f"Đã lập kế hoạch trả nợ định lượng (AI006) cho khoản vay của **{verified_company}**:\n\n"
+                f"- **Gốc vay:** {frappe.format(principal, {'fieldtype': 'Currency', 'currency': 'VND'})}\n"
+                f"- **Lãi suất cơ sở:** {rate*100:.1f}%/năm &bull; **Kỳ hạn:** {term} tháng\n"
+                f"- **Phương thức:** Trả góp đều (PMT — Gốc + Lãi cố định hàng tháng)\n"
+                f"- **Khoản thanh toán bình quân:** **{frappe.format(avg_monthly, {'fieldtype': 'Currency', 'currency': 'VND'})}/tháng**\n"
+                f"- **Tổng lãi dự kiến trong toàn kỳ:** {frappe.format(total_int, {'fieldtype': 'Currency', 'currency': 'VND'})}{shock_info}\n\n"
+                f"💡 **Khuyến nghị:** Dòng tiền chi trả hàng tháng đã được tính toán chính xác để cân đối nguồn thu tiền mặt."
+            )
+
+            return {
+                "status": "success",
+                "reply": reply,
+                "tool_called": "calculate_repayment_schedule",
+                "tool_label": "F006: Tính Lịch Trả Nợ & Áp Lực Lãi Suất",
+                "tool_output": {
+                    "principal": principal,
+                    "annual_rate": rate,
+                    "term_months": term,
+                    "monthly_payment": avg_monthly,
+                    "total_interest": total_int,
+                    "shock_bps": shock_bps,
+                    "shock_added_interest": added_interest,
+                    "schedule_summary": sched_res.summary
+                }
+            }
+        except Exception as e:
+            _logger.warning("F006 error: %s", str(e))
+
+    # Tool Route 2: Financing & Bank Loan Inquiries (F005)
     if any(k in q_lower for k in ["vay", "tín dụng", "vốn lưu động", "ngân hàng", "gói vay", "lãi suất vay", "hạn mức"]):
         amount = 500000000.0
-        # Parse numeric amounts like '500 triệu', '500tr', '1 tỷ'
         trieu_match = re.search(r"(\d+)\s*(triệu|tr)", q_lower)
         ty_match = re.search(r"(\d+)\s*(tỷ|ti)", q_lower)
         if trieu_match:
@@ -61,7 +149,6 @@ def process_copilot_query(
         }
         res = plugin_registry.dispatch_tool("match_financing_products", tool_args)
         
-        # Format response
         prods = res.get("matched_products", [])
         reply_lines = [
             f"Dựa trên hồ sơ tài chính thực tế của **{verified_company}**, tôi đã đối chiếu gói vay với danh mục sản phẩm tín dụng ngân hàng:",
@@ -71,16 +158,16 @@ def process_copilot_query(
             "### 🏆 Top sản phẩm tín dụng phù hợp nhất:"
         ]
         for idx, p in enumerate(prods[:3], 1):
-            rate = (p.get("nominal_rate_annual", 0.0) * 100)
+            p_rate = (p.get("nominal_rate_annual", 0.0) * 100)
             monthly_interest = p.get("estimated_monthly_interest", 0.0)
             reply_lines.append(
                 f"{idx}. **{p.get('provider')} — {p.get('product_name')}** (Điểm phù hợp: {p.get('match_score')}/100)\n"
-                f"   - Lãi suất: **{rate:.1f}%/năm** &bull; Lãi tạm tính: **~{frappe.format(monthly_interest, {'fieldtype': 'Currency', 'currency': 'VND'})}/tháng**\n"
+                f"   - Lãi suất: **{p_rate:.1f}%/năm** &bull; Lãi tạm tính: **~{frappe.format(monthly_interest, {'fieldtype': 'Currency', 'currency': 'VND'})}/tháng**\n"
                 f"   - Tốc độ giải ngân: **{p.get('disbursement_speed_days')} ngày**\n"
                 f"   - Đánh giá: {p.get('rationale', 'Đủ điều kiện tài trợ tiêu chuẩn.')}"
             )
         
-        reply_lines.append("\n*Lưu ý: Kết quả đối chiếu căn cứ theo dữ liệu sổ sách hiện hữu. Đề nghị kiểm tra thêm điều kiện tài sản bảo đảm với ngân hàng.*")
+        reply_lines.append("\n*Lưu ý: Kết quả đối chiếu căn cứ theo dữ liệu sổ sách hiện hữu. Bạn có thể sang trang Gói vay & Tài trợ để xem toàn bộ danh mục.*")
 
         return {
             "status": "success",
@@ -90,7 +177,48 @@ def process_copilot_query(
             "tool_output": res
         }
 
-    # Tool Route 2: What-If Stress Testing (F004)
+    # Tool Route 3: Risk Signal Monitoring (F003)
+    if any(k in q_lower for k in ["rủi ro", "tín hiệu", "risk signal", "quá hạn", "đột biến", "tập trung nợ", "cluster", "spike"]):
+        signal_type = "AP_DUE_CLUSTER" if any(k in q_lower for k in ["phải trả", "nhà cung cấp", "ap", "due"]) else "AR_OVERDUE_SPIKE"
+        try:
+            from lotus_fin.modules.f003_risk_signal.service import evaluate_signal
+            as_of_val = as_of_date or "2026-09-26"
+            sig_res = evaluate_signal({
+                "company": verified_company,
+                "signal_id": signal_type,
+                "as_of_date": as_of_val
+            })
+            
+            finding_text = "Bình thường"
+            severity = "BENIGN"
+            if sig_res.finding:
+                severity = sig_res.finding.severity.value
+                finding_text = f"Cảnh báo mức **{severity}**"
+
+            reply = (
+                f"Đã rà soát tín hiệu rủi ro tất định (**AI003**) cho **{verified_company}**:\n\n"
+                f"- **Tín hiệu phân tích:** `{signal_type}`\n"
+                f"- **Mức độ rủi ro:** {finding_text}\n"
+                f"- **Tình trạng:** `{sig_res.status.value}` (Audit Trail Hash: `{sig_res.audit_event_id or 'OK'}`)\n\n"
+                f"Số liệu được đối soát tự động từ báo cáo công nợ ERPNext và có bằng chứng kiểm toán (Evidence Replay)."
+            )
+
+            return {
+                "status": "success",
+                "reply": reply,
+                "tool_called": "evaluate_risk_signal",
+                "tool_label": f"F003: Giám sát Rủi ro ({signal_type})",
+                "tool_output": {
+                    "signal_id": signal_type,
+                    "severity": severity,
+                    "status": sig_res.status.value,
+                    "company": verified_company
+                }
+            }
+        except Exception as e:
+            _logger.warning("F003 error: %s", str(e))
+
+    # Tool Route 4: What-If Stress Testing (F004)
     if any(k in q_lower for k in ["what-if", "nếu", "kịch bản", "giảm", "sốc", "khách trả chậm", "stress-test", "stress test"]):
         sales_change = 0.0
         if "giảm 20%" in q_lower or "-20%" in q_lower:
@@ -142,7 +270,7 @@ def process_copilot_query(
             "tool_output": res
         }
 
-    # Tool Route 3: Cashflow Forecast 30 days (F002)
+    # Tool Route 5: Cashflow Forecast 30 days (F002)
     if any(k in q_lower for k in ["dòng tiền", "quỹ đạo", "runway", "dự báo 30", "dự báo tiền", "thâm hụt"]):
         tool_args = {
             "company": verified_company,

@@ -1,13 +1,13 @@
-// Lotus Fin — Reusable Chat Copilot Component
+// Lotus Fin — Reusable Chat Copilot Component across All 7 Modules
 frappe.provide("lotus_fin.components");
 
 lotus_fin.components.ChatCopilot = class ChatCopilot {
 	constructor(opts) {
 		this.parent = $(opts.parent);
 		this.get_company = opts.get_company || (() => frappe.defaults.get_user_default("Company"));
-		this.title = opts.title || __("Lotus Fin AI Copilot — Trợ lý Thông minh & Điều phối");
-		this.badge = opts.badge || __("Agentic AI • Tool Calling • Grounded Accounting");
-		this.min_height = opts.min_height || "420px";
+		this.title = opts.title || __("Lotus Fin AI Copilot — Đối thoại & Điều phối Nghiệp vụ");
+		this.badge = opts.badge || __("Deterministic Tool Calling • Real-time Accounting Data");
+		this.min_height = opts.min_height || "480px";
 		this.show_quick_pills = opts.show_quick_pills !== false;
 		this.chat_history = [];
 		this.render();
@@ -18,13 +18,14 @@ lotus_fin.components.ChatCopilot = class ChatCopilot {
 	render() {
 		const quickPillsHtml = this.show_quick_pills ? `
 			<div class="mb-3">
-				<span class="text-muted" style="font-size: 11px; font-weight: 600;">💡 Gợi ý câu hỏi nhanh:</span>
+				<span class="text-muted" style="font-size: 11px; font-weight: 600;">💡 Gợi ý câu hỏi nhanh (AI001 - AI007):</span>
 				<div class="mt-1 d-flex flex-wrap gap-1">
-					<span class="lotus-quick-pill" data-query="Kiểm tra tổng quan sức khỏe tài chính và doanh thu năm nay của công ty">📊 Sức khỏe tài chính năm nay</span>
-					<span class="lotus-quick-pill" data-query="Dự báo quỹ đạo dòng tiền 30 ngày tới và các mốc thiếu hụt thanh khoản">📈 Dự báo dòng tiền 30 ngày</span>
-					<span class="lotus-quick-pill" data-query="Nếu doanh thu giảm 20% và khách hàng thanh toán trễ 15 ngày thì dòng tiền thế nào?">⚡ What-If: Doanh thu -20%, nợ trễ 15 ngày</span>
-					<span class="lotus-quick-pill" data-query="Doanh nghiệp cần vay 500 triệu bổ sung vốn lưu động 12 tháng thì có gói nào phù hợp?">💰 Tư vấn vay 500tr vốn lưu động 12T</span>
-					<span class="lotus-quick-pill" data-query="Tình hình công nợ phải thu hiện tại và tỷ lệ quá hạn là bao nhiêu?">🔍 Công nợ phải thu & nợ quá hạn</span>
+					<span class="lotus-quick-pill" data-query="Sức khỏe tài chính năm nay của công ty thế nào?">📊 Sức khỏe tài chính (F001)</span>
+					<span class="lotus-quick-pill" data-query="Dự báo dòng tiền 30 ngày tới và các mốc thâm hụt">💧 Dự báo dòng tiền (F002)</span>
+					<span class="lotus-quick-pill" data-query="Kiểm tra tín hiệu rủi ro nợ quá hạn AR spike và AP cluster">⚠️ Tín hiệu rủi ro (F003)</span>
+					<span class="lotus-quick-pill" data-query="Nếu doanh thu giảm 20% và khách nợ trễ 15 ngày thì dòng tiền thế nào?">🔮 What-If: Doanh thu -20%, nợ trễ 15 ngày (F004)</span>
+					<span class="lotus-quick-pill" data-query="Tư vấn vay 1 tỷ vốn lưu động 12 tháng có gói nào phù hợp?">🏦 Tư vấn gói vay 1 tỷ (F005)</span>
+					<span class="lotus-quick-pill" data-query="Lập lịch trả nợ vay 1 tỷ lãi 8.5% trong 12 tháng và sốc lãi suất tăng 200 bps">📑 Lập lịch trả nợ & Sốc lãi suất (F006)</span>
 				</div>
 			</div>
 		` : "";
@@ -41,7 +42,7 @@ lotus_fin.components.ChatCopilot = class ChatCopilot {
 					</button>
 				</div>
 				<p class="text-muted" style="font-size: 13px; margin-bottom: 14px; line-height: 1.5;">
-					${__("Hỏi đáp bằng ngôn ngữ tự nhiên. AI hoạt động theo cơ chế <b>Agentic Tool Calling</b>: hiểu ngữ cảnh, gọi các công cụ kế toán chuyên sâu (F001 Sức khỏe, F002 Dòng tiền, F004 What-If, F005 Vay vốn) để tính toán chính xác và giải thích minh bạch.")}
+					${__("Hỏi đáp bằng ngôn ngữ tự nhiên. AI hoạt động theo cơ chế <b>Agentic Tool Calling</b>: hiểu ngữ cảnh, gọi các công cụ tài chính chuyên sâu (F001 Sức khỏe, F002 Dòng tiền, F003 Rủi ro, F004 What-If, F005 Vay vốn, F006 Trả nợ) để tính toán chính xác và giải thích minh bạch.")}
 				</p>
 				${quickPillsHtml}
 				<div class="lotus-chat-container">
@@ -49,7 +50,7 @@ lotus_fin.components.ChatCopilot = class ChatCopilot {
 						<!-- Messages dynamically rendered here -->
 					</div>
 					<div class="lotus-chat-input-bar">
-						<input type="text" class="lotus-copilot-input input-copilot-query" placeholder="${__("Nhập câu hỏi tài chính bằng ngôn ngữ tự nhiên (Ví dụ: Doanh thu năm nay bao nhiêu? Dòng tiền tháng tới thế nào?)...")}" />
+						<input type="text" class="lotus-copilot-input input-copilot-query" placeholder="${__("Nhập câu hỏi tài chính bằng ngôn ngữ tự nhiên (Ví dụ: Doanh thu năm nay bao nhiêu? Tư vấn gói vay 1 tỷ?)...")}" />
 						<button class="lotus-chat-send-btn btn-ask-copilot">
 							<span>🚀 ${__("Gửi")}</span>
 						</button>
@@ -109,8 +110,10 @@ lotus_fin.components.ChatCopilot = class ChatCopilot {
 							<ul class="mb-0 mt-2 pl-3" style="line-height: 1.6;">
 								<li><b>F001 Sức khỏe tài chính:</b> Doanh thu, giá vốn, lãi gộp, số dư tiền mặt, công nợ AR/AP.</li>
 								<li><b>F002 Dự báo dòng tiền:</b> Quỹ đạo tiền mặt 30 ngày và nguy cơ thiếu hụt.</li>
-								<li><b>F004 Mô phỏng What-If:</b> Stress-test khi doanh số giảm hoặc khách trả chậm.</li>
+								<li><b>F003 Tín hiệu rủi ro:</b> Giám sát đột biến nợ quá hạn và áp lực thanh toán dồn ứ.</li>
+								<li><b>F004 Mô phỏng What-If:</b> Stress-test khi doanh số biến động hoặc khách hàng trả chậm.</li>
 								<li><b>F005 Tư vấn giải pháp vay:</b> Đối chiếu gói tín dụng ngân hàng theo điều kiện doanh nghiệp.</li>
+								<li><b>F006 Lập lịch trả nợ:</b> Tính toán lịch trả gốc lãi và kiểm tra khả năng chịu đựng khi sốc lãi suất (+bps).</li>
 							</ul>
 						</div>
 					</div>
@@ -222,6 +225,32 @@ lotus_fin.components.ChatCopilot = class ChatCopilot {
 	}
 
 	render_tool_output_widget(toolName, output) {
+		// F006: Repayment Schedule Widget
+		if (toolName === "calculate_repayment_schedule" && output.monthly_payment) {
+			const pmtStr = frappe.format(output.monthly_payment, { fieldtype: "Currency", currency: "VND" });
+			const intStr = frappe.format(output.total_interest, { fieldtype: "Currency", currency: "VND" });
+			const shockHtml = output.shock_bps > 0 ? `
+				<div class="mt-1 text-danger font-weight-bold" style="font-size: 11px;">
+					⚠️ Sốc lãi (+${output.shock_bps} bps): Chi phí lãi tăng thêm +${frappe.format(output.shock_added_interest, { fieldtype: "Currency", currency: "VND" })}
+				</div>
+			` : "";
+
+			return `
+				<div class="lotus-chat-widget">
+					<div class="d-flex justify-content-between align-items-center">
+						<b>📑 Tóm tắt Kế hoạch Trả nợ:</b>
+						<a href="/desk/repayment-schedule" class="badge badge-light" style="border: 1px solid #cbd5e1;">Mở Studio &rarr;</a>
+					</div>
+					<div class="row mt-2" style="font-size: 12px;">
+						<div class="col-6">Trả hàng tháng: <b class="text-primary">${pmtStr}</b></div>
+						<div class="col-6">Tổng tiền lãi: <b class="text-warning">${intStr}</b></div>
+					</div>
+					${shockHtml}
+				</div>
+			`;
+		}
+
+		// F005: Financing Products Widget
 		if (toolName === "match_financing_products" && output.matched_products) {
 			const prods = output.matched_products.slice(0, 3);
 			if (!prods.length) return "";
@@ -230,33 +259,66 @@ lotus_fin.components.ChatCopilot = class ChatCopilot {
 				const rate = (p.nominal_rate_annual * 100).toFixed(1);
 				const interest = frappe.format(p.estimated_monthly_interest, { fieldtype: "Currency", currency: "VND" });
 				cards += `
-					<div class="lotus-product-card ${idx === 0 ? 'top-recommended' : ''} mb-2 p-2">
+					<div class="lotus-product-card ${idx === 0 ? 'top-recommended' : ''} mb-2 p-2" style="background:#ffffff; border:1px solid #e2e8f0; border-radius:8px;">
 						<div class="d-flex justify-content-between align-items-center">
 							<b>${idx + 1}. ${frappe.utils.escape_html(p.provider)} — ${frappe.utils.escape_html(p.product_name)}</b>
-							<span class="lotus-score-badge">${p.match_score}/100</span>
+							<span class="badge badge-success">${p.match_score}/100</span>
 						</div>
-						<div class="mt-1" style="font-size: 11px;">
-							Lãi suất: <b class="text-success">${rate}%/năm</b> &bull; Lãi ước tính: <b>~${interest}/tháng</b> &bull; Giải ngân: <b>${p.disbursement_speed_days} ngày</b>
+						<div class="mt-1 text-muted" style="font-size: 11px;">
+							Lãi suất: <b class="text-success">${rate}%/năm</b> &bull; Lãi tạm tính: <b>~${interest}/tháng</b> &bull; Giải ngân: <b>${p.disbursement_speed_days} ngày</b>
 						</div>
 					</div>
 				`;
 			});
-			return `<div class="lotus-chat-widget"><b>🏆 Thẻ tóm tắt gói vay phù hợp:</b><div class="mt-2">${cards}</div></div>`;
+			return `
+				<div class="lotus-chat-widget">
+					<div class="d-flex justify-content-between align-items-center mb-2">
+						<b>🏆 Thẻ tóm tắt gói vay phù hợp:</b>
+						<a href="/desk/financing-copilot" class="badge badge-light" style="border: 1px solid #cbd5e1;">Xem toàn bộ &rarr;</a>
+					</div>
+					<div>${cards}</div>
+				</div>
+			`;
 		}
 
+		// F003: Risk Signal Widget
+		if (toolName === "evaluate_risk_signal") {
+			return `
+				<div class="lotus-chat-widget">
+					<div class="d-flex justify-content-between align-items-center">
+						<b>⚠️ Trạng thái Tín hiệu Rủi ro:</b>
+						<a href="/desk/risk-signal" class="badge badge-light" style="border: 1px solid #cbd5e1;">Mở Risk Agent &rarr;</a>
+					</div>
+					<div class="mt-1" style="font-size: 12px;">
+						Tín hiệu: <code>${frappe.utils.escape_html(output.signal_id)}</code> &bull; Mức độ: <b class="text-warning">${output.severity}</b> &bull; Status: <b>${output.status}</b>
+					</div>
+				</div>
+			`;
+		}
+
+		// F001: Financial Snapshot Widget
 		if (toolName === "get_financial_snapshot" && output.metrics) {
 			const metrics = output.metrics || [];
 			let pills = "";
 			metrics.slice(0, 5).forEach(m => {
 				if (m.status === "AVAILABLE" && m.value !== null) {
-					pills += `<span class="badge badge-light mr-2 mb-1 p-2" style="border: 1px solid #cbd5e1;">${m.metric_id}: <b>${frappe.format(m.value, { fieldtype: "Currency", currency: "VND" })}</b></span>`;
+					pills += `<span class="badge badge-light mr-2 mb-1 p-2" style="border: 1px solid #cbd5e1; font-size:11px;">${m.metric_id}: <b>${frappe.format(m.value, { fieldtype: "Currency", currency: "VND" })}</b></span>`;
 				}
 			});
 			if (pills) {
-				return `<div class="lotus-chat-widget"><b>📋 Chỉ số tài chính trích xuất:</b><div class="mt-2 d-flex flex-wrap">${pills}</div></div>`;
+				return `
+					<div class="lotus-chat-widget">
+						<div class="d-flex justify-content-between align-items-center mb-2">
+							<b>📋 Chỉ số tài chính trích xuất:</b>
+							<a href="/desk/financial-health" class="badge badge-light" style="border: 1px solid #cbd5e1;">Xem Báo cáo &rarr;</a>
+						</div>
+						<div class="d-flex flex-wrap">${pills}</div>
+					</div>
+				`;
 			}
 		}
 
+		// F004: What-If Simulation Widget
 		if (toolName === "simulate_what_if_scenario" && output.kpis) {
 			const kpis = output.kpis || [];
 			let rows = "";
@@ -270,7 +332,15 @@ lotus_fin.components.ChatCopilot = class ChatCopilot {
 					</div>
 				`;
 			});
-			return `<div class="lotus-chat-widget"><b>🔮 Kết quả mô phỏng 9-KPI:</b><div class="mt-2">${rows}</div></div>`;
+			return `
+				<div class="lotus-chat-widget">
+					<div class="d-flex justify-content-between align-items-center mb-2">
+						<b>🔮 Kết quả mô phỏng 9-KPI:</b>
+						<a href="/desk/what-if-studio" class="badge badge-light" style="border: 1px solid #cbd5e1;">Mở Studio &rarr;</a>
+					</div>
+					<div>${rows}</div>
+				</div>
+			`;
 		}
 
 		return "";
