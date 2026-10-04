@@ -60,6 +60,12 @@ lotus_fin.what_if_page.Controller = class Controller {
 		this.page.add_inner_button(__("📊 Sức khỏe tài chính"), function() {
 			frappe.set_route("financial-health");
 		});
+
+		this.page.set_primary_action(__("Chạy mô phỏng Stress-Test"), function () {
+			if (me.studio && typeof me.studio.run_simulation === "function") {
+				me.studio.run_simulation();
+			}
+		}, "octicon octicon-play");
 	}
 
 	setup_dom() {

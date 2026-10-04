@@ -72,6 +72,10 @@ lotus_fin.repayment_page.Controller = class Controller {
 		this.page.add_inner_button(__("🔮 Stress Studio (AI004)"), function() {
 			frappe.set_route("what-if-studio");
 		});
+
+		this.page.set_primary_action(__("Tính toán Lịch trả nợ"), function () {
+			me.calculate_schedule();
+		}, "octicon octicon-calendar");
 	}
 
 	setup_dom() {

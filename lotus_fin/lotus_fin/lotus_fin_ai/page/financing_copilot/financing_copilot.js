@@ -73,6 +73,10 @@ lotus_fin.financing_page.Controller = class Controller {
 		this.page.add_inner_button(__("📊 Sức khỏe tài chính"), function() {
 			frappe.set_route("financial-health");
 		});
+
+		this.page.set_primary_action(__("Khớp nối Gói vay"), function () {
+			me.run_matching();
+		}, "octicon octicon-search");
 	}
 
 	setup_dom() {
