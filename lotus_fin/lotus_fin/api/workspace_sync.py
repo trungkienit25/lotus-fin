@@ -93,11 +93,43 @@ def sync_lotus_workspace():
         p_doc.flags.ignore_permissions = True
         p_doc.save()
 
-    # 3. Clean up any custom/cached sidebar overrides
+    # 3. Create direct Left-Sidebar Navigation Workspaces for all 7 modules (First/Top sequence)
+    sidebar_items = [
+        ("Lotus Fin AI Copilot", "🤖 Lotus Fin AI Copilot", "lotus-copilot", 0.1),
+        ("Financial Health AI", "📊 Sức khỏe tài chính", "financial-health", 0.2),
+        ("Cash Forecast AI", "💧 Dự báo dòng tiền", "cash-forecast", 0.3),
+        ("Risk Signal AI", "⚠️ Tín hiệu rủi ro", "risk-signal", 0.4),
+        ("What If Studio AI", "🔮 What-If Studio", "what-if-studio", 0.5),
+        ("Financing Copilot AI", "🏦 Gói vay & Tài trợ", "financing-copilot", 0.6),
+        ("Repayment Schedule AI", "📑 Lịch trả nợ", "repayment-schedule", 0.7),
+    ]
+
+    for ws_name, ws_label, p_name, seq in sidebar_items:
+        # Check by name or link_to
+        existing = frappe.db.get_value("Workspace", {"link_to": p_name}, "name") or ws_name
+        if frappe.db.exists("Workspace", existing):
+            doc = frappe.get_doc("Workspace", existing)
+        else:
+            doc = frappe.new_doc("Workspace")
+            doc.name = ws_name
+
+        doc.label = ws_label
+        doc.title = ws_label
+        doc.module = "Lotus Fin AI"
+        doc.type = "Link"
+        doc.link_type = "Page"
+        doc.link_to = p_name
+        doc.sequence_id = seq
+        doc.public = 1
+        doc.is_hidden = 0
+        doc.flags.ignore_permissions = True
+        doc.save()
+
+    # 4. Clean up any obsolete workspace records
     frappe.db.delete("Workspace", {"name": ["like", "Lotus Fin AI-%"]})
     frappe.db.commit()
     frappe.clear_cache()
 
-    print("Successfully synchronized Lotus Fin AI Workspace & all 7 Pages!")
+    print("Successfully synchronized Lotus Fin AI Workspace & all 7 Pages in Left Sidebar!")
     return {"status": "success", "shortcuts_count": len(ws.shortcuts), "links_count": len(ws.links)}
 
