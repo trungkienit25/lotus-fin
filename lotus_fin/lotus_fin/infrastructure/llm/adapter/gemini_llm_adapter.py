@@ -85,9 +85,9 @@ class GeminiLLMAdapter(ILLMProvider):
                     "parts": parts or [{"text": ""}]
                 })
             elif msg.role == MessageRole.TOOL:
-                # Tool execution response
+                # In Gemini generateContent API, functionResponse parts are sent under role 'user'
                 contents.append({
-                    "role": "function",
+                    "role": "user",
                     "parts": [{
                         "functionResponse": {
                             "name": msg.tool_call_id or "tool_response",
@@ -95,6 +95,7 @@ class GeminiLLMAdapter(ILLMProvider):
                         }
                     }]
                 })
+
 
         payload: Dict[str, Any] = {
             "contents": contents,
