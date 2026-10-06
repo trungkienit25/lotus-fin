@@ -28,14 +28,18 @@ _tool_registry = create_default_tool_registry()
 _tool_invoker = ToolInvoker(_tool_registry)
 
 
+from lotus_fin.infrastructure.llm.llm_factory import LLMProviderFactory
+
+
 def get_copilot_service(llm_provider=None) -> CopilotService:
-    provider = llm_provider or MockLLMAdapter()
+    provider = llm_provider or LLMProviderFactory.create_provider()
     return CopilotService(
         llm_provider=provider,
         tool_registry=_tool_registry,
         tool_invoker=_tool_invoker,
         session_repository=_session_repo
     )
+
 
 
 class CopilotController:
