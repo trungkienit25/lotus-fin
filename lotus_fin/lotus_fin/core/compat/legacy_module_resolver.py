@@ -24,6 +24,11 @@ from typing import Dict, Optional, Sequence
 _logger = logging.getLogger("lotus_fin.core.compat.legacy_resolver")
 
 LEGACY_TO_CANONICAL_MAP: Dict[str, str] = {
+    "lotus_fin.ai.observability": "lotus_fin.infrastructure.observability.observability",
+    "lotus_fin.ai.financial_health": "lotus_fin.modules.f001_health.financial_health",
+    "lotus_fin.ai.financial_snapshot": "lotus_fin.modules.f001_health.financial_snapshot",
+    "lotus_fin.ai.explanation": "lotus_fin.modules.f001_health.explanation",
+    "lotus_fin.ai": "lotus_fin.modules.f001_health",
     "lotus_fin.ai004": "lotus_fin.modules.f004_what_if",
     "lotus_fin.AI005": "lotus_fin.modules.f005_financing",
     "lotus_fin.AI006": "lotus_fin.modules.f006_repayment",
