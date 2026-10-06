@@ -38,3 +38,4 @@ def compute_estimated_monthly_interest(amount: Decimal, annual_rate: Decimal) ->
     """Computes simple initial monthly interest accrual in VND."""
     monthly_interest = (amount * annual_rate / Decimal("12.0")).quantize(Decimal("1.0"), rounding=ROUND_HALF_UP)
     return float(monthly_interest)
+

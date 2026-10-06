@@ -9,7 +9,7 @@ from lotus_fin.core.domain.entities.loan_product import (
 )
 from lotus_fin.core.domain.calculators.credit_scorer import CreditScorer
 from lotus_fin.core.dto.financing_dto import FinancingMatchRequestDTO
-from lotus_fin.AI005.catalog import get_active_catalog
+from lotus_fin.modules.f005_financing.catalog import get_active_catalog
 
 
 class FinancingCoordinator:

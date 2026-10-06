@@ -54,3 +54,4 @@ class RepaymentScheduleOutputContract(BaseModel):
     fees: Dict[str, Any]
     assumptions: List[str]
     limitations: List[str]
+

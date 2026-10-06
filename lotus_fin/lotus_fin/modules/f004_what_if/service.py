@@ -1,10 +1,10 @@
 from datetime import date
 from decimal import Decimal
 from typing import List, Optional
-from lotus_fin.ai004.domain.models import ScenarioParameters, ScenarioResult, SimulatedCashEvent
-from lotus_fin.ai004.engine.simulator import ScenarioSimulator
-from lotus_fin.ai004.adapters.baseline_adapter import BaselineSourceAdapter
-from lotus_fin.ai004.adapters.llm_explainer import ScenarioExplainer
+from lotus_fin.modules.f004_what_if.domain.models import ScenarioParameters, ScenarioResult, SimulatedCashEvent
+from lotus_fin.modules.f004_what_if.engine.simulator import ScenarioSimulator
+from lotus_fin.modules.f004_what_if.adapters.baseline_adapter import BaselineSourceAdapter
+from lotus_fin.modules.f004_what_if.adapters.llm_explainer import ScenarioExplainer
 
 
 class ScenarioService:

@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List
-from lotus_fin.ai004.domain.models import SimulatedCashEvent, ScenarioParameters
+from lotus_fin.modules.f004_what_if.domain.models import SimulatedCashEvent, ScenarioParameters
 
 class IScenarioModifier(ABC):
     """

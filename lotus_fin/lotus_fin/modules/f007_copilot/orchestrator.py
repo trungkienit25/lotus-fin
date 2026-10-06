@@ -17,14 +17,22 @@ from .models import (
 # Import các module tài chính tất định từ hệ thống Lotus Fin
 # Dùng try-except để mock khi chạy test độc lập
 try:
-    from lotus_fin.AI005.models import FinancingProductParams
-    from lotus_fin.AI005.matcher import FinancingMatcher
+    from lotus_fin.modules.f005_financing.models import FinancingProduct as FinancingProductParams
+    from lotus_fin.modules.f005_financing.matcher import FinancingDecisionEngine as FinancingMatcher
     
-    from lotus_fin.AI006.models import LoanTerms, AmortizationMethod, StressScenarioParams, StressType
-    from lotus_fin.AI006.engine import RepaymentEngine
-    from lotus_fin.AI006.stress import StressSimulationEngine
+    from lotus_fin.modules.f006_repayment.models import LoanTerms, AmortizationMethod, StressScenarioParams, StressType
+    from lotus_fin.modules.f006_repayment.engine import RepaymentEngine
+    from lotus_fin.modules.f006_repayment.stress import StressSimulationEngine
 except ImportError:
-    pass
+    try:
+        from lotus_fin.AI005.models import FinancingProductParams
+        from lotus_fin.AI005.matcher import FinancingMatcher
+        
+        from lotus_fin.AI006.models import LoanTerms, AmortizationMethod, StressScenarioParams, StressType
+        from lotus_fin.AI006.engine import RepaymentEngine
+        from lotus_fin.AI006.stress import StressSimulationEngine
+    except ImportError:
+        pass
 
 
 class CopilotOrchestrator:

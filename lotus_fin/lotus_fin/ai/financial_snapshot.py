@@ -8,7 +8,7 @@ try:
 except ImportError:
     frappe = None
 
-from typing import Any, Dict, Optional
+from typing import Any, Callable, Dict, Optional
 
 from lotus_fin.core.domain.calculators.pnl_extractor import parse_pnl_data, _to_decimal as to_decimal
 from lotus_fin.core.domain.calculators.ar_extractor import parse_ar_data

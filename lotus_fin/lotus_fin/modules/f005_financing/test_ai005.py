@@ -5,17 +5,30 @@ Verifies NLU Intent Extraction, 3-Tier Matcher, What-If 9 KPIs, and AI Advisor.
 
 import unittest
 from decimal import Decimal
-from lotus_fin.AI005.models import (
-    CompanyFinancialProfile,
-    FundingRequest,
-    FundingPurpose,
-    ScenarioParameters
-)
-from lotus_fin.AI005.matcher import FinancingDecisionEngine
-from lotus_fin.AI005.scenario_engine import WhatIfScenarioEngine
-from lotus_fin.AI005.catalog import get_catalog
-from lotus_fin.AI005.service import FinancingService
-from lotus_fin.AI005.ai_advisor import FinancingIntentParser, FinancingAIAdvisor
+try:
+    from lotus_fin.modules.f005_financing.models import (
+        CompanyFinancialProfile,
+        FundingRequest,
+        FundingPurpose,
+        ScenarioParameters
+    )
+    from lotus_fin.modules.f005_financing.matcher import FinancingDecisionEngine
+    from lotus_fin.modules.f005_financing.scenario_engine import WhatIfScenarioEngine
+    from lotus_fin.modules.f005_financing.catalog import get_catalog
+    from lotus_fin.modules.f005_financing.service import FinancingService
+    from lotus_fin.modules.f005_financing.advisor import FinancingIntentParser, FinancingAIAdvisor
+except ImportError:
+    from lotus_fin.AI005.models import (
+        CompanyFinancialProfile,
+        FundingRequest,
+        FundingPurpose,
+        ScenarioParameters
+    )
+    from lotus_fin.AI005.matcher import FinancingDecisionEngine
+    from lotus_fin.AI005.scenario_engine import WhatIfScenarioEngine
+    from lotus_fin.AI005.catalog import get_catalog
+    from lotus_fin.AI005.service import FinancingService
+    from lotus_fin.AI005.ai_advisor import FinancingIntentParser, FinancingAIAdvisor
 
 
 class TestAI005FinancingAndScenario(unittest.TestCase):

@@ -47,3 +47,4 @@ def compute_equal_installment_pmt(principal: Decimal, periodic_rate: Decimal, re
 def compute_grace_period_interest(balance: Decimal, periodic_rate: Decimal) -> Decimal:
     """Computes interest-only payment during loan grace periods."""
     return (balance * periodic_rate).quantize(MONEY, rounding=ROUND_HALF_UP)
+

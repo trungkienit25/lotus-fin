@@ -1,6 +1,6 @@
 from typing import Optional
 from decimal import Decimal
-from lotus_fin.ai004.domain.models import ScenarioResult
+from lotus_fin.modules.f004_what_if.domain.models import ScenarioResult
 
 
 class ScenarioExplainer:

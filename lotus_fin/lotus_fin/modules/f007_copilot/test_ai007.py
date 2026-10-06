@@ -6,11 +6,11 @@ import unittest
 
 # Import orchestrator
 try:
+    from lotus_fin.modules.f007_copilot.models import CopilotRequest, IntentType
+    from lotus_fin.modules.f007_copilot.orchestrator import CopilotOrchestrator
+except ImportError:
     from lotus_fin.AI007.models import CopilotRequest, IntentType
     from lotus_fin.AI007.orchestrator import CopilotOrchestrator
-except ImportError:
-    from lotus_fin.lotus_fin.AI007.models import CopilotRequest, IntentType
-    from lotus_fin.lotus_fin.AI007.orchestrator import CopilotOrchestrator
 
 
 class TestAI007CopilotOrchestrator(unittest.TestCase):

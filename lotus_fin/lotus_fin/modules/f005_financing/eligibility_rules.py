@@ -77,3 +77,4 @@ def evaluate_all_eligibility_rules(
         check_dscr_requirement(product, profile)
     ]
     return [err for err in validators if err is not None]
+

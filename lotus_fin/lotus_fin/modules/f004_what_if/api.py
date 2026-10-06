@@ -9,9 +9,9 @@ except ImportError:
     frappe = None
     _ = lambda x: x
 
-from lotus_fin.ai004.domain.models import ScenarioParameters, quantize_currency
-from lotus_fin.ai004.domain.enums import ScenarioType
-from lotus_fin.ai004.service import ScenarioService
+from lotus_fin.modules.f004_what_if.domain.models import ScenarioParameters, quantize_currency
+from lotus_fin.modules.f004_what_if.domain.enums import ScenarioType
+from lotus_fin.modules.f004_what_if.service import ScenarioService
 
 
 def simulate_what_if(

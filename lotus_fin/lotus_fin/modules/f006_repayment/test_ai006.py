@@ -8,17 +8,17 @@ from decimal import Decimal
 import sys
 import os
 
-# Add parent dir to path to allow importing lotus_fin.AI006 if needed, 
+# Add parent dir to path to allow importing lotus_fin.modules.f006_repayment if needed, 
 # or just test relative to current package if possible.
 try:
-    from lotus_fin.AI006.models import LoanTerms, AmortizationMethod, StressScenarioParams, StressType
-    from lotus_fin.AI006.engine import RepaymentEngine
-    from lotus_fin.AI006.stress import StressSimulationEngine
+    from lotus_fin.modules.f006_repayment.models import LoanTerms, AmortizationMethod, StressScenarioParams, StressType
+    from lotus_fin.modules.f006_repayment.engine import RepaymentEngine
+    from lotus_fin.modules.f006_repayment.stress import StressSimulationEngine
 except ImportError:
     # Try with inner package
-    from lotus_fin.lotus_fin.AI006.models import LoanTerms, AmortizationMethod, StressScenarioParams, StressType
-    from lotus_fin.lotus_fin.AI006.engine import RepaymentEngine
-    from lotus_fin.lotus_fin.AI006.stress import StressSimulationEngine
+    from lotus_fin.lotus_fin.modules.f006_repayment.models import LoanTerms, AmortizationMethod, StressScenarioParams, StressType
+    from lotus_fin.lotus_fin.modules.f006_repayment.engine import RepaymentEngine
+    from lotus_fin.lotus_fin.modules.f006_repayment.stress import StressSimulationEngine
 
 class TestAI006RepaymentEngine(unittest.TestCase):
     def setUp(self):

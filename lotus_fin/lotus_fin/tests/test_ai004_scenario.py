@@ -2,25 +2,25 @@ import unittest
 from datetime import date
 from decimal import Decimal
 
-from lotus_fin.ai004.domain.models import (
+from lotus_fin.modules.f004_what_if.domain.models import (
     ScenarioParameters,
     SimulatedCashEvent,
     quantize_currency
 )
-from lotus_fin.ai004.domain.enums import (
+from lotus_fin.modules.f004_what_if.domain.enums import (
     CashFlowDirection,
     EventCategory,
     ScenarioType,
     SimulationStatus
 )
-from lotus_fin.ai004.modifiers.sales_modifier import SalesModifier
-from lotus_fin.ai004.modifiers.collection_modifier import CollectionModifier
-from lotus_fin.ai004.modifiers.payable_modifier import PayableModifier
-from lotus_fin.ai004.modifiers.expense_modifier import ExpenseModifier
-from lotus_fin.ai004.modifiers.financing_modifier import FinancingModifier
-from lotus_fin.ai004.modifiers.factory import ModifierFactory
-from lotus_fin.ai004.engine.simulator import ScenarioSimulator
-from lotus_fin.ai004.service import ScenarioService
+from lotus_fin.modules.f004_what_if.modifiers.sales_modifier import SalesModifier
+from lotus_fin.modules.f004_what_if.modifiers.collection_modifier import CollectionModifier
+from lotus_fin.modules.f004_what_if.modifiers.payable_modifier import PayableModifier
+from lotus_fin.modules.f004_what_if.modifiers.expense_modifier import ExpenseModifier
+from lotus_fin.modules.f004_what_if.modifiers.financing_modifier import FinancingModifier
+from lotus_fin.modules.f004_what_if.modifiers.factory import ModifierFactory
+from lotus_fin.modules.f004_what_if.engine.simulator import ScenarioSimulator
+from lotus_fin.modules.f004_what_if.service import ScenarioService
 
 
 class TestAI004WhatIfScenario(unittest.TestCase):

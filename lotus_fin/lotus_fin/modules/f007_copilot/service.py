@@ -3,14 +3,22 @@ Lotus Fin AI007 — Service Layer for Financial Copilot.
 Exposes Frappe whitelisted endpoints for frontend chat interfaces.
 """
 
-import frappe
+try:
+    import frappe
+    whitelist = frappe.whitelist
+except ImportError:
+    frappe = None
+    def whitelist(*args, **kwargs):
+        def decorator(f): return f
+        return decorator if not args or callable(args[0]) is False else args[0]
+
 import json
 
 from .models import CopilotRequest
 from .orchestrator import CopilotOrchestrator
 
 
-@frappe.whitelist()
+@whitelist()
 def chat(message: str, session_id: str, context: str = "{}"):
     """
     API endpoint chính cho Copilot.
