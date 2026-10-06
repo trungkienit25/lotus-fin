@@ -23,6 +23,8 @@ from .models import (
     PaymentFrequency
 )
 
+from .math_utils import add_months_to_date, compute_equal_installment_pmt, compute_periodic_rate
+
 # Constant for monetary rounding
 MONEY = Decimal("0.01")
 RATE_PREC = Decimal("0.00000001")
@@ -30,12 +32,7 @@ RATE_PREC = Decimal("0.00000001")
 
 def _add_months(base_date: datetime, months: int) -> datetime:
     """Cộng thêm N tháng vào ngày gốc, xử lý tràn ngày cuối tháng."""
-    month = base_date.month - 1 + months
-    year = base_date.year + month // 12
-    month = month % 12 + 1
-    day = min(base_date.day, [31, 29 if year % 4 == 0 and (year % 100 != 0 or year % 400 == 0) else 28,
-                               31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month - 1])
-    return datetime(year, month, day)
+    return add_months_to_date(base_date, months)
 
 
 class RepaymentEngine:
@@ -147,14 +144,7 @@ class RepaymentEngine:
         repayment_periods = total_periods - grace_periods
 
         # PMT cho phần trả gốc sau ân hạn
-        if period_rate > Decimal("0") and repayment_periods > 0:
-            r = period_rate
-            n = repayment_periods
-            pmt = (principal * r * (Decimal("1") + r) ** n / ((Decimal("1") + r) ** n - Decimal("1"))).quantize(MONEY, rounding=ROUND_HALF_UP)
-        elif repayment_periods > 0:
-            pmt = (principal / Decimal(str(repayment_periods))).quantize(MONEY, rounding=ROUND_HALF_UP)
-        else:
-            pmt = Decimal("0")
+        pmt = compute_equal_installment_pmt(principal, period_rate, repayment_periods)
 
         for period in range(1, total_periods + 1):
             pmt_date = _add_months(start_date, period * months_per_period)

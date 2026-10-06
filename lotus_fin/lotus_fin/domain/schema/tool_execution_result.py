@@ -16,3 +16,4 @@ class ToolExecutionResult(BaseModel):
         if not self.is_success:
             return json.dumps({"status": "error", "error": self.error_message or "Execution failed"}, default=str)
         return json.dumps(self.data or {}, default=str)
+

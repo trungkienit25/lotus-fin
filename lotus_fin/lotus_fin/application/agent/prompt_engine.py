@@ -20,3 +20,4 @@ STRICT OPERATIONAL PRINCIPLES:
         if user.as_of_date:
             prompt += f"\nCutoff As-of Date: {user.as_of_date}"
         return prompt
+

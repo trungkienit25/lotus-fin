@@ -40,3 +40,4 @@ class GetFinancialHealthTool(IToolCommand):
             data=res,
             ui_widget={"type": "financial_snapshot", "data": res}
         )
+

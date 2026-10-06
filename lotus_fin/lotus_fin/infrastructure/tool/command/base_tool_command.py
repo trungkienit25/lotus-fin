@@ -21,3 +21,4 @@ class IToolCommand(ABC):
     def execute(self, arguments: Dict[str, Any], user: UserPrincipal) -> ToolExecutionResult:
         """Executes deterministic domain business logic."""
         pass
+

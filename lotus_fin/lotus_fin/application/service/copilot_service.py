@@ -70,3 +70,4 @@ class CopilotService(IChatService):
             "ui_widget": agent_res.ui_widget,
             "executed_tools": agent_res.executed_tools
         }
+

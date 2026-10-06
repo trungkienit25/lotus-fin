@@ -43,3 +43,4 @@ class SimulateWhatIfTool(IToolCommand):
             data=res,
             ui_widget={"type": "what_if_simulation", "data": res}
         )
+

@@ -16,3 +16,4 @@ def create_default_tool_registry() -> ToolRegistry:
     registry.register(MatchFinancingProductsTool())
     registry.register(CalculateRepaymentScheduleTool())
     return registry
+

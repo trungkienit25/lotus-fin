@@ -13,3 +13,4 @@ class IChatService(ABC):
     ) -> Dict[str, Any]:
         """Orchestrates message processing and returns chat response payload."""
         pass
+

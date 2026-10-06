@@ -8,3 +8,4 @@ class SendMessageDTO(BaseModel):
     session_id: Optional[str] = Field(default=None, description="Client session ID")
     as_of_date: Optional[str] = Field(default=None, description="Optional cutoff date")
     context_filters: Optional[Dict[str, Any]] = Field(default_factory=dict, description="Additional context metadata")
+

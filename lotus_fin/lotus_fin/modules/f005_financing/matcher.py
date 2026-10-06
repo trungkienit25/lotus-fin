@@ -83,31 +83,8 @@ class FinancingDecisionEngine:
         profile: CompanyFinancialProfile,
         request: FundingRequest
     ) -> List[str]:
-        rejections = []
-        if request.amount < product.amount_min:
-            rejections.append(f"Nhu cầu vốn ({request.amount:,.0f} VND) thấp hơn hạn mức tối thiểu ({product.amount_min:,.0f} VND).")
-        elif request.amount > product.amount_max:
-            rejections.append(f"Nhu cầu vốn ({request.amount:,.0f} VND) vượt quá hạn mức tối đa ({product.amount_max:,.0f} VND).")
-
-        if request.term_months < product.term_min_months or request.term_months > product.term_max_months:
-            rejections.append(f"Kỳ hạn yêu cầu ({request.term_months} tháng) ngoài khung ({product.term_min_months} - {product.term_max_months} tháng).")
-
-        if profile.annual_revenue < product.min_annual_revenue:
-            rejections.append(f"Doanh thu ({profile.annual_revenue:,.0f} VND) chưa đạt tối thiểu ({product.min_annual_revenue:,.0f} VND).")
-
-        if profile.operating_months < product.min_operating_months:
-            rejections.append(f"Thời gian hoạt động ({profile.operating_months} tháng) chưa đủ ({product.min_operating_months} tháng).")
-
-        if product.requires_collateral and not profile.has_collateral:
-            rejections.append("Sản phẩm yêu cầu tài sản thế chấp nhưng doanh nghiệp chưa cung cấp.")
-
-        if product.requires_audited_financials and not profile.has_audited_financials:
-            rejections.append("Yêu cầu báo cáo tài chính kiểm toán.")
-
-        if product.min_dscr_threshold and profile.current_dscr < product.min_dscr_threshold:
-            rejections.append(f"DSCR hiện tại ({profile.current_dscr:.2f}) thấp hơn ngưỡng ({product.min_dscr_threshold:.2f}).")
-
-        return rejections
+        from .eligibility_rules import evaluate_all_eligibility_rules
+        return evaluate_all_eligibility_rules(product, profile, request)
 
     def _score_product(
         self,
@@ -117,25 +94,19 @@ class FinancingDecisionEngine:
         min_rate: Decimal,
         rate_range: Decimal
     ) -> MatchedOption:
-        cost_ratio = (product.nominal_rate_annual - min_rate) / rate_range
-        cost_score = (Decimal("45.0") * (Decimal("1.0") - min(max(cost_ratio, Decimal("0")), Decimal("1.0")))).quantize(Decimal("0.1"))
+        from .scoring_rules import (
+            compute_cost_score,
+            compute_capacity_score,
+            compute_speed_score,
+            compute_estimated_monthly_interest
+        )
 
-        fit = Decimal("30.0")
-        if request.purpose in [FundingPurpose.WORKING_CAPITAL, FundingPurpose.INVOICE_RECOVERY] and product.product_type in ["UNSECURED_LOAN", "OVERDRAFT", "INVOICE_DISCOUNT"]:
-            fit += Decimal("5.0")
-        elif request.purpose == FundingPurpose.EQUIPMENT and product.product_type == "SECURED_LOAN":
-            fit += Decimal("5.0")
-        capacity_score = fit.quantize(Decimal("0.1"))
-
-        speed = Decimal("15.0")
-        if profile.projected_shortfall_days <= 15 and product.disbursement_speed_days <= 3:
-            speed = Decimal("20.0")
-        elif product.disbursement_speed_days > 7:
-            speed = Decimal("10.0")
-        speed_score = speed.quantize(Decimal("0.1"))
+        cost_score = compute_cost_score(product.nominal_rate_annual, min_rate, rate_range)
+        capacity_score = compute_capacity_score(request.purpose, product.product_type)
+        speed_score = compute_speed_score(profile.projected_shortfall_days, product.disbursement_speed_days)
 
         total_score = float(cost_score + capacity_score + speed_score)
-        est_interest = float((request.amount * product.nominal_rate_annual / Decimal("12.0")).quantize(Decimal("1.0"), rounding=ROUND_HALF_UP))
+        est_interest = compute_estimated_monthly_interest(request.amount, product.nominal_rate_annual)
 
         matched_reasons = [f"Đáp ứng toàn bộ điều kiện tín dụng của {product.provider}"]
         if not product.requires_collateral:

@@ -15,3 +15,4 @@ class ISessionRepository(ABC):
     @abstractmethod
     def clear_session(self, session_id: str) -> None:
         pass
+

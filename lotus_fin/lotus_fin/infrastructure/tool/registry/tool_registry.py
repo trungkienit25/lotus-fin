@@ -31,3 +31,4 @@ class ToolRegistry(IToolRegistry):
             for tool in self._tools.values()
             if tool.is_authorized(user)
         ]
+

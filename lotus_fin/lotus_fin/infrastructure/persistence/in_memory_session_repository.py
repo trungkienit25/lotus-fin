@@ -19,3 +19,4 @@ class InMemorySessionRepository(ISessionRepository):
     def clear_session(self, session_id: str) -> None:
         if session_id in self._store:
             del self._store[session_id]
+

@@ -9,3 +9,4 @@ class IToolInvoker(ABC):
     def invoke(self, call: ToolCallRequest, user: UserPrincipal) -> ToolExecutionResult:
         """Executes a tool call request safely under user security context."""
         pass
+

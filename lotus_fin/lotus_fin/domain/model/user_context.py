@@ -10,3 +10,4 @@ class UserPrincipal(BaseModel):
 
     def has_role(self, role: str) -> bool:
         return role in self.roles or "System Manager" in self.roles
+

@@ -43,3 +43,4 @@ class EvaluateRiskSignalTool(IToolCommand):
             data=res,
             ui_widget={"type": "risk_signal", "data": res}
         )
+

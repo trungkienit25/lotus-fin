@@ -14,3 +14,4 @@ class IToolRegistry(ABC):
     def has_tool(self, name: str) -> bool:
         """Checks if tool name exists in registry."""
         pass
+

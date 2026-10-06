@@ -41,3 +41,4 @@ class GetCashflowForecastTool(IToolCommand):
             data=res,
             ui_widget={"type": "cash_forecast", "data": res}
         )
+

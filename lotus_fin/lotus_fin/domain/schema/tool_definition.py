@@ -17,3 +17,4 @@ class ToolDefinition(BaseModel):
                 "parameters": self.parameters_schema
             }
         }
+

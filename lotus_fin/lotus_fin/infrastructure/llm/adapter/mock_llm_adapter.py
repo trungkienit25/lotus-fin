@@ -40,3 +40,4 @@ class MockLLMAdapter(ILLMProvider):
                 )
 
         return LLMResponse(content=self.canned_response)
+

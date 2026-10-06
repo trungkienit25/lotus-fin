@@ -3,8 +3,17 @@ Lotus Fin AI006 — Service Layer for Repayment / Stress Simulation.
 Exposes Frappe whitelisted endpoints.
 """
 
-import frappe
-from frappe import _
+try:
+    import frappe
+    from frappe import _
+    whitelist = frappe.whitelist
+except ImportError:
+    frappe = None
+    _ = lambda x: x
+    def whitelist(*args, **kwargs):
+        def decorator(f): return f
+        return decorator if not args or callable(args[0]) is False else args[0]
+
 import json
 from decimal import Decimal
 
@@ -20,7 +29,7 @@ from .stress import StressSimulationEngine
 from .ai_advisor import RepaymentAdvisor
 
 
-@frappe.whitelist()
+@whitelist()
 def calculate_repayment_schedule(
     principal: float,
     annual_rate: float,
@@ -65,11 +74,12 @@ def calculate_repayment_schedule(
             }
         }
     except Exception as e:
-        frappe.log_error(message=frappe.get_traceback(), title="AI006 Calculate Schedule Error")
+        if frappe:
+            frappe.log_error(message=frappe.get_traceback(), title="AI006 Calculate Schedule Error")
         return {"status": "error", "message": str(e)}
 
 
-@frappe.whitelist()
+@whitelist()
 def run_stress_test(
     principal: float,
     annual_rate: float,
@@ -122,5 +132,7 @@ def run_stress_test(
             }
         }
     except Exception as e:
-        frappe.log_error(message=frappe.get_traceback(), title="AI006 Stress Test Error")
+        if frappe:
+            frappe.log_error(message=frappe.get_traceback(), title="AI006 Stress Test Error")
         return {"status": "error", "message": str(e)}
+

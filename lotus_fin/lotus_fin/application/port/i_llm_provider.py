@@ -20,3 +20,4 @@ class ILLMProvider(ABC):
     def generate(self, messages: List[ChatMessage], tools: List[ToolDefinition]) -> LLMResponse:
         """Invokes provider with conversation history and available tool specifications."""
         pass
+

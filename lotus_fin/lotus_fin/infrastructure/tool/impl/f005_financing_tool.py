@@ -41,3 +41,4 @@ class MatchFinancingProductsTool(IToolCommand):
             data=res,
             ui_widget={"type": "financing_products", "data": res}
         )
+
