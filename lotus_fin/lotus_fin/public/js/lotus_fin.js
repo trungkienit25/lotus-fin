@@ -982,7 +982,7 @@ lotus_fin.components.WhatIfStudio = class WhatIfStudio {
 		this.$result.html(`<div class="text-muted p-3 text-center"><i class="octicon octicon-sync"></i> ${__("Running 9-layer financial stress-testing model...")}</div>`);
 
 		frappe.call({
-			method: "lotus_fin.AI005.service.simulate_what_if",
+			method: "lotus_fin.modules.f005_financing.service.simulate_what_if",
 			args: {
 				company: company,
 				sales_change_pct: salesPct,
