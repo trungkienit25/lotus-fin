@@ -7,8 +7,8 @@ Allows legacy namespaces:
 - lotus_fin.AI005.*    -> lotus_fin.modules.f005_financing.*
 - lotus_fin.AI006.*    -> lotus_fin.modules.f006_repayment.*
 - lotus_fin.AI007.*    -> lotus_fin.modules.f007_copilot.*
-- lotus_fin.cashflow.* -> lotus_fin.modules.f002_cashflow.*
-- lotus_fin.risk_signal.* -> lotus_fin.modules.f003_risk_signal.*
+- lotus_fin.modules.f002_cashflow.* -> lotus_fin.modules.f002_cashflow.*
+- lotus_fin.modules.f003_risk_signal.* -> lotus_fin.modules.f003_risk_signal.*
 
 to resolve dynamically into canonical module instances in memory, eliminating
 all physical duplicate/facade directories from the codebase.
@@ -33,6 +33,8 @@ LEGACY_TO_CANONICAL_MAP: Dict[str, str] = {
     "lotus_fin.AI005": "lotus_fin.modules.f005_financing",
     "lotus_fin.AI006": "lotus_fin.modules.f006_repayment",
     "lotus_fin.AI007": "lotus_fin.modules.f007_copilot",
+    "lotus_fin.cashflow": "lotus_fin.modules.f002_cashflow",
+    "lotus_fin.risk_signal": "lotus_fin.modules.f003_risk_signal",
 }
 
 

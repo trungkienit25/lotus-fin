@@ -198,15 +198,15 @@ def get_risk_signal(
     Fail-closed typed envelope (V2.2): first-failed-stage A1..A11, no financial
     payload on FORBIDDEN/VALIDATION_ERROR/SOURCE_ERROR, LLM explanation-only.
     """
-    from lotus_fin.risk_signal.agent import explain_result, next_check_actions
-    from lotus_fin.risk_signal.contracts import (
+    from lotus_fin.modules.f003_risk_signal.agent import explain_result, next_check_actions
+    from lotus_fin.modules.f003_risk_signal.contracts import (
         ReasonCode,
         SignalId,
         SignalResult,
         Status,
         result_to_dict,
     )
-    from lotus_fin.risk_signal.service import default_deps, evaluate_signal
+    from lotus_fin.modules.f003_risk_signal.service import default_deps, evaluate_signal
 
     checked_user = getattr(frappe.session, "user", None)
     unknown = set((frappe.form_dict or {}).keys()) - _AI003_REQUEST_KEYS
@@ -268,7 +268,7 @@ def get_risk_signal_evidence(
     The ref is an opaque server-side record id, never an authorization token;
     authorization is rechecked on every access.
     """
-    from lotus_fin.risk_signal.service import default_deps, get_evidence
+    from lotus_fin.modules.f003_risk_signal.service import default_deps, get_evidence
     from lotus_fin.security.access import get_verified_company
 
     checked_user = getattr(frappe.session, "user", None)
@@ -284,7 +284,7 @@ def get_risk_signal_evidence(
     def replay_factory(record):
         def replay():
             if not deps.report_permission("Accounts Payable"):
-                from lotus_fin.risk_signal.provenance import SourceFailure, Status, ReasonCode
+                from lotus_fin.modules.f003_risk_signal.provenance import SourceFailure, Status, ReasonCode
                 raise SourceFailure(Status.FORBIDDEN, ReasonCode.ACCESS_DENIED, "report permission denied")
             snapshot = deps.ap_provider.fetch(verified_company, record.as_of_date)
             return {"report_key": snapshot.report_key, "source_hash": snapshot.source_hash}

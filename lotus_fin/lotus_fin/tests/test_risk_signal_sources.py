@@ -19,9 +19,9 @@ from decimal import Decimal
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
-from lotus_fin.risk_signal import sources  # noqa: E402
-from lotus_fin.risk_signal.contracts import ReasonCode, Status  # noqa: E402
-from lotus_fin.risk_signal.coverage import (  # noqa: E402
+from lotus_fin.modules.f003_risk_signal import sources  # noqa: E402
+from lotus_fin.modules.f003_risk_signal.contracts import ReasonCode, Status  # noqa: E402
+from lotus_fin.modules.f003_risk_signal.coverage import (  # noqa: E402
     DueDateCoverage,
     ap_window,
     classify_due,
@@ -29,8 +29,8 @@ from lotus_fin.risk_signal.coverage import (  # noqa: E402
     select_ap_observations,
     sum_amounts,
 )
-from lotus_fin.risk_signal.interfaces import APRow  # noqa: E402
-from lotus_fin.risk_signal.provenance import (  # noqa: E402
+from lotus_fin.modules.f003_risk_signal.interfaces import APRow  # noqa: E402
+from lotus_fin.modules.f003_risk_signal.provenance import (  # noqa: E402
     SourceFailure,
     distinct_voucher_count,
     gate_company_currency,

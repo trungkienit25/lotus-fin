@@ -29,10 +29,10 @@ from lotus_fin.ai.financial_snapshot import (
     parse_ar_data,
     FinancialSourceDataError,
 )
-from lotus_fin.cashflow.cache import _CACHE_STORE, _SINGLE_FLIGHT_LOCKS, compute_cache_key
-from lotus_fin.cashflow.models import AccountBalance, ForecastRequest, ForecastStatus, OpeningCash
-from lotus_fin.cashflow.service import get_cash_forecast
-from lotus_fin.cashflow.source_interface import FailClosedSource
+from lotus_fin.modules.f002_cashflow.cache import _CACHE_STORE, _SINGLE_FLIGHT_LOCKS, compute_cache_key
+from lotus_fin.modules.f002_cashflow.models import AccountBalance, ForecastRequest, ForecastStatus, OpeningCash
+from lotus_fin.modules.f002_cashflow.service import get_cash_forecast
+from lotus_fin.modules.f002_cashflow.source_interface import FailClosedSource
 from lotus_fin.security import access as access_module
 
 
@@ -446,18 +446,18 @@ class TestPBSEC01CacheTTLRevokeRegrant(unittest.TestCase):
         fake_access = _fake_frappe(permitted=True, session_user="perm-user@example.com")
         ctx = (
             patch(
-                "lotus_fin.cashflow.service.validate_forecast_request",
+                "lotus_fin.modules.f002_cashflow.service.validate_forecast_request",
                 return_value=(True, None, None),
             ),
             patch(
-                "lotus_fin.cashflow.service.get_opening_cash_ledger",
+                "lotus_fin.modules.f002_cashflow.service.get_opening_cash_ledger",
                 MagicMock(return_value=_verified_opening()),
             ),
             patch(
-                "lotus_fin.cashflow.service.get_trade_obligations",
+                "lotus_fin.modules.f002_cashflow.service.get_trade_obligations",
                 MagicMock(return_value=[]),
             ),
-            patch("lotus_fin.cashflow.service.frappe", MagicMock()),
+            patch("lotus_fin.modules.f002_cashflow.service.frappe", MagicMock()),
             patch("lotus_fin.security.access.frappe", fake_access),
         )
 

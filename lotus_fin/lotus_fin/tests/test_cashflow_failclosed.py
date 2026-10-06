@@ -24,24 +24,24 @@ from decimal import Decimal
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
-from lotus_fin.cashflow import adapters
-from lotus_fin.cashflow.adapters import (
+from lotus_fin.modules.f002_cashflow import adapters
+from lotus_fin.modules.f002_cashflow.adapters import (
     ObligationSourceError,
     ObligationPermissionError,
     get_opening_cash_ledger,
     get_trade_obligations,
     resolve_cash_account_scope,
 )
-from lotus_fin.cashflow.models import (
+from lotus_fin.modules.f002_cashflow.models import (
     ForecastRequest,
     ForecastStatus,
     ReasonCode,
     OpeningCash,
     AccountBalance,
 )
-from lotus_fin.cashflow.service import get_cash_forecast, resolve_request_scope
-from lotus_fin.cashflow.source_interface import SyntheticFixtureSource, FailClosedSource
-from lotus_fin.cashflow.validation import validate_forecast_request
+from lotus_fin.modules.f002_cashflow.service import get_cash_forecast, resolve_request_scope
+from lotus_fin.modules.f002_cashflow.source_interface import SyntheticFixtureSource, FailClosedSource
+from lotus_fin.modules.f002_cashflow.validation import validate_forecast_request
 
 
 COMPANY = "AI002 Fixture 2026"
@@ -95,7 +95,7 @@ class TestObligationFailClosed(unittest.TestCase):
     """Fix A: every non-success AR/AP outcome raises a typed error."""
 
     def _run(self, extract_side_effect=None, extract_return=None, perm_side_effect=None):
-        with patch("lotus_fin.cashflow.adapters.frappe"), patch.object(
+        with patch("lotus_fin.modules.f002_cashflow.adapters.frappe"), patch.object(
             adapters, "check_ai002_report_permission", side_effect=perm_side_effect
         ) as perm_mock, patch.object(
             adapters,
@@ -275,7 +275,7 @@ class TestOpeningCashReconciliation(unittest.TestCase):
     """Fix B: independent Trial Balance reconciliation over the full account set."""
 
     def _run(self, gl_rows, tb_return=None, tb_side_effect=None, scope=None, perm_side_effect=None):
-        with patch("lotus_fin.cashflow.adapters.frappe") as frappe_mock, patch.object(
+        with patch("lotus_fin.modules.f002_cashflow.adapters.frappe") as frappe_mock, patch.object(
             adapters, "check_ai002_report_permission", side_effect=perm_side_effect
         ), patch.object(
             adapters,
@@ -419,14 +419,14 @@ class TestOpeningCashReconciliation(unittest.TestCase):
         self.assertEqual(opening.reconciliation, "INCONSISTENT_DATA")
 
     def test_opening_permission_denied_raises_typed(self):
-        with patch("lotus_fin.cashflow.adapters.frappe"), patch.object(
+        with patch("lotus_fin.modules.f002_cashflow.adapters.frappe"), patch.object(
             adapters, "check_ai002_report_permission", side_effect=Exception("FORBIDDEN")
         ), patch.object(adapters, "extract_key_report_data"):
             with self.assertRaises(ObligationPermissionError):
                 get_opening_cash_ledger(COMPANY, AS_OF, account_scope=["Cash - A2F"])
 
     def test_gl_query_failure_raises_typed(self):
-        with patch("lotus_fin.cashflow.adapters.frappe") as frappe_mock, patch.object(
+        with patch("lotus_fin.modules.f002_cashflow.adapters.frappe") as frappe_mock, patch.object(
             adapters, "check_ai002_report_permission"
         ), patch.object(adapters, "extract_key_report_data"):
             frappe_mock.db.sql.side_effect = Exception("db down")
@@ -445,7 +445,7 @@ class TestOpeningCashReconciliation(unittest.TestCase):
             "company": COMPANY,
             "data": [{"account": "Cash - A2F", "closing_debit": 1000, "closing_credit": 0}],
         }
-        with patch("lotus_fin.cashflow.adapters.frappe") as frappe_mock, patch.object(
+        with patch("lotus_fin.modules.f002_cashflow.adapters.frappe") as frappe_mock, patch.object(
             adapters, "check_ai002_report_permission"
         ), patch.object(adapters, "extract_key_report_data", return_value=tb):
             frappe_mock.db.sql.return_value = [{"account": "Cash - A2F", "balance": 1000}]
@@ -458,7 +458,7 @@ class TestServiceFailClosed(unittest.TestCase):
     errors, no forecast points from unverified opening cash, errors not cached."""
 
     def setUp(self):
-        from lotus_fin.cashflow import cache
+        from lotus_fin.modules.f002_cashflow import cache
         cache._CACHE_STORE.clear()
         cache._SINGLE_FLIGHT_LOCKS.clear()
 
@@ -466,7 +466,7 @@ class TestServiceFailClosed(unittest.TestCase):
         # (including the approved-scope check against the live DB) is exercised
         # separately in TestAccountScopeResolution.
         self._validation_patcher = patch(
-            "lotus_fin.cashflow.service.validate_forecast_request",
+            "lotus_fin.modules.f002_cashflow.service.validate_forecast_request",
             return_value=(True, None, None),
         )
         self._validation_patcher.start()
@@ -488,9 +488,9 @@ class TestServiceFailClosed(unittest.TestCase):
         NOT cached: the immediate next call re-reads the source and succeeds."""
         request = make_request()
         with patch(
-            "lotus_fin.cashflow.service.get_opening_cash_ledger", return_value=verified_opening_cash()
+            "lotus_fin.modules.f002_cashflow.service.get_opening_cash_ledger", return_value=verified_opening_cash()
         ), patch(
-            "lotus_fin.cashflow.service.get_trade_obligations",
+            "lotus_fin.modules.f002_cashflow.service.get_trade_obligations",
             side_effect=[ObligationSourceError("Accounts Receivable report source failed."), []],
         ) as obligations_mock:
             first = get_cash_forecast(request, user="tester", future_event_source=self._fixture_source(), skip_cache=True)
@@ -511,9 +511,9 @@ class TestServiceFailClosed(unittest.TestCase):
     def test_permission_error_returns_forbidden_without_payload(self):
         request = make_request()
         with patch(
-            "lotus_fin.cashflow.service.get_opening_cash_ledger", return_value=verified_opening_cash()
+            "lotus_fin.modules.f002_cashflow.service.get_opening_cash_ledger", return_value=verified_opening_cash()
         ), patch(
-            "lotus_fin.cashflow.service.get_trade_obligations",
+            "lotus_fin.modules.f002_cashflow.service.get_trade_obligations",
             side_effect=ObligationPermissionError("Permission denied accessing Accounts Receivable."),
         ):
             resp = get_cash_forecast(request, user="tester", future_event_source=self._fixture_source(), skip_cache=True)
@@ -536,8 +536,8 @@ class TestServiceFailClosed(unittest.TestCase):
         )
         request = make_request()
         with patch(
-            "lotus_fin.cashflow.service.get_opening_cash_ledger", return_value=unverified
-        ), patch("lotus_fin.cashflow.service.get_trade_obligations", return_value=[]):
+            "lotus_fin.modules.f002_cashflow.service.get_opening_cash_ledger", return_value=unverified
+        ), patch("lotus_fin.modules.f002_cashflow.service.get_trade_obligations", return_value=[]):
             resp = get_cash_forecast(request, user="tester", future_event_source=self._fixture_source(), skip_cache=True)
 
         self.assertEqual(resp.status, ForecastStatus.INSUFFICIENT_DATA)
@@ -554,8 +554,8 @@ class TestServiceFailClosed(unittest.TestCase):
         )
         request = make_request()
         with patch(
-            "lotus_fin.cashflow.service.get_opening_cash_ledger", return_value=inconsistent
-        ), patch("lotus_fin.cashflow.service.get_trade_obligations", return_value=[]):
+            "lotus_fin.modules.f002_cashflow.service.get_opening_cash_ledger", return_value=inconsistent
+        ), patch("lotus_fin.modules.f002_cashflow.service.get_trade_obligations", return_value=[]):
             resp = get_cash_forecast(request, user="tester", future_event_source=self._fixture_source(), skip_cache=True)
 
         self.assertEqual(resp.status, ForecastStatus.INCONSISTENT_DATA)
@@ -572,8 +572,8 @@ class TestServiceFailClosed(unittest.TestCase):
         )
         request = make_request()
         with patch(
-            "lotus_fin.cashflow.service.get_opening_cash_ledger", return_value=stale
-        ), patch("lotus_fin.cashflow.service.get_trade_obligations", return_value=[]):
+            "lotus_fin.modules.f002_cashflow.service.get_opening_cash_ledger", return_value=stale
+        ), patch("lotus_fin.modules.f002_cashflow.service.get_trade_obligations", return_value=[]):
             resp = get_cash_forecast(request, user="tester", future_event_source=self._fixture_source(), skip_cache=True)
 
         self.assertNotEqual(resp.status, ForecastStatus.PARTIAL)
@@ -585,8 +585,8 @@ class TestServiceFailClosed(unittest.TestCase):
         still carries the opening 11,550,000."""
         request = make_request()
         with patch(
-            "lotus_fin.cashflow.service.get_opening_cash_ledger", return_value=verified_opening_cash()
-        ), patch("lotus_fin.cashflow.service.get_trade_obligations", return_value=[]):
+            "lotus_fin.modules.f002_cashflow.service.get_opening_cash_ledger", return_value=verified_opening_cash()
+        ), patch("lotus_fin.modules.f002_cashflow.service.get_trade_obligations", return_value=[]):
             resp = get_cash_forecast(request, user="tester", future_event_source=self._fixture_source(), skip_cache=True)
 
         self.assertEqual(resp.status, ForecastStatus.PARTIAL)
@@ -608,8 +608,8 @@ class TestServiceFailClosed(unittest.TestCase):
         )
         request = make_request()
         with patch(
-            "lotus_fin.cashflow.service.get_opening_cash_ledger", return_value=unverified
-        ), patch("lotus_fin.cashflow.service.get_trade_obligations", return_value=[]):
+            "lotus_fin.modules.f002_cashflow.service.get_opening_cash_ledger", return_value=unverified
+        ), patch("lotus_fin.modules.f002_cashflow.service.get_trade_obligations", return_value=[]):
             resp = get_cash_forecast(
                 request, user="tester", future_event_source=FailClosedSource(), skip_cache=True
             )
@@ -645,7 +645,7 @@ class TestAccountScopeResolution(unittest.TestCase):
         if scope_page_patcher:
             scope_page_patcher.start()
         try:
-            with patch("lotus_fin.cashflow.adapters.frappe") as frappe_mock:
+            with patch("lotus_fin.modules.f002_cashflow.adapters.frappe") as frappe_mock:
                 frappe_mock.has_permission.return_value = has_permission
                 if get_list_batches is None:
                     get_list_batches = [[{"name": n} for n in leaf_names]]
@@ -803,15 +803,15 @@ class TestAccountScopeResolution(unittest.TestCase):
         self.assertIsInstance(error, ObligationSourceError)
 
     def test_scope_requires_db(self):
-        with patch("lotus_fin.cashflow.adapters.frappe", None):
+        with patch("lotus_fin.modules.f002_cashflow.adapters.frappe", None):
             with self.assertRaises(ObligationSourceError):
                 resolve_cash_account_scope(COMPANY)
 
     def test_validation_accepts_matching_approved_scope(self):
-        with patch("lotus_fin.cashflow.validation.frappe") as frappe_mock, patch(
-            "lotus_fin.cashflow.validation.resolve_cash_account_scope",
+        with patch("lotus_fin.modules.f002_cashflow.validation.frappe") as frappe_mock, patch(
+            "lotus_fin.modules.f002_cashflow.validation.resolve_cash_account_scope",
             return_value={"status": "RESOLVED", "approval": "APPROVED", "scope": ["Cash - A2F"], "unapproved_excluded": []},
-        ), patch("lotus_fin.cashflow.validation.get_verified_company", return_value=COMPANY):
+        ), patch("lotus_fin.modules.f002_cashflow.validation.get_verified_company", return_value=COMPANY):
             frappe_mock.db.get_value.return_value = SimpleNamespace(
                 name="Cash - A2F",
                 company=COMPANY,
@@ -829,10 +829,10 @@ class TestAccountScopeResolution(unittest.TestCase):
     def test_validation_rejects_scope_not_matching_approved(self):
         """The client cannot silently drop approved accounts or add unapproved
         ones: the requested scope must equal the approved scope."""
-        with patch("lotus_fin.cashflow.validation.frappe") as frappe_mock, patch(
-            "lotus_fin.cashflow.validation.resolve_cash_account_scope",
+        with patch("lotus_fin.modules.f002_cashflow.validation.frappe") as frappe_mock, patch(
+            "lotus_fin.modules.f002_cashflow.validation.resolve_cash_account_scope",
             return_value={"status": "RESOLVED", "approval": "APPROVED", "scope": ["Cash - A2F"], "unapproved_excluded": []},
-        ), patch("lotus_fin.cashflow.validation.get_verified_company", return_value=COMPANY):
+        ), patch("lotus_fin.modules.f002_cashflow.validation.get_verified_company", return_value=COMPANY):
             request = make_request(scope=["Cash - A2F", "Ghost - A2F"])
             valid, reason, msg = validate_forecast_request(request, user="tester")
 
@@ -841,10 +841,10 @@ class TestAccountScopeResolution(unittest.TestCase):
         self.assertIn("approved scope", msg)
 
     def test_validation_forbidden_when_account_read_denied(self):
-        with patch("lotus_fin.cashflow.validation.frappe"), patch(
-            "lotus_fin.cashflow.validation.resolve_cash_account_scope",
+        with patch("lotus_fin.modules.f002_cashflow.validation.frappe"), patch(
+            "lotus_fin.modules.f002_cashflow.validation.resolve_cash_account_scope",
             side_effect=ObligationPermissionError("Access Denied"),
-        ) as scope_mock, patch("lotus_fin.cashflow.validation.get_verified_company", return_value=COMPANY):
+        ) as scope_mock, patch("lotus_fin.modules.f002_cashflow.validation.get_verified_company", return_value=COMPANY):
             request = make_request()
             valid, reason, msg = validate_forecast_request(request, user="tester")
 
@@ -854,10 +854,10 @@ class TestAccountScopeResolution(unittest.TestCase):
         self.assertEqual(msg, "FORBIDDEN")
 
     def test_validation_needs_review_when_scope_unapproved(self):
-        with patch("lotus_fin.cashflow.validation.frappe"), patch(
-            "lotus_fin.cashflow.validation.resolve_cash_account_scope",
+        with patch("lotus_fin.modules.f002_cashflow.validation.frappe"), patch(
+            "lotus_fin.modules.f002_cashflow.validation.resolve_cash_account_scope",
             return_value={"status": "NEEDS_REVIEW", "approval": "MISSING_CONFIG", "scope": [], "unapproved_excluded": ["Cash - A2F"]},
-        ), patch("lotus_fin.cashflow.validation.get_verified_company", return_value=COMPANY):
+        ), patch("lotus_fin.modules.f002_cashflow.validation.get_verified_company", return_value=COMPANY):
             request = make_request()
             valid, reason, msg = validate_forecast_request(request, user="tester")
 
@@ -872,10 +872,10 @@ class TestScopeAuthorizationOrdering(unittest.TestCase):
 
     def test_permission_failure_blocks_scope_query(self):
         with patch(
-            "lotus_fin.cashflow.service.get_verified_company",
+            "lotus_fin.modules.f002_cashflow.service.get_verified_company",
             side_effect=Exception("FORBIDDEN"),
         ) as verify_mock, patch(
-            "lotus_fin.cashflow.service.resolve_cash_account_scope"
+            "lotus_fin.modules.f002_cashflow.service.resolve_cash_account_scope"
         ) as resolve_mock:
             with self.assertRaises(ObligationPermissionError):
                 resolve_request_scope("Secret Company", user="tester")
@@ -885,10 +885,10 @@ class TestScopeAuthorizationOrdering(unittest.TestCase):
 
     def test_scope_resolved_for_verified_company_only(self):
         with patch(
-            "lotus_fin.cashflow.service.get_verified_company",
+            "lotus_fin.modules.f002_cashflow.service.get_verified_company",
             return_value="Verified Company",
         ) as verify_mock, patch(
-            "lotus_fin.cashflow.service.resolve_cash_account_scope",
+            "lotus_fin.modules.f002_cashflow.service.resolve_cash_account_scope",
             return_value={"status": "RESOLVED", "approval": "APPROVED", "scope": ["Cash - A2F"], "unapproved_excluded": []},
         ) as resolve_mock:
             res = resolve_request_scope("Requested Company", user="tester")
@@ -900,10 +900,10 @@ class TestScopeAuthorizationOrdering(unittest.TestCase):
 
     def test_resolution_failure_is_typed_source_error(self):
         with patch(
-            "lotus_fin.cashflow.service.get_verified_company",
+            "lotus_fin.modules.f002_cashflow.service.get_verified_company",
             return_value="Verified Company",
         ), patch(
-            "lotus_fin.cashflow.service.resolve_cash_account_scope",
+            "lotus_fin.modules.f002_cashflow.service.resolve_cash_account_scope",
             side_effect=ObligationSourceError("scope query failed"),
         ):
             with self.assertRaises(ObligationSourceError):
@@ -914,10 +914,10 @@ class TestScopeAuthorizationOrdering(unittest.TestCase):
         typed identity (generic FORBIDDEN upstream) — it is never converted to
         a source error or an empty scope."""
         with patch(
-            "lotus_fin.cashflow.service.get_verified_company",
+            "lotus_fin.modules.f002_cashflow.service.get_verified_company",
             return_value="Verified Company",
         ), patch(
-            "lotus_fin.cashflow.service.resolve_cash_account_scope",
+            "lotus_fin.modules.f002_cashflow.service.resolve_cash_account_scope",
             side_effect=ObligationPermissionError("Access Denied"),
         ):
             with self.assertRaises(ObligationPermissionError):

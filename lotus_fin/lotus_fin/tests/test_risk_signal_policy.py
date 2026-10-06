@@ -19,8 +19,8 @@ from decimal import Decimal
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
-from lotus_fin.risk_signal import policy as policy_module  # noqa: E402
-from lotus_fin.risk_signal.contracts import (  # noqa: E402
+from lotus_fin.modules.f003_risk_signal import policy as policy_module  # noqa: E402
+from lotus_fin.modules.f003_risk_signal.contracts import (  # noqa: E402
     Finding,
     ReasonCode,
     Severity,
@@ -28,16 +28,16 @@ from lotus_fin.risk_signal.contracts import (  # noqa: E402
     Status,
     ThresholdUnit,
 )
-from lotus_fin.risk_signal.coverage import APSelection  # noqa: E402
-from lotus_fin.risk_signal.evaluation import evaluate_ap, evaluate_ar, materiality_definition_for  # noqa: E402
-from lotus_fin.risk_signal.interfaces import ARSnapshot  # noqa: E402
-from lotus_fin.risk_signal.policy import (  # noqa: E402
+from lotus_fin.modules.f003_risk_signal.coverage import APSelection  # noqa: E402
+from lotus_fin.modules.f003_risk_signal.evaluation import evaluate_ap, evaluate_ar, materiality_definition_for  # noqa: E402
+from lotus_fin.modules.f003_risk_signal.interfaces import ARSnapshot  # noqa: E402
+from lotus_fin.modules.f003_risk_signal.policy import (  # noqa: E402
     APPROVAL_PENDING,
     PolicyPending,
     SignalPolicy,
     resolve_policy,
 )
-from lotus_fin.risk_signal.provenance import SourceFailure  # noqa: E402
+from lotus_fin.modules.f003_risk_signal.provenance import SourceFailure  # noqa: E402
 
 
 class _FakeObs:

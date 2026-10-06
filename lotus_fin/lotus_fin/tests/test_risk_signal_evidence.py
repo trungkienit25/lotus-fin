@@ -28,10 +28,10 @@ from decimal import Decimal
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
-from lotus_fin.risk_signal import evidence as ev  # noqa: E402
-from lotus_fin.risk_signal.contracts import ReasonCode, SignalId, Status  # noqa: E402
-from lotus_fin.risk_signal.observability import hash_id, log_ai003_event  # noqa: E402
-from lotus_fin.risk_signal.provenance import SourceFailure  # noqa: E402
+from lotus_fin.modules.f003_risk_signal import evidence as ev  # noqa: E402
+from lotus_fin.modules.f003_risk_signal.contracts import ReasonCode, SignalId, Status  # noqa: E402
+from lotus_fin.modules.f003_risk_signal.observability import hash_id, log_ai003_event  # noqa: E402
+from lotus_fin.modules.f003_risk_signal.provenance import SourceFailure  # noqa: E402
 
 
 # Sensitive marker injected into fake Redis errors — must never reach the
@@ -291,7 +291,7 @@ class StorageBoundaryTests(unittest.TestCase):
                 captured_at="2026-10-02T00:00:00.000Z",
             )
         # Deterministic result keeps frozen-contract behavior: no refs, no crash.
-        from lotus_fin.risk_signal.service import _ap_evidence
+        from lotus_fin.modules.f003_risk_signal.service import _ap_evidence
 
         dummy_snapshot = mock.MagicMock()
         dummy_snapshot.report_key = "accounts_payable"
@@ -376,7 +376,7 @@ class StorageBoundaryTests(unittest.TestCase):
         logged = []
         store = ev.EvidenceStore(client=FakeFrappeRedis(fail_on={"setex", "get"}))
         with mock.patch(
-            "lotus_fin.risk_signal.evidence.log_ai003_event",
+            "lotus_fin.modules.f003_risk_signal.evidence.log_ai003_event",
             side_effect=lambda **kw: logged.append(kw) or {},
         ):
             with self.assertRaises(ev.EvidenceStorageUnavailable):
@@ -417,7 +417,7 @@ class DecodeBoundaryTests(unittest.TestCase):
     def _logged(self):
         logged = []
         patcher = mock.patch(
-            "lotus_fin.risk_signal.evidence.log_ai003_event",
+            "lotus_fin.modules.f003_risk_signal.evidence.log_ai003_event",
             side_effect=lambda **kw: logged.append(kw) or {},
         )
         patcher.start()
@@ -531,7 +531,7 @@ class ServiceDiagnosticsTests(unittest.TestCase):
         ev._STORE = _make_store()
         record = _make_record()
         logged = []
-        with mock.patch("lotus_fin.risk_signal.evidence.log_ai003_event", side_effect=lambda **kw: logged.append(kw) or {}):
+        with mock.patch("lotus_fin.modules.f003_risk_signal.evidence.log_ai003_event", side_effect=lambda **kw: logged.append(kw) or {}):
             def bad_replay(r):
                 raise RuntimeError("backend_exploded")
             result = ev.evidence_get(record.ref, "AI003 Gold 2026", bad_replay, correlation_id="test-corr-42")
@@ -544,9 +544,9 @@ class ServiceDiagnosticsTests(unittest.TestCase):
 
     def test_structured_diagnostics_on_store_failure(self):
         logged = []
-        from lotus_fin.risk_signal.service import _ap_evidence
-        with mock.patch("lotus_fin.risk_signal.service.create_evidence_record", side_effect=ValueError("redis_down")):
-            with mock.patch("lotus_fin.risk_signal.service.log_ai003_event", side_effect=lambda **kw: logged.append(kw) or {}):
+        from lotus_fin.modules.f003_risk_signal.service import _ap_evidence
+        with mock.patch("lotus_fin.modules.f003_risk_signal.service.create_evidence_record", side_effect=ValueError("redis_down")):
+            with mock.patch("lotus_fin.modules.f003_risk_signal.service.log_ai003_event", side_effect=lambda **kw: logged.append(kw) or {}):
                 dummy_snapshot = mock.MagicMock()
                 dummy_snapshot.report_key = "accounts_payable"
                 dummy_snapshot.source_hash = "h" * 64

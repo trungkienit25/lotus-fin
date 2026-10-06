@@ -38,16 +38,16 @@ from lotus_fin.ai.financial_snapshot import (
     FinancialSourceDataError,
 )
 from lotus_fin.ai.financial_health import build_comparison_block, compute_metric_change
-from lotus_fin.cashflow.models import (
+from lotus_fin.modules.f002_cashflow.models import (
     ForecastRequest,
     ForecastStatus,
     OpeningCash,
     AccountBalance,
 )
-from lotus_fin.cashflow.adapters import ObligationSourceError, check_party_type_preflight
-from lotus_fin.cashflow.cache import _CACHE_STORE, compute_cache_key
-from lotus_fin.cashflow.source_interface import FailClosedSource
-from lotus_fin.cashflow.service import get_cash_forecast
+from lotus_fin.modules.f002_cashflow.adapters import ObligationSourceError, check_party_type_preflight
+from lotus_fin.modules.f002_cashflow.cache import _CACHE_STORE, compute_cache_key
+from lotus_fin.modules.f002_cashflow.source_interface import FailClosedSource
+from lotus_fin.modules.f002_cashflow.service import get_cash_forecast
 
 
 GOLD_PNL = [
@@ -422,9 +422,9 @@ class TestBucketCCurrencySafety(unittest.TestCase):
     def test_ai002_finance_book_explicitly_not_supported(self):
         """The request contract carries finance_book; supplying it must fail
         closed with an explicit not-supported message — never silently ignored."""
-        from lotus_fin.cashflow.models import ForecastRequest, CoverageScope
-        from lotus_fin.cashflow.validation import validate_forecast_request
-        from lotus_fin.cashflow.models import ReasonCode
+        from lotus_fin.modules.f002_cashflow.models import ForecastRequest, CoverageScope
+        from lotus_fin.modules.f002_cashflow.validation import validate_forecast_request
+        from lotus_fin.modules.f002_cashflow.models import ReasonCode
 
         request = ForecastRequest(
             company="AI002 Fixture 2026",
@@ -446,7 +446,7 @@ class TestBucketDCacheAuthorization(unittest.TestCase):
     revocation inside the TTL yields FORBIDDEN with no cached financial data."""
 
     def setUp(self):
-        from lotus_fin.cashflow import cache as cache_mod
+        from lotus_fin.modules.f002_cashflow import cache as cache_mod
 
         cache_mod._CACHE_STORE.clear()
         cache_mod._SINGLE_FLIGHT_LOCKS.clear()
@@ -478,18 +478,18 @@ class TestBucketDCacheAuthorization(unittest.TestCase):
     def _service_context(self, opening_mock=None):
         return (
             patch(
-                "lotus_fin.cashflow.service.validate_forecast_request",
+                "lotus_fin.modules.f002_cashflow.service.validate_forecast_request",
                 return_value=(True, None, None),
             ),
             patch(
-                "lotus_fin.cashflow.service.get_opening_cash_ledger",
+                "lotus_fin.modules.f002_cashflow.service.get_opening_cash_ledger",
                 opening_mock or MagicMock(return_value=self.opening),
             ),
             patch(
-                "lotus_fin.cashflow.service.get_trade_obligations",
+                "lotus_fin.modules.f002_cashflow.service.get_trade_obligations",
                 MagicMock(return_value=[]),
             ),
-            patch("lotus_fin.cashflow.service.frappe", MagicMock()),
+            patch("lotus_fin.modules.f002_cashflow.service.frappe", MagicMock()),
         )
 
     def _run(self):
@@ -578,7 +578,7 @@ class TestWV01ReportFooterNormalization(unittest.TestCase):
 
     def setUp(self):
         from lotus_fin.api.key_reports import is_valid_frappe_report_footer, normalize_frappe_report_footer
-        from lotus_fin.cashflow.adapters import _parse_report_rows
+        from lotus_fin.modules.f002_cashflow.adapters import _parse_report_rows
         self.is_valid_footer = is_valid_frappe_report_footer
         self.normalize_footer = normalize_frappe_report_footer
         self.parse_report_rows = _parse_report_rows
@@ -745,7 +745,7 @@ class TestWV02MasterDataAndVoucherSafety(unittest.TestCase):
         with self.assertRaises(FinancialSourceDataError):
             parse_ar_data([row], as_of_date=date(2026, 9, 26))
 
-        from lotus_fin.cashflow.adapters import _collect_obligations
+        from lotus_fin.modules.f002_cashflow.adapters import _collect_obligations
         with self.assertRaises(ObligationSourceError):
             _collect_obligations(
                 {"status": "success", "data": [row]},
@@ -761,7 +761,7 @@ class TestWV02MasterDataAndVoucherSafety(unittest.TestCase):
         with self.assertRaises(FinancialSourceDataError):
             parse_ar_data([row], as_of_date=date(2026, 9, 26))
 
-        from lotus_fin.cashflow.adapters import _collect_obligations
+        from lotus_fin.modules.f002_cashflow.adapters import _collect_obligations
         with self.assertRaises(ObligationSourceError):
             _collect_obligations(
                 {"status": "success", "data": [row]},
@@ -777,7 +777,7 @@ class TestWV02MasterDataAndVoucherSafety(unittest.TestCase):
         with self.assertRaises(FinancialSourceDataError):
             parse_ap_data([row])
 
-        from lotus_fin.cashflow.adapters import _collect_obligations
+        from lotus_fin.modules.f002_cashflow.adapters import _collect_obligations
         with self.assertRaises(ObligationSourceError):
             _collect_obligations(
                 {"status": "success", "data": [row]},
@@ -793,7 +793,7 @@ class TestWV02MasterDataAndVoucherSafety(unittest.TestCase):
         with self.assertRaises(FinancialSourceDataError):
             parse_ap_data([row])
 
-        from lotus_fin.cashflow.adapters import _collect_obligations
+        from lotus_fin.modules.f002_cashflow.adapters import _collect_obligations
         with self.assertRaises(ObligationSourceError):
             _collect_obligations(
                 {"status": "success", "data": [row]},
@@ -810,7 +810,7 @@ class TestWV02MasterDataAndVoucherSafety(unittest.TestCase):
             ["Student"] if filters and filters.get("account_type") == "Receivable" else ["Supplier"]
         )
         fake_frappe.db.get_value.return_value = {"company": "Test Co", "docstatus": 1}
-        with patch("lotus_fin.cashflow.adapters.frappe", fake_frappe):
+        with patch("lotus_fin.modules.f002_cashflow.adapters.frappe", fake_frappe):
             with self.assertRaises(ObligationSourceError) as ctx:
                 check_party_type_preflight()
             self.assertIn("Customer", str(ctx.exception))
@@ -821,7 +821,7 @@ class TestWV02MasterDataAndVoucherSafety(unittest.TestCase):
             ["Customer"] if filters and filters.get("account_type") == "Receivable" else ["Employee"]
         )
         fake_frappe.db.get_value.return_value = {"company": "Test Co", "docstatus": 1}
-        with patch("lotus_fin.cashflow.adapters.frappe", fake_frappe):
+        with patch("lotus_fin.modules.f002_cashflow.adapters.frappe", fake_frappe):
             with self.assertRaises(ObligationSourceError) as ctx:
                 check_party_type_preflight()
             self.assertIn("Supplier", str(ctx.exception))
@@ -830,9 +830,9 @@ class TestWV02MasterDataAndVoucherSafety(unittest.TestCase):
         fake_frappe = MagicMock()
         fake_frappe.db.get_value.return_value = {"company": "Wrong Co", "docstatus": 1}
 
-        from lotus_fin.cashflow.adapters import _collect_obligations
+        from lotus_fin.modules.f002_cashflow.adapters import _collect_obligations
         row = {"party": "Cust A", "voucher_no": "SINV-001", "outstanding": 100}
-        with patch("lotus_fin.cashflow.adapters.frappe", fake_frappe):
+        with patch("lotus_fin.modules.f002_cashflow.adapters.frappe", fake_frappe):
             with self.assertRaises(ObligationSourceError) as ctx:
                 _collect_obligations(
                     {"status": "success", "data": [row]},
@@ -849,9 +849,9 @@ class TestWV02MasterDataAndVoucherSafety(unittest.TestCase):
         fake_frappe = MagicMock()
         fake_frappe.db.get_value.return_value = {"company": "Target Co", "docstatus": 0}
 
-        from lotus_fin.cashflow.adapters import _collect_obligations
+        from lotus_fin.modules.f002_cashflow.adapters import _collect_obligations
         row = {"party": "Cust A", "voucher_no": "SINV-001", "outstanding": 100}
-        with patch("lotus_fin.cashflow.adapters.frappe", fake_frappe):
+        with patch("lotus_fin.modules.f002_cashflow.adapters.frappe", fake_frappe):
             with self.assertRaises(ObligationSourceError) as ctx:
                 _collect_obligations(
                     {"status": "success", "data": [row]},
@@ -880,8 +880,8 @@ class TestWV02MasterDataAndVoucherSafety(unittest.TestCase):
                 parse_ar_data([row], company="Target Co")
             self.assertIn("Supplier/Pay Payment Entry", str(ctx.exception))
 
-        from lotus_fin.cashflow.adapters import _collect_obligations
-        with patch("lotus_fin.cashflow.adapters.frappe", fake_frappe):
+        from lotus_fin.modules.f002_cashflow.adapters import _collect_obligations
+        with patch("lotus_fin.modules.f002_cashflow.adapters.frappe", fake_frappe):
             with self.assertRaises(ObligationSourceError) as ctx:
                 _collect_obligations(
                     {"status": "success", "data": [row]},
@@ -904,8 +904,8 @@ class TestWV02MasterDataAndVoucherSafety(unittest.TestCase):
                 parse_ar_data([row], company="Target Co")
             self.assertIn("non-existent Payment Entry", str(ctx.exception))
 
-        from lotus_fin.cashflow.adapters import _collect_obligations
-        with patch("lotus_fin.cashflow.adapters.frappe", fake_frappe):
+        from lotus_fin.modules.f002_cashflow.adapters import _collect_obligations
+        with patch("lotus_fin.modules.f002_cashflow.adapters.frappe", fake_frappe):
             with self.assertRaises(ObligationSourceError) as ctx:
                 _collect_obligations(
                     {"status": "success", "data": [row]},
@@ -935,8 +935,8 @@ class TestWV02MasterDataAndVoucherSafety(unittest.TestCase):
                 parse_ar_data([row], company="Target Co")
             self.assertIn("does not exist", str(ctx.exception))
 
-        from lotus_fin.cashflow.adapters import _collect_obligations
-        with patch("lotus_fin.cashflow.adapters.frappe", fake_frappe):
+        from lotus_fin.modules.f002_cashflow.adapters import _collect_obligations
+        with patch("lotus_fin.modules.f002_cashflow.adapters.frappe", fake_frappe):
             with self.assertRaises(ObligationSourceError) as ctx:
                 _collect_obligations(
                     {"status": "success", "data": [row]},
@@ -981,7 +981,7 @@ class TestWV02MasterDataAndVoucherSafety(unittest.TestCase):
             parse_ar_data([row], currency="VND")
         self.assertIn("unsupported currency", str(ctx.exception))
 
-        from lotus_fin.cashflow.adapters import _collect_obligations
+        from lotus_fin.modules.f002_cashflow.adapters import _collect_obligations
         with self.assertRaises(ObligationSourceError) as ctx:
             _collect_obligations(
                 {"status": "success", "data": [row]},
@@ -1027,7 +1027,7 @@ class TestWR01WR02UntrustedSummaryAndVoucherlessRows(unittest.TestCase):
     def test_wr01_repro_is_total_row_dict_alone_is_not_verified_zero(self):
         """Minimal recheck repro: parse_ar_data([{"is_total_row": True, "outstanding": 123}])
         must raise, not return AR=0."""
-        from lotus_fin.cashflow.adapters import _parse_report_rows
+        from lotus_fin.modules.f002_cashflow.adapters import _parse_report_rows
         with self.assertRaises(FinancialSourceDataError):
             parse_ar_data([{"is_total_row": True, "outstanding": 123}])
         with self.assertRaises(ObligationSourceError):
@@ -1078,7 +1078,7 @@ class TestWR01WR02UntrustedSummaryAndVoucherlessRows(unittest.TestCase):
         ]
         with self.assertRaises(FinancialSourceDataError):
             parse_ar_data(rows, as_of_date=date(2026, 9, 26))
-        from lotus_fin.cashflow.adapters import _collect_obligations
+        from lotus_fin.modules.f002_cashflow.adapters import _collect_obligations
         with self.assertRaises(ObligationSourceError):
             _collect_obligations(
                 {"status": "success", "data": rows},
@@ -1181,7 +1181,7 @@ class TestWR01WR02UntrustedSummaryAndVoucherlessRows(unittest.TestCase):
         """AI002 already rejects positive obligations without a voucher; one
         voucher-less row must invalidate the whole obligation read so no
         partial/fake-empty obligation set is returned."""
-        from lotus_fin.cashflow.adapters import _collect_obligations
+        from lotus_fin.modules.f002_cashflow.adapters import _collect_obligations
         with self.assertRaises(ObligationSourceError):
             _collect_obligations(
                 {
@@ -1201,7 +1201,7 @@ class TestWR01WR02UntrustedSummaryAndVoucherlessRows(unittest.TestCase):
     def test_wr01_ai002_all_summary_payload_raises_not_empty_obligations(self):
         """AI002 top-level adapter path: an all-summary payload must raise, so
         the service fails closed instead of reporting zero obligations."""
-        from lotus_fin.cashflow.adapters import _collect_obligations
+        from lotus_fin.modules.f002_cashflow.adapters import _collect_obligations
         with self.assertRaises(ObligationSourceError):
             _collect_obligations(
                 {"status": "success", "data": [{"is_total_row": True, "outstanding": 123}]},
@@ -1214,7 +1214,7 @@ class TestWR01WR02UntrustedSummaryAndVoucherlessRows(unittest.TestCase):
 
     def test_wr02_ai001_ai002_voucherless_row_contract_consistent(self):
         """Both engines reject the same row shape with their typed errors."""
-        from lotus_fin.cashflow.adapters import _collect_obligations
+        from lotus_fin.modules.f002_cashflow.adapters import _collect_obligations
         row = {"party": "Cust A", "outstanding": 123}
         with self.assertRaises(FinancialSourceDataError):
             parse_ar_data([row], as_of_date=date(2026, 9, 26))

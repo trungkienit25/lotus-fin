@@ -41,3 +41,4 @@ class ERPNextGateway:
             curr = frappe.db.get_value("Company", company, "default_currency")
             return str(curr) if curr else "VND"
         return "VND"
+

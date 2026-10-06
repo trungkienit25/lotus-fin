@@ -27,21 +27,21 @@ from unittest.mock import MagicMock, patch
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
-from lotus_fin.cashflow import adapters
-from lotus_fin.cashflow.adapters import (
+from lotus_fin.modules.f002_cashflow import adapters
+from lotus_fin.modules.f002_cashflow.adapters import (
     ObligationSourceError,
     _collect_obligations,
     get_trade_obligations,
 )
-from lotus_fin.cashflow.cache import _CACHE_STORE, _SINGLE_FLIGHT_LOCKS
-from lotus_fin.cashflow.models import (
+from lotus_fin.modules.f002_cashflow.cache import _CACHE_STORE, _SINGLE_FLIGHT_LOCKS
+from lotus_fin.modules.f002_cashflow.models import (
     ForecastRequest,
     ForecastStatus,
     OpeningCash,
     AccountBalance,
 )
-from lotus_fin.cashflow.service import get_cash_forecast
-from lotus_fin.cashflow.source_interface import FailClosedSource
+from lotus_fin.modules.f002_cashflow.service import get_cash_forecast
+from lotus_fin.modules.f002_cashflow.source_interface import FailClosedSource
 
 COMPANY = "AI002 Fixture 2026"
 AS_OF = date(2026, 9, 26)
@@ -91,13 +91,13 @@ class TestPBSEC01FreshPathUserPropagation(unittest.TestCase):
                 raise Exception("FORBIDDEN")
 
         with patch(
-            "lotus_fin.cashflow.service.validate_forecast_request",
+            "lotus_fin.modules.f002_cashflow.service.validate_forecast_request",
             return_value=(True, None, None),
         ), patch(
-            "lotus_fin.cashflow.service.get_opening_cash_ledger",
+            "lotus_fin.modules.f002_cashflow.service.get_opening_cash_ledger",
             MagicMock(return_value=_verified_opening()),
-        ), patch("lotus_fin.cashflow.service.frappe", MagicMock()), patch(
-            "lotus_fin.cashflow.adapters.frappe", MagicMock()
+        ), patch("lotus_fin.modules.f002_cashflow.service.frappe", MagicMock()), patch(
+            "lotus_fin.modules.f002_cashflow.adapters.frappe", MagicMock()
         ), patch.object(
             adapters, "check_ai002_report_permission", side_effect=_guard
         ), patch.object(
@@ -131,16 +131,16 @@ class TestPBSEC01FreshPathUserPropagation(unittest.TestCase):
 
     def test_service_forwards_checked_user_to_fresh_source_calls(self):
         with patch(
-            "lotus_fin.cashflow.service.validate_forecast_request",
+            "lotus_fin.modules.f002_cashflow.service.validate_forecast_request",
             return_value=(True, None, None),
         ), patch(
-            "lotus_fin.cashflow.service.get_opening_cash_ledger",
+            "lotus_fin.modules.f002_cashflow.service.get_opening_cash_ledger",
             return_value=_verified_opening(),
         ) as opening_mock, patch(
-            "lotus_fin.cashflow.service.get_trade_obligations",
+            "lotus_fin.modules.f002_cashflow.service.get_trade_obligations",
             return_value=[],
         ) as obligations_mock, patch(
-            "lotus_fin.cashflow.service.frappe", MagicMock()
+            "lotus_fin.modules.f002_cashflow.service.frappe", MagicMock()
         ):
             get_cash_forecast(
                 request=_make_request(),
@@ -152,7 +152,7 @@ class TestPBSEC01FreshPathUserPropagation(unittest.TestCase):
         self.assertEqual(obligations_mock.call_args.kwargs.get("user"), "checked-user@example.com")
 
     def test_adapters_forward_checked_user_to_report_permission_guard(self):
-        with patch("lotus_fin.cashflow.adapters.frappe", MagicMock()), patch.object(
+        with patch("lotus_fin.modules.f002_cashflow.adapters.frappe", MagicMock()), patch.object(
             adapters, "check_ai002_report_permission"
         ) as perm_mock, patch.object(
             adapters,
@@ -238,7 +238,7 @@ class TestPBDATA02ObservationIdentityAI002(unittest.TestCase):
 
     def test_get_trade_obligations_deduplicates_report_rows(self):
         row = _ar_row()
-        with patch("lotus_fin.cashflow.adapters.frappe", MagicMock()), patch.object(
+        with patch("lotus_fin.modules.f002_cashflow.adapters.frappe", MagicMock()), patch.object(
             adapters, "check_ai002_report_permission"
         ), patch.object(
             adapters,

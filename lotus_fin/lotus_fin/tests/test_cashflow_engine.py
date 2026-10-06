@@ -4,7 +4,7 @@ from datetime import date, timedelta
 from decimal import Decimal
 from unittest.mock import patch
 
-from lotus_fin.cashflow.models import (
+from lotus_fin.modules.f002_cashflow.models import (
     ForecastRequest,
     ForecastResponse,
     ForecastStatus,
@@ -16,11 +16,11 @@ from lotus_fin.cashflow.models import (
     CashEventDirection,
     BreachKind,
 )
-from lotus_fin.cashflow.engine import compute_forecast
-from lotus_fin.cashflow.validation import validate_forecast_request
-from lotus_fin.cashflow.source_interface import SyntheticFixtureSource, FailClosedSource
-from lotus_fin.cashflow.service import get_cash_forecast
-from lotus_fin.cashflow.cache import compute_cache_key, get_cached_response, set_cached_response
+from lotus_fin.modules.f002_cashflow.engine import compute_forecast
+from lotus_fin.modules.f002_cashflow.validation import validate_forecast_request
+from lotus_fin.modules.f002_cashflow.source_interface import SyntheticFixtureSource, FailClosedSource
+from lotus_fin.modules.f002_cashflow.service import get_cash_forecast
+from lotus_fin.modules.f002_cashflow.cache import compute_cache_key, get_cached_response, set_cached_response
 
 
 class TestCashflowEnginePurePython(unittest.TestCase):
@@ -83,12 +83,12 @@ class TestCashflowEnginePurePython(unittest.TestCase):
         )
 
         with patch(
-            "lotus_fin.cashflow.service.validate_forecast_request",
+            "lotus_fin.modules.f002_cashflow.service.validate_forecast_request",
             return_value=(True, None, None),
         ), patch(
-            "lotus_fin.cashflow.service.get_opening_cash_ledger",
+            "lotus_fin.modules.f002_cashflow.service.get_opening_cash_ledger",
             return_value=verified_opening,
-        ), patch("lotus_fin.cashflow.service.get_trade_obligations", return_value=[]):
+        ), patch("lotus_fin.modules.f002_cashflow.service.get_trade_obligations", return_value=[]):
             response = get_cash_forecast(
                 request=request,
                 user="Administrator",
@@ -389,8 +389,8 @@ class TestCashflowEnginePurePython(unittest.TestCase):
         """Fix B: Without a Frappe DB there is no ledger evidence, so the adapter
         must never fabricate a reconciled label (old behavior returned
         TRIAL_BALANCE_RECONCILED with 0 VND in mock mode)."""
-        from lotus_fin.cashflow.adapters import get_opening_cash_ledger
-        with patch("lotus_fin.cashflow.adapters.frappe", None):
+        from lotus_fin.modules.f002_cashflow.adapters import get_opening_cash_ledger
+        with patch("lotus_fin.modules.f002_cashflow.adapters.frappe", None):
             opening = get_opening_cash_ledger("AI002 Fixture 2026", self.as_of, account_scope=["Cash - A2F"])
         self.assertEqual(opening.reconciliation, "RECONCILIATION_UNAVAILABLE")
         self.assertEqual(opening.aggregate_amount, Decimal("0"))
@@ -398,14 +398,14 @@ class TestCashflowEnginePurePython(unittest.TestCase):
     def test_no_db_trade_obligations_fail_closed(self):
         """Fix A: Without a Frappe DB, reading trade obligations must raise a typed
         error — returning [] would falsely claim a verified zero."""
-        from lotus_fin.cashflow.adapters import get_trade_obligations, ObligationSourceError
-        with patch("lotus_fin.cashflow.adapters.frappe", None):
+        from lotus_fin.modules.f002_cashflow.adapters import get_trade_obligations, ObligationSourceError
+        with patch("lotus_fin.modules.f002_cashflow.adapters.frappe", None):
             with self.assertRaises(ObligationSourceError):
                 get_trade_obligations("AI002 Fixture 2026", as_of=self.as_of)
 
     def test_trial_balance_empty_scope_fails_closed(self):
         """Fix B2: get_opening_cash_ledger returns RECONCILIATION_UNAVAILABLE when account_scope is empty."""
-        from lotus_fin.cashflow.adapters import get_opening_cash_ledger
+        from lotus_fin.modules.f002_cashflow.adapters import get_opening_cash_ledger
         opening = get_opening_cash_ledger("AI002 Fixture 2026", self.as_of, account_scope=[])
         self.assertEqual(opening.reconciliation, "RECONCILIATION_UNAVAILABLE")
         self.assertEqual(opening.aggregate_amount, Decimal("0"))
@@ -424,9 +424,9 @@ class TestCashflowEnginePurePython(unittest.TestCase):
         # Force the no-DB adapter path deterministically in any environment;
         # request validation is exercised separately (approved-scope check)
         with patch(
-            "lotus_fin.cashflow.service.validate_forecast_request",
+            "lotus_fin.modules.f002_cashflow.service.validate_forecast_request",
             return_value=(True, None, None),
-        ), patch("lotus_fin.cashflow.adapters.frappe", None):
+        ), patch("lotus_fin.modules.f002_cashflow.adapters.frappe", None):
             response = get_cash_forecast(request, user="Administrator", skip_cache=True)
         self.assertEqual(response.status, ForecastStatus.SOURCE_ERROR)
         self.assertEqual(response.reason_code, ReasonCode.DATA_PIPELINE_ERROR)

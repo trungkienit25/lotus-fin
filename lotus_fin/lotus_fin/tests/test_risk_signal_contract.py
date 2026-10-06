@@ -18,7 +18,7 @@ from decimal import Decimal
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
-from lotus_fin.risk_signal.contracts import (  # noqa: E402
+from lotus_fin.modules.f003_risk_signal.contracts import (  # noqa: E402
     BaselineBlock,
     BaselineStatus,
     BaselineType,

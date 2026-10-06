@@ -22,10 +22,10 @@ from decimal import Decimal
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
-from lotus_fin.risk_signal import evidence as evidence_module  # noqa: E402
-from lotus_fin.risk_signal import policy as policy_module  # noqa: E402
-from lotus_fin.risk_signal.agent import explain_result, next_check_actions  # noqa: E402
-from lotus_fin.risk_signal.contracts import (  # noqa: E402
+from lotus_fin.modules.f003_risk_signal import evidence as evidence_module  # noqa: E402
+from lotus_fin.modules.f003_risk_signal import policy as policy_module  # noqa: E402
+from lotus_fin.modules.f003_risk_signal.agent import explain_result, next_check_actions  # noqa: E402
+from lotus_fin.modules.f003_risk_signal.contracts import (  # noqa: E402
     DataMode,
     Explanation,
     ExplanationStatus,
@@ -34,14 +34,14 @@ from lotus_fin.risk_signal.contracts import (  # noqa: E402
     Status,
     result_to_dict,
 )
-from lotus_fin.risk_signal.interfaces import (  # noqa: E402
+from lotus_fin.modules.f003_risk_signal.interfaces import (  # noqa: E402
     APReportSnapshot,
     APRow,
     ARSnapshot,
     ScheduleMetadata,
 )
-from lotus_fin.risk_signal.provenance import SourceFailure  # noqa: E402
-from lotus_fin.risk_signal.service import ServiceDeps, evaluate_signal, get_evidence  # noqa: E402
+from lotus_fin.modules.f003_risk_signal.provenance import SourceFailure  # noqa: E402
+from lotus_fin.modules.f003_risk_signal.service import ServiceDeps, evaluate_signal, get_evidence  # noqa: E402
 
 
 class _HermeticEvidenceRedis:
