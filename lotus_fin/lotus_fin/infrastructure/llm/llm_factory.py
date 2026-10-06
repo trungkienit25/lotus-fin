@@ -12,6 +12,29 @@ from lotus_fin.infrastructure.llm.adapter.openai_llm_adapter import OpenAILLMAda
 from lotus_fin.infrastructure.llm.adapter.gemini_llm_adapter import GeminiLLMAdapter
 
 
+def _ensure_env_loaded():
+    """Finds and loads .env from known locations if not already present in os.environ."""
+    candidates = [
+        os.path.join(os.getcwd(), ".env"),
+        os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../.env")),
+        "/home/frappe/frappe-bench/apps/lotus_fin/.env",
+        "/home/frappe/frappe-bench/sites/.env",
+    ]
+    for c in candidates:
+        if os.path.isfile(c):
+            try:
+                with open(c, "r", encoding="utf-8") as f:
+                    for line in f:
+                        line = line.strip()
+                        if line and not line.startswith("#") and "=" in line:
+                            k, v = line.split("=", 1)
+                            k, v = k.strip(), v.strip()
+                            if k not in os.environ or not os.environ[k]:
+                                os.environ[k] = v
+            except Exception:
+                pass
+
+
 class LLMProviderFactory:
     """Factory creating concrete ILLMProvider instances based on system configuration."""
 
@@ -22,6 +45,8 @@ class LLMProviderFactory:
         api_key: Optional[str] = None,
         base_url: Optional[str] = None,
     ) -> ILLMProvider:
+        _ensure_env_loaded()
+
         """
         Creates an ILLMProvider based on explicit parameters or environment variables.
 
