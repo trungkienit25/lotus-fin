@@ -34,8 +34,10 @@ class LLMProviderFactory:
         p_name = (
             provider_name
             or os.environ.get("LOTUS_AI_PROVIDER")
+            or os.environ.get("LOTUS_LLM_PROVIDER")
             or "mock"
         ).lower().strip()
+
 
         if p_name in ["openai", "chatgpt", "deepseek", "vllm", "ollama", "groq"]:
             return OpenAILLMAdapter(
@@ -50,3 +52,4 @@ class LLMProviderFactory:
             )
         else:
             return MockLLMAdapter()
+

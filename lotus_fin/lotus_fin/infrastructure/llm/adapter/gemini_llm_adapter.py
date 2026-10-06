@@ -32,14 +32,17 @@ class GeminiLLMAdapter(ILLMProvider):
             model_name
             or os.environ.get("GEMINI_MODEL")
             or os.environ.get("LOTUS_AI_MODEL")
-            or "gemini-1.5-flash"
+            or os.environ.get("LOTUS_LLM_MODEL")
+            or "gemini-flash-latest"
         )
         self.api_key = (
             api_key
             or os.environ.get("GEMINI_API_KEY")
             or os.environ.get("LOTUS_AI_API_KEY")
+            or os.environ.get("LOTUS_LLM_API_KEY")
             or ""
         )
+
         self.timeout_seconds = timeout_seconds
 
     def generate(
@@ -160,3 +163,4 @@ class GeminiLLMAdapter(ILLMProvider):
             content="\n".join(text_content_list),
             tool_calls=parsed_tool_calls,
         )
+
