@@ -1,0 +1,115 @@
+import json
+import logging
+from typing import Any, Dict, List, Optional
+from pydantic import BaseModel, Field
+
+from lotus_fin.application.port.i_llm_provider import ILLMProvider
+from lotus_fin.application.port.i_tool_invoker import IToolInvoker
+from lotus_fin.domain.model.chat_message import ChatMessage
+from lotus_fin.domain.model.chat_session import ChatSession
+from lotus_fin.domain.model.message_role import MessageRole
+from lotus_fin.domain.model.user_context import UserPrincipal
+from lotus_fin.domain.schema.tool_definition import ToolDefinition
+from lotus_fin.domain.schema.tool_execution_result import ToolExecutionResult
+
+_logger = logging.getLogger("lotus_fin.application.agent.agent_runner")
+
+
+class AgentExecutionResult(BaseModel):
+    reply: str = Field(..., description="Final natural language response for user")
+    tool_called: Optional[str] = Field(default=None, description="Primary tool executed if any")
+    tool_output: Optional[Dict[str, Any]] = Field(default=None, description="Raw deterministic data returned by tool")
+    ui_widget: Optional[Dict[str, Any]] = Field(default=None, description="UI Widget payload for frontend rendering")
+    executed_tools: List[str] = Field(default_factory=list, description="List of all tools invoked in session")
+
+
+class AgentRunner:
+    """
+    Controlled ReAct Agent Loop:
+    1. Injects grounded system prompt and user query.
+    2. Calls LLM with strict Whitelist Tools.
+    3. If tool requested: invokes tool deterministically via IToolInvoker, appends Tool message to context, repeats.
+    4. Enforces max_iterations = 4 to guarantee termination and prevent infinite loops.
+    """
+    def __init__(
+        self,
+        llm_provider: ILLMProvider,
+        tool_invoker: IToolInvoker,
+        max_iterations: int = 4
+    ):
+        self.llm_provider = llm_provider
+        self.tool_invoker = tool_invoker
+        self.max_iterations = max_iterations
+
+    def run(
+        self,
+        session: ChatSession,
+        system_prompt: str,
+        tools: List[ToolDefinition],
+        user: UserPrincipal
+    ) -> AgentExecutionResult:
+        # Build working context for the current turn
+        working_context: List[ChatMessage] = [
+            ChatMessage(role=MessageRole.SYSTEM, content=system_prompt)
+        ] + session.get_context_window(max_messages=8)
+
+        iteration = 0
+        executed_tool_name: Optional[str] = None
+        executed_tool_output: Optional[Dict[str, Any]] = None
+        executed_ui_widget: Optional[Dict[str, Any]] = None
+        executed_tools_list: List[str] = []
+
+        while iteration < self.max_iterations:
+            iteration += 1
+            _logger.debug("AgentRunner iteration %d with %d messages", iteration, len(working_context))
+
+            response = self.llm_provider.generate(working_context, tools)
+
+            # Case A: LLM produced final answer with no further tool calls
+            if not response.has_tool_calls:
+                final_content = response.content or "Analysis completed."
+                session.add_message(ChatMessage(role=MessageRole.ASSISTANT, content=final_content))
+                return AgentExecutionResult(
+                    reply=final_content,
+                    tool_called=executed_tool_name,
+                    tool_output=executed_tool_output,
+                    ui_widget=executed_ui_widget,
+                    executed_tools=executed_tools_list
+                )
+
+            # Case B: LLM requested tool invocation(s)
+            working_context.append(ChatMessage(
+                role=MessageRole.ASSISTANT,
+                content=response.content or "",
+                tool_calls=response.tool_calls
+            ))
+
+            for call in response.tool_calls or []:
+                _logger.info("AgentRunner dispatching tool: %s (%s)", call.tool_name, call.id)
+                tool_res: ToolExecutionResult = self.tool_invoker.invoke(call, user)
+                session.add_tool_trace(tool_res)
+
+                executed_tool_name = call.tool_name
+                executed_tools_list.append(call.tool_name)
+                if tool_res.data:
+                    executed_tool_output = tool_res.data
+                if tool_res.ui_widget:
+                    executed_ui_widget = tool_res.ui_widget
+
+                # Append tool result into context for next ReAct cycle
+                working_context.append(ChatMessage(
+                    role=MessageRole.TOOL,
+                    content=tool_res.to_json_string(),
+                    tool_call_id=call.id
+                ))
+
+        # Safeguard fallback if iteration limit is reached
+        fallback_msg = "Complex financial operation analyzed. Please review the extracted metrics below."
+        session.add_message(ChatMessage(role=MessageRole.ASSISTANT, content=fallback_msg))
+        return AgentExecutionResult(
+            reply=fallback_msg,
+            tool_called=executed_tool_name,
+            tool_output=executed_tool_output,
+            ui_widget=executed_ui_widget,
+            executed_tools=executed_tools_list
+        )
