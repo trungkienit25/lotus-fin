@@ -32,6 +32,20 @@ class ToolInvoker(IToolInvoker):
                 error_message=f"User is not authorized to invoke tool '{call.tool_name}'."
             )
 
+        # Validate required arguments against parameters_schema if available
+        param_schema = getattr(tool.definition, "parameters_schema", None)
+        if param_schema and isinstance(param_schema, dict):
+            required_fields = param_schema.get("required", [])
+            missing_fields = [f for f in required_fields if f not in call.arguments or call.arguments[f] is None]
+            if missing_fields:
+                _logger.warning("Tool %s missing required arguments: %s", call.tool_name, missing_fields)
+                return ToolExecutionResult(
+                    tool_call_id=call.id,
+                    tool_name=call.tool_name,
+                    is_success=False,
+                    error_message=f"Missing required parameter(s): {', '.join(missing_fields)}"
+                )
+
         try:
             result = tool.execute(call.arguments, user)
             # Ensure correlation id matches
@@ -40,10 +54,12 @@ class ToolInvoker(IToolInvoker):
             return result
         except Exception as e:
             _logger.exception("Error executing tool %s: %s", call.tool_name, str(e))
+            # Sanitize error message to prevent leaking internal traces to user
+            clean_err = str(e).split("\n")[0] if str(e) else "Execution error"
             return ToolExecutionResult(
                 tool_call_id=call.id,
                 tool_name=call.tool_name,
                 is_success=False,
-                error_message=f"Internal execution error: {str(e)}"
+                error_message=f"Execution error in {call.tool_name}: {clean_err}"
             )
 

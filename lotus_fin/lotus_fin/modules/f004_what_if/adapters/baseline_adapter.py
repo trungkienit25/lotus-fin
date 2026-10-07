@@ -11,11 +11,19 @@ from lotus_fin.modules.f004_what_if.domain.models import SimulatedCashEvent, qua
 from lotus_fin.modules.f004_what_if.domain.enums import CashFlowDirection, EventCategory
 
 
+class BaselineSourceError(Exception):
+    """Raised when underlying ERPNext sources fail or cannot be read."""
+    pass
+
+
 class BaselineSourceAdapter:
     """
     Read-Only Adapter: Extracts real/trusted operational baseline data from ERPNext.
-    Strictly non-invasive (Zero DB Mutation).
+    Strictly non-invasive (Zero DB Mutation). Fail-closed on authorization or schema failures.
     """
+
+    def __init__(self, checked_user: Optional[str] = None):
+        self.checked_user = checked_user
 
     def get_baseline_data(
         self,
@@ -25,7 +33,15 @@ class BaselineSourceAdapter:
     ) -> Tuple[Decimal, List[SimulatedCashEvent]]:
         """
         Extracts Opening Cash balance and all pending AR/AP due events within the horizon.
+        Verifies report read permission when frappe environment is present.
         """
+        if frappe is not None:
+            from lotus_fin.security.access import check_report_permission
+            # AI004 uses General Ledger and Accounts Receivable/Payable sources
+            check_report_permission("General Ledger", user=self.checked_user, module_id="f004")
+            check_report_permission("Accounts Receivable", user=self.checked_user, module_id="f004")
+            check_report_permission("Accounts Payable", user=self.checked_user, module_id="f004")
+
         start_date = as_of
         end_date = as_of + timedelta(days=horizon_days)
 
@@ -57,8 +73,8 @@ class BaselineSourceAdapter:
             )
             balance = gl_entries[0].get("balance") if gl_entries else None
             return quantize_currency(balance or Decimal("0.00"))
-        except Exception:
-            return Decimal("0.00")
+        except Exception as e:
+            raise BaselineSourceError(f"Failed to query opening cash GL entries for company '{company}': {e}") from e
 
     def _get_pending_events(
         self,
@@ -126,7 +142,7 @@ class BaselineSourceAdapter:
                         source_ref=pinv["name"]
                     )
                 )
-        except Exception:
-            pass
+        except Exception as e:
+            raise BaselineSourceError(f"Failed to query pending AR/AP invoices for company '{company}': {e}") from e
 
         return events

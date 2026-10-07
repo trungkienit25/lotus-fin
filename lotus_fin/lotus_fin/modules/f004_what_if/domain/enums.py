@@ -25,4 +25,6 @@ class EventCategory(str, Enum):
 class SimulationStatus(str, Enum):
     SUCCESS = "SUCCESS"
     INSUFFICIENT_DATA = "INSUFFICIENT_DATA"
+    SOURCE_ERROR = "SOURCE_ERROR"
+    FORBIDDEN = "FORBIDDEN"
     ERROR = "ERROR"

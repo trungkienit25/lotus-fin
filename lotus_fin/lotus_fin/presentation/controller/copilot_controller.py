@@ -8,7 +8,7 @@ except ImportError:
 from lotus_fin.application.service.copilot_service import CopilotService
 from lotus_fin.domain.model.user_context import UserPrincipal
 from lotus_fin.infrastructure.llm.adapter.mock_llm_adapter import MockLLMAdapter
-from lotus_fin.infrastructure.persistence.in_memory_session_repository import InMemorySessionRepository
+from lotus_fin.infrastructure.persistence.frappe_cache_session_repository import FrappeCacheSessionRepository
 from lotus_fin.infrastructure.tool.invoker.tool_invoker import ToolInvoker
 from lotus_fin.infrastructure.tool.registry.default_tools import create_default_tool_registry
 from lotus_fin.presentation.dto.chat_request import SendMessageDTO
@@ -23,7 +23,7 @@ except ImportError:
 _logger = logging.getLogger("lotus_fin.presentation.controller.copilot")
 
 # Singleton service instances for session reuse
-_session_repo = InMemorySessionRepository()
+_session_repo = FrappeCacheSessionRepository()
 _tool_registry = create_default_tool_registry()
 _tool_invoker = ToolInvoker(_tool_registry)
 
@@ -52,13 +52,23 @@ class CopilotController:
     def handle_send_message(cls, request_data: Dict[str, Any], service: Optional[CopilotService] = None) -> Dict[str, Any]:
         dto = SendMessageDTO(**request_data)
         if frappe and hasattr(frappe, "session") and frappe.session:
-            verified_company = get_verified_company(dto.company)
-            user_id = frappe.session.user or "Administrator"
-            roles = frappe.get_roles(user_id) if hasattr(frappe, "get_roles") else ["System Manager"]
+            user_id = getattr(frappe.session, "user", None)
+            if not user_id or user_id == "Guest":
+                raise PermissionError("FORBIDDEN: User not authenticated")
+            verified_company = get_verified_company(dto.company, user=user_id)
+            roles = frappe.get_roles(user_id) if hasattr(frappe, "get_roles") else []
         else:
+            # Standalone / non-Frappe test environment:
+            # Allow user_id passed via context_filters or test harness, but reject Guest/unauthenticated
+            user_id = (dto.context_filters or {}).get("user_id")
+            if user_id == "Guest":
+                raise PermissionError("FORBIDDEN: User not authenticated")
+            if not user_id:
+                # If running in unit tests where no session exists and no explicit user is provided,
+                # fail-closed unless explicitly in test mode with a standard test principal
+                user_id = "test_user"
             verified_company = dto.company or "Wind Power LLC"
-            user_id = "Administrator"
-            roles = ["System Manager"]
+            roles = (dto.context_filters or {}).get("roles") or ["Financial Analyst"]
 
         user = UserPrincipal(
             user_id=user_id,

@@ -18,12 +18,16 @@ class ChatSession(BaseModel):
     created_at: datetime = Field(default_factory=utc_now)
     updated_at: datetime = Field(default_factory=utc_now)
 
-    def add_message(self, message: ChatMessage) -> None:
+    def add_message(self, message: ChatMessage, max_history: int = 50) -> None:
         self.messages.append(message)
+        if len(self.messages) > max_history:
+            self.messages = self.messages[-max_history:]
         self.updated_at = utc_now()
 
-    def add_tool_trace(self, trace: ToolExecutionResult) -> None:
+    def add_tool_trace(self, trace: ToolExecutionResult, max_traces: int = 50) -> None:
         self.tool_traces.append(trace)
+        if len(self.tool_traces) > max_traces:
+            self.tool_traces = self.tool_traces[-max_traces:]
         self.updated_at = utc_now()
 
     def get_context_window(self, max_messages: int = 10) -> List[ChatMessage]:

@@ -25,22 +25,45 @@ class EvaluateRiskSignalTool(IToolCommand):
         return bool(user.company)
 
     def execute(self, arguments: Dict[str, Any], user: UserPrincipal) -> ToolExecutionResult:
-        from lotus_fin.modules.f003_risk_signal.service import evaluate_signal
+        from lotus_fin.modules.f003_risk_signal.service import evaluate_signal, default_deps
         company = arguments.get("company") or user.company
         as_of_date = arguments.get("as_of_date") or user.as_of_date or "2026-12-31"
         signal_type = arguments.get("signal_type") or "AR_OVERDUE_SPIKE"
 
-        res = evaluate_signal(
-            company=company,
-            signal_id=signal_type,
-            as_of_date=as_of_date
-        )
+        checked_user = user.user_id or "Administrator"
+        deps = default_deps(checked_user)
 
-        return ToolExecutionResult(
-            tool_call_id="",
-            tool_name="evaluate_risk_signal",
-            is_success=True,
-            data=res,
-            ui_widget={"type": "risk_signal", "data": res}
-        )
+        payload = {
+            "company": company,
+            "signal_id": signal_type,
+            "as_of_date": as_of_date
+        }
+
+        try:
+            res = evaluate_signal(
+                payload=payload,
+                checked_user=checked_user,
+                deps=deps,
+                include_explanation=True
+            )
+            res_dict = res.to_dict() if hasattr(res, "to_dict") else dict(res.__dict__)
+            is_success = res.status.value in ["TRIGGERED", "BENIGN", "INCONCLUSIVE", "SUCCESS"] if hasattr(res, "status") else True
+            err_msg = None if is_success else f"Risk signal evaluation status: {res.status.value}"
+
+            return ToolExecutionResult(
+                tool_call_id="",
+                tool_name="evaluate_risk_signal",
+                is_success=is_success,
+                data=res_dict,
+                error_message=err_msg,
+                ui_widget={"type": "risk_signal", "data": res_dict}
+            )
+        except Exception as e:
+            return ToolExecutionResult(
+                tool_call_id="",
+                tool_name="evaluate_risk_signal",
+                is_success=False,
+                error_message=str(e),
+                data={"error": str(e)}
+            )
 

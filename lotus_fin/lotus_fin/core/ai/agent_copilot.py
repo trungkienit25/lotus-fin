@@ -181,13 +181,22 @@ def process_copilot_query(
     if any(k in q_lower for k in ["rủi ro", "tín hiệu", "risk signal", "quá hạn", "đột biến", "tập trung nợ", "cluster", "spike"]):
         signal_type = "AP_DUE_CLUSTER" if any(k in q_lower for k in ["phải trả", "nhà cung cấp", "ap", "due"]) else "AR_OVERDUE_SPIKE"
         try:
-            from lotus_fin.modules.f003_risk_signal.service import evaluate_signal
+            from lotus_fin.modules.f003_risk_signal.service import evaluate_signal, default_deps
             as_of_val = as_of_date or "2026-09-26"
-            sig_res = evaluate_signal({
-                "company": verified_company,
-                "signal_id": signal_type,
-                "as_of_date": as_of_val
-            })
+            session_user = "Administrator"
+            if frappe and hasattr(frappe, "session") and frappe.session and frappe.session.user:
+                session_user = frappe.session.user
+            deps = default_deps(session_user)
+            sig_res = evaluate_signal(
+                payload={
+                    "company": verified_company,
+                    "signal_id": signal_type,
+                    "as_of_date": as_of_val
+                },
+                checked_user=session_user,
+                deps=deps,
+                include_explanation=True
+            )
             
             finding_text = "Bình thường"
             severity = "BENIGN"

@@ -75,6 +75,8 @@ class LLMProviderFactory:
                 model_name=model_name,
                 api_key=api_key,
             )
-        else:
+        elif p_name in ["mock", "test", ""]:
             return MockLLMAdapter()
+        else:
+            raise ValueError(f"Unsupported LLM provider '{p_name}'. Supported providers: openai, gemini, mock.")
 

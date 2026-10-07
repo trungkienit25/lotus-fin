@@ -44,6 +44,14 @@ class CopilotService(IChatService):
                 user_id=user.user_id,
                 company=user.company
             )
+        else:
+            # Enforce multi-tenant and session ownership isolation
+            if session.user_id != user.user_id:
+                _logger.warning("Session security violation: session user %s != caller %s", session.user_id, user.user_id)
+                raise PermissionError("FORBIDDEN: Session does not belong to the current authenticated user.")
+            if session.company != user.company:
+                _logger.warning("Session boundary violation: session company %s != user company %s", session.company, user.company)
+                raise PermissionError("FORBIDDEN: Session does not belong to the active company context.")
 
         # 2. Add incoming user message
         session.add_message(ChatMessage(role=MessageRole.USER, content=message))

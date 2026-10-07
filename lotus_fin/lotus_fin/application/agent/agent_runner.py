@@ -35,11 +35,13 @@ class AgentRunner:
         self,
         llm_provider: ILLMProvider,
         tool_invoker: IToolInvoker,
-        max_iterations: int = 4
+        max_iterations: int = 4,
+        max_total_tools: int = 6
     ):
         self.llm_provider = llm_provider
         self.tool_invoker = tool_invoker
         self.max_iterations = max_iterations
+        self.max_total_tools = max_total_tools
 
     def run(
         self,
@@ -54,6 +56,7 @@ class AgentRunner:
         ] + session.get_context_window(max_messages=8)
 
         iteration = 0
+        total_tools_executed = 0
         executed_tool_name: Optional[str] = None
         executed_tool_output: Optional[Dict[str, Any]] = None
         executed_ui_widget: Optional[Dict[str, Any]] = None
@@ -85,8 +88,25 @@ class AgentRunner:
             ))
 
             for call in response.tool_calls or []:
+                if total_tools_executed >= self.max_total_tools:
+                    _logger.warning("AgentRunner total tool budget reached (%d tools)", self.max_total_tools)
+                    budget_err = ToolExecutionResult(
+                        tool_call_id=call.id,
+                        tool_name=call.tool_name,
+                        is_success=False,
+                        error_message=f"Tool budget limit reached ({self.max_total_tools} calls per turn)."
+                    )
+                    session.add_tool_trace(budget_err)
+                    working_context.append(ChatMessage(
+                        role=MessageRole.TOOL,
+                        content=budget_err.to_json_string(),
+                        tool_call_id=call.id
+                    ))
+                    break
+
                 _logger.info("AgentRunner dispatching tool: %s (%s)", call.tool_name, call.id)
                 tool_res: ToolExecutionResult = self.tool_invoker.invoke(call, user)
+                total_tools_executed += 1
                 session.add_tool_trace(tool_res)
 
                 executed_tool_name = call.tool_name
