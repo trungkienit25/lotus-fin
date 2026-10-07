@@ -22,6 +22,8 @@ frappe_docker/
 
 # Logs & temp artifacts
 *.log
+cookies*.txt
+draft-for-FE.txt
 brain/
 */brain/
 output/
