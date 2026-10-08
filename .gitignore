@@ -48,6 +48,8 @@ frappe_docker/
 # Local-only competition preparation notes and empty design placeholders
 /docs/features/AI001/AI001_Antigravity_Task_Packet_VI.md
 /docs/features/AI003/AI003_CHAT_CANDIDATE_CONTRACT_DECISION_PROMPT.md
+/free-nextjs-admin-dashboard-main/
+/free-nextjs-admin-dashboard-main.zip
 /docs/features/AI003/AI003_FOUNDATION_WORK_VERIFICATION_REMEDIATION_PROMPT_ANTIGRAVITY.md
 /docs/features/AI003/AI003_G4B_REVERIFY_PROMPT.md
 /docs/ArchitecturalDesign/**/.gitkeep

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { FloatButton, Drawer, Input, Button, List, Typography, Space, Tag, Spin } from "antd";
 import { RobotOutlined, SendOutlined } from "@ant-design/icons";
 import axios from "axios";
+import { useTranslation } from "../../i18n";
 
 const { Text, Paragraph } = Typography;
 
@@ -13,12 +14,13 @@ interface ChatMessage {
 }
 
 export const LotusCopilotDrawer: React.FC = () => {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [inputMessage, setInputMessage] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       sender: "assistant",
-      content: "Xin chào! Tôi là Lotus Copilot. Tôi có thể hỗ trợ bạn đối soát dòng tiền, tính chỉ số sức khỏe tài chính và mô phỏng kịch bản What-If.",
+      content: "Hello! I am Lotus Copilot, your intelligent ERP assistant. I can assist you with cash flow reconciliation, financial health analytics, and What-If simulations.",
     },
   ]);
   const [loading, setLoading] = useState(false);
@@ -42,7 +44,7 @@ export const LotusCopilotDrawer: React.FC = () => {
           ...prev,
           {
             sender: "assistant",
-            content: responseData.reply || "Đã xử lý tác vụ.",
+            content: responseData.reply || "Task processed successfully.",
             toolCalls: responseData.executed_tools,
             widget: responseData.ui_widget,
           },
@@ -52,7 +54,7 @@ export const LotusCopilotDrawer: React.FC = () => {
           ...prev,
           {
             sender: "assistant",
-            content: "Đã ghi nhận yêu cầu nhưng không nhận được phản hồi phù hợp.",
+            content: "Request received, but no valid response was returned.",
           },
         ]);
       }
@@ -61,7 +63,7 @@ export const LotusCopilotDrawer: React.FC = () => {
         ...prev,
         {
           sender: "assistant",
-          content: `Lỗi kết nối Copilot: ${err.response?.data?.message || err.message}`,
+          content: `Copilot connection error: ${err.response?.data?.message || err.message}`,
         },
       ]);
     } finally {
@@ -75,7 +77,7 @@ export const LotusCopilotDrawer: React.FC = () => {
         icon={<RobotOutlined />}
         type="primary"
         style={{ right: 24, bottom: 24, width: 56, height: 56 }}
-        tooltip="Mở Trợ Lý Tài Chính Lotus Copilot"
+        tooltip={t("copilot.title")}
         onClick={() => setOpen(true)}
       />
 
@@ -121,12 +123,12 @@ export const LotusCopilotDrawer: React.FC = () => {
                     {item.toolCalls && item.toolCalls.length > 0 && (
                       <div style={{ marginTop: 8 }}>
                         <Text type="secondary" style={{ fontSize: 11, display: "block" }}>
-                          Công cụ đã kích hoạt:
+                          Tools executed:
                         </Text>
                         <Space wrap size={[0, 4]}>
-                          {item.toolCalls.map((t) => (
-                            <Tag color="blue" key={t}>
-                              {t}
+                          {item.toolCalls.map((tc) => (
+                            <Tag color="blue" key={tc}>
+                              {tc}
                             </Tag>
                           ))}
                         </Space>
@@ -138,7 +140,7 @@ export const LotusCopilotDrawer: React.FC = () => {
             />
             {loading && (
               <div style={{ textAlign: "center", padding: 8 }}>
-                <Spin tip="AI đang phân tích sổ cái & tính toán..." />
+                <Spin tip="AI is analyzing ledgers & calculating..." />
               </div>
             )}
           </div>
@@ -146,7 +148,7 @@ export const LotusCopilotDrawer: React.FC = () => {
           <div style={{ display: "flex", gap: 8 }}>
             <Input.TextArea
               rows={2}
-              placeholder="Hỏi về dòng tiền, chỉ số nợ, hoặc mô phỏng What-If..."
+              placeholder={t("copilot.placeholder")}
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onPressEnter={(e) => {
@@ -169,4 +171,3 @@ export const LotusCopilotDrawer: React.FC = () => {
     </>
   );
 };
-

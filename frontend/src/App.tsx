@@ -12,11 +12,14 @@ import { UniversalListView } from "./pages/dynamic/UniversalListView";
 import { UniversalFormView } from "./pages/dynamic/UniversalFormView";
 import { UniversalWorkspaceView } from "./pages/dynamic/UniversalWorkspaceView";
 import { UniversalReportView } from "./pages/dynamic/UniversalReportView";
+import { UniversalPageView } from "./pages/dynamic/UniversalPageView";
+import { I18nProvider } from "./i18n";
 
 export function App() {
   return (
-    <BrowserRouter>
-      <Refine
+    <I18nProvider>
+      <BrowserRouter>
+        <Refine
         authProvider={authProvider}
         dataProvider={dataProvider}
         routerProvider={routerBindings}
@@ -48,7 +51,10 @@ export function App() {
             {/* 3. Màn hình Báo cáo động (General Ledger, Trial Balance, Accounts Receivable...) */}
             <Route path="/report/:reportName" element={<UniversalReportView />} />
 
-            {/* 4. Bộ Route động kết xuất 100% DocType (Customer, Sales Invoice, Item...) */}
+            {/* 4. Màn hình Trang tương tác (Sales Funnel, POS, Leaderboard...) */}
+            <Route path="/page/:pageName" element={<UniversalPageView />} />
+
+            {/* 5. Bộ Route động kết xuất 100% DocType (Customer, Sales Invoice, Item...) */}
             <Route path="/app/:doctype" element={<UniversalListView />} />
             <Route path="/app/:doctype/new" element={<UniversalFormView />} />
             <Route path="/app/:doctype/:id" element={<UniversalFormView />} />
@@ -66,6 +72,7 @@ export function App() {
         </Routes>
       </Refine>
     </BrowserRouter>
+  </I18nProvider>
   );
 }
 

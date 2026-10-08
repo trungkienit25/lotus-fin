@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import { useLogin } from "@refinedev/core";
 import { Form, Input, Button, Card, Typography, Alert } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
+import { useTranslation } from "../../i18n";
 
 const { Title, Text } = Typography;
 
 export const LoginPage: React.FC = () => {
+  const { t } = useTranslation();
   const { mutate: login, isPending } = useLogin();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -15,7 +17,7 @@ export const LoginPage: React.FC = () => {
       { email: values.email, password: values.password },
       {
         onError: (error: any) => {
-          setErrorMessage(error?.message || "Đăng nhập thất bại");
+          setErrorMessage(error?.message || t("auth.loginFailed"));
         },
       }
     );
@@ -43,7 +45,7 @@ export const LoginPage: React.FC = () => {
           <Title level={2} style={{ margin: 0, color: "#1677ff" }}>
             Lotus Fin
           </Title>
-          <Text type="secondary">Cổng Quản Trị Tài Chính & Doanh Nghiệp Thông Minh</Text>
+          <Text type="secondary">{t("auth.enterCredentials")}</Text>
         </div>
 
         {errorMessage && (
@@ -58,18 +60,18 @@ export const LoginPage: React.FC = () => {
         <Form layout="vertical" onFinish={onFinish} initialValues={{ email: "Administrator", password: "" }}>
           <Form.Item
             name="email"
-            label="Tên đăng nhập / Email"
-            rules={[{ required: true, message: "Vui lòng nhập tài khoản!" }]}
+            label={t("auth.email")}
+            rules={[{ required: true, message: `${t("common.add")} ${t("auth.email")}` }]}
           >
-            <Input prefix={<UserOutlined />} placeholder="Ví dụ: Administrator" size="large" />
+            <Input prefix={<UserOutlined />} placeholder="e.g. Administrator" size="large" />
           </Form.Item>
 
           <Form.Item
             name="password"
-            label="Mật khẩu"
-            rules={[{ required: true, message: "Vui lòng nhập mật khẩu!" }]}
+            label={t("auth.password")}
+            rules={[{ required: true, message: `${t("common.add")} ${t("auth.password")}` }]}
           >
-            <Input.Password prefix={<LockOutlined />} placeholder="Mật khẩu" size="large" />
+            <Input.Password prefix={<LockOutlined />} placeholder={t("auth.password")} size="large" />
           </Form.Item>
 
           <Form.Item style={{ marginTop: 24 }}>
@@ -80,7 +82,7 @@ export const LoginPage: React.FC = () => {
               block
               loading={isPending}
             >
-              Đăng nhập hệ thống
+              {isPending ? t("auth.loggingIn") : t("auth.login")}
             </Button>
           </Form.Item>
         </Form>
@@ -88,4 +90,3 @@ export const LoginPage: React.FC = () => {
     </div>
   );
 };
-
