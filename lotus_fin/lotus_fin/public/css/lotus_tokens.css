@@ -1,0 +1,72 @@
+/* ==========================================================================
+   Lotus Fin AI — Google Material 3 Design Tokens (The DNA System)
+   ========================================================================== */
+
+:root {
+	/* Typography: Google Modern Stack */
+	--lotus-font-family: "Google Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+	--lotus-font-mono: "Google Sans Mono", "SF Mono", Monaco, "Cascadia Code", "Courier New", monospace;
+
+	/* Surfaces & Depth (Layered Hierarchy) */
+	--lotus-surface-app: #f8fafc;       /* Slate-50: Sâu thẳm, không bao giờ dùng trắng tinh cho nền */
+	--lotus-surface-card: #ffffff;      /* Surface 1: Trắng tinh float trên nền */
+	--lotus-surface-subtle: #f1f5f9;    /* Surface 2: Slate-100 cho hover và subtle panels */
+	--lotus-surface-active: #e2e8f0;    /* Surface 3: Slate-200 */
+	--lotus-surface-glass: rgba(255, 255, 255, 0.95);
+
+	/* Color Palette: Google Brand & Accents */
+	--lotus-primary: #2563eb;           /* Google Blue (Blue-600) */
+	--lotus-primary-hover: #1d4ed8;     /* Blue-700 */
+	--lotus-primary-light: #eff6ff;     /* Blue-50 */
+	--lotus-primary-subtle: #dbeafe;    /* Blue-100 */
+	--lotus-primary-active: #bfdbfe;    /* Blue-200 */
+
+	/* AI Magic Highlight (Agentic & Intelligence) */
+	--lotus-ai-magic: #6366f1;          /* Indigo-500 */
+	--lotus-ai-magic-hover: #4f46e5;    /* Indigo-600 */
+	--lotus-ai-purple: #8b5cf6;         /* Purple-500 */
+	--lotus-ai-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #2563eb 100%);
+	--lotus-ai-glow: 0 4px 20px rgba(99, 102, 241, 0.15);
+
+	/* Functional Status Colors */
+	--lotus-success: #16a34a;           /* Green-600 */
+	--lotus-success-bg: #f0fdf4;        /* Green-50 */
+	--lotus-success-border: #bbf7d0;    /* Green-200 */
+
+	--lotus-warning: #ea580c;           /* Amber/Orange-600 */
+	--lotus-warning-bg: #fffbeb;        /* Amber-50 */
+	--lotus-warning-border: #fde68a;    /* Amber-200 */
+
+	--lotus-danger: #dc2626;            /* Red-600 */
+	--lotus-danger-bg: #fef2f2;         /* Red-50 */
+	--lotus-danger-border: #fecaca;     /* Red-200 */
+
+	/* Typography Colors */
+	--lotus-text-primary: #0f172a;      /* Slate-900 (Không dùng #000) */
+	--lotus-text-secondary: #475569;    /* Slate-600 */
+	--lotus-text-muted: #94a3b8;        /* Slate-400 */
+
+	/* Borders */
+	--lotus-border: #e2e8f0;            /* Slate-200 */
+	--lotus-border-subtle: #cbd5e1;     /* Slate-300 */
+	--lotus-border-focus: #3b82f6;      /* Blue-500 */
+
+	/* Shape Language: Radii */
+	--lotus-radius-xs: 4px;
+	--lotus-radius-sm: 8px;
+	--lotus-radius-md: 12px;
+	--lotus-radius-lg: 16px;
+	--lotus-radius-xl: 20px;            /* Card & Container radius (rounded-[20px]) */
+	--lotus-radius-pill: 9999px;        /* Buttons & Badges (rounded-full) */
+
+	/* Elevation & Shadows (Float Effect) */
+	--lotus-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+	--lotus-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+	--lotus-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.03);
+	--lotus-shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+	--lotus-shadow-xl: 0 20px 30px -10px rgba(0, 0, 0, 0.12);
+
+	/* Transitions */
+	--lotus-transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+	--lotus-transition-base: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}

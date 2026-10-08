@@ -3,13 +3,13 @@ from datetime import date
 from decimal import Decimal
 from unittest.mock import MagicMock, patch
 
-from lotus_fin.cashflow.models import (
+from lotus_fin.modules.f002_cashflow.models import (
     ForecastRequest,
     ForecastResponse,
     ForecastStatus,
     ReasonCode,
 )
-from lotus_fin.cashflow.service import get_cash_forecast
+from lotus_fin.modules.f002_cashflow.service import get_cash_forecast
 from lotus_fin.ai.observability import log_ai002_event, _safe_details, log_event
 
 
@@ -87,7 +87,7 @@ class TestCashflowSecurityAndHardening(unittest.TestCase):
 
     def test_generic_forbidden_sanitizes_verified_company(self):
         """When request is FORBIDDEN, verified_company must be cleared/generic without leakage."""
-        with patch("lotus_fin.cashflow.service.validate_forecast_request") as mock_val:
+        with patch("lotus_fin.modules.f002_cashflow.service.validate_forecast_request") as mock_val:
             mock_val.return_value = (False, ReasonCode.UNAUTHORIZED_ACCESS, "FORBIDDEN")
             req = ForecastRequest(
                 company="Secret Confidential Corp",
@@ -103,8 +103,8 @@ class TestCashflowSecurityAndHardening(unittest.TestCase):
 
     def test_numeric_and_adversarial_grounding_rejection(self):
         """Grounding validator must reject hallucinated amounts, dates, unsupported currencies, and subjective risk ratings."""
-        from lotus_fin.cashflow.grounding import validate_grounding
-        from lotus_fin.cashflow.models import ForecastResponse, OpeningCash, AccountBalance
+        from lotus_fin.modules.f002_cashflow.grounding import validate_grounding
+        from lotus_fin.modules.f002_cashflow.models import ForecastResponse, OpeningCash, AccountBalance
 
         mock_resp = ForecastResponse(
             status=ForecastStatus.PARTIAL,
@@ -147,8 +147,8 @@ class TestCashflowSecurityAndHardening(unittest.TestCase):
 
     def test_model_failure_degradation(self):
         """When LLM times out or errors, explanation.status must be UNAVAILABLE with typed error_code."""
-        from lotus_fin.cashflow.agent import explain_cash_forecast
-        from lotus_fin.cashflow.models import ForecastResponse, OpeningCash, AccountBalance
+        from lotus_fin.modules.f002_cashflow.agent import explain_cash_forecast
+        from lotus_fin.modules.f002_cashflow.models import ForecastResponse, OpeningCash, AccountBalance
 
         mock_resp = ForecastResponse(
             status=ForecastStatus.PARTIAL,
@@ -182,8 +182,8 @@ class TestCashflowSecurityAndHardening(unittest.TestCase):
 
     def test_evidence_reauthorization_in_tools(self):
         """Evidence refs tool enforces access reauthorization."""
-        from lotus_fin.cashflow.tools import tool_cash_forecast_get_evidence
-        from lotus_fin.cashflow.models import ForecastResponse
+        from lotus_fin.modules.f002_cashflow.tools import tool_cash_forecast_get_evidence
+        from lotus_fin.modules.f002_cashflow.models import ForecastResponse
 
         resp = ForecastResponse(
             status=ForecastStatus.PARTIAL,
@@ -231,8 +231,8 @@ class TestCashflowSecurityAndHardening(unittest.TestCase):
 
     def test_grounding_rejects_arbitrary_short_numbers(self):
         """Fix D: Ungrounded short numbers such as 9999, 12, 1 VND must be rejected by grounding validator."""
-        from lotus_fin.cashflow.grounding import validate_grounding
-        from lotus_fin.cashflow.models import ForecastResponse, OpeningCash, AccountBalance
+        from lotus_fin.modules.f002_cashflow.grounding import validate_grounding
+        from lotus_fin.modules.f002_cashflow.models import ForecastResponse, OpeningCash, AccountBalance
 
         mock_resp = ForecastResponse(
             status=ForecastStatus.PARTIAL,
@@ -263,8 +263,8 @@ class TestCashflowSecurityAndHardening(unittest.TestCase):
 
     def test_grounding_accepts_supported_numbers(self):
         """Fix D: Grounded numbers and dates pass validation."""
-        from lotus_fin.cashflow.grounding import validate_grounding
-        from lotus_fin.cashflow.models import ForecastResponse, OpeningCash, AccountBalance
+        from lotus_fin.modules.f002_cashflow.grounding import validate_grounding
+        from lotus_fin.modules.f002_cashflow.models import ForecastResponse, OpeningCash, AccountBalance
 
         mock_resp = ForecastResponse(
             status=ForecastStatus.PARTIAL,

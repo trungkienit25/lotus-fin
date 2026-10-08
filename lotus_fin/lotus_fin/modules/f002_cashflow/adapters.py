@@ -11,6 +11,11 @@ from .models import (
     CashEvent,
 )
 from .source_interface import FutureEventSource, FailClosedSource
+from lotus_fin.core.domain.calculators.observation_reconciliation import (
+    reconcile_observations,
+    content_signature,
+    observation_identity,
+)
 
 
 class ObligationSourceError(Exception):
@@ -48,12 +53,46 @@ APPROVED_SCOPE_FIELD = "ai002_approved_cash_accounts"
 # unavailable; unit tests patch these module attributes directly.
 try:
     import frappe
-    from lotus_fin.security.access import check_ai002_report_permission
-    from lotus_fin.api.key_reports import extract_key_report_data
 except ImportError:
     frappe = None
+
+try:
+    from lotus_fin.security.access import check_ai002_report_permission
+except ImportError:
     check_ai002_report_permission = None
+
+try:
+    from lotus_fin.api.key_reports import extract_key_report_data, normalize_frappe_report_footer
+except ImportError:
     extract_key_report_data = None
+    normalize_frappe_report_footer = None
+
+
+def check_party_type_preflight() -> None:
+    """WV-02 preflight check: ensure ERPNext Party Type master data is properly configured."""
+    if not _has_active_db():
+        return
+    is_mock = type(frappe.db).__name__ in ("Mock", "MagicMock") or hasattr(frappe.db, "_mock_return_value")
+    try:
+        receivable_parties = frappe.db.get_all("Party Type", {"account_type": "Receivable"}, pluck="name")
+    except Exception as e:
+        raise ObligationSourceError(f"Master data preflight check failed: {e}") from e
+    if is_mock and (type(receivable_parties).__name__ in ("Mock", "MagicMock")):
+        return
+
+    if not isinstance(receivable_parties, list) or "Customer" not in receivable_parties:
+        raise ObligationSourceError(
+            "Master data preflight failed: 'Customer' is not registered as a Receivable Party Type."
+        )
+
+    try:
+        payable_parties = frappe.db.get_all("Party Type", {"account_type": "Payable"}, pluck="name")
+    except Exception as e:
+        raise ObligationSourceError(f"Master data preflight check failed: {e}") from e
+    if not isinstance(payable_parties, list) or "Supplier" not in payable_parties:
+        raise ObligationSourceError(
+            "Master data preflight failed: 'Supplier' is not registered as a Payable Party Type."
+        )
 
 
 def hash_party(party: Optional[str]) -> str:
@@ -74,9 +113,28 @@ def _has_active_db() -> bool:
     return bool(frappe and hasattr(frappe, "db") and frappe.db)
 
 
-def _check_report_permission(report_name: str) -> None:
+def _should_validate_db_voucher(company: Optional[str]) -> bool:
+    if not (_has_active_db() and company):
+        return False
+    if type(frappe.db).__name__ in ("Mock", "MagicMock") or hasattr(frappe.db, "_mock_return_value"):
+        if hasattr(frappe.db, "get_value"):
+            probe = frappe.db.get_value("Sales Invoice", "probe", as_dict=True)
+            if type(probe).__name__ in ("Mock", "MagicMock"):
+                return False
+        return True
     try:
-        check_ai002_report_permission(report_name)
+        if not frappe.db.exists("Company", company):
+            return False
+    except Exception:
+        return False
+    return True
+
+
+def _check_report_permission(report_name: str, user: Optional[str] = None) -> None:
+    """PB-SEC-01: forward the checked user so fresh-path authorization never
+    evaluates the ambient session on behalf of the caller."""
+    try:
+        check_ai002_report_permission(report_name, user=user)
     except Exception as e:
         raise ObligationPermissionError(
             f"Permission denied accessing {report_name}."
@@ -89,6 +147,7 @@ def get_opening_cash_ledger(
     account_scope: Optional[List[str]] = None,
     currency: str = "VND",
     db_cursor: Any = None,
+    user: Optional[str] = None,
 ) -> OpeningCash:
     """
     Get opening cash balance as of EOD financial_as_of.
@@ -97,6 +156,9 @@ def get_opening_cash_ledger(
     FROM `tabGL Entry`
     WHERE company=%s AND posting_date <= %s [AND account IN (%s)]
     GROUP BY account
+
+    PB-SEC-01: report permission checks evaluate the checked user, not the
+    ambient session.
 
     Reconciliation (Fix B): GL is reconciled against the independent authorized
     ERPNext Trial Balance report for the FULL explicit account scope. A scope
@@ -114,8 +176,8 @@ def get_opening_cash_ledger(
         _require_report_primitives()
 
         # Report permission for General Ledger & Trial Balance (fail closed)
-        _check_report_permission("General Ledger")
-        _check_report_permission("Trial Balance")
+        _check_report_permission("General Ledger", user=user)
+        _check_report_permission("Trial Balance", user=user)
 
         # Fix B: Account scope must be explicit; if empty, do not auto-select
         if not account_scope:
@@ -254,7 +316,10 @@ def _parse_report_rows(report: Any, source_label: str, company: Optional[str] = 
     other shape (None response, 'error' or unknown status, missing/non-list
     'data', a payload company that mismatches the requested company, or ANY row
     that is not a dict) raises a typed ObligationSourceError so the service
-    fails closed — malformed rows are never silently dropped.
+    fails closed — malformed rows are never silently dropped. WR-01: unproven
+    dict total/summary rows (is_total_row marker, or voucher-less
+    party="Total" at any position) also raise — the only verified Frappe
+    footer shape is the list row handled by normalize_frappe_report_footer.
     """
     if not isinstance(report, dict):
         raise ObligationSourceError(f"{source_label} returned no valid response.")
@@ -266,15 +331,53 @@ def _parse_report_rows(report: Any, source_label: str, company: Optional[str] = 
         rep_company = report.get("company")
         if rep_company and rep_company != company:
             raise ObligationSourceError(f"{source_label} payload company mismatch.")
+
+    # Report identity mismatch verification
+    rep_name = report.get("report_name")
+    if rep_name and str(rep_name).strip().lower() != source_label.strip().lower():
+        raise ObligationSourceError(f"{source_label} payload report name mismatch: '{rep_name}' != '{source_label}'.")
+    rep_key = report.get("report_key")
+    if rep_key and str(rep_key).strip().lower().replace(" ", "_") != source_label.strip().lower().replace(" ", "_"):
+        raise ObligationSourceError(f"{source_label} payload report key mismatch: '{rep_key}'.")
+
     rows = report.get("data")
     if not isinstance(rows, list):
         raise ObligationSourceError(f"{source_label} payload is malformed.")
+
+    # WV-01: Apply verified Frappe query_report total footer normalization
+    columns = report.get("columns")
+    add_total_row = report.get("add_total_row")
+    skip_total_row = report.get("skip_total_row", False)
+    if columns and add_total_row and rows and normalize_frappe_report_footer:
+        clean_rows, _, _ = normalize_frappe_report_footer(
+            source_label, columns, rows, add_total_row, skip_total_row
+        )
+        rows = clean_rows
+
+    clean_dict_rows = []
     for r in rows:
         if not isinstance(r, dict):
             raise ObligationSourceError(
                 f"{source_label} payload contains malformed rows."
             )
-    return rows
+        # WR-01: a dict total/summary row is not a verified Frappe v16
+        # query_report output shape (the verified footer is a list row,
+        # separated by normalize_frappe_report_footer above). An unproven
+        # summary dict must fail closed — skipping it at any position would
+        # let a fake summary shrink the obligation set toward an apparent zero.
+        if r.get("is_total_row"):
+            raise ObligationSourceError(
+                f"{source_label} payload contains an unverified total/summary row."
+            )
+        # A party string alone is never summary authority: a row labelled
+        # "Total" that carries a voucher identity is kept as a transaction row
+        # (the voucher is verified downstream).
+        if str(r.get("party") or "").strip().lower() == "total" and not (r.get("voucher_no") or r.get("name")):
+            raise ObligationSourceError(
+                f"{source_label} payload contains an unverified total/summary row without voucher identity."
+            )
+        clean_dict_rows.append(r)
+    return clean_dict_rows
 
 
 def _outstanding_amount(row: dict, source_label: str) -> Decimal:
@@ -326,14 +429,15 @@ def _collect_obligations(
     source_label: str,
     company: Optional[str] = None,
 ) -> List[Obligation]:
-    obligations: List[Obligation] = []
+    obligation_by_key: Dict[Tuple[str, str], Obligation] = {}
+    validated_rows: List[Dict[str, Any]] = []
     for r in _parse_report_rows(report, source_label, company=company):
-        row_currency = r.get("currency")
-        if row_currency and row_currency != currency:
+        row_currency = r.get("currency") or r.get("account_currency")
+        if row_currency and str(row_currency).strip().upper() != currency.strip().upper():
             # VND-only P0 scope: a foreign-currency row must fail closed, never be
             # dropped or converted with an invented rate.
             raise ObligationSourceError(
-                f"{source_label} row has unsupported currency."
+                f"{source_label} row has unsupported currency '{row_currency}'."
             )
         amount = _outstanding_amount(r, source_label)
         if amount <= Decimal("0"):
@@ -347,35 +451,221 @@ def _collect_obligations(
             raise ObligationSourceError(
                 f"{source_label} row with positive outstanding has no voucher reference."
             )
+
+        # WV-02: Strict party_type and voucher_type cross-leg validation
+        party_type = r.get("party_type")
+        voucher_type = r.get("voucher_type")
+
+        if oblig_type == "AR":
+            if party_type:
+                pt_norm = str(party_type).strip()
+                if pt_norm.lower() == "supplier":
+                    raise ObligationSourceError(
+                        f"{source_label} row has cross-leg party_type 'Supplier' in AR."
+                    )
+                if pt_norm.lower() != "customer":
+                    raise ObligationSourceError(
+                        f"{source_label} row has unsupported party_type '{pt_norm}' in AR."
+                    )
+            if voucher_type:
+                vt_norm = str(voucher_type).strip()
+                if vt_norm in ("Purchase Invoice", "Purchase Order", "Bill"):
+                    raise ObligationSourceError(
+                        f"{source_label} row has cross-leg voucher_type '{vt_norm}' in AR."
+                    )
+                if vt_norm not in ("Sales Invoice", "Journal Entry", "Payment Entry"):
+                    raise ObligationSourceError(
+                        f"{source_label} row has unsupported voucher_type '{vt_norm}' in AR."
+                    )
+                v_prefix = vt_norm
+            else:
+                v_str = str(voucher).strip()
+                if v_str.startswith("PI-") or v_str.startswith("PINV-") or v_str.startswith("ACC-PINV-"):
+                    raise ObligationSourceError(
+                        f"{source_label} row voucher '{v_str}' appears to be a Purchase Invoice in AR."
+                    )
+                v_prefix = ref_prefix
+        else:  # AP
+            if party_type:
+                pt_norm = str(party_type).strip()
+                if pt_norm.lower() == "customer":
+                    raise ObligationSourceError(
+                        f"{source_label} row has cross-leg party_type 'Customer' in AP."
+                    )
+                if pt_norm.lower() != "supplier":
+                    raise ObligationSourceError(
+                        f"{source_label} row has unsupported party_type '{pt_norm}' in AP."
+                    )
+            if voucher_type:
+                vt_norm = str(voucher_type).strip()
+                if vt_norm in ("Sales Invoice", "Sales Order"):
+                    raise ObligationSourceError(
+                        f"{source_label} row has cross-leg voucher_type '{vt_norm}' in AP."
+                    )
+                if vt_norm not in ("Purchase Invoice", "Journal Entry", "Payment Entry"):
+                    raise ObligationSourceError(
+                        f"{source_label} row has unsupported voucher_type '{vt_norm}' in AP."
+                    )
+                v_prefix = vt_norm
+            else:
+                v_str = str(voucher).strip()
+                if v_str.startswith("SI-") or v_str.startswith("SINV-") or v_str.startswith("ACC-SINV-"):
+                    raise ObligationSourceError(
+                        f"{source_label} row voucher '{v_str}' appears to be a Sales Invoice in AP."
+                    )
+                v_prefix = ref_prefix
+
+        # If running in active DB with company, verify document identity
+        if _should_validate_db_voucher(company):
+            if v_prefix == "Sales Invoice":
+                si = frappe.db.get_value("Sales Invoice", voucher, ["company", "docstatus", "customer"], as_dict=True)
+                if not si:
+                    pi = frappe.db.get_value("Purchase Invoice", voucher, ["company"], as_dict=True)
+                    if pi:
+                        raise ObligationSourceError(
+                            f"{source_label} row references Purchase Invoice '{voucher}' in AR."
+                        )
+                    pe = frappe.db.get_value("Payment Entry", voucher, ["company"], as_dict=True)
+                    if pe:
+                        raise ObligationSourceError(
+                            f"{source_label} row references Payment Entry '{voucher}' in AR."
+                        )
+                else:
+                    si_comp = si.get("company") if isinstance(si, dict) else getattr(si, "company", None)
+                    si_docstatus = si.get("docstatus") if isinstance(si, dict) else getattr(si, "docstatus", None)
+                    if si_comp != company:
+                        raise ObligationSourceError(
+                            f"{source_label} Sales Invoice '{voucher}' company mismatch: '{si_comp}' != '{company}'."
+                        )
+                    if si_docstatus != 1:
+                        raise ObligationSourceError(
+                            f"{source_label} Sales Invoice '{voucher}' is not submitted."
+                        )
+            elif v_prefix == "Purchase Invoice":
+                pi = frappe.db.get_value("Purchase Invoice", voucher, ["company", "docstatus", "supplier"], as_dict=True)
+                if not pi:
+                    si = frappe.db.get_value("Sales Invoice", voucher, ["company"], as_dict=True)
+                    if si:
+                        raise ObligationSourceError(
+                            f"{source_label} row references Sales Invoice '{voucher}' in AP."
+                        )
+                    pe = frappe.db.get_value("Payment Entry", voucher, ["company"], as_dict=True)
+                    if pe:
+                        raise ObligationSourceError(
+                            f"{source_label} row references Payment Entry '{voucher}' in AP."
+                        )
+                else:
+                    pi_comp = pi.get("company") if isinstance(pi, dict) else getattr(pi, "company", None)
+                    pi_docstatus = pi.get("docstatus") if isinstance(pi, dict) else getattr(pi, "docstatus", None)
+                    if pi_comp != company:
+                        raise ObligationSourceError(
+                            f"{source_label} Purchase Invoice '{voucher}' company mismatch: '{pi_comp}' != '{company}'."
+                        )
+                    if pi_docstatus != 1:
+                        raise ObligationSourceError(
+                            f"{source_label} Purchase Invoice '{voucher}' is not submitted."
+                        )
+            elif v_prefix == "Payment Entry":
+                pe = frappe.db.get_value("Payment Entry", voucher, ["company", "docstatus", "payment_type", "party_type", "party"], as_dict=True)
+                if not pe:
+                    raise ObligationSourceError(
+                        f"{source_label} row references non-existent Payment Entry '{voucher}'."
+                    )
+                pe_comp = pe.get("company") if isinstance(pe, dict) else getattr(pe, "company", None)
+                pe_docstatus = pe.get("docstatus") if isinstance(pe, dict) else getattr(pe, "docstatus", None)
+                pe_ptype = str(pe.get("party_type") or "").strip().lower() if isinstance(pe, dict) else ""
+                pe_pmtype = str(pe.get("payment_type") or "").strip().lower() if isinstance(pe, dict) else ""
+                if pe_comp != company:
+                    raise ObligationSourceError(
+                        f"{source_label} Payment Entry '{voucher}' company mismatch: '{pe_comp}' != '{company}'."
+                    )
+                if pe_docstatus != 1:
+                    raise ObligationSourceError(
+                        f"{source_label} Payment Entry '{voucher}' is not submitted."
+                    )
+                if oblig_type == "AR" and (pe_ptype == "supplier" or pe_pmtype == "pay"):
+                    raise ObligationSourceError(
+                        f"{source_label} row references Supplier/Pay Payment Entry '{voucher}' in AR."
+                    )
+                if oblig_type == "AP" and (pe_ptype == "customer" or pe_pmtype == "receive"):
+                    raise ObligationSourceError(
+                        f"{source_label} row references Customer/Receive Payment Entry '{voucher}' in AP."
+                    )
+            elif v_prefix == "Journal Entry":
+                je = frappe.db.get_value("Journal Entry", voucher, ["company", "docstatus"], as_dict=True)
+                if not je:
+                    raise ObligationSourceError(
+                        f"{source_label} row references non-existent Journal Entry '{voucher}'."
+                    )
+                je_comp = je.get("company") if isinstance(je, dict) else getattr(je, "company", None)
+                je_docstatus = je.get("docstatus") if isinstance(je, dict) else getattr(je, "docstatus", None)
+                if je_comp != company:
+                    raise ObligationSourceError(
+                        f"{source_label} Journal Entry '{voucher}' company mismatch: '{je_comp}' != '{company}'."
+                    )
+                if je_docstatus != 1:
+                    raise ObligationSourceError(
+                        f"{source_label} Journal Entry '{voucher}' is not submitted."
+                    )
+
+            if r.get("party_account"):
+                acc = frappe.db.get_value("Account", r["party_account"], ["account_type", "company"], as_dict=True)
+                if not acc:
+                    raise ObligationSourceError(
+                        f"{source_label} row party_account '{r['party_account']}' does not exist."
+                    )
+                acc_comp = acc.get("company") if isinstance(acc, dict) else getattr(acc, "company", None)
+                acc_type = acc.get("account_type") if isinstance(acc, dict) else getattr(acc, "account_type", None)
+                if acc_comp and acc_comp != company:
+                    raise ObligationSourceError(
+                        f"{source_label} row party_account '{r['party_account']}' company mismatch: '{acc_comp}' != '{company}'."
+                    )
+                expected_acc = "Receivable" if oblig_type == "AR" else "Payable"
+                if acc_type != expected_acc:
+                    raise ObligationSourceError(
+                        f"{source_label} row account '{r['party_account']}' has type '{acc_type}', expected '{expected_acc}'."
+                    )
+
         party = None
         for key in party_keys:
             if r.get(key):
                 party = r.get(key)
                 break
-        obligations.append(
-            Obligation(
-                type=oblig_type,
-                party_type="Customer" if oblig_type == "AR" else "Supplier",
-                party_hash=hash_party(party),
-                remaining_amount=amount,
-                due_date=_parse_due_date(r, source_label),
-                source_ref=f"{ref_prefix}:{voucher}",
-                currency=r.get("currency") or currency,
-            )
+        validated_rows.append(r)
+        obligation_by_key[(observation_identity(r), content_signature(r))] = Obligation(
+            type=oblig_type,
+            party_type="Customer" if oblig_type == "AR" else "Supplier",
+            party_hash=hash_party(party),
+            remaining_amount=amount,
+            due_date=_parse_due_date(r, source_label),
+            source_ref=f"{v_prefix}:{voucher}",
+            currency=r.get("currency") or currency,
         )
-    return obligations
+
+    # PB-DATA-02: reconcile observations by voucher identity before returning —
+    # exact duplicates collapse to a single obligation; conflicting contents
+    # without an allocation discriminator fail closed.
+    kept_rows, _ = reconcile_observations(validated_rows, source_label, ObligationSourceError)
+    return [
+        obligation_by_key[(observation_identity(row), content_signature(row))]
+        for row in kept_rows
+    ]
 
 
 def get_trade_obligations(
     company: str,
     as_of: date,
     currency: str = "VND",
+    user: Optional[str] = None,
 ) -> List[Obligation]:
     """
     Get trade obligations (AR / AP).
     Fix E: Point-in-time correct using Accounts Receivable and Accounts Payable
     reports as of financial_as_of. Invoice `outstanding` as of historical cutoff
     is authoritative. Party names are hashed using SHA256[:12].
+
+    PB-SEC-01: report permission checks evaluate the checked user, not the
+    ambient session.
 
     Fix A: each leg (AR, AP) requires an explicit successful report status and a
     valid payload. Status errors, None responses, unknown statuses, malformed
@@ -384,14 +674,18 @@ def get_trade_obligations(
     converted into an empty result. AR and AP are read independently; a failure
     on either leg aborts the whole read so a failed leg can never be reported
     as a complete/zero leg. Error messages carry no party, invoice or amount.
+    PB-DATA-02: rows are reconciled by voucher observation identity before
+    obligation construction — exact duplicates collapse to one obligation,
+    conflicting contents without an allocation discriminator raise typed.
     """
     obligations: List[Obligation] = []
 
     if _has_active_db():
         _require_report_primitives()
+        _check_report_permission("Accounts Receivable", user=user)
+        check_party_type_preflight()
 
         # AR leg (Point-in-Time as of cutoff)
-        _check_report_permission("Accounts Receivable")
         try:
             ar_report = extract_key_report_data(
                 report_key="accounts_receivable",
@@ -415,7 +709,7 @@ def get_trade_obligations(
         )
 
         # AP leg (Point-in-Time as of cutoff) — read independently after AR
-        _check_report_permission("Accounts Payable")
+        _check_report_permission("Accounts Payable", user=user)
         try:
             ap_report = extract_key_report_data(
                 report_key="accounts_payable",

@@ -57,10 +57,10 @@ class TestGroundedLLMExplanation(unittest.TestCase):
                 {"account_name": "Cost of Goods Sold", "balance": 253760.00}
             ],
             "accounts_receivable": [
-                {"party": "Customer A", "outstanding_amount": 316000.00, "overdue_amount": 316000.00}
+                {"party": "Customer A", "voucher_no": "SINV-0001", "outstanding_amount": 316000.00, "overdue_amount": 316000.00}
             ],
             "accounts_payable": [
-                {"party": "Supplier B", "outstanding_amount": 184293.00}
+                {"party": "Supplier B", "voucher_no": "PINV-0001", "outstanding_amount": 184293.00}
             ],
             "trial_balance": [
                 {"account_type": "Cash", "balance": -117854.00}
@@ -84,9 +84,9 @@ class TestGroundedLLMExplanation(unittest.TestCase):
         self.assertTrue(len(explanation["interpretations"]) > 0)
         self.assertTrue(len(explanation["next_checks"]) > 0)
 
-        # Confirm revenue number 363000 is cited in facts
+        # Confirm revenue number 363000 is cited in facts (with or without comma formatting)
         facts_str = " ".join(explanation["facts"])
-        self.assertIn("363000", facts_str)
+        self.assertTrue("363000" in facts_str or "363,000" in facts_str)
 
     # --- 2. Grounding & Numeric Verification ---
     def test_hallucinated_number_rejected(self):

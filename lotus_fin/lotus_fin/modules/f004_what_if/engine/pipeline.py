@@ -1,6 +1,6 @@
 from typing import List, Tuple
-from lotus_fin.ai004.domain.models import SimulatedCashEvent, ScenarioParameters
-from lotus_fin.ai004.modifiers.base import IScenarioModifier
+from lotus_fin.modules.f004_what_if.domain.models import SimulatedCashEvent, ScenarioParameters
+from lotus_fin.modules.f004_what_if.modifiers.base import IScenarioModifier
 
 
 class ModifierPipeline:

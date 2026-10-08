@@ -1,7 +1,7 @@
 from datetime import timedelta
 from typing import List
-from lotus_fin.ai004.domain.models import SimulatedCashEvent, ScenarioParameters
-from lotus_fin.ai004.domain.enums import CashFlowDirection, EventCategory
+from lotus_fin.modules.f004_what_if.domain.models import SimulatedCashEvent, ScenarioParameters
+from lotus_fin.modules.f004_what_if.domain.enums import CashFlowDirection, EventCategory
 from .base import IScenarioModifier
 
 

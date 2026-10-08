@@ -3,7 +3,7 @@ from decimal import Decimal
 from typing import List, Optional
 import uuid
 
-from lotus_fin.ai004.domain.models import (
+from lotus_fin.modules.f004_what_if.domain.models import (
     SimulatedCashEvent,
     ScenarioParameters,
     ScenarioResult,
@@ -11,10 +11,10 @@ from lotus_fin.ai004.domain.models import (
     SimulatedMetrics,
     quantize_currency
 )
-from lotus_fin.ai004.domain.enums import SimulationStatus
-from lotus_fin.ai004.modifiers.factory import ModifierFactory
-from lotus_fin.ai004.engine.pipeline import ModifierPipeline
-from lotus_fin.ai004.engine.metrics import (
+from lotus_fin.modules.f004_what_if.domain.enums import SimulationStatus
+from lotus_fin.modules.f004_what_if.modifiers.factory import ModifierFactory
+from lotus_fin.modules.f004_what_if.engine.pipeline import ModifierPipeline
+from lotus_fin.modules.f004_what_if.engine.metrics import (
     compute_daily_timeline,
     extract_summary_metrics,
     compute_delta_metrics

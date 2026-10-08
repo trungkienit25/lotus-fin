@@ -1,0 +1,239 @@
+/home/frappe/frappe-bench/env/lib/python3.14/site-packages/whoosh/analysis/filters.py:56: SyntaxWarning: "\w" is an invalid escape sequence. Such sequences will not work in the future. Did you mean "\\w"? A raw string is also an option.
+  \w+([:.]?\w+)*         # word characters, with opt. internal colons/dots
+/home/frappe/frappe-bench/env/lib/python3.14/site-packages/whoosh/analysis/filters.py:158: SyntaxWarning: "\S" is an invalid escape sequence. Such sequences will not work in the future. Did you mean "\\S"? A raw string is also an option.
+  >>> ana = RegexTokenizer(r"\S+") | TeeFilter(f1, f2)
+/home/frappe/frappe-bench/env/lib/python3.14/site-packages/whoosh/analysis/intraword.py:49: SyntaxWarning: "\S" is an invalid escape sequence. Such sequences will not work in the future. Did you mean "\\S"? A raw string is also an option.
+  >>> analyzer = RegexTokenizer(r"\S+") | cwf
+/home/frappe/frappe-bench/env/lib/python3.14/site-packages/whoosh/analysis/intraword.py:275: SyntaxWarning: "\S" is an invalid escape sequence. Such sequences will not work in the future. Did you mean "\\S"? A raw string is also an option.
+  >>> analyzer = RegexTokenizer(r"\S+") | iwf | LowercaseFilter()
+/home/frappe/frappe-bench/env/lib/python3.14/site-packages/whoosh/analysis/intraword.py:285: SyntaxWarning: "\|" is an invalid escape sequence. Such sequences will not work in the future. Did you mean "\\|"? A raw string is also an option.
+  def __init__(self, delims=u("-_'\"()!@#$%^&*[]{}<>\|;:,./?`~=+"),
+test_analyze_invoice_risk_success (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_analyze_invoice_risk_success)
+Admin or authorized user can successfully analyze a valid invoice. ... FAIL
+test_cross_company_deny (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_cross_company_deny)
+User restricted to Company 'Name' must be denied access to 'Name (Demo)'. ... ok
+test_cross_company_via_filter_tampering_deny (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_cross_company_via_filter_tampering_deny)
+User cannot bypass company restriction by passing company inside filters dict. ... ok
+test_empty_result_distinguished_from_error (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_empty_result_distinguished_from_error)
+Empty company yields status 'success' with total_rows = 0 and empty list, not an error. ... /home/frappe/frappe-bench/apps/erpnext/erpnext/accounts/utils.py:1197: V16FrappeDeprecationWarning: It was marked on unknown for removal from v16 with note: Use `NumberFormat.from_string()` from `frappe.utils.number_format` instead
+  return get_number_format_info(number_format)[2]
+ok
+test_erpnext_report_execution_with_proper_filters (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_erpnext_report_execution_with_proper_filters)
+Standard ERPNext report execution produces expected columns and rows. ... ok
+test_get_ai_training_dataset_preserves_module_errors (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_get_ai_training_dataset_preserves_module_errors)
+Dataset aggregation must capture module errors without crashing and apply company isolation. ... ok
+test_get_available_key_reports (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_get_available_key_reports)
+Registry listing succeeds. ... ok
+test_get_financial_snapshot_as_of_prior_to_period_end_rule (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_get_financial_snapshot_as_of_prior_to_period_end_rule)
+When as_of is prior to period_end, report boundaries are restricted to as_of date. ... FAIL
+test_get_financial_snapshot_endpoint_structure (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_get_financial_snapshot_endpoint_structure)
+get_financial_snapshot returns structured FinancialSnapshot and EvidenceRefs. ... FAIL
+test_get_financial_snapshot_live_explanation (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_get_financial_snapshot_live_explanation)
+Whitelisted get_financial_snapshot supports include_explanation=True. ... FAIL
+test_get_financial_snapshot_live_gold_reconciliation (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_get_financial_snapshot_live_gold_reconciliation)
+Verify live ERPNext report execution matches known gold exactly for demo period. ... FAIL
+test_get_financial_snapshot_near_term_ap_status (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_get_financial_snapshot_near_term_ap_status)
+near_term_ap metric is present with UNAVAILABLE status and frozen limitation. ... FAIL
+test_get_financial_snapshot_previous_period_comparison_live (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_get_financial_snapshot_previous_period_comparison_live)
+When comparison=PREVIOUS_PERIOD, comparison block is returned with accurate deltas. ... FAIL
+test_nonexistent_company_raises_does_not_exist (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_nonexistent_company_raises_does_not_exist)
+Nonexistent company must raise DoesNotExistError. ... ERROR
+test_nonexistent_report_key_raises_error (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_nonexistent_report_key_raises_error)
+Requesting unknown report key must throw ValidationError. ... ok
+test_predict_cashflow_deprecation_flag (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_predict_cashflow_deprecation_flag)
+predict_cashflow output must include deprecation warning flag. ... ok
+test_predict_cashflow_on_empty_company (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_predict_cashflow_on_empty_company)
+Empty company with no transactions yields 0 inflow/outflow with success status and deprecated warning. ... ok
+test_report_error_preserved_in_extract_key_report (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_report_error_preserved_in_extract_key_report)
+When query report fails (e.g. mandatory filters missing), return status error and error message. ... ok
+test_report_error_preserved_in_predict_cashflow (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_report_error_preserved_in_predict_cashflow)
+If AR or AP fails, predict_cashflow MUST NOT fabricate zero inflow/outflow, but return status error. ... ok
+test_same_company_allow_as_admin (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_same_company_allow_as_admin)
+Admin should have access to both demo and empty company. ... ok
+test_same_company_allow_restricted_user (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_same_company_allow_restricted_user)
+Restricted user should have access only to their permitted company. ... ok
+test_unauthorized_guest_denied_company (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_unauthorized_guest_denied_company)
+Guest user must be denied company verification. ... ok
+test_unauthorized_guest_denied_report (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_unauthorized_guest_denied_report)
+Guest user must be denied from extracting reports. ... ok
+test_unauthorized_invoice_risk_analysis_deny (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_unauthorized_invoice_risk_analysis_deny)
+User restricted to Company 'Name' cannot analyze invoice belonging to 'Name (Demo)'. ... ok
+test_ai002_logger_accepts_typed_metadata_only (lotus_fin.tests.test_security_hardening.TestSecurityHardening.test_ai002_logger_accepts_typed_metadata_only) ... ok
+test_legacy_logger_drops_fake_pii_and_amount (lotus_fin.tests.test_security_hardening.TestSecurityHardening.test_legacy_logger_drops_fake_pii_and_amount) ... ok
+test_missing_and_forbidden_company_have_identical_public_denial (lotus_fin.tests.test_security_hardening.TestSecurityHardening.test_missing_and_forbidden_company_have_identical_public_denial) ... ok
+test_missing_report_has_generic_denial (lotus_fin.tests.test_security_hardening.TestSecurityHardening.test_missing_report_has_generic_denial) ... ok
+test_authorized_company_loads_full_metrics (lotus_fin.tests.test_workspace_ui.TestFinancialHealthWorkspaceContract.test_authorized_company_loads_full_metrics)
+A. Authorized company loads complete snapshot contract. ... FAIL
+test_evidence_refs_mapping_and_sanitization (lotus_fin.tests.test_workspace_ui.TestFinancialHealthWorkspaceContract.test_evidence_refs_mapping_and_sanitization)
+J, K. EvidenceRef mapping to correct reports, checksums, and XSS sanitization. ... ok
+test_explanation_available_and_unavailable_degradation (lotus_fin.tests.test_workspace_ui.TestFinancialHealthWorkspaceContract.test_explanation_available_and_unavailable_degradation)
+H, I. Explanation available renders decomposed sections; unavailable preserves KPI UI. ... FAIL
+test_financial_health_page_doc_exists_and_standard (lotus_fin.tests.test_workspace_ui.TestFinancialHealthWorkspaceContract.test_financial_health_page_doc_exists_and_standard)
+Verify standard Page document for financial-health is registered in Frappe. ... ok
+test_fy2020_runtime_gold_values (lotus_fin.tests.test_workspace_ui.TestFinancialHealthWorkspaceContract.test_fy2020_runtime_gold_values)
+C, D, E. Known gold reconciliation for demo period: negative cash, 100% overdue AR. ... FAIL
+test_near_term_ap_and_previous_period_unavailable_handling (lotus_fin.tests.test_workspace_ui.TestFinancialHealthWorkspaceContract.test_near_term_ap_and_previous_period_unavailable_handling)
+F, G. near_term_ap and previous period unavailable handling. ... ok
+test_unauthorized_company_forbidden_no_leak (lotus_fin.tests.test_workspace_ui.TestFinancialHealthWorkspaceContract.test_unauthorized_company_forbidden_no_leak)
+B. Unauthorized user requesting company returns FORBIDDEN with zero leaked metrics. ... ok
+
+======================================================================
+ERROR: test_nonexistent_company_raises_does_not_exist (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_nonexistent_company_raises_does_not_exist)
+Nonexistent company must raise DoesNotExistError.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/review/lotus_fin/lotus_fin/tests/test_access_and_reports.py", line 160, in test_nonexistent_company_raises_does_not_exist
+    get_verified_company("TotallyNonExistentCompany123")
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/review/lotus_fin/lotus_fin/security/access.py", line 60, in get_verified_company
+    frappe.throw(_("FORBIDDEN"), exc=CompanyAccessError)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/messages.py", line 159, in throw
+    msgprint(
+    ~~~~~~~~^
+    	msg,
+     ^^^^
+    ...<7 lines>...
+    	allow_dangerous_html=allow_dangerous_html,
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/messages.py", line 118, in msgprint
+    _raise_exception()
+    ~~~~~~~~~~~~~~~~^^
+  File "/home/frappe/frappe-bench/apps/frappe/frappe/utils/messages.py", line 59, in _raise_exception
+    raise exc
+lotus_fin.security.access.CompanyAccessError: FORBIDDEN
+
+======================================================================
+FAIL: test_analyze_invoice_risk_success (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_analyze_invoice_risk_success)
+Admin or authorized user can successfully analyze a valid invoice.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/review/lotus_fin/lotus_fin/tests/test_access_and_reports.py", line 220, in test_analyze_invoice_risk_success
+    self.assertEqual(res["company"], self.demo_company)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'AI002 Fixture 2026' != 'AI003 Gold 2026'
+- AI002 Fixture 2026
++ AI003 Gold 2026
+
+
+======================================================================
+FAIL: test_get_financial_snapshot_as_of_prior_to_period_end_rule (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_get_financial_snapshot_as_of_prior_to_period_end_rule)
+When as_of is prior to period_end, report boundaries are restricted to as_of date.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/review/lotus_fin/lotus_fin/tests/test_access_and_reports.py", line 272, in test_get_financial_snapshot_as_of_prior_to_period_end_rule
+    self.assertEqual(res["status"], "OK")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'PARTIAL' != 'OK'
+- PARTIAL
++ OK
+
+
+======================================================================
+FAIL: test_get_financial_snapshot_endpoint_structure (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_get_financial_snapshot_endpoint_structure)
+get_financial_snapshot returns structured FinancialSnapshot and EvidenceRefs.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/review/lotus_fin/lotus_fin/tests/test_access_and_reports.py", line 232, in test_get_financial_snapshot_endpoint_structure
+    self.assertEqual(res["status"], "OK")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'PARTIAL' != 'OK'
+- PARTIAL
++ OK
+
+
+======================================================================
+FAIL: test_get_financial_snapshot_live_explanation (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_get_financial_snapshot_live_explanation)
+Whitelisted get_financial_snapshot supports include_explanation=True.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/review/lotus_fin/lotus_fin/tests/test_access_and_reports.py", line 317, in test_get_financial_snapshot_live_explanation
+    self.assertEqual(res["status"], "OK")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'PARTIAL' != 'OK'
+- PARTIAL
++ OK
+
+
+======================================================================
+FAIL: test_get_financial_snapshot_live_gold_reconciliation (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_get_financial_snapshot_live_gold_reconciliation)
+Verify live ERPNext report execution matches known gold exactly for demo period.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/review/lotus_fin/lotus_fin/tests/test_access_and_reports.py", line 243, in test_get_financial_snapshot_live_gold_reconciliation
+    self.assertEqual(res["status"], "OK")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'PARTIAL' != 'OK'
+- PARTIAL
++ OK
+
+
+======================================================================
+FAIL: test_get_financial_snapshot_near_term_ap_status (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_get_financial_snapshot_near_term_ap_status)
+near_term_ap metric is present with UNAVAILABLE status and frozen limitation.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/review/lotus_fin/lotus_fin/tests/test_access_and_reports.py", line 282, in test_get_financial_snapshot_near_term_ap_status
+    self.assertEqual(res["status"], "OK")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'PARTIAL' != 'OK'
+- PARTIAL
++ OK
+
+
+======================================================================
+FAIL: test_get_financial_snapshot_previous_period_comparison_live (lotus_fin.tests.test_access_and_reports.TestAccessAndReports.test_get_financial_snapshot_previous_period_comparison_live)
+When comparison=PREVIOUS_PERIOD, comparison block is returned with accurate deltas.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+{"site": "ai003-verify.localhost", "init_calls": [{"requested": "ai003-verify.localhost", "actual": "ai003-verify.localhost"}, {"requested": "frontend", "actual": "ai003-verify.localhost"}, {"requested": "frontend", "actual": "ai003-verify.localhost"}], "tests": 35, "failures": 10, "errors": 1, "skipped": 0}
+  File "/review/lotus_fin/lotus_fin/tests/test_access_and_reports.py", line 297, in test_get_financial_snapshot_previous_period_comparison_live
+    self.assertEqual(res["status"], "OK")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'PARTIAL' != 'OK'
+- PARTIAL
++ OK
+
+
+======================================================================
+FAIL: test_authorized_company_loads_full_metrics (lotus_fin.tests.test_workspace_ui.TestFinancialHealthWorkspaceContract.test_authorized_company_loads_full_metrics)
+A. Authorized company loads complete snapshot contract.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/review/lotus_fin/lotus_fin/tests/test_workspace_ui.py", line 82, in test_authorized_company_loads_full_metrics
+    self.assertEqual(res["status"], "OK")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'PARTIAL' != 'OK'
+- PARTIAL
++ OK
+
+
+======================================================================
+FAIL: test_explanation_available_and_unavailable_degradation (lotus_fin.tests.test_workspace_ui.TestFinancialHealthWorkspaceContract.test_explanation_available_and_unavailable_degradation)
+H, I. Explanation available renders decomposed sections; unavailable preserves KPI UI.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/review/lotus_fin/lotus_fin/tests/test_workspace_ui.py", line 144, in test_explanation_available_and_unavailable_degradation
+    self.assertEqual(res_no_exp["status"], "OK")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'PARTIAL' != 'OK'
+- PARTIAL
++ OK
+
+
+======================================================================
+FAIL: test_fy2020_runtime_gold_values (lotus_fin.tests.test_workspace_ui.TestFinancialHealthWorkspaceContract.test_fy2020_runtime_gold_values)
+C, D, E. Known gold reconciliation for demo period: negative cash, 100% overdue AR.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/review/lotus_fin/lotus_fin/tests/test_workspace_ui.py", line 104, in test_fy2020_runtime_gold_values
+    self.assertEqual(m_map["revenue"], 363000.0)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 635000.0 != 363000.0
+
+----------------------------------------------------------------------
+Ran 35 tests in 13.433s
+
+FAILED (failures=10, errors=1)

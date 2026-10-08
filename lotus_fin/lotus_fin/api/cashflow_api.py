@@ -9,24 +9,24 @@ from typing import Any, Dict, List, Optional, Union
 import frappe
 from frappe import _
 
-from lotus_fin.cashflow.adapters import (
+from lotus_fin.modules.f002_cashflow.adapters import (
     resolve_cash_account_scope,
     ObligationPermissionError,
     ObligationSourceError,
 )
-from lotus_fin.cashflow.models import (
+from lotus_fin.modules.f002_cashflow.models import (
     ForecastRequest,
     CoverageScope,
     ForecastStatus,
     ReasonCode,
 )
-from lotus_fin.cashflow.service import (
+from lotus_fin.modules.f002_cashflow.service import (
     get_cash_forecast,
     response_to_dict,
     build_fail_closed_response,
     resolve_request_scope,
 )
-from lotus_fin.cashflow.source_interface import SyntheticFixtureSource, FailClosedSource
+from lotus_fin.modules.f002_cashflow.source_interface import SyntheticFixtureSource, FailClosedSource
 from lotus_fin.security.access import (
     get_verified_company,
     verify_evidence_access,

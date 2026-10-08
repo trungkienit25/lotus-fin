@@ -41,6 +41,14 @@ def validate_forecast_request(request: ForecastRequest, user: Optional[str] = No
     if not request.cash_account_scope or not isinstance(request.cash_account_scope, list) or len(request.cash_account_scope) == 0:
         return False, ReasonCode.MISSING_ACCOUNT_SCOPE, "Explicit cash_account_scope is required."
 
+    # 4b. Finance Book is explicitly NOT_SUPPORTED (AI003 foundation remediation,
+    # Bucket C). The request contract carries the field, so a supplied value must
+    # never be silently ignored: it fails closed as a typed validation error.
+    if request.finance_book:
+        return False, ReasonCode.DATA_PIPELINE_ERROR, (
+            "Finance Book scope is not supported in this version; finance_book must be omitted."
+        )
+
     # 5. Server-side company authorization and account scope validation
     # Only invoke live Frappe DB check when Frappe is initialized with an active database connection
     if frappe and hasattr(frappe, "db") and frappe.db:

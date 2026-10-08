@@ -1,0 +1,14 @@
+{
+  "site": "ai003-verify.localhost",
+  "temporary_users_remaining": 0,
+  "temporary_user_permissions_remaining": 0,
+  "temporary_AR_custom_role_count": 0,
+  "retained_counts": {
+    "Sales Invoice": 7,
+    "Purchase Invoice": 8,
+    "Payment Entry": 1
+  },
+  "retained_companies": 5,
+  "two_schedule_submitted_PI": 2,
+  "metadata_perturbations_rolled_back": true
+}

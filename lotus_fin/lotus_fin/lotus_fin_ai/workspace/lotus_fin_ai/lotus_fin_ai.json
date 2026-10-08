@@ -1,6 +1,6 @@
 {
  "charts": [],
- "content": "[{\"id\":\"header\",\"type\":\"header\",\"data\":{\"text\":\"Lotus Fin AI - Financial Copilot & Scenario Intelligence\",\"level\":3}},{\"id\":\"shortcuts_card\",\"type\":\"card\",\"data\":{\"card_name\":\"Shortcuts\"}},{\"id\":\"modules_card\",\"type\":\"card\",\"data\":{\"card_name\":\"AI Financial Management\"}}]",
+ "content": "[{\"id\":\"hdr_1\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h3\\\"><b>Lotus Fin AI — Intelligent Financial Management & Copilot Hub</b></span>\",\"col\":12}},{\"id\":\"sc_1\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"🤖 Lotus Fin AI Copilot\",\"col\":3}},{\"id\":\"sc_2\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"📊 Financial Health (AI001)\",\"col\":3}},{\"id\":\"sc_4\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"💧 Cash Flow Forecast (AI002)\",\"col\":3}},{\"id\":\"sc_5\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"⚠️ Risk Signals (AI003)\",\"col\":3}},{\"id\":\"sc_3\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"🔮 What-If Stress Studio (AI004)\",\"col\":3}},{\"id\":\"sc_6\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"🏦 Financing & Loans (AI005)\",\"col\":3}},{\"id\":\"sc_7\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"📑 Debt Repayment Schedule (AI006)\",\"col\":3}},{\"id\":\"card_modules\",\"type\":\"card\",\"data\":{\"card_name\":\"AI Financial Management\",\"col\":12}}]",
  "creation": "2026-09-30 22:30:00.000000",
  "custom_blocks": [],
  "docstatus": 0,
@@ -17,7 +17,7 @@
    "hidden": 0,
    "is_query_report": 0,
    "label": "AI Financial Management",
-   "link_count": 4,
+   "link_count": 10,
    "link_type": "DocType",
    "onboard": 0,
    "type": "Card Break"
@@ -26,9 +26,75 @@
    "dependencies": "",
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Financial Health & Copilot",
+   "label": "Lotus Fin AI Copilot",
+   "link_count": 0,
+   "link_to": "lotus-copilot",
+   "link_type": "Page",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Financial Health Analyst",
    "link_count": 0,
    "link_to": "financial-health",
+   "link_type": "Page",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Cash Flow Forecast & Runway",
+   "link_count": 0,
+   "link_to": "cash-forecast",
+   "link_type": "Page",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Risk Signal Agent",
+   "link_count": 0,
+   "link_to": "risk-signal",
+   "link_type": "Page",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "What-If Stress Testing Studio",
+   "link_count": 0,
+   "link_to": "what-if-studio",
+   "link_type": "Page",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Financing Copilot & Loan Decision",
+   "link_count": 0,
+   "link_to": "financing-copilot",
+   "link_type": "Page",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "dependencies": "",
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Debt & Repayment Simulation",
+   "link_count": 0,
+   "link_to": "repayment-schedule",
    "link_type": "Page",
    "onboard": 1,
    "type": "Link"
@@ -67,7 +133,7 @@
    "type": "Link"
   }
  ],
- "modified": "2026-09-30 22:30:00.000000",
+ "modified": "2026-10-04 23:00:00.000000",
  "modified_by": "Administrator",
  "module": "Lotus Fin AI",
  "name": "Lotus Fin AI",
@@ -81,28 +147,60 @@
  "sequence_id": 1.0,
  "shortcuts": [
   {
-   "color": "Grey",
+   "color": "Blue",
    "doc_view": "",
    "format": "",
-   "label": "Financial Health Monitor",
+   "label": "🤖 Lotus Fin AI Copilot",
+   "link_to": "lotus-copilot",
+   "type": "Page"
+  },
+  {
+   "color": "Green",
+   "doc_view": "",
+   "format": "",
+   "label": "📊 Financial Health (AI001)",
    "link_to": "financial-health",
+   "type": "Page"
+  },
+  {
+   "color": "Cyan",
+   "doc_view": "",
+   "format": "",
+   "label": "💧 Cash Flow Forecast (AI002)",
+   "link_to": "cash-forecast",
+   "type": "Page"
+  },
+  {
+   "color": "Orange",
+   "doc_view": "",
+   "format": "",
+   "label": "⚠️ Risk Signals (AI003)",
+   "link_to": "risk-signal",
+   "type": "Page"
+  },
+  {
+   "color": "Purple",
+   "doc_view": "",
+   "format": "",
+   "label": "🔮 What-If Stress Studio (AI004)",
+   "link_to": "what-if-studio",
    "type": "Page"
   },
   {
    "color": "Grey",
    "doc_view": "",
    "format": "",
-   "label": "General Ledger",
-   "link_to": "General Ledger",
-   "type": "Report"
+   "label": "🏦 Financing & Loans (AI005)",
+   "link_to": "financing-copilot",
+   "type": "Page"
   },
   {
-   "color": "Grey",
+   "color": "Red",
    "doc_view": "",
    "format": "",
-   "label": "Financial Reports",
-   "link_to": "financial-reports",
-   "type": "Workspace"
+   "label": "📑 Debt Repayment Schedule (AI006)",
+   "link_to": "repayment-schedule",
+   "type": "Page"
   }
  ],
  "title": "Lotus Fin AI",

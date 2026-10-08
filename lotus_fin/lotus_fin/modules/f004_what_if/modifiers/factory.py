@@ -1,5 +1,5 @@
 from typing import List
-from lotus_fin.ai004.domain.models import ScenarioParameters
+from lotus_fin.modules.f004_what_if.domain.models import ScenarioParameters
 from .base import IScenarioModifier
 from .sales_modifier import SalesModifier
 from .collection_modifier import CollectionModifier

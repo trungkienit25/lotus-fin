@@ -160,7 +160,9 @@ class TestObligationFailClosed(unittest.TestCase):
         result, error, _, perm_mock = self._run(perm_side_effect=Exception("FORBIDDEN"))
         self.assertIsNone(result)
         self.assertIsInstance(error, ObligationPermissionError)
-        perm_mock.assert_called_once_with("Accounts Receivable")
+        # PB-SEC-01: the guard call carries the checked user explicitly
+        # (user=None resolves to the ambient session user upstream).
+        perm_mock.assert_called_once_with("Accounts Receivable", user=None)
 
     def test_malformed_row_missing_outstanding_raises_typed(self):
         payload = {"status": "success", "company": COMPANY, "data": [{"voucher_no": "SINV-0001", "party": "X"}]}
@@ -471,6 +473,7 @@ class TestServiceFailClosed(unittest.TestCase):
         self.addCleanup(self._validation_patcher.stop)
 
         candidate_paths = [
+            os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "docs", "features", "AI002", "fixture_scripts", "direct_confirmed_commitments.json")),
             os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "docs", "features", "AI002", "fixture_scripts", "direct_confirmed_commitments.json")),
             os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "docs", "features", "AI002", "fixture_scripts", "direct_confirmed_commitments.json")),
             "/home/frappe/frappe-bench/apps/lotus_fin/docs/features/AI002/fixture_scripts/direct_confirmed_commitments.json",
@@ -806,11 +809,9 @@ class TestAccountScopeResolution(unittest.TestCase):
 
     def test_validation_accepts_matching_approved_scope(self):
         with patch("lotus_fin.modules.f002_cashflow.validation.frappe") as frappe_mock, patch(
-            "lotus_fin.modules.f002_cashflow.validation.get_verified_company", return_value=COMPANY
-        ), patch(
             "lotus_fin.modules.f002_cashflow.validation.resolve_cash_account_scope",
             return_value={"status": "RESOLVED", "approval": "APPROVED", "scope": ["Cash - A2F"], "unapproved_excluded": []},
-        ):
+        ), patch("lotus_fin.modules.f002_cashflow.validation.get_verified_company", return_value=COMPANY):
             frappe_mock.db.get_value.return_value = SimpleNamespace(
                 name="Cash - A2F",
                 company=COMPANY,
@@ -829,11 +830,9 @@ class TestAccountScopeResolution(unittest.TestCase):
         """The client cannot silently drop approved accounts or add unapproved
         ones: the requested scope must equal the approved scope."""
         with patch("lotus_fin.modules.f002_cashflow.validation.frappe") as frappe_mock, patch(
-            "lotus_fin.modules.f002_cashflow.validation.get_verified_company", return_value=COMPANY
-        ), patch(
             "lotus_fin.modules.f002_cashflow.validation.resolve_cash_account_scope",
             return_value={"status": "RESOLVED", "approval": "APPROVED", "scope": ["Cash - A2F"], "unapproved_excluded": []},
-        ):
+        ), patch("lotus_fin.modules.f002_cashflow.validation.get_verified_company", return_value=COMPANY):
             request = make_request(scope=["Cash - A2F", "Ghost - A2F"])
             valid, reason, msg = validate_forecast_request(request, user="tester")
 
@@ -843,25 +842,22 @@ class TestAccountScopeResolution(unittest.TestCase):
 
     def test_validation_forbidden_when_account_read_denied(self):
         with patch("lotus_fin.modules.f002_cashflow.validation.frappe"), patch(
-            "lotus_fin.modules.f002_cashflow.validation.get_verified_company", return_value=COMPANY
-        ), patch(
             "lotus_fin.modules.f002_cashflow.validation.resolve_cash_account_scope",
             side_effect=ObligationPermissionError("Access Denied"),
-        ):
+        ) as scope_mock, patch("lotus_fin.modules.f002_cashflow.validation.get_verified_company", return_value=COMPANY):
             request = make_request()
             valid, reason, msg = validate_forecast_request(request, user="tester")
 
+        scope_mock.assert_called_once()
         self.assertFalse(valid)
         self.assertEqual(reason, ReasonCode.UNAUTHORIZED_ACCESS)
         self.assertEqual(msg, "FORBIDDEN")
 
     def test_validation_needs_review_when_scope_unapproved(self):
         with patch("lotus_fin.modules.f002_cashflow.validation.frappe"), patch(
-            "lotus_fin.modules.f002_cashflow.validation.get_verified_company", return_value=COMPANY
-        ), patch(
             "lotus_fin.modules.f002_cashflow.validation.resolve_cash_account_scope",
             return_value={"status": "NEEDS_REVIEW", "approval": "MISSING_CONFIG", "scope": [], "unapproved_excluded": ["Cash - A2F"]},
-        ):
+        ), patch("lotus_fin.modules.f002_cashflow.validation.get_verified_company", return_value=COMPANY):
             request = make_request()
             valid, reason, msg = validate_forecast_request(request, user="tester")
 

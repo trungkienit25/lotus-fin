@@ -1,7 +1,7 @@
 from datetime import date, timedelta
 from decimal import Decimal
 from typing import List, Dict, Tuple, Optional
-from lotus_fin.ai004.domain.models import (
+from lotus_fin.modules.f004_what_if.domain.models import (
     SimulatedCashEvent,
     TimelinePoint,
     BaselineMetrics,
@@ -9,7 +9,7 @@ from lotus_fin.ai004.domain.models import (
     DeltaMetrics,
     quantize_currency
 )
-from lotus_fin.ai004.domain.enums import CashFlowDirection
+from lotus_fin.modules.f004_what_if.domain.enums import CashFlowDirection
 
 
 def compute_daily_timeline(
