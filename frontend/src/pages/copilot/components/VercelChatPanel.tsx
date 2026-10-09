@@ -32,6 +32,8 @@ interface VercelChatPanelProps {
   company: string;
   activeInspectorTab?: string;
   onOpenInspector?: (tab: string) => void;
+  onClose?: () => void;
+  onExpand?: () => void;
   className?: string;
 }
 
@@ -39,6 +41,8 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
   company,
   activeInspectorTab,
   onOpenInspector,
+  onClose,
+  onExpand,
   className = "",
 }) => {
   const { t } = useTranslation();
@@ -321,17 +325,17 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           {onOpenInspector && (
             <button
               onClick={() => onOpenInspector(activeInspectorTab || "financial_health")}
-              className="px-3 py-1.5 rounded-xl border border-blue-200 bg-[#E8F2FB] hover:bg-blue-100 text-[#1E63B7] text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-theme-xs"
+              className="px-2.5 py-1.5 rounded-xl border border-blue-200 bg-[#E8F2FB] hover:bg-blue-100 text-[#1E63B7] text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer shadow-theme-xs"
               title="Open financial analytics report dialog"
             >
               <svg className="size-3.5 text-[#1E63B7]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
               </svg>
-              <span>Detailed Reports</span>
+              <span className="hidden sm:inline">Reports</span>
               <span className="text-[10px]">↗</span>
             </button>
           )}
@@ -345,6 +349,30 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
           </button>
+
+          {onExpand && (
+            <button
+              onClick={onExpand}
+              className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
+              title="Expand to Full Copilot Page"
+            >
+              <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5" />
+              </svg>
+            </button>
+          )}
+
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="p-1.5 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+              title="Close panel"
+            >
+              <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
         </div>
       </div>
 
