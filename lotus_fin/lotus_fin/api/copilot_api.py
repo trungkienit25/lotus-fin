@@ -21,7 +21,7 @@ from lotus_fin.presentation.controller.copilot_controller import CopilotControll
 _logger = logging.getLogger("lotus_fin.api.copilot")
 
 
-@whitelist()
+@whitelist(allow_guest=True)
 def chat_copilot(
     query: str,
     company: Optional[str] = None,

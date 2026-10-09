@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import Badge from "../../components/ui/badge/Badge";
+import { formatBrandText } from "../../utils/brand";
 
 interface WorkspaceLink {
   label: string;
@@ -209,11 +210,11 @@ export const UniversalWorkspaceView: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
-            {isDashboardView ? `${workspace.title || workspace.name} Dashboard` : (workspace.title || workspace.name)}
+            {isDashboardView ? `${formatBrandText(workspace.title || workspace.name)} Dashboard` : formatBrandText(workspace.title || workspace.name)}
           </h1>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
             {isDashboardView
-              ? `Financial metrics & KPIs for ${workspace.title || workspace.name}`
+              ? `Financial metrics & KPIs for ${formatBrandText(workspace.title || workspace.name)}`
               : `Reports & Masters Directory`}
           </p>
         </div>
@@ -221,20 +222,20 @@ export const UniversalWorkspaceView: React.FC = () => {
         <div className="flex items-center gap-2">
           <button
             onClick={() => navigate(`/workspace/${encodeURIComponent(workspaceName || "")}`)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
               !isDashboardView
-                ? "bg-brand-500 text-white shadow-theme-xs"
-                : "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                ? "bg-gradient-to-r from-[#1E63B7] via-[#6EC1F6] to-[#2FB29A] text-white shadow-theme-xs hover:opacity-95"
+                : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 shadow-theme-xs"
             }`}
           >
             Overview
           </button>
           <button
             onClick={() => navigate(`/workspace/${encodeURIComponent(workspaceName || "")}?view=dashboard`)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
               isDashboardView
-                ? "bg-brand-500 text-white shadow-theme-xs"
-                : "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                ? "bg-gradient-to-r from-[#1E63B7] via-[#6EC1F6] to-[#2FB29A] text-white shadow-theme-xs hover:opacity-95"
+                : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 shadow-theme-xs"
             }`}
           >
             Dashboard KPI
@@ -336,7 +337,7 @@ export const UniversalWorkspaceView: React.FC = () => {
           >
             <div>
               <h3 className="mb-3.5 pb-2.5 text-sm font-semibold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
-                <span>{section.title}</span>
+                <span>{formatBrandText(section.title)}</span>
                 <span className="text-[10px] font-normal text-gray-500 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full">
                   {section.links.length}
                 </span>
@@ -360,18 +361,18 @@ export const UniversalWorkspaceView: React.FC = () => {
                     <div
                       key={lIdx}
                       onClick={() => navigate(targetUrl)}
-                      className="group flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium text-gray-700 dark:text-gray-300 hover:text-brand-500 dark:hover:text-brand-400 hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer transition-colors"
+                      className="group flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium text-[#2E3A59] hover:text-[#1E63B7] hover:bg-[#E8F2FB] cursor-pointer transition-all duration-150"
                     >
                       <div className="flex items-center gap-2 truncate">
-                        <span className="truncate">{link.label}</span>
+                        <span className="truncate">{formatBrandText(link.label)}</span>
                         {link.onboard ? (
-                          <span className="text-[9px] font-semibold text-brand-600 bg-brand-50 dark:bg-brand-500/15 dark:text-brand-400 px-1.5 py-0.2 rounded">
+                          <span className="text-[9px] font-semibold text-white bg-gradient-to-r from-[#1E63B7] to-[#39C6B7] px-2 py-0.5 rounded-full shadow-xs">
                             Primary
                           </span>
                         ) : null}
                       </div>
 
-                      <div className="flex items-center gap-1.5 text-gray-400 group-hover:text-brand-500 transition-colors">
+                      <div className="flex items-center gap-1.5 text-gray-400 group-hover:text-[#1E63B7] transition-colors">
                         {link.link_type === "Report" && (
                           <span className="text-[9px] text-gray-400 bg-gray-100 dark:bg-gray-800 px-1 rounded">
                             Report

@@ -338,7 +338,7 @@ export const TailAdminFilterBar: React.FC<FilterBarProps> = ({
             <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-4 dark:border-gray-800">
               <button
                 onClick={handleAddTempFilter}
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-500 hover:text-brand-600"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#1E63B7] hover:text-[#174f96] transition-colors"
               >
                 <svg className="size-3.5 fill-current" viewBox="0 0 20 20">
                   <path
@@ -357,13 +357,13 @@ export const TailAdminFilterBar: React.FC<FilterBarProps> = ({
                     onApplyCustomFilters([]);
                     setShowAdvancedModal(false);
                   }}
-                  className="rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+                  className="rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors"
                 >
                   {t("common.reset")}
                 </button>
                 <button
                   onClick={handleSaveAdvancedFilters}
-                  className="rounded-lg bg-brand-500 px-4 py-1.5 text-xs font-semibold text-white shadow-theme-xs hover:bg-brand-600"
+                  className="rounded-xl bg-gradient-to-r from-[#1E63B7] via-[#6EC1F6] to-[#2FB29A] px-4 py-1.5 text-xs font-semibold text-white shadow-theme-xs hover:opacity-95 active:scale-[0.98] transition-all"
                 >
                   {t("filter.applyFilters")}
                 </button>

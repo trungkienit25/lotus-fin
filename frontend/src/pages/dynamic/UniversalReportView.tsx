@@ -492,7 +492,7 @@ export const UniversalReportView: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary py-2 px-5 text-xs font-medium text-white hover:bg-opacity-90 transition-opacity"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#1E63B7] via-[#6EC1F6] to-[#2FB29A] py-2 px-5 text-xs font-semibold text-white shadow-theme-xs hover:opacity-95 active:scale-[0.98] transition-all"
             >
               Filter Results
             </button>
@@ -583,7 +583,7 @@ export const UniversalReportView: React.FC = () => {
                             ) : col.fieldtype === "Link" && typeof val === "string" && col.options ? (
                               <span
                                 onClick={() => navigate(`/app/${encodeURIComponent(col.options || "")}/${encodeURIComponent(val)}`)}
-                                className="text-primary hover:underline cursor-pointer"
+                                className="text-[#1E63B7] hover:underline cursor-pointer"
                               >
                                 {val}
                               </span>

@@ -35,6 +35,16 @@ const MODULE_TO_WORKSPACE: Record<string, string> = {
   Support: "Support",
   Integrations: "Integrations",
   "Lotus Fin AI": "Lotus Fin AI",
+  lotus_fin_ai: "Lotus Fin AI",
+  "lotus-copilot": "Lotus Fin AI",
+  "financial-health": "Lotus Fin AI",
+  "cash-forecast": "Lotus Fin AI",
+  "risk-signal": "Lotus Fin AI",
+  "what-if-studio": "Lotus Fin AI",
+  "financing-copilot": "Lotus Fin AI",
+  "repayment-schedule": "Lotus Fin AI",
+  copilot: "Lotus Fin AI",
+  ai: "Lotus Fin AI",
   Users: "Users",
   HR: "HR",
   HRMS: "HR",
@@ -57,15 +67,36 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
 
   const currentPath = location.pathname;
   const isHomePage = currentPath === "/" || currentPath === "/home";
+  const isAIPage =
+    currentPath === "/ai" ||
+    currentPath === "/copilot" ||
+    currentPath.startsWith("/workspace/Lotus%20Fin%20AI") ||
+    currentPath.startsWith("/workspace/Lotus Fin AI") ||
+    currentPath.startsWith("/page/lotus-copilot") ||
+    currentPath.startsWith("/page/financial-health") ||
+    currentPath.startsWith("/page/cash-forecast") ||
+    currentPath.startsWith("/page/risk-signal") ||
+    currentPath.startsWith("/page/what-if-studio") ||
+    currentPath.startsWith("/page/financing-copilot") ||
+    currentPath.startsWith("/page/repayment-schedule");
 
   // Quản lý activeWorkspace linh hoạt theo ngữ cảnh người dùng đang xem
-  const [activeWorkspace, setActiveWorkspace] = useState<string>(
-    () => sessionStorage.getItem("lotus_active_workspace") || "Invoicing"
-  );
+  const [activeWorkspace, setActiveWorkspace] = useState<string>(() => {
+    if (isAIPage) return "Lotus Fin AI";
+    return sessionStorage.getItem("lotus_active_workspace") || "Invoicing";
+  });
 
   // 1. Tự động xác định Active Workspace từ URL & DocType Module (với bảo lưu Workspace hiện tại)
   useEffect(() => {
     if (isHomePage) return;
+
+    if (isAIPage) {
+      if (activeWorkspace !== "Lotus Fin AI") {
+        setActiveWorkspace("Lotus Fin AI");
+        sessionStorage.setItem("lotus_active_workspace", "Lotus Fin AI");
+      }
+      return;
+    }
 
     if (currentPath.startsWith("/workspace/")) {
       const wsName = decodeURIComponent(currentPath.replace("/workspace/", "").split("?")[0]);
@@ -142,7 +173,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
         })
         .catch(() => {});
     }
-  }, [currentPath, isHomePage, sidebarItems, activeWorkspace]);
+  }, [currentPath, isHomePage, isAIPage, sidebarItems, activeWorkspace]);
 
   // 2. Tải danh mục Sidebar chuẩn từ Workspace Sidebar (với SWR In-Memory Cache)
   useEffect(() => {
@@ -188,8 +219,8 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-900 font-satoshi text-gray-700 dark:text-gray-300">
-      {/* TailAdmin Modern Sidebar */}
-      {!isHomePage && (
+      {/* TailAdmin Modern Sidebar (Shown for ERP modules, hidden for Home & Dedicated AI Workspace) */}
+      {!isHomePage && !isAIPage && (
         <TailAdminSidebar
           sidebarOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
@@ -213,13 +244,13 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
         />
 
         {/* Content Container */}
-        <main className="p-4 sm:p-6 lg:p-8 flex-1">
-          <div className="mx-auto max-w-7xl">{children}</div>
+        <main className={`flex-1 ${isAIPage ? "p-0 overflow-hidden" : "p-4 sm:p-6 lg:p-8"}`}>
+          <div className={isAIPage ? "h-full w-full" : "mx-auto max-w-7xl"}>{children}</div>
         </main>
       </div>
 
-      {/* Floating AI Copilot Widget */}
-      <LotusCopilotDrawer />
+      {/* Floating AI Copilot Widget (Hidden on dedicated AI page) */}
+      {!isAIPage && <LotusCopilotDrawer />}
     </div>
   );
 };

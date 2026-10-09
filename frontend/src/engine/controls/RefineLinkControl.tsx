@@ -112,12 +112,12 @@ export const RefineLinkControl: React.FC<RefineLinkControlProps> = ({
                   }}
                   className={`flex items-center justify-between rounded-lg px-3 py-2 text-xs font-medium cursor-pointer transition-colors ${
                     value === opt
-                      ? "bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400 font-semibold"
-                      : "text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/5"
+                      ? "bg-[#E8F2FB] text-[#1E63B7] font-semibold"
+                      : "text-gray-700 hover:bg-[#E8F2FB] hover:text-[#1E63B7]"
                   }`}
                 >
                   <span className="truncate">{opt}</span>
-                  {value === opt && <span className="text-brand-500 font-bold">✓</span>}
+                  {value === opt && <span className="text-[#1E63B7] font-bold">✓</span>}
                 </div>
               ))
             )}

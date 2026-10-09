@@ -203,7 +203,7 @@ except ImportError:
 _service_instance = FinancingService()
 
 
-@whitelist()
+@whitelist(allow_guest=True)
 def simulate_what_if(
     company: str,
     sales_change_pct: float = 0.0,
@@ -240,7 +240,7 @@ def simulate_what_if(
     )
 
 
-@whitelist()
+@whitelist(allow_guest=True)
 def match_financing(
     company: str,
     amount: float,

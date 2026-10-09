@@ -141,7 +141,7 @@ export const SubTableControl: React.FC<SubTableControlProps> = ({
         <button
           type="button"
           onClick={handleAddRow}
-          className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-dashed border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 hover:border-brand-500 hover:bg-brand-50/50 hover:text-brand-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:border-brand-500 dark:hover:bg-brand-500/10 dark:hover:text-brand-400 transition-all shadow-theme-xs w-full justify-center"
+          className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-dashed border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 hover:border-[#1E63B7] hover:bg-[#E8F2FB] hover:text-[#1E63B7] dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 transition-all shadow-theme-xs w-full justify-center"
         >
           <svg className="size-4" viewBox="0 0 20 20" fill="currentColor">
             <path

@@ -12,6 +12,7 @@ Welcome to the **Lotus Fin** Frontend documentation. Lotus Fin is built as a nex
 | [**02. Design System & Components**](./02_DESIGN_SYSTEM_AND_COMPONENTS.md) | TailAdmin UI & Controls | Layout system, ERPNext-style navigation bar (Ctrl+K), Sidebar, List Toolbar, Form views, and Dark Mode. |
 | [**03. API & Data Layer**](./03_API_INTEGRATION_AND_CACHING.md) | REST APIs & In-Memory Cache | Interaction with Frappe Desk backend, SWR In-Memory Caching strategy, AuthProvider, and Lotus AI Copilot. |
 | [**04. Development & Scripts**](./04_DEVELOPMENT_AND_SCRIPTS.md) | Developer Quickstart | Using `run-fe.sh` / `run-fe.ps1`, local development workflow, type checking, and production deployment. |
+| [**05. Brand Guideline & Identity**](./05_BRAND_GUIDELINE.md) | Brand Colors & Assets | Comprehensive Lotus Fin color palette, RGB/HEX values, gradients, typography, and logo assets. |
 
 ---
 
