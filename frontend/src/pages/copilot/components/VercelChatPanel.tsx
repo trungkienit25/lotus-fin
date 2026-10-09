@@ -302,37 +302,37 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
 
   return (
     <div className={`flex flex-col h-full bg-[#F8FAFC] relative overflow-hidden font-satoshi ${className}`}>
-      {/* 1. Chat Header Bar */}
-      <div className="flex items-center justify-between px-5 sm:px-6 py-3 border-b border-gray-200 bg-white/95 backdrop-blur sticky top-0 z-10 shrink-0">
-        <div className="flex items-center gap-3">
+      {/* 1. Chat Header Bar - Compact & Clean */}
+      <div className="flex items-center justify-between px-3.5 sm:px-5 py-2.5 border-b border-gray-200 bg-white/95 backdrop-blur sticky top-0 z-10 shrink-0">
+        <div className="flex items-center gap-2.5 min-w-0">
           <div
-            className="size-8 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-xs shrink-0"
+            className="size-7 rounded-lg flex items-center justify-center text-white font-bold text-xs shadow-xs shrink-0"
             style={{ background: "linear-gradient(135deg, #1E63B7 0%, #2FB29A 100%)" }}
           >
             ✦
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-gray-900 text-sm">Lotus Fin AI Copilot</span>
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                <span className="size-1.5 rounded-full bg-emerald-500 mr-1 animate-pulse"></span>
-                Deterministic Engine v2026.1
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className="font-bold text-gray-900 text-xs sm:text-sm truncate">Lotus Fin AI</span>
+              <span className="hidden md:inline-flex items-center px-1.5 py-0.2 rounded-full text-[9px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
+                <span className="size-1 rounded-full bg-emerald-500 mr-1 animate-pulse"></span>
+                Deterministic
               </span>
             </div>
-            <div className="text-[11px] text-gray-500">
-              Scope: <span className="font-semibold text-gray-800">{company}</span>
+            <div className="text-[10px] text-gray-400 truncate">
+              Scope: <span className="font-semibold text-gray-600">{company}</span>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1 shrink-0">
           {onOpenInspector && (
             <button
               onClick={() => onOpenInspector(activeInspectorTab || "financial_health")}
-              className="px-2.5 py-1.5 rounded-xl border border-blue-200 bg-[#E8F2FB] hover:bg-blue-100 text-[#1E63B7] text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer shadow-theme-xs"
+              className="px-2 py-1 rounded-lg border border-blue-200 bg-[#E8F2FB] hover:bg-blue-100 text-[#1E63B7] text-[11px] font-semibold flex items-center gap-1 transition-all cursor-pointer shadow-2xs"
               title="Open financial analytics report dialog"
             >
-              <svg className="size-3.5 text-[#1E63B7]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="size-3 text-[#1E63B7]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
               </svg>
               <span className="hidden sm:inline">Reports</span>
@@ -342,7 +342,7 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
 
           <button
             onClick={clearChat}
-            className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors text-xs flex items-center gap-1 cursor-pointer"
+            className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
             title="Reset conversation"
           >
             <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -377,53 +377,45 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
       </div>
 
       {/* 2. Main Conversational Feed Area (Clean scrollable feed with bottom clearance) */}
-      <div className="flex-1 overflow-y-auto px-4 sm:px-8 pt-4 pb-44 space-y-5">
+      <div className="flex-1 overflow-y-auto px-3 sm:px-6 pt-3 pb-32 space-y-4">
         {/* Welcome Hero when no messages */}
         {messages.length === 0 && (
-          <div className="max-w-2xl mx-auto pt-4 pb-6 flex flex-col items-center text-center">
+          <div className="max-w-2xl mx-auto pt-1 pb-4 flex flex-col items-center text-center">
             <div
-              className="size-11 rounded-2xl flex items-center justify-center text-white text-lg font-bold shadow-xs mb-3.5"
+              className="size-9 rounded-xl flex items-center justify-center text-white text-base font-bold shadow-xs mb-2"
               style={{ background: "linear-gradient(135deg, #1E63B7 0%, #2FB29A 100%)" }}
             >
               ✦
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">
+            <h1 className="text-base sm:text-lg font-bold text-gray-900 tracking-tight">
               How can I assist with your financial analytics today?
             </h1>
-            <p className="text-xs sm:text-sm text-gray-500 mt-1.5 max-w-md">
-              Real-time quantitative AI assistant connected directly to General Ledger records of <strong className="text-gray-800">{company}</strong>.
+            <p className="text-[11px] text-gray-500 mt-0.5 max-w-sm">
+              Quantitative AI assistant connected to General Ledger of <strong className="text-gray-700">{company}</strong>.
             </p>
 
-            {/* 4 Hero Action Cards - Styled with luxury gradient 1-color logo */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full mt-6 text-left">
+            {/* 4 Hero Action Cards - Compact 1-line layout */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 w-full mt-3.5 text-left">
               {starterCards.map((card, idx) => (
                 <button
                   key={idx}
                   onClick={() => handleSendMessage(card.query)}
-                  className="px-3.5 py-2.5 rounded-xl bg-white border border-gray-200/90 hover:border-[#1E63B7] hover:bg-[#E8F2FB]/25 hover:shadow-theme-xs transition-all flex flex-col justify-between group cursor-pointer text-left"
+                  className="px-3 py-2 rounded-xl bg-white border border-gray-200/90 hover:border-[#1E63B7] hover:bg-[#E8F2FB]/20 hover:shadow-2xs transition-all flex items-center justify-between group cursor-pointer text-left"
                 >
-                  <div className="w-full">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <ModuleBadge moduleId={card.inspectorTab} size="xs" />
-                        <span className="text-xs font-bold text-gray-900 group-hover:text-[#1E63B7] transition-colors truncate">
-                          {card.title}
-                        </span>
-                        {card.tag && (
-                          <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-gray-100 text-gray-600 group-hover:bg-[#E8F2FB] group-hover:text-[#1E63B7] transition-colors shrink-0">
-                            {card.tag}
-                          </span>
-                        )}
+                  <div className="flex items-center gap-2 min-w-0 pr-1">
+                    <ModuleBadge moduleId={card.inspectorTab} size="xs" />
+                    <div className="min-w-0">
+                      <div className="text-[11px] font-bold text-gray-900 group-hover:text-[#1E63B7] transition-colors truncate">
+                        {card.title}
                       </div>
-                      <span className="text-[10px] font-bold text-[#1E63B7] group-hover:translate-x-0.5 transition-transform shrink-0 flex items-center gap-0.5">
-                        <span>Run</span>
-                        <span>➔</span>
-                      </span>
-                    </div>
-                    <div className="text-[11px] text-gray-500 mt-1 line-clamp-1 leading-snug pl-6.5">
-                      {card.description}
+                      <div className="text-[10px] text-gray-400 truncate">
+                        {card.description}
+                      </div>
                     </div>
                   </div>
+                  <span className="text-[10px] font-bold text-[#1E63B7] group-hover:translate-x-0.5 transition-transform shrink-0 ml-1">
+                    ➔
+                  </span>
                 </button>
               ))}
             </div>
@@ -615,45 +607,45 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
       </div>
 
       {/* 3. Floating Bottom Input Bar (Clean Seamless Overlay) */}
-      <div className="absolute bottom-0 left-0 right-0 pointer-events-none p-3 sm:p-4 md:p-5 bg-gradient-to-t from-[#F8FAFC] via-[#F8FAFC]/95 to-transparent z-10">
+      <div className="absolute bottom-0 left-0 right-0 pointer-events-none p-2 sm:p-3 bg-gradient-to-t from-[#F8FAFC] via-[#F8FAFC]/95 to-transparent z-10">
         <div className="max-w-3xl mx-auto pointer-events-auto w-full">
           {/* Quick suggestions pills */}
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1.5 mb-1">
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 mb-1">
             <button
               onClick={() => handleSendMessage("Financial health snapshot & key metrics")}
-              className="whitespace-nowrap px-3 py-1 rounded-full bg-white/95 backdrop-blur border border-gray-200 hover:border-[#1E63B7] hover:text-[#1E63B7] hover:bg-[#E8F2FB]/30 shadow-2xs text-gray-600 font-medium transition-all cursor-pointer text-[11px]"
+              className="whitespace-nowrap px-2.5 py-0.5 rounded-full bg-white/95 backdrop-blur border border-gray-200 hover:border-[#1E63B7] hover:text-[#1E63B7] hover:bg-[#E8F2FB]/30 shadow-2xs text-gray-600 font-medium transition-all cursor-pointer text-[10px]"
             >
               Financial Health
             </button>
             <button
               onClick={() => handleSendMessage("30-day cash forecast & liquidity runway")}
-              className="whitespace-nowrap px-3 py-1 rounded-full bg-white/95 backdrop-blur border border-gray-200 hover:border-[#1E63B7] hover:text-[#1E63B7] hover:bg-[#E8F2FB]/30 shadow-2xs text-gray-600 font-medium transition-all cursor-pointer text-[11px]"
+              className="whitespace-nowrap px-2.5 py-0.5 rounded-full bg-white/95 backdrop-blur border border-gray-200 hover:border-[#1E63B7] hover:text-[#1E63B7] hover:bg-[#E8F2FB]/30 shadow-2xs text-gray-600 font-medium transition-all cursor-pointer text-[10px]"
             >
               Cash Forecast 30D
             </button>
             <button
               onClick={() => handleSendMessage("Evaluate risk signals & overdue AR")}
-              className="whitespace-nowrap px-3 py-1 rounded-full bg-white/95 backdrop-blur border border-gray-200 hover:border-[#1E63B7] hover:text-[#1E63B7] hover:bg-[#E8F2FB]/30 shadow-2xs text-gray-600 font-medium transition-all cursor-pointer text-[11px]"
+              className="whitespace-nowrap px-2.5 py-0.5 rounded-full bg-white/95 backdrop-blur border border-gray-200 hover:border-[#1E63B7] hover:text-[#1E63B7] hover:bg-[#E8F2FB]/30 shadow-2xs text-gray-600 font-medium transition-all cursor-pointer text-[10px]"
             >
               Risk Signals
             </button>
             <button
               onClick={() => handleSendMessage("Simulate What-If stress-test scenario")}
-              className="whitespace-nowrap px-3 py-1 rounded-full bg-white/95 backdrop-blur border border-gray-200 hover:border-[#1E63B7] hover:text-[#1E63B7] hover:bg-[#E8F2FB]/30 shadow-2xs text-gray-600 font-medium transition-all cursor-pointer text-[11px]"
+              className="whitespace-nowrap px-2.5 py-0.5 rounded-full bg-white/95 backdrop-blur border border-gray-200 hover:border-[#1E63B7] hover:text-[#1E63B7] hover:bg-[#E8F2FB]/30 shadow-2xs text-gray-600 font-medium transition-all cursor-pointer text-[10px]"
             >
               What-If Studio
             </button>
           </div>
 
           {/* Vercel Input Box Card with Attachments & Controls */}
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-lg shadow-gray-200/50 p-2.5 focus-within:border-[#1E63B7] focus-within:ring-2 focus-within:ring-[#1E63B7]/10 transition-all">
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-md shadow-gray-200/50 p-2 focus-within:border-[#1E63B7] focus-within:ring-2 focus-within:ring-[#1E63B7]/10 transition-all">
             {/* Attached file chips */}
             {attachedFiles.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mb-2 pb-2 border-b border-gray-100 px-1">
+              <div className="flex flex-wrap gap-1.5 mb-1.5 pb-1.5 border-b border-gray-100 px-1">
                 {attachedFiles.map((file, idx) => (
-                  <div key={idx} className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-blue-50 border border-blue-200 text-blue-800 text-xs font-medium shadow-2xs">
+                  <div key={idx} className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-blue-50 border border-blue-200 text-blue-800 text-[10px] font-medium shadow-2xs">
                     <span>📄</span>
-                    <span className="truncate max-w-[160px]">{file.name}</span>
+                    <span className="truncate max-w-[140px]">{file.name}</span>
                     <button
                       onClick={() => removeAttachment(idx)}
                       className="text-blue-400 hover:text-rose-600 ml-1 font-bold cursor-pointer"
@@ -672,13 +664,13 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
               value={inputMessage}
               onChange={handleInputChange}
               onKeyDown={handleKeyDown}
-              placeholder="Ask anything about financial metrics, cash forecast, overdue AR, What-If..."
-              className="w-full resize-none border-0 bg-transparent text-xs sm:text-sm text-gray-800 placeholder-gray-400 focus:outline-hidden focus:ring-0 px-1.5 py-1 min-h-[36px] max-h-[140px]"
+              placeholder="Ask anything about financial metrics, cash forecast..."
+              className="w-full resize-none border-0 bg-transparent text-xs text-gray-800 placeholder-gray-400 focus:outline-hidden focus:ring-0 px-1 py-0.5 min-h-[32px] max-h-[120px]"
             />
 
             {/* Input Toolbar */}
-            <div className="flex items-center justify-between pt-2 border-t border-gray-100 px-1">
-              <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between pt-1.5 border-t border-gray-100 px-1">
+              <div className="flex items-center gap-1.5 min-w-0">
                 {/* File Attachment Hidden Input & Button */}
                 <input
                   type="file"
@@ -691,26 +683,26 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="p-1.5 rounded-lg text-gray-400 hover:text-[#1E63B7] hover:bg-[#E8F2FB] transition-colors cursor-pointer"
-                  title="Attach financial vouchers/files (CSV, Excel, PDF, Images)"
+                  className="p-1 rounded-lg text-gray-400 hover:text-[#1E63B7] hover:bg-[#E8F2FB] transition-colors cursor-pointer shrink-0"
+                  title="Attach vouchers/files (CSV, Excel, PDF, Images)"
                 >
                   <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                   </svg>
                 </button>
 
-                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold bg-[#E8F2FB] text-[#1E63B7]">
-                  ⚡ Realtime ERP Tools Active
+                <span className="inline-flex items-center px-1.5 py-0.2 rounded-md text-[9px] font-semibold bg-[#E8F2FB] text-[#1E63B7] shrink-0">
+                  ⚡ ERP Live
                 </span>
-                <span className="text-[11px] text-gray-400 hidden sm:inline">
-                  Press Enter to send • Shift+Enter for new line
+                <span className="text-[10px] text-gray-400 hidden lg:inline truncate">
+                  Enter to send
                 </span>
               </div>
 
               <button
                 onClick={() => handleSendMessage()}
                 disabled={(!inputMessage.trim() && attachedFiles.length === 0) || loading}
-                className={`p-2 rounded-xl transition-all flex items-center justify-center ${
+                className={`size-7 rounded-lg transition-all flex items-center justify-center shrink-0 ${
                   (inputMessage.trim() || attachedFiles.length > 0) && !loading
                     ? "text-white shadow-xs cursor-pointer hover:opacity-90 active:scale-95"
                     : "bg-gray-100 text-gray-300 cursor-not-allowed"
@@ -722,7 +714,7 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
                 }
                 title="Send message"
               >
-                <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 12h14M12 5l7 7-7 7" />
                 </svg>
               </button>
