@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useGetIdentity, useLogout } from "@refinedev/core";
+import { formatBrandText } from "../../utils/brand";
 
 interface HeaderProps {
   sidebarOpen: boolean;
@@ -41,6 +42,20 @@ export const TailAdminHeader: React.FC<HeaderProps> = ({
   let pageTitle = "Dashboard";
   if (isHomePage) {
     pageTitle = "Desk";
+  } else if (currentPath === "/ai" || currentPath === "/copilot") {
+    pageTitle = "Copilot";
+  } else if (currentPath.startsWith("/page/financial-health")) {
+    pageTitle = "Financial Health";
+  } else if (currentPath.startsWith("/page/cash-forecast")) {
+    pageTitle = "Cash Forecast";
+  } else if (currentPath.startsWith("/page/risk-signal")) {
+    pageTitle = "Risk Signals";
+  } else if (currentPath.startsWith("/page/what-if-studio")) {
+    pageTitle = "What-If Studio";
+  } else if (currentPath.startsWith("/page/financing-copilot")) {
+    pageTitle = "Financing Copilot";
+  } else if (currentPath.startsWith("/page/repayment-schedule")) {
+    pageTitle = "Repayment Schedule";
   } else if (currentPath.startsWith("/app/")) {
     const raw = currentPath.replace("/app/", "");
     const parts = raw.split("/").filter(Boolean);
@@ -118,17 +133,17 @@ export const TailAdminHeader: React.FC<HeaderProps> = ({
     <header className="sticky top-0 z-40 flex h-14 w-full items-center justify-between border-b border-gray-200 bg-white px-4 sm:px-6 shadow-theme-xs dark:border-gray-800 dark:bg-gray-dark">
       {/* Left: Logo & Breadcrumbs / Toggle */}
       <div className="flex items-center gap-3">
-        {/* Frappe/Lotus Logo Icon (Home Link) */}
+        {/* Lotus Fin Brand Logo (Home Link) */}
         <Link
           to="/home"
-          className="flex size-9 items-center justify-center rounded-xl bg-gray-900 text-white hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100 transition shadow-theme-xs"
-          title="Home / Desk"
+          className="flex size-9 items-center justify-center rounded-xl bg-white hover:opacity-90 transition p-0.5"
+          title="Lotus Fin Desk"
         >
-          <svg className="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-            <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-            <line x1="12" y1="22.08" x2="12" y2="12" />
-          </svg>
+          <img
+            src="/brand/logo.jpg"
+            alt="Lotus Fin"
+            className="size-8 object-contain"
+          />
         </Link>
 
         {/* Sidebar Toggle Button (Mobile / Non-Home) */}
@@ -155,42 +170,44 @@ export const TailAdminHeader: React.FC<HeaderProps> = ({
             <span className="text-gray-300 dark:text-gray-700">/</span>
             <Link
               to={`/workspace/${encodeURIComponent(activeWorkspace)}`}
-              className="text-gray-600 hover:text-brand-500 dark:text-gray-300"
+              className="text-gray-600 hover:text-[#1E63B7] dark:text-gray-300 transition-colors"
             >
-              {activeWorkspace}
+              {formatBrandText(activeWorkspace)}
             </Link>
             <span className="text-gray-300 dark:text-gray-700">/</span>
             <span className="font-semibold text-gray-900 dark:text-white truncate max-w-[200px]">
-              {pageTitle}
+              {formatBrandText(pageTitle)}
             </span>
           </div>
         )}
       </div>
 
-      {/* Center: Search Box (ERPNext Style Search Bar with Ctrl+K) */}
+      {/* Center: Search Box (ERPNext Style Search Bar with Ctrl+K & Brand Gradient Active Border) */}
       <div className="relative w-full max-w-sm sm:max-w-md mx-4" ref={searchContainerRef}>
-        <div className="relative">
-          <input
-            ref={searchInputRef}
-            type="text"
-            placeholder="Search or type a command (Ctrl + K)..."
-            value={searchDocType}
-            onChange={(e) => {
-              setSearchDocType(e.target.value);
-              setShowSearchResults(true);
-            }}
-            onFocus={() => setShowSearchResults(true)}
-            className="h-9 w-full rounded-xl border border-gray-200 bg-gray-50/80 py-2 pl-9 pr-14 text-xs text-gray-800 placeholder:text-gray-400 focus:border-brand-500 focus:bg-white focus:outline-none dark:border-gray-800 dark:bg-gray-800/70 dark:text-white dark:placeholder:text-gray-500 transition-all shadow-theme-xs"
-          />
-          <span className="absolute left-3 top-2.5 text-gray-400">
-            <svg className="size-4 fill-current" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-            </svg>
-          </span>
-          <div className="absolute right-2.5 top-1.5 flex items-center gap-0.5">
-            <kbd className="rounded border border-gray-200 bg-white px-1.5 py-0.5 text-[10px] font-medium text-gray-400 dark:border-gray-700 dark:bg-gray-800 shadow-theme-xs">
-              Ctrl+K
-            </kbd>
+        <div className="p-[2px] rounded-xl bg-gray-200/90 hover:bg-gray-300/80 focus-within:bg-gradient-to-r focus-within:from-[#1E63B7] focus-within:via-[#6EC1F6] focus-within:to-[#2FB29A] focus-within:shadow-md focus-within:shadow-[#1E63B7]/20 transition-all duration-200">
+          <div className="relative rounded-[10px] bg-gray-50/90 focus-within:bg-white transition-colors">
+            <input
+              ref={searchInputRef}
+              type="text"
+              placeholder="Search or type a command (Ctrl + K)..."
+              value={searchDocType}
+              onChange={(e) => {
+                setSearchDocType(e.target.value);
+                setShowSearchResults(true);
+              }}
+              onFocus={() => setShowSearchResults(true)}
+              className="h-9 w-full rounded-[10px] bg-transparent py-2 pl-9 pr-14 text-xs text-gray-800 placeholder:text-gray-400 focus:outline-none dark:border-gray-800 dark:bg-gray-800/70 dark:text-white dark:placeholder:text-gray-500 transition-all"
+            />
+            <span className="absolute left-3 top-2.5 text-gray-400">
+              <svg className="size-4 fill-current" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+              </svg>
+            </span>
+            <div className="absolute right-2.5 top-1.5 flex items-center gap-0.5">
+              <kbd className="rounded border border-gray-200 bg-white px-1.5 py-0.5 text-[10px] font-medium text-gray-400 dark:border-gray-700 dark:bg-gray-800 shadow-theme-xs">
+                Ctrl+K
+              </kbd>
+            </div>
           </div>
         </div>
 
@@ -204,16 +221,16 @@ export const TailAdminHeader: React.FC<HeaderProps> = ({
               <div
                 key={doc.name}
                 onClick={() => handleSelectResult(doc.name)}
-                className="flex items-center justify-between rounded-lg px-3 py-2 text-xs font-medium text-gray-700 hover:bg-brand-50/80 hover:text-brand-600 cursor-pointer dark:text-gray-300 dark:hover:bg-brand-500/10 dark:hover:text-brand-400 transition-colors"
+                className="flex items-center justify-between rounded-lg px-3 py-2 text-xs font-medium text-gray-700 hover:bg-[#E8F2FB] hover:text-[#1E63B7] cursor-pointer dark:text-gray-300 dark:hover:bg-brand-500/10 dark:hover:text-brand-400 transition-colors"
               >
                 <div className="flex items-center gap-2">
                   <svg className="size-3.5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
                   </svg>
-                  <span>{doc.name}</span>
+                  <span>{formatBrandText(doc.name)}</span>
                 </div>
                 {doc.module && (
-                  <span className="text-[10px] text-gray-400 dark:text-gray-500">{doc.module}</span>
+                  <span className="text-[10px] text-gray-400 dark:text-gray-500">{formatBrandText(doc.module)}</span>
                 )}
               </div>
             ))}
@@ -242,7 +259,7 @@ export const TailAdminHeader: React.FC<HeaderProps> = ({
             <div className="absolute right-0 mt-2 w-72 rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark z-50">
               <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-gray-800">
                 <span className="text-xs font-semibold text-gray-900 dark:text-white">Notifications</span>
-                <span className="text-[10px] text-brand-500 cursor-pointer">Mark all as read</span>
+                <span className="text-[10px] text-[#1E63B7] cursor-pointer">Mark all as read</span>
               </div>
               <div className="py-3 text-center text-xs text-gray-400">
                 No new notifications

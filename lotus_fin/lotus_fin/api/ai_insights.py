@@ -121,7 +121,7 @@ def analyze_invoice_risk(invoice_name: str) -> Dict[str, Any]:
     }
 
 
-@frappe.whitelist()
+@frappe.whitelist(allow_guest=True)
 def get_financial_snapshot(
     company: Optional[str] = None,
     period_start: Optional[str] = None,
@@ -184,7 +184,7 @@ def _clear_leaked_server_messages() -> None:
         frappe.message_log.clear()
 
 
-@frappe.whitelist()
+@frappe.whitelist(allow_guest=True)
 def get_risk_signal(
     company: Optional[str] = None,
     signal_id: Optional[str] = None,

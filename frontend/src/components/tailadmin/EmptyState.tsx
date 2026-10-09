@@ -67,7 +67,7 @@ export const TailAdminEmptyState: React.FC<EmptyStateProps> = ({
 
         <button
           onClick={onCreateNew}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-gray-900 px-4 py-2 text-xs font-medium text-white shadow-theme-xs hover:bg-black dark:bg-brand-500 dark:hover:bg-brand-600 transition-colors"
+          className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#1E63B7] via-[#6EC1F6] to-[#2FB29A] px-4 py-2.5 text-xs font-semibold text-white shadow-theme-xs hover:opacity-95 active:scale-[0.98] transition-all"
         >
           <svg className="size-3.5 fill-current" viewBox="0 0 20 20">
             <path

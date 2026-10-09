@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import Badge from "../../components/ui/badge/Badge";
 import { REFINE_COMPONENT_REGISTRY, FieldMeta } from "../../engine/RefineComponentRegistry";
+import { formatBrandText } from "../../utils/brand";
 
 interface DocTypeSchema {
   name: string;
@@ -288,7 +289,7 @@ export const UniversalFormView: React.FC = () => {
           <div>
             <div className="flex items-center gap-2">
               <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
-                {schema?.module || "Form"} / {doctype}
+                {formatBrandText(schema?.module || "Form")} / {formatBrandText(doctype)}
               </span>
               {isSingle ? (
                 <Badge size="sm" color="info">Single Doc</Badge>
@@ -301,7 +302,7 @@ export const UniversalFormView: React.FC = () => {
               )}
             </div>
             <h1 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
-              {pageTitle}
+              {formatBrandText(pageTitle)}
             </h1>
           </div>
         </div>
@@ -337,8 +338,8 @@ export const UniversalFormView: React.FC = () => {
             disabled={saving || (!isDirty && !isCreate)}
             className={`inline-flex items-center gap-2 rounded-xl px-5 py-2 text-xs font-semibold text-white shadow-theme-xs transition ${
               saving || (!isDirty && !isCreate)
-                ? "bg-brand-400 opacity-60 cursor-not-allowed"
-                : "bg-brand-500 hover:bg-brand-600 active:scale-[0.98]"
+                ? "bg-gray-300 text-gray-500 opacity-60 cursor-not-allowed"
+                : "bg-gradient-to-r from-[#1E63B7] via-[#6EC1F6] to-[#2FB29A] hover:opacity-95 active:scale-[0.98] shadow-md shadow-[#1E63B7]/20"
             }`}
           >
             {saving ? (

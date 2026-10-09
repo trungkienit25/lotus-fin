@@ -70,12 +70,31 @@ class CopilotController:
         session_id = dto.session_id or f"{user_id}_{verified_company}"
         copilot_svc = service or get_copilot_service()
 
-        res_dict = copilot_svc.process_message(
-            session_id=session_id,
-            message=dto.message,
-            user=user
-        )
+        try:
+            res_dict = copilot_svc.process_message(
+                session_id=session_id,
+                message=dto.message,
+                user=user
+            )
+        except Exception as e:
+            _logger.warning("Copilot service execution failed, falling back to deterministic agent: %s", str(e))
+            from lotus_fin.core.ai.agent_copilot import process_copilot_query
+            legacy_res = process_copilot_query(
+                query=dto.message,
+                company=verified_company,
+                as_of_date=dto.as_of_date
+            )
+            res_dict = {
+                "session_id": session_id,
+                "reply": legacy_res.get("reply", "Hệ thống đã trích xuất dữ liệu sổ cái doanh nghiệp thành công."),
+                "tool_called": legacy_res.get("tool_called"),
+                "tool_label": legacy_res.get("tool_label"),
+                "tool_output": legacy_res.get("tool_output"),
+                "ui_widget": legacy_res.get("ui_widget"),
+                "executed_tools": [legacy_res.get("tool_called")] if legacy_res.get("tool_called") else []
+            }
 
         # Validate through DTO
         response_dto = ChatResponseDTO(**res_dict)
         return response_dto.model_dump()
+

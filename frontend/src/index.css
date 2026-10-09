@@ -3,6 +3,18 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --color-lotus-blue: #1E63B7;
+    --color-lotus-blue-light: #6EC1F6;
+    --color-lotus-teal: #39C6B7;
+    --color-lotus-mint: #2FB29A;
+    --color-lotus-pink: #FF8FB1;
+    --color-lotus-pink-light: #FFDDE7;
+    --color-lotus-text-primary: #2E3A59;
+    --color-lotus-text-secondary: #8FA1B3;
+    --color-lotus-bg: #E8F2FB;
+  }
+
   *,
   ::after,
   ::before,
@@ -17,7 +29,7 @@
   }
 
   body {
-    @apply relative bg-[#F9FAFB] font-satoshi font-normal text-sm text-[#475467] dark:bg-[#101828] dark:text-[#98A2B3];
+    @apply relative bg-[#F8FAFC] font-satoshi font-normal text-sm text-[#2E3A59];
   }
 }
 

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { formatBrandText } from "../../utils/brand";
 
 export type ViewMode = "List View" | "Report View" | "Kanban View";
 
@@ -82,16 +83,16 @@ export const TailAdminListToolbar: React.FC<ListToolbarProps> = ({
         <div>
           <div className="flex items-center gap-2.5">
             <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
-              {pageTitle}
+              {formatBrandText(pageTitle)}
             </h1>
             {pageTitle !== doctype && (
               <span className="rounded bg-brand-50 px-2 py-0.5 text-[11px] font-medium text-brand-600 dark:bg-brand-500/15 dark:text-brand-400">
-                {doctype}
+                {formatBrandText(doctype)}
               </span>
             )}
           </div>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-            Manage and view all {pageTitle} records in the system
+            Manage and view all {formatBrandText(pageTitle)} records in the system
           </p>
         </div>
       </div>
@@ -130,8 +131,8 @@ export const TailAdminListToolbar: React.FC<ListToolbarProps> = ({
                 }}
                 className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors ${
                   viewMode === "List View"
-                    ? "bg-brand-50 text-brand-500 dark:bg-brand-500/10"
-                    : "text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
+                    ? "bg-[#E8F2FB] text-[#1E63B7] font-semibold"
+                    : "text-gray-700 hover:bg-[#E8F2FB] hover:text-[#1E63B7]"
                 }`}
               >
                 <span>☰</span>
@@ -142,7 +143,7 @@ export const TailAdminListToolbar: React.FC<ListToolbarProps> = ({
                   navigate(`/report/${encodeURIComponent(doctype)}`);
                   setShowViewDropdown(false);
                 }}
-                className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors"
+                className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-medium text-gray-700 hover:bg-[#E8F2FB] hover:text-[#1E63B7] transition-colors"
               >
                 <span>📊</span>
                 <span>Report View</span>
@@ -155,11 +156,11 @@ export const TailAdminListToolbar: React.FC<ListToolbarProps> = ({
         <div className="relative" ref={filterRef}>
           <button
             onClick={() => setShowFilterDropdown((p) => !p)}
-            className="inline-flex h-8.5 items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 text-xs font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors"
+            className="inline-flex h-8.5 items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 text-xs font-medium text-gray-700 shadow-theme-xs hover:bg-[#E8F2FB] hover:text-[#1E63B7] dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors"
           >
             <span>Preset Filters</span>
             {activePreset && (
-              <span className="rounded bg-brand-50 px-1.5 py-0.2 text-[10px] font-semibold text-brand-600 dark:bg-brand-500/20 dark:text-brand-400">
+              <span className="rounded bg-[#E8F2FB] px-1.5 py-0.2 text-[10px] font-semibold text-[#1E63B7]">
                 {activePreset}
               </span>
             )}
@@ -186,8 +187,8 @@ export const TailAdminListToolbar: React.FC<ListToolbarProps> = ({
                   }}
                   className={`flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors ${
                     activePreset === p.value
-                      ? "bg-brand-50 text-brand-500 dark:bg-brand-500/10"
-                      : "text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
+                      ? "bg-[#E8F2FB] text-[#1E63B7] font-semibold"
+                      : "text-gray-700 hover:bg-[#E8F2FB] hover:text-[#1E63B7]"
                   }`}
                 >
                   <span>{p.label}</span>
@@ -270,7 +271,7 @@ export const TailAdminListToolbar: React.FC<ListToolbarProps> = ({
         {/* 5. Primary CTA "+ Add DocType" */}
         <button
           onClick={() => navigate(`/app/${encodeURIComponent(doctype || "")}/new`)}
-          className="inline-flex h-8.5 items-center justify-center gap-1.5 rounded-lg bg-brand-500 px-3.5 text-xs font-semibold text-white shadow-theme-xs hover:bg-brand-600 dark:bg-brand-500 dark:hover:bg-brand-600 transition-colors"
+          className="inline-flex h-8.5 items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-[#1E63B7] via-[#6EC1F6] to-[#2FB29A] px-3.5 text-xs font-semibold text-white shadow-theme-xs hover:opacity-95 active:scale-[0.98] transition-all"
         >
           <svg className="size-3.5 fill-current" viewBox="0 0 20 20">
             <path
@@ -279,7 +280,7 @@ export const TailAdminListToolbar: React.FC<ListToolbarProps> = ({
               clipRule="evenodd"
             />
           </svg>
-          <span>+ Add {pageTitle}</span>
+          <span>+ Add {formatBrandText(pageTitle)}</span>
         </button>
       </div>
     </div>

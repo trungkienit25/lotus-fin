@@ -3,6 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import dayjs from "dayjs";
 import { useTranslation } from "../../i18n";
+import { formatBrandText } from "../../utils/brand";
+import { LotusCopilotPage } from "../copilot/LotusCopilotPage";
 
 interface FunnelStage {
   title: string;
@@ -15,6 +17,22 @@ export const UniversalPageView: React.FC = () => {
   const { pageName: rawPageName } = useParams<{ pageName: string }>();
   const pageName = rawPageName ? decodeURIComponent(rawPageName) : "";
   const navigate = useNavigate();
+
+  // If page is an AI Feature Page, render LotusCopilotPage directly
+  if (
+    [
+      "financial-health",
+      "cash-forecast",
+      "risk-signal",
+      "what-if-studio",
+      "lotus-copilot",
+      "financing-copilot",
+      "repayment-schedule",
+      "ai",
+    ].includes(pageName)
+  ) {
+    return <LotusCopilotPage />;
+  }
 
   const [pageDoc, setPageDoc] = useState<{ title?: string; name: string; module?: string; icon?: string } | null>(null);
   const [loading, setLoading] = useState(true);
@@ -203,7 +221,7 @@ export const UniversalPageView: React.FC = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={() => navigate("/app/POS%20Invoice/new")}
-              className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-brand-500 px-3.5 text-xs font-semibold text-white shadow-theme-xs hover:bg-brand-600 transition-colors"
+              className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#1E63B7] via-[#6EC1F6] to-[#2FB29A] px-3.5 text-xs font-semibold text-white shadow-theme-xs hover:opacity-95 active:scale-[0.98] transition-all"
             >
               <span>{t("pos.newInvoice")}</span>
             </button>
@@ -267,7 +285,7 @@ export const UniversalPageView: React.FC = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="inline-flex h-9 items-center justify-center rounded-lg bg-brand-500 px-5 text-xs font-semibold text-white shadow-theme-xs hover:bg-brand-600 disabled:opacity-50"
+                  className="inline-flex h-9 items-center justify-center rounded-xl bg-gradient-to-r from-[#1E63B7] via-[#6EC1F6] to-[#2FB29A] px-5 text-xs font-semibold text-white shadow-theme-xs hover:opacity-95 active:scale-[0.98] disabled:opacity-50 transition-all"
                 >
                   {loading ? t("common.loading") : t("report.filterResults")}
                 </button>
@@ -373,7 +391,7 @@ export const UniversalPageView: React.FC = () => {
               </div>
               <button
                 onClick={() => navigate("/app/POS%20Invoice/new")}
-                className="mt-3 inline-flex h-9 items-center justify-center rounded-lg bg-brand-500 px-4 text-xs font-semibold text-white shadow-theme-xs hover:bg-brand-600"
+                className="mt-3 inline-flex h-9 items-center justify-center rounded-xl bg-gradient-to-r from-[#1E63B7] via-[#6EC1F6] to-[#2FB29A] px-4 text-xs font-semibold text-white shadow-theme-xs hover:opacity-95 active:scale-[0.98] transition-all"
               >
                 {t("pos.createInvoice")}
               </button>
@@ -385,7 +403,7 @@ export const UniversalPageView: React.FC = () => {
               <h2 className="text-sm font-bold text-gray-900 dark:text-white">{t("pos.posProfilesList")}</h2>
               <button
                 onClick={() => navigate("/app/POS%20Profile/new")}
-                className="text-xs font-medium text-brand-500 hover:underline"
+                className="text-xs font-medium text-[#1E63B7] hover:underline"
               >
                 {t("pos.addProfile")}
               </button>
@@ -401,11 +419,11 @@ export const UniversalPageView: React.FC = () => {
                   <div
                     key={p.name}
                     onClick={() => navigate(`/app/POS%20Profile/${encodeURIComponent(p.name)}`)}
-                    className="p-4 rounded-xl border border-gray-200 hover:border-brand-500 dark:border-gray-800 cursor-pointer transition-colors space-y-2"
+                    className="p-4 rounded-xl border border-gray-200 hover:border-[#1E63B7] hover:bg-[#E8F2FB]/30 dark:border-gray-800 cursor-pointer transition-colors space-y-2"
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-gray-900 dark:text-white">{p.name}</span>
-                      <span className="text-[10px] bg-brand-50 text-brand-600 dark:bg-brand-500/10 px-2 py-0.5 rounded font-medium">
+                      <span className="text-[10px] bg-[#E8F2FB] text-[#1E63B7] px-2 py-0.5 rounded font-semibold">
                         {p.company}
                       </span>
                     </div>
@@ -470,7 +488,7 @@ export const UniversalPageView: React.FC = () => {
               </h2>
               <button
                 onClick={() => navigate(`/app/DocType/${encodeURIComponent(selectedDocType)}`)}
-                className="text-xs font-medium text-brand-500 hover:underline"
+                className="text-xs font-medium text-[#1E63B7] hover:underline"
               >
                 {t("permissions.viewDocTypeStructure")}
               </button>
@@ -500,9 +518,9 @@ export const UniversalPageView: React.FC = () => {
             </svg>
           </div>
           <div>
-            <h2 className="text-base font-bold text-gray-900 dark:text-white">{pageDoc?.title || pageName}</h2>
+            <h2 className="text-base font-bold text-gray-900 dark:text-white">{formatBrandText(pageDoc?.title || pageName)}</h2>
             <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-              Module interface for {pageDoc?.module || "ERPNext"}.
+              Module interface for {formatBrandText(pageDoc?.module || "ERPNext")}.
             </p>
           </div>
           <div className="pt-2">

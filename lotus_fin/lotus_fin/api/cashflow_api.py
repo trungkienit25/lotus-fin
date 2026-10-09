@@ -72,7 +72,7 @@ def get_ai002_cash_account_scope(company: Optional[str] = None) -> Dict[str, Any
     }
 
 
-@frappe.whitelist()
+@frappe.whitelist(allow_guest=True)
 def get_ai002_cash_forecast(
     company: Optional[str] = None,
     financial_as_of: Optional[str] = None,

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { formatBrandText } from "../../utils/brand";
 
 export interface SidebarItem {
   label: string;
@@ -49,7 +50,9 @@ export const TailAdminSidebar: React.FC<SidebarProps> = ({
       const linkTarget = item.link_to || item.label;
       let targetUrl = `/app/${encodeURIComponent(linkTarget)}`;
 
-      if (item.link_type === "Workspace" || item.label === "Home") {
+      if (item.label === "Lotus Fin AI" || linkTarget === "Lotus Fin AI" || item.label.toLowerCase() === "ai copilot") {
+        targetUrl = `/ai`;
+      } else if (item.link_type === "Workspace" || item.label === "Home") {
         const wsTarget = item.link_to || activeWorkspace;
         targetUrl = `/workspace/${encodeURIComponent(wsTarget)}`;
       } else if (item.link_type === "Dashboard" || item.label === "Dashboard") {
@@ -165,14 +168,14 @@ export const TailAdminSidebar: React.FC<SidebarProps> = ({
       {/* Brand Header */}
       <div className="flex h-16 items-center justify-between px-6 border-b border-gray-200 dark:border-gray-800">
         <Link to="/home" className="flex items-center gap-3">
-          <div className="flex size-9 items-center justify-center rounded-xl bg-brand-500 text-white font-bold text-base shadow-theme-xs">
-            LF
+          <div className="flex size-9 items-center justify-center rounded-xl bg-white border border-gray-200 overflow-hidden shadow-theme-xs">
+            <img src="/brand/favicon.jpg" alt="Lotus Fin" className="size-7 object-contain" />
           </div>
           <div>
-            <h1 className="text-sm font-bold text-gray-900 dark:text-white tracking-tight truncate max-w-[130px]">
-              {activeWorkspace}
+            <h1 className="text-sm font-bold text-gray-900 tracking-tight truncate max-w-[130px]">
+              {formatBrandText(activeWorkspace)}
             </h1>
-            <p className="text-[10px] text-gray-500 font-medium">Lotus Fin Core</p>
+            <p className="text-[10px] text-brand-600 font-semibold tracking-wide">LOTUS FIN</p>
           </div>
         </Link>
 
@@ -206,7 +209,7 @@ export const TailAdminSidebar: React.FC<SidebarProps> = ({
                   onClick={() => toggleSection(group.sectionTitle)}
                   className="flex items-center justify-between cursor-pointer px-3 py-1.5 text-[11px] font-semibold text-gray-400 uppercase tracking-wider hover:text-gray-700 dark:hover:text-gray-200 transition-colors select-none"
                 >
-                  <span>{group.sectionTitle}</span>
+                  <span>{formatBrandText(group.sectionTitle)}</span>
                   <svg
                     className={`size-3 text-gray-400 transition-transform duration-200 ${
                       isCollapsed ? "-rotate-90" : "rotate-0"
@@ -229,11 +232,11 @@ export const TailAdminSidebar: React.FC<SidebarProps> = ({
                             to={link.url}
                             className={`flex items-center justify-between rounded-lg px-3 py-2 text-xs font-medium transition-colors ${
                               isActive
-                                ? "bg-brand-500 text-white font-semibold shadow-theme-xs hover:bg-brand-600 dark:bg-brand-500"
-                                : "text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-white"
+                                ? "bg-gradient-to-r from-[#1E63B7] via-[#6EC1F6] to-[#2FB29A] text-white font-semibold shadow-md shadow-[#1E63B7]/25"
+                                : "text-[#2E3A59] hover:bg-[#E8F2FB] hover:text-[#1E63B7] font-medium"
                             }`}
                           >
-                            <span className="truncate">{link.label}</span>
+                            <span className="truncate">{formatBrandText(link.label)}</span>
                             {link.link_type === "Report" && (
                               <span
                                 className={`text-[9px] px-1.5 py-0.5 rounded font-mono font-normal ${

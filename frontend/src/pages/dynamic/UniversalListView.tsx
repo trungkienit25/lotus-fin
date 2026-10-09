@@ -485,7 +485,7 @@ export const UniversalListView: React.FC = () => {
             {/* Primary Add Button */}
             <button
               onClick={() => navigate(`/app/${encodeURIComponent(doctype || "")}/new`)}
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-brand-500 px-4 text-xs font-semibold text-white shadow-theme-xs hover:bg-brand-600 transition-colors"
+              className="inline-flex h-9 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#1E63B7] via-[#6EC1F6] to-[#2FB29A] px-4 text-xs font-semibold text-white shadow-theme-xs hover:opacity-95 active:scale-[0.98] transition-all"
             >
               <svg className="size-4 fill-current" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
@@ -755,7 +755,7 @@ export const UniversalListView: React.FC = () => {
                               `/app/${encodeURIComponent(doctype || "")}/${encodeURIComponent(record.name)}`
                             )
                           }
-                          className="cursor-pointer hover:text-brand-500 hover:underline transition-colors"
+                          className="cursor-pointer hover:text-[#1E63B7] hover:underline transition-colors"
                         >
                           {record.name}
                         </span>
@@ -787,7 +787,7 @@ export const UniversalListView: React.FC = () => {
                                 onClick={() =>
                                   navigate(`/app/${encodeURIComponent(field.options || "")}/${encodeURIComponent(value)}`)
                                 }
-                                className="text-gray-700 hover:text-brand-500 hover:underline cursor-pointer dark:text-gray-300"
+                                className="text-gray-700 hover:text-[#1E63B7] hover:underline cursor-pointer dark:text-gray-300"
                               >
                                 {value}
                               </span>
@@ -818,7 +818,7 @@ export const UniversalListView: React.FC = () => {
                         <div className="relative inline-block text-start">
                           <button
                             onClick={() => setOpenRowMenu((p) => (p === record.name ? null : record.name))}
-                            className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                            className="p-1.5 text-gray-400 hover:text-[#1E63B7] hover:bg-[#E8F2FB] rounded-lg transition-colors"
                           >
                             <svg className="size-4" viewBox="0 0 20 20" fill="currentColor">
                               <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
@@ -835,7 +835,7 @@ export const UniversalListView: React.FC = () => {
                                   navigate(`/app/${encodeURIComponent(doctype || "")}/${encodeURIComponent(record.name)}`);
                                   setOpenRowMenu(null);
                                 }}
-                                className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
+                                className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-medium text-gray-700 hover:bg-[#E8F2FB] hover:text-[#1E63B7]"
                               >
                                 {t("common.viewOrEdit")}
                               </button>
@@ -876,7 +876,7 @@ export const UniversalListView: React.FC = () => {
             <div className="flex items-center gap-2">
               <button
                 onClick={handleExportCsv}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-brand-300 bg-white px-3 py-1.5 text-xs font-medium text-brand-700 shadow-theme-xs hover:bg-brand-50 dark:border-brand-500/30 dark:bg-gray-800 dark:text-brand-300"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-brand-300 bg-white px-3 py-1.5 text-xs font-medium text-[#1E63B7] shadow-theme-xs hover:bg-[#E8F2FB]"
               >
                 {t("common.exportCsv")}
               </button>
@@ -910,7 +910,7 @@ export const UniversalListView: React.FC = () => {
                 if (currentPage > 1) setCurrentPage((p) => p - 1);
               }}
               disabled={currentPage === 1}
-              className="flex h-9 items-center justify-center rounded-lg border border-gray-300 bg-white px-3.5 text-xs font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 disabled:opacity-40 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/5 cursor-pointer disabled:cursor-not-allowed transition-colors"
+              className="flex h-9 items-center justify-center rounded-lg border border-gray-300 bg-white px-3.5 text-xs font-medium text-gray-700 shadow-theme-xs hover:bg-[#E8F2FB] hover:text-[#1E63B7] disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-gray-700 cursor-pointer disabled:cursor-not-allowed transition-colors"
             >
               {t("common.previous")}
             </button>
@@ -925,8 +925,8 @@ export const UniversalListView: React.FC = () => {
                       onClick={() => setCurrentPage(page)}
                       className={`flex h-9 w-9 items-center justify-center rounded-lg text-xs font-medium transition-colors ${
                         currentPage === page
-                          ? "bg-brand-500 text-white shadow-theme-xs"
-                          : "text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+                          ? "bg-gradient-to-r from-[#1E63B7] via-[#6EC1F6] to-[#2FB29A] text-white shadow-theme-xs font-semibold"
+                          : "text-gray-700 hover:bg-[#E8F2FB] hover:text-[#1E63B7]"
                       }`}
                     >
                       {page}
@@ -940,7 +940,7 @@ export const UniversalListView: React.FC = () => {
                 if (currentPage < totalPages) setCurrentPage((p) => p + 1);
               }}
               disabled={currentPage >= totalPages}
-              className="flex h-9 items-center justify-center rounded-lg border border-gray-300 bg-white px-3.5 text-xs font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 disabled:opacity-40 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/5 cursor-pointer disabled:cursor-not-allowed transition-colors"
+              className="flex h-9 items-center justify-center rounded-lg border border-gray-300 bg-white px-3.5 text-xs font-medium text-gray-700 shadow-theme-xs hover:bg-[#E8F2FB] hover:text-[#1E63B7] disabled:opacity-40 disabled:hover:bg-white disabled:hover:text-gray-700 cursor-pointer disabled:cursor-not-allowed transition-colors"
             >
               {t("common.next")}
             </button>
@@ -1101,7 +1101,7 @@ export const UniversalListView: React.FC = () => {
                     setShowAdvancedModal(false);
                     setCurrentPage(1);
                   }}
-                  className="rounded-lg bg-brand-500 px-4 py-2 text-xs font-semibold text-white shadow-theme-xs hover:bg-brand-600 transition-colors"
+                  className="rounded-xl bg-gradient-to-r from-[#1E63B7] via-[#6EC1F6] to-[#2FB29A] px-4 py-2 text-xs font-semibold text-white shadow-theme-xs hover:opacity-95 active:scale-[0.98] transition-all"
                 >
                   {t("filter.applyFilters")}
                 </button>

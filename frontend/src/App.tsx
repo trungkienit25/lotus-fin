@@ -13,6 +13,7 @@ import { UniversalFormView } from "./pages/dynamic/UniversalFormView";
 import { UniversalWorkspaceView } from "./pages/dynamic/UniversalWorkspaceView";
 import { UniversalReportView } from "./pages/dynamic/UniversalReportView";
 import { UniversalPageView } from "./pages/dynamic/UniversalPageView";
+import { LotusCopilotPage } from "./pages/copilot/LotusCopilotPage";
 import { I18nProvider } from "./i18n";
 
 export function App() {
@@ -44,6 +45,12 @@ export function App() {
             {/* 1. Màn hình Chọn Module dạng lưới Icon chuẩn như Trang chủ Desk gốc (Ảnh 1) */}
             <Route index element={<ModuleSelectorHome />} />
             <Route path="/home" element={<ModuleSelectorHome />} />
+
+            {/* 1.5 Màn hình Trợ lý AI toàn diện (Vercel AI Chatbot Style) */}
+            <Route path="/ai" element={<LotusCopilotPage />} />
+            <Route path="/copilot" element={<LotusCopilotPage />} />
+            <Route path="/workspace/Lotus%20Fin%20AI" element={<LotusCopilotPage />} />
+            <Route path="/workspace/Lotus Fin AI" element={<LotusCopilotPage />} />
 
             {/* 2. Màn hình Module Dashboard (Invoicing, Stock, Buying...) chuẩn như Ảnh 2 */}
             <Route path="/workspace/:workspaceName" element={<UniversalWorkspaceView />} />

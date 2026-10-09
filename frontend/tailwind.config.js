@@ -8,21 +8,34 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        satoshi: ["Outfit", "system-ui", "sans-serif"],
+        satoshi: ["Outfit", "system-ui", "-apple-system", "sans-serif"],
       },
       colors: {
+        // Lotus Fin Official Brand Scale (Centered on #1E63B7 Blue Deep)
         brand: {
-          25: "#f2f7ff",
-          50: "#ecf3ff",
-          100: "#dde9ff",
-          200: "#c2d6ff",
-          300: "#9cb9ff",
-          400: "#7592ff",
-          500: "#465fff",
-          600: "#3641f5",
-          700: "#2a31d8",
-          800: "#252dae",
-          900: "#262e89",
+          25: "#f5f9ff",
+          50: "#f0f7ff",
+          100: "#e0effe",
+          200: "#bae0fd",
+          300: "#6EC1F6", // Blue Light
+          400: "#38acf7",
+          500: "#1E63B7", // Primary Brand Anchor (Blue Deep)
+          600: "#174f96",
+          700: "#143f79",
+          800: "#133663",
+          900: "#152f53",
+        },
+        // Lotus Specific Semantic Tokens (Brand Guideline)
+        lotus: {
+          blue: "#1E63B7",
+          "blue-light": "#6EC1F6",
+          teal: "#39C6B7",
+          mint: "#2FB29A",
+          pink: "#FF8FB1",
+          "pink-light": "#FFDDE7",
+          "text-primary": "#2E3A59",
+          "text-secondary": "#8FA1B3",
+          bg: "#E8F2FB",
         },
         gray: {
           25: "#fcfcfd",
@@ -41,8 +54,8 @@ export default {
         success: {
           50: "#ecfdf3",
           100: "#d1fadf",
-          500: "#12b76a",
-          600: "#039855",
+          500: "#2FB29A", // Lotus Mint Green
+          600: "#24937f",
         },
         error: {
           50: "#fef3f2",
@@ -56,7 +69,13 @@ export default {
           500: "#f79009",
           600: "#dc6803",
         },
-        primary: "#465fff",
+        primary: "#1E63B7",
+      },
+      backgroundImage: {
+        "lotus-primary": "linear-gradient(90deg, #1E63B7 0%, #6EC1F6 50%, #2FB29A 100%)",
+        "lotus-primary-135": "linear-gradient(135deg, #1E63B7 0%, #6EC1F6 50%, #2FB29A 100%)",
+        "lotus-accent": "linear-gradient(90deg, #FFDDE7 0%, #FF8FB1 100%)",
+        "lotus-soft": "linear-gradient(180deg, rgba(232, 242, 251, 0.7) 0%, rgba(255, 255, 255, 0) 100%)",
       },
       boxShadow: {
         "theme-xs": "0px 1px 2px 0px rgba(16, 24, 40, 0.05)",
@@ -69,4 +88,3 @@ export default {
   },
   plugins: [],
 };
-
