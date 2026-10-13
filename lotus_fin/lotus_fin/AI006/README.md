@@ -1,9 +1,5 @@
 # Lotus Fin — Module AI006: Deterministic Repayment Schedule & Financial Stress Testing Engine
 
-> **Phiên bản:** 1.1 — 2026-09-30  
-> **Phân hệ:** Lotus Fin AI Capabilities · Topic E (FinTechathon 2026)  
-> **Kiến trúc:** Deterministic Repayment Engine + Stress Simulation Engine + Grounded AI Advisor  
-> **Chính sách kiểm soát bảo mật:** `R4/R5 bank-write = OFF` · `data_mode = simulation` · `Decimal Arithmetic = ON`
 
 ---
 
