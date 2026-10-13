@@ -1,8 +1,4 @@
 # Lotus Fin — Module AI006: Deterministic Repayment Schedule & Financial Stress Testing Engine
-
-
----
-
 ## 1. Vai trò của AI & Engine trong Phân hệ `AI-F006` Repayment & Stress Simulation
 
 Theo kiến trúc cốt lõi của Lotus Fin, phân hệ **AI006** chịu trách nhiệm tính toán dòng tiền trả nợ tất định và đánh giá sức chống chịu tài chính của doanh nghiệp SME trước các cú sốc thị trường:
