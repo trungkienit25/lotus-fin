@@ -115,14 +115,22 @@ flowchart TD
 
 ### 3.2. Bảng So sánh 4 Phương pháp Phân bổ Nợ
 
-| Phương pháp | Công thức Tính toán | Đặc điểm Dòng tiền Doanh nghiệp | Trường hợp Áp dụng |
-| :--- | :--- | :--- | :--- |
-| **`EQUAL_INSTALLMENT`** *(Trả góp đều / PMT)* | \( PMT = P \times \frac{r(1+r)^n}{(1+r)^n - 1} \)<br>Gốc tăng dần, lãi giảm dần, tổng trả cố định mỗi kỳ. | Dòng tiền chi trả hàng tháng ổn định, dễ lập kế hoạch tài chính. | Vay trung/dài hạn mua máy móc, xe tải, mở rộng kinh doanh. |
-| **`EQUAL_PRINCIPAL`** *(Gốc đều, lãi giảm dần)* | \( \text{Gốc kỳ} = P / n \)<br>\( \text{Lãi kỳ} = \text{Dư nợ đầu kỳ} \times r \) | Áp lực trả nợ nặng ở các tháng đầu, sau đó giảm dần theo thời gian. | Doanh nghiệp có nguồn thu lớn ngay sau giải ngân. |
-| **`FLAT_RATE`** *(Lãi phẳng)* | \( \text{Gốc kỳ} = P / n \)<br>\( \text{Lãi kỳ} = P \times \frac{r_{\text{năm}}}{\text{số kỳ/năm}} \) | Lãi tính đều trên gốc ban đầu suốt kỳ; tổng lãi thực tế cao hơn PMT. | Vay tín chấp tiểu thương hoặc các gói tín dụng vi mô. |
-| **`BULLET`** *(Lãi định kỳ, gốc cuối kỳ)* | Kỳ 1 đến n-1: Gốc = 0, Lãi = \( P \times r \)<br>Kỳ n: Gốc = P, Lãi = \( P \times r \) | Áp lực trả hàng tháng rất nhẹ, nhưng phải tích lũy dòng tiền để trả gốc cuối kỳ. | Vay bổ sung vốn lưu động xoay vòng theo mùa vụ/hợp đồng dự án. |
+*Quy ước biến số:*
 
----
+* `P`: Số tiền vay gốc ban đầu (Principal)
+* `r`: Lãi suất mỗi kỳ (Lãi suất danh nghĩa năm / Số kỳ thanh toán trong năm)
+* `n`: Tổng số kỳ thanh toán (Term in periods)
+
+|Phương pháp|Công thức Tính toán|Đặc điểm Dòng tiền Doanh nghiệp|Trường hợp Áp dụng|
+|-|-|-|-|
+|**`EQUAL\_INSTALLMENT`**<br>*(Trả góp đều / PMT)*|**`PMT = P × \[r(1 + r)ⁿ] / \[(1 + r)ⁿ - 1]`**<br>• Gốc tăng dần, lãi giảm dần theo thời gian<br>• Tổng trả (Gốc + Lãi) bằng nhau ở mọi kỳ|Dòng tiền chi trả hàng tháng cố định, doanh nghiệp dễ dàng lập kế hoạch ngân sách.|Vay trung/dài hạn mua tài sản cố định, máy móc thiết bị, xe tải.|
+|**`EQUAL\_PRINCIPAL`**<br>*(Gốc đều, lãi giảm dần)*|• **Gốc mỗi kỳ:** `P / n`<br>• **Lãi mỗi kỳ:** `Dư nợ đầu kỳ × r`<br>• **Tổng trả kỳ:** `Gốc kỳ + Lãi kỳ`|Áp lực trả nợ lớn nhất ở các tháng đầu, sau đó giảm dần đều theo thời gian.|Doanh nghiệp có nguồn thu mạnh ngay sau khi được giải ngân vốn.|
+|**`FLAT\_RATE`**<br>*(Lãi phẳng)*|• **Gốc mỗi kỳ:** `P / n`<br>• **Lãi mỗi kỳ:** `P × (Lãi suất năm / Số kỳ năm)`<br>• **Tổng lãi suốt kỳ:** `P × Lãi suất năm × (Số tháng / 12)`|Lãi tính cố định trên gốc ban đầu suốt kỳ; tổng lãi thực tế cao hơn PMT.|Vay tín chấp tiểu thương, các gói vay vi mô thủ tục nhanh gọn.|
+|**`BULLET`**<br>*(Lãi định kỳ, gốc cuối kỳ)*|• **Kỳ 1 → n-1:** Gốc = `0`, Lãi = `P × r`<br>• **Kỳ n (Đáo hạn):** Gốc = `P`, Lãi = `P × r`|Áp lực trả nợ hàng tháng rất nhẹ, nhưng phải tích lũy dòng tiền để tất toán gốc cuối kỳ.|Vay bổ sung vốn lưu động xoay vòng phục vụ mùa vụ hoặc hợp đồng dự án.|
+
+
+
+\---
 
 ## 4. Cấu trúc Thư mục Module `AI006`
 
