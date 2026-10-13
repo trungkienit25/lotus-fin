@@ -1,0 +1,50 @@
+
+  GitNexus Detect Changes (1.6.12)
+warning: in the working copy of 'frontend/src/pages/copilot/components/VercelChatPanel.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lotus_fin/lotus_fin/api/invoice_actions_api.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lotus_fin/lotus_fin/application/service/search_invoices.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lotus_fin/lotus_fin/domain/schema/invoice_read.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lotus_fin/lotus_fin/infrastructure/config/invoice_actions_config.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lotus_fin/lotus_fin/infrastructure/security/frappe_invoice_authorizer.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lotus_fin/lotus_fin/presentation/controller/invoice_actions_controller.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lotus_fin/lotus_fin/presentation/dto/invoice_action_request.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lotus_fin/lotus_fin/tests/test_action_reference_privacy.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lotus_fin/lotus_fin/tests/test_invoice_auth_delivery.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lotus_fin/lotus_fin/tests/test_invoice_context.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lotus_fin/lotus_fin/tests/test_invoice_permission_seam.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lotus_fin/lotus_fin/tests/test_invoice_terminal_delivery.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'run.ps1', LF will be replaced by CRLF the next time Git touches it
+Changes: 29 files, 102 symbols
+Affected processes: 64
+Risk level: critical
+
+Changed symbols:
+  Function LotusCopilotDrawer → frontend/src/components/copilot/LotusCopilotDrawer.tsx
+  Function TailAdminHeader → frontend/src/components/tailadmin/Header.tsx
+  Function TailAdminSidebar → frontend/src/components/tailadmin/Sidebar.tsx
+  Function LotusCopilotPage → frontend/src/pages/copilot/LotusCopilotPage.tsx
+  Interface VercelChatPanelProps → frontend/src/pages/copilot/components/VercelChatPanel.tsx
+  Property contextKey → frontend/src/pages/copilot/components/VercelChatPanel.tsx
+  Property scope → frontend/src/pages/copilot/components/VercelChatPanel.tsx
+  Property onToggleSidebar → frontend/src/pages/copilot/components/VercelChatPanel.tsx
+  Property isSidebarOpen → frontend/src/pages/copilot/components/VercelChatPanel.tsx
+  Property initialMode → frontend/src/pages/copilot/components/VercelChatPanel.tsx
+  Function createRevokedDemoTransport → frontend/src/pages/copilot/components/VercelChatPanel.tsx
+  Method post → frontend/src/pages/copilot/components/VercelChatPanel.tsx
+  Property status → frontend/src/pages/copilot/components/VercelChatPanel.tsx
+  Property data → frontend/src/pages/copilot/components/VercelChatPanel.tsx
+  Function VercelChatPanel → frontend/src/pages/copilot/components/VercelChatPanel.tsx
+... and 87 more
+
+Affected execution flows:
+  • Get_context → Is_valid_uuid_v4 (7 steps) — changed: get_context
+  • App → SelectFeature (6 steps) — changed: VercelChatPanel, LotusCopilotDrawer
+  • App → SelectMode (6 steps) — changed: VercelChatPanel, LotusCopilotDrawer
+  • App → ResetRequest (6 steps) — changed: VercelChatPanel, LotusCopilotDrawer
+  • Get_context → Get_safe_message (6 steps) — changed: get_context
+  • App → UseTranslation (5 steps) — changed: VercelChatPanel, LotusCopilotDrawer
+  • App → UseAuthenticatedActionScope (5 steps) — changed: VercelChatPanel, LotusCopilotDrawer
+  • UniversalPageView → ClearInput (5 steps) — changed: VercelChatPanel, UniversalPageView, LotusCopilotPage
+  • Get_context → From_domain (5 steps) — changed: get_context, _frappe_post_handler, _failure_response
+  • Get_context → Resolve_http_status (5 steps) — changed: get_context, _frappe_post_handler, _failure_response
+... and 54 more

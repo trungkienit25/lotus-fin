@@ -4,80 +4,76 @@ SSOT: CHATBOT_P1_AUTHORIZED_ACTIONS_MASTER_SSOT.md §3, §8.
 ADR001: Clean Architecture, < 200 lines, no ad-hoc scripts.
 """
 
-from typing import Any, Dict
+import json
+from werkzeug.wrappers import Response
 from lotus_fin.domain.schema.action_outcome import ActionReasonCode, ActionStatus
 from lotus_fin.presentation.response.action_response import ActionResponseBuilder
+from lotus_fin.presentation.dto.invoice_action_http_request import (
+    RequestTooLarge, parse_invoice_http_request,
+)
 
 
 def frappe_whitelist(*args, **kwargs):
     def decorator(fn):
         try:
             import frappe  # type: ignore
-            if hasattr(frappe, "whitelist"):
-                return frappe.whitelist(*args, **kwargs)(fn)
-        except Exception:
-            pass
+        except ImportError:
+            return fn  # Offline import only; no HTTP server exists without Frappe.
+        return frappe.whitelist(*args, **kwargs)(fn)
         return fn
     return decorator
 
 
-def _frappe_post_handler(capability: str) -> Dict[str, Any]:
-    """Helper ensuring Frappe POST-only, authenticated fail-closed delivery."""
-    req_data: Dict[str, Any] = {}
-    try:
-        import frappe  # type: ignore
-        if getattr(frappe, "request", None) and getattr(frappe.request, "json", None):
-            req_data = dict(frappe.request.json)
-        elif getattr(frappe, "form_dict", None):
-            req_data = dict(frappe.form_dict)
-
-        if getattr(frappe, "request", None) and getattr(frappe.request, "method", None) != "POST":
-            if hasattr(frappe, "response"):
-                frappe.response.status_code = 405
-            return {"error": "Method Not Allowed. POST required."}
-        user = getattr(frappe.session, "user", None) if hasattr(frappe, "session") else None
-        if not user or user == "Guest":
-            if hasattr(frappe, "response"):
-                frappe.response.status_code = 401
-            return {"error": "Authentication Required"}
-    except Exception:
-        pass
-
-    client_req_id = req_data.get("request_id")
+def _failure_response(capability, reason, request_id=None, http_status=None):
+    status = ActionStatus.FORBIDDEN if reason == ActionReasonCode.AUTH_REQUIRED else ActionStatus.NOT_AVAILABLE
     outcome = ActionResponseBuilder.build_failure_outcome(
-        status=ActionStatus.NOT_AVAILABLE,
-        reason_code=ActionReasonCode.CAPABILITY_DISABLED,
-        capability=capability,
-        client_request_id=client_req_id,
-    )
+        status=status, reason_code=reason, capability=capability, client_request_id=request_id)
     status_code, headers, body = ActionResponseBuilder.serialize_response(outcome)
+    headers["Cache-Control"] = "private, " + headers["Cache-Control"]
+    # Frappe passes Response objects through; returning a dict adds another message.
+    return Response(json.dumps({"message": body}, ensure_ascii=False),
+                    status=http_status or status_code, headers=headers)
+
+
+def _frappe_post_handler(capability: str):
+    """Strict denied/disabled HTTP boundary until N0 native composition qualifies."""
     try:
         import frappe  # type: ignore
-        if hasattr(frappe, "response"):
-            frappe.response.status_code = status_code
-            for k, v in headers.items():
-                frappe.response.headers[k] = v
+    except ImportError:
+        # Preserve the direct, no-framework offline denial contract. This cannot
+        # be served as authenticated HTTP and never produces successful data.
+        return _failure_response(capability, ActionReasonCode.CAPABILITY_DISABLED).get_json()
+    user = getattr(getattr(frappe, "session", None), "user", None)
+    if not isinstance(user, str) or not user or user == "Guest":
+        return _failure_response(capability, ActionReasonCode.AUTH_REQUIRED)
+    request = getattr(frappe, "request", None)
+    if request is None or request.method != "POST":
+        return _failure_response(capability, ActionReasonCode.INVALID_REQUEST, http_status=405)
+    try:
+        body = parse_invoice_http_request(request, capability)
+    except RequestTooLarge:
+        return _failure_response(capability, ActionReasonCode.INVALID_REQUEST, http_status=413)
     except Exception:
-        pass
-    return {"message": body}
+        return _failure_response(capability, ActionReasonCode.INVALID_REQUEST)
+    return _failure_response(capability, ActionReasonCode.CAPABILITY_DISABLED, body["request_id"])
 
 
 # Explicit method exports with disabled defaults and guest forbidden
 
 
 @frappe_whitelist(allow_guest=False, methods=["POST"])
-def get_context() -> Dict[str, Any]:
+def get_context():
     """POST /api/method/lotus_fin.api.invoice_actions_api.get_context"""
     return _frappe_post_handler("invoice.context")
 
 
 @frappe_whitelist(allow_guest=False, methods=["POST"])
-def search_invoices() -> Dict[str, Any]:
+def search_invoices():
     """POST /api/method/lotus_fin.api.invoice_actions_api.search_invoices"""
     return _frappe_post_handler("invoice.search")
 
 
 @frappe_whitelist(allow_guest=False, methods=["POST"])
-def open_invoice() -> Dict[str, Any]:
+def open_invoice():
     """POST /api/method/lotus_fin.api.invoice_actions_api.open_invoice"""
     return _frappe_post_handler("invoice.open")

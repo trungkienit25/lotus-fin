@@ -24,7 +24,7 @@ class InvoiceActionsConfig(BaseModel):
 
     enabled: bool = Field(default=False)
     signing_key_id: str = Field(..., min_length=1, max_length=64)
-    signing_secret: str = Field(..., min_length=32)
+    signing_secret: str = Field(..., min_length=32, repr=False)
     reference_ttl_seconds: int = Field(default=300, ge=60, le=3600)  # default 5min
     deadline_ms: int = Field(default=5000, ge=1000, le=30000)
     page_size_default: int = Field(default=20, ge=1, le=50)

@@ -1,0 +1,4 @@
+# Native numerical dependencies; framework dependencies resolved by pinned release.
+numpy==2.4.2
+pandas==2.3.3
+pydantic==2.12.5

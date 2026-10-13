@@ -1,0 +1,70 @@
+[
+  {
+    "case": "spa",
+    "http": 200,
+    "cache_control": "private, no-store, max-age=0",
+    "vary": "Accept-Encoding, Cookie",
+    "traceback": false,
+    "body_sha256": "58b60a87be7e39aeff69294fb0d7199e00cd51ce6b87b6ee350f2e3e19d1bc2e"
+  },
+  {
+    "case": "bootstrap",
+    "http": 200,
+    "cache_control": "private, no-store, max-age=0",
+    "vary": "Cookie",
+    "traceback": false,
+    "body_sha256": "3757632fb4c684e2620fd4ef816158a6f9a7f46881d0b57267e2267974d0fe7c"
+  },
+  {
+    "case": "core503",
+    "http": 503,
+    "cache_control": "private, no-store",
+    "vary": "Cookie",
+    "traceback": false,
+    "body_sha256": "48b58bcd9da0cbcef75667447c63a98a78528b78142031ab5f3c5d7a3ac6fc95"
+  },
+  {
+    "case": "csrf400",
+    "http": 400,
+    "cache_control": "no-store,no-cache,must-revalidate,max-age=0",
+    "vary": null,
+    "traceback": false,
+    "body_sha256": "d2179309ff8010af54ccdbd749ac6830b1920dd59f7656b3e9a8da39b75a5b4c"
+  },
+  {
+    "case": "guest",
+    "http": 401,
+    "cache_control": "no-store,no-cache,must-revalidate,max-age=0",
+    "vary": null,
+    "traceback": false,
+    "body_sha256": "a2369e17c0618846000cc2d7352bc36023c0f855bf6175f2d25d5750d40c862c"
+  },
+  {
+    "case": "get-denied",
+    "http": 403,
+    "cache_control": "no-store,no-cache,must-revalidate,max-age=0",
+    "vary": "Accept-Encoding",
+    "traceback": false,
+    "body_sha256": "3d22faf1582ede7da2e1e0c7af21162ca05fb9058441a2b60b558cf1c2667d38"
+  },
+  {
+    "case": "absent-l5-prepare_action",
+    "http": 403,
+    "executed": false
+  },
+  {
+    "case": "absent-l5-approve_action",
+    "http": 403,
+    "executed": false
+  },
+  {
+    "case": "absent-l5-execute_action",
+    "http": 403,
+    "executed": false
+  },
+  {
+    "case": "absent-l5-reconcile_action",
+    "http": 403,
+    "executed": false
+  }
+]

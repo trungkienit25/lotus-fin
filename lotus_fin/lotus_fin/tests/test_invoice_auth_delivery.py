@@ -75,7 +75,7 @@ def test_controller_invalid_request_dto_fails_closed():
 
 
 def test_controller_enabled_successful_context(monkeypatch):
-    monkeypatch.setitem(sys.modules, "frappe", SimpleNamespace(has_permission=lambda dt, **kw:
+    monkeypatch.setitem(sys.modules, "frappe", SimpleNamespace(get_system_settings=lambda key: "Asia/Ho_Chi_Minh", has_permission=lambda dt, **kw:
         (dt, kw) == ("Company", dict(ptype="read", doc="Lotus Corp", user="user1"))))
     ctrl = build_controller(enabled=True)
     cid = str(uuid.uuid4())

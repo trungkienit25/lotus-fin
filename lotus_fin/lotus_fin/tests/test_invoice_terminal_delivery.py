@@ -26,6 +26,7 @@ def factory(monkeypatch):
         f = types.ModuleType("frappe")
         f.session = types.SimpleNamespace(user="Guest" if path == "guest" else "actor@example.invalid", sid="PRIVATE_SID")
         f.local = types.SimpleNamespace(site="site")
+        f.get_system_settings = lambda key: "Asia/Ho_Chi_Minh"
         f.has_permission = lambda dt, **kw: path != "denied" and (dt, kw) == (
             "Company", dict(ptype="read", doc="Company A", user="actor@example.invalid"))
         def forbidden(*a, **kw):

@@ -1,0 +1,14 @@
+# Product independence verification
+
+12 October 2026. **LOTUS_PRODUCT_INDEPENDENCE = FAIL for the current runtime recipe**; native independence positive test **BLOCKED / NOT_RUN**. Source identity: [candidate manifest](docs/reviews/evidence/chatbot-native-integration-2026-10-12-01a13088/SOURCE_CANDIDATE_MANIFEST.json), SHA-256 `46ede75ac9c27dc935a60629556e6c0d19d3e085c078c41628d2213b678ff05a`.
+
+| Check | Status | Direct evidence |
+| --- | --- | --- |
+| Frappe-only startup without ERPNext package/site app | **FAIL / NOT_RUN positive** | `docker/ai003-local/Dockerfile` (`9cfa468b3f7cc162f06408f8f9c0f128fb1ef28967ee212830b5492c478f86b5`) starts `FROM frappe/erpnext:v16.35.0`; `docker/judge/init.sh` (`00080119d2086c9ee97a9f2e27167e1e925b6b64f9edf8a524935ba3748ea6c9`) installs `erpnext`. No independent image/site was started. |
+| Native invoice search/open and policy with ERP absent | **BLOCKED** | `IAuthorizedInvoiceReadPort` has no approved native concrete implementation; API/controller disabled. Current strict authorizer checks installed Company/DocType semantics and is insufficient as Lotus policy. |
+| No mandatory ERP endpoint/schema calls or credentials | **FAIL as current product-wide recipe; NOT_RUN measured** | AI001 report source and AI002 GL/Trial Balance/Company/Invoice accesses remain ERP-derived; no worker-level egress/SQL/credential trace was performed. An isolated import or fixture test cannot prove absence. |
+| No Administrator fallback in included core path | **BLOCKED** | Strict read seam fails closed offline, while legacy Copilot/financial paths contain fallback behavior identified in A0. Release scope and enabled route inventory remain undecided. |
+| AI001/AI002/AI003 offline deterministic regressions | **Historical PASS, current native NOT_RUN** | Prior final packet reports 393 offline tests. This run rechecked 343 focused chatbot/backend tests, not a fresh AI001–003 full feature suite or native source equivalence. |
+| Business no-write | **BLOCKED** | No approved native business-store snapshot, worker/SQL trace or positive authorized native read. |
+
+Commands and exits for the present static/bounded checks: candidate SHA transfer and post-run rehash **all 545 matched** ([integrity](docs/reviews/evidence/chatbot-native-integration-2026-10-12-01a13088/CANDIDATE_POSTRUN_INTEGRITY.json)); `node ... vite build --outDir <evidence>/BUILD` **exit 0** using host dependencies; P1/P2-A `pytest` **exit 0, 343 passed**. `rg` of Dockerfile/init and AI001–003 source identifies ERP dependencies, with no runtime execution implied. Independence acceptance still requires an approved core image/site without ERPNext, ordinary-user native read success, measured import/egress/schema/secret traces and enabled-feature equivalence. Legacy ERP features must be explicitly scoped as optional or migrated to approved native sources.

@@ -125,7 +125,7 @@ def test_authorizer_unapproved_capability_denied():
 
 
 def test_authorizer_valid_context_resolution(monkeypatch):
-    monkeypatch.setitem(sys.modules, "frappe", SimpleNamespace(has_permission=lambda dt, **kw:
+    monkeypatch.setitem(sys.modules, "frappe", SimpleNamespace(get_system_settings=lambda key: "Asia/Ho_Chi_Minh", has_permission=lambda dt, **kw:
         (dt, kw) == ("Company", dict(ptype="read", doc="Lotus Corp", user="accountant@lotus.vn"))))
     cfg = make_test_config()
     authorizer = FrappeInvoiceAuthorizer(
@@ -194,4 +194,3 @@ def test_authorizer_exact_company_denial_and_outage_fail_closed():
         assert ch.reason_code == ActionReasonCode.TARGET_UNQUALIFIED
     finally:
         sys.modules.pop("frappe", None)
-

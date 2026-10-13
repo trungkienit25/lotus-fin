@@ -1,0 +1,463 @@
+C:\Python313\Lib\site-packages\requests\__init__.py:113: RequestsDependencyWarning: urllib3 (2.5.0) or chardet (7.4.3)/charset_normalizer (3.4.4) doesn't match a supported version!
+  warnings.warn(
+........................................................................ [ 14%]
+........................................................................ [ 28%]
+........................................................................ [ 42%]
+........................................................................ [ 56%]
+........................................................................ [ 71%]
+...................................EEEEEEEEEEEEEEEEEEEEEEEEE............ [ 85%]
+........................................................................ [ 99%]
+...                                                                      [100%]
+=================================== ERRORS ====================================
+_____ ERROR at setup of test_l3_to_l4_confirm_persists_and_is_idempotent ______
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_l3_to_l4_confirm_persists_and_is_idempotent>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+>               return (yield)
+                        ^^^^^
+E               PermissionError: [WinError 5] Access is denied: 'C:\\Users\\longm\\AppData\\Local\\Temp\\pytest-of-longm'
+
+C:\Users\longm\AppData\Roaming\Python\Python313\site-packages\pytest_asyncio\plugin.py:728: PermissionError
+_ ERROR at setup of test_old_proposal_cannot_cross_scope_or_revoked_permissions[change0] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_old_proposal_cannot_cross_scope_or_revoked_permissions[change0]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+>               return (yield)
+                        ^^^^^
+E               PermissionError: [WinError 5] Access is denied: 'C:\\Users\\longm\\AppData\\Local\\Temp\\pytest-of-longm'
+
+C:\Users\longm\AppData\Roaming\Python\Python313\site-packages\pytest_asyncio\plugin.py:728: PermissionError
+_ ERROR at setup of test_old_proposal_cannot_cross_scope_or_revoked_permissions[change1] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_old_proposal_cannot_cross_scope_or_revoked_permissions[change1]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+>               return (yield)
+                        ^^^^^
+E               PermissionError: [WinError 5] Access is denied: 'C:\\Users\\longm\\AppData\\Local\\Temp\\pytest-of-longm'
+
+C:\Users\longm\AppData\Roaming\Python\Python313\site-packages\pytest_asyncio\plugin.py:728: PermissionError
+_ ERROR at setup of test_old_proposal_cannot_cross_scope_or_revoked_permissions[change2] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_old_proposal_cannot_cross_scope_or_revoked_permissions[change2]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+>               return (yield)
+                        ^^^^^
+E               PermissionError: [WinError 5] Access is denied: 'C:\\Users\\longm\\AppData\\Local\\Temp\\pytest-of-longm'
+
+C:\Users\longm\AppData\Roaming\Python\Python313\site-packages\pytest_asyncio\plugin.py:728: PermissionError
+_ ERROR at setup of test_core_demo_isolation_and_disabled_source[past_final_due-CORE-True-503] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_core_demo_isolation_and_disabled_source[past_final_due-CORE-True-503]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+>               return (yield)
+                        ^^^^^
+E               PermissionError: [WinError 5] Access is denied: 'C:\\Users\\longm\\AppData\\Local\\Temp\\pytest-of-longm'
+
+C:\Users\longm\AppData\Roaming\Python\Python313\site-packages\pytest_asyncio\plugin.py:728: PermissionError
+_ ERROR at setup of test_core_demo_isolation_and_disabled_source[past_final_due-CORE-False-503] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_core_demo_isolation_and_disabled_source[past_final_due-CORE-False-503]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+>               return (yield)
+                        ^^^^^
+E               PermissionError: [WinError 5] Access is denied: 'C:\\Users\\longm\\AppData\\Local\\Temp\\pytest-of-longm'
+
+C:\Users\longm\AppData\Roaming\Python\Python313\site-packages\pytest_asyncio\plugin.py:728: PermissionError
+_ ERROR at setup of test_core_demo_isolation_and_disabled_source[past_final_due-DEMO-False-403] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_core_demo_isolation_and_disabled_source[past_final_due-DEMO-False-403]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+>               return (yield)
+                        ^^^^^
+E               PermissionError: [WinError 5] Access is denied: 'C:\\Users\\longm\\AppData\\Local\\Temp\\pytest-of-longm'
+
+C:\Users\longm\AppData\Roaming\Python\Python313\site-packages\pytest_asyncio\plugin.py:728: PermissionError
+_ ERROR at setup of test_core_demo_isolation_and_disabled_source[l4_propose-CORE-True-503] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_core_demo_isolation_and_disabled_source[l4_propose-CORE-True-503]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+>               return (yield)
+                        ^^^^^
+E               PermissionError: [WinError 5] Access is denied: 'C:\\Users\\longm\\AppData\\Local\\Temp\\pytest-of-longm'
+
+C:\Users\longm\AppData\Roaming\Python\Python313\site-packages\pytest_asyncio\plugin.py:728: PermissionError
+_ ERROR at setup of test_core_demo_isolation_and_disabled_source[l4_propose-CORE-False-503] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_core_demo_isolation_and_disabled_source[l4_propose-CORE-False-503]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+>               return (yield)
+                        ^^^^^
+E               PermissionError: [WinError 5] Access is denied: 'C:\\Users\\longm\\AppData\\Local\\Temp\\pytest-of-longm'
+
+C:\Users\longm\AppData\Roaming\Python\Python313\site-packages\pytest_asyncio\plugin.py:728: PermissionError
+_ ERROR at setup of test_core_demo_isolation_and_disabled_source[l4_propose-DEMO-False-403] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_core_demo_isolation_and_disabled_source[l4_propose-DEMO-False-403]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+>               return (yield)
+                        ^^^^^
+E               PermissionError: [WinError 5] Access is denied: 'C:\\Users\\longm\\AppData\\Local\\Temp\\pytest-of-longm'
+
+C:\Users\longm\AppData\Roaming\Python\Python313\site-packages\pytest_asyncio\plugin.py:728: PermissionError
+_ ERROR at setup of test_core_demo_isolation_and_disabled_source[l4_confirm-CORE-True-503] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_core_demo_isolation_and_disabled_source[l4_confirm-CORE-True-503]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+>               return (yield)
+                        ^^^^^
+E               PermissionError: [WinError 5] Access is denied: 'C:\\Users\\longm\\AppData\\Local\\Temp\\pytest-of-longm'
+
+C:\Users\longm\AppData\Roaming\Python\Python313\site-packages\pytest_asyncio\plugin.py:728: PermissionError
+_ ERROR at setup of test_core_demo_isolation_and_disabled_source[l4_confirm-CORE-False-503] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_core_demo_isolation_and_disabled_source[l4_confirm-CORE-False-503]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+>               return (yield)
+                        ^^^^^
+E               PermissionError: [WinError 5] Access is denied: 'C:\\Users\\longm\\AppData\\Local\\Temp\\pytest-of-longm'
+
+C:\Users\longm\AppData\Roaming\Python\Python313\site-packages\pytest_asyncio\plugin.py:728: PermissionError
+_ ERROR at setup of test_core_demo_isolation_and_disabled_source[l4_confirm-DEMO-False-403] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_core_demo_isolation_and_disabled_source[l4_confirm-DEMO-False-403]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+>               return (yield)
+                        ^^^^^
+E               PermissionError: [WinError 5] Access is denied: 'C:\\Users\\longm\\AppData\\Local\\Temp\\pytest-of-longm'
+
+C:\Users\longm\AppData\Roaming\Python\Python313\site-packages\pytest_asyncio\plugin.py:728: PermissionError
+_ ERROR at setup of test_core_demo_isolation_and_disabled_source[l5_review-CORE-True-503] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_core_demo_isolation_and_disabled_source[l5_review-CORE-True-503]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+>               return (yield)
+                        ^^^^^
+E               PermissionError: [WinError 5] Access is denied: 'C:\\Users\\longm\\AppData\\Local\\Temp\\pytest-of-longm'
+
+C:\Users\longm\AppData\Roaming\Python\Python313\site-packages\pytest_asyncio\plugin.py:728: PermissionError
+_ ERROR at setup of test_core_demo_isolation_and_disabled_source[l5_review-CORE-False-503] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_core_demo_isolation_and_disabled_source[l5_review-CORE-False-503]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+>               return (yield)
+                        ^^^^^
+E               PermissionError: [WinError 5] Access is denied: 'C:\\Users\\longm\\AppData\\Local\\Temp\\pytest-of-longm'
+
+C:\Users\longm\AppData\Roaming\Python\Python313\site-packages\pytest_asyncio\plugin.py:728: PermissionError
+_ ERROR at setup of test_core_demo_isolation_and_disabled_source[l5_review-DEMO-False-403] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_core_demo_isolation_and_disabled_source[l5_review-DEMO-False-403]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+>               return (yield)
+                        ^^^^^
+E               PermissionError: [WinError 5] Access is denied: 'C:\\Users\\longm\\AppData\\Local\\Temp\\pytest-of-longm'
+
+C:\Users\longm\AppData\Roaming\Python\Python313\site-packages\pytest_asyncio\plugin.py:728: PermissionError
+____________ ERROR at setup of test_v1_actual_evaluator_fixed_gold ____________
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_v1_actual_evaluator_fixed_gold>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+>               return (yield)
+                        ^^^^^
+E               PermissionError: [WinError 5] Access is denied: 'C:\\Users\\longm\\AppData\\Local\\Temp\\pytest-of-longm'
+
+C:\Users\longm\AppData\Roaming\Python\Python313\site-packages\pytest_asyncio\plugin.py:728: PermissionError
+_ ERROR at setup of test_l5_policy_review_denies_side_effects[l5.doc.submit_sales_invoice.v1-APPROVAL_PROVIDER_UNAVAILABLE] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_l5_policy_review_denies_side_effects[l5.doc.submit_sales_invoice.v1-APPROVAL_PROVIDER_UNAVAILABLE]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+>               return (yield)
+                        ^^^^^
+E               PermissionError: [WinError 5] Access is denied: 'C:\\Users\\longm\\AppData\\Local\\Temp\\pytest-of-longm'
+
+C:\Users\longm\AppData\Roaming\Python\Python313\site-packages\pytest_asyncio\plugin.py:728: PermissionError
+_ ERROR at setup of test_l5_policy_review_denies_side_effects[l5.pay.execute_wire_transfer.v1-CAPABILITY_DISABLED] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_l5_policy_review_denies_side_effects[l5.pay.execute_wire_transfer.v1-CAPABILITY_DISABLED]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+>               return (yield)
+                        ^^^^^
+E               PermissionError: [WinError 5] Access is denied: 'C:\\Users\\longm\\AppData\\Local\\Temp\\pytest-of-longm'
+
+C:\Users\longm\AppData\Roaming\Python\Python313\site-packages\pytest_asyncio\plugin.py:728: PermissionError
+_ ERROR at setup of test_l5_policy_review_denies_side_effects[l5.comm.send_statement_email.v1-RECIPIENT_DOMAIN_DISALLOWED] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_l5_policy_review_denies_side_effects[l5.comm.send_statement_email.v1-RECIPIENT_DOMAIN_DISALLOWED]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+>               return (yield)
+                        ^^^^^
+E               PermissionError: [WinError 5] Access is denied: 'C:\\Users\\longm\\AppData\\Local\\Temp\\pytest-of-longm'
+
+C:\Users\longm\AppData\Roaming\Python\Python313\site-packages\pytest_asyncio\plugin.py:728: PermissionError
+_ ERROR at setup of test_l5_policy_review_denies_side_effects[unknown-UNKNOWN_ACTION_NAME] _
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_l5_policy_review_denies_side_effects[unknown-UNKNOWN_ACTION_NAME]>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+>               return (yield)
+                        ^^^^^
+E               PermissionError: [WinError 5] Access is denied: 'C:\\Users\\longm\\AppData\\Local\\Temp\\pytest-of-longm'
+
+C:\Users\longm\AppData\Roaming\Python\Python313\site-packages\pytest_asyncio\plugin.py:728: PermissionError
+_____________ ERROR at setup of test_cancel_and_expired_proposal ______________
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_cancel_and_expired_proposal>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+>               return (yield)
+                        ^^^^^
+E               PermissionError: [WinError 5] Access is denied: 'C:\\Users\\longm\\AppData\\Local\\Temp\\pytest-of-longm'
+
+C:\Users\longm\AppData\Roaming\Python\Python313\site-packages\pytest_asyncio\plugin.py:728: PermissionError
+______ ERROR at setup of test_failed_audit_rolls_back_before_simulation _______
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_failed_audit_rolls_back_before_simulation>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+>               return (yield)
+                        ^^^^^
+E               PermissionError: [WinError 5] Access is denied: 'C:\\Users\\longm\\AppData\\Local\\Temp\\pytest-of-longm'
+
+C:\Users\longm\AppData\Roaming\Python\Python313\site-packages\pytest_asyncio\plugin.py:728: PermissionError
+________ ERROR at setup of test_concurrent_confirmation_single_receipt ________
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_concurrent_confirmation_single_receipt>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+>               return (yield)
+                        ^^^^^
+E               PermissionError: [WinError 5] Access is denied: 'C:\\Users\\longm\\AppData\\Local\\Temp\\pytest-of-longm'
+
+C:\Users\longm\AppData\Roaming\Python\Python313\site-packages\pytest_asyncio\plugin.py:728: PermissionError
+____ ERROR at setup of test_unknown_outcome_reconciles_without_reexecution ____
+
+fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>
+request = <SubRequest 'tmp_path' for <Function test_unknown_outcome_reconciles_without_reexecution>>
+
+    @pytest.hookimpl(wrapper=True)
+    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:
+        asyncio_mode = _get_asyncio_mode(request.config)
+        if not _is_asyncio_fixture_function(fixturedef.func):
+            if asyncio_mode == Mode.STRICT:
+                # Ignore async fixtures without explicit asyncio mark in strict mode
+                # This applies to pytest_trio fixtures, for example
+>               return (yield)
+                        ^^^^^
+E               PermissionError: [WinError 5] Access is denied: 'C:\\Users\\longm\\AppData\\Local\\Temp\\pytest-of-longm'
+
+C:\Users\longm\AppData\Roaming\Python\Python313\site-packages\pytest_asyncio\plugin.py:728: PermissionError
+=========================== short test summary info ===========================
+ERROR lotus_fin\lotus_fin\tests\test_copilot_full_integration.py::test_l3_to_l4_confirm_persists_and_is_idempotent
+ERROR lotus_fin\lotus_fin\tests\test_copilot_full_integration.py::test_old_proposal_cannot_cross_scope_or_revoked_permissions[change0]
+ERROR lotus_fin\lotus_fin\tests\test_copilot_full_integration.py::test_old_proposal_cannot_cross_scope_or_revoked_permissions[change1]
+ERROR lotus_fin\lotus_fin\tests\test_copilot_full_integration.py::test_old_proposal_cannot_cross_scope_or_revoked_permissions[change2]
+ERROR lotus_fin\lotus_fin\tests\test_copilot_full_integration.py::test_core_demo_isolation_and_disabled_source[past_final_due-CORE-True-503]
+ERROR lotus_fin\lotus_fin\tests\test_copilot_full_integration.py::test_core_demo_isolation_and_disabled_source[past_final_due-CORE-False-503]
+ERROR lotus_fin\lotus_fin\tests\test_copilot_full_integration.py::test_core_demo_isolation_and_disabled_source[past_final_due-DEMO-False-403]
+ERROR lotus_fin\lotus_fin\tests\test_copilot_full_integration.py::test_core_demo_isolation_and_disabled_source[l4_propose-CORE-True-503]
+ERROR lotus_fin\lotus_fin\tests\test_copilot_full_integration.py::test_core_demo_isolation_and_disabled_source[l4_propose-CORE-False-503]
+ERROR lotus_fin\lotus_fin\tests\test_copilot_full_integration.py::test_core_demo_isolation_and_disabled_source[l4_propose-DEMO-False-403]
+ERROR lotus_fin\lotus_fin\tests\test_copilot_full_integration.py::test_core_demo_isolation_and_disabled_source[l4_confirm-CORE-True-503]
+ERROR lotus_fin\lotus_fin\tests\test_copilot_full_integration.py::test_core_demo_isolation_and_disabled_source[l4_confirm-CORE-False-503]
+ERROR lotus_fin\lotus_fin\tests\test_copilot_full_integration.py::test_core_demo_isolation_and_disabled_source[l4_confirm-DEMO-False-403]
+ERROR lotus_fin\lotus_fin\tests\test_copilot_full_integration.py::test_core_demo_isolation_and_disabled_source[l5_review-CORE-True-503]
+ERROR lotus_fin\lotus_fin\tests\test_copilot_full_integration.py::test_core_demo_isolation_and_disabled_source[l5_review-CORE-False-503]
+ERROR lotus_fin\lotus_fin\tests\test_copilot_full_integration.py::test_core_demo_isolation_and_disabled_source[l5_review-DEMO-False-403]
+ERROR lotus_fin\lotus_fin\tests\test_copilot_full_integration.py::test_v1_actual_evaluator_fixed_gold
+ERROR lotus_fin\lotus_fin\tests\test_copilot_full_integration.py::test_l5_policy_review_denies_side_effects[l5.doc.submit_sales_invoice.v1-APPROVAL_PROVIDER_UNAVAILABLE]
+ERROR lotus_fin\lotus_fin\tests\test_copilot_full_integration.py::test_l5_policy_review_denies_side_effects[l5.pay.execute_wire_transfer.v1-CAPABILITY_DISABLED]
+ERROR lotus_fin\lotus_fin\tests\test_copilot_full_integration.py::test_l5_policy_review_denies_side_effects[l5.comm.send_statement_email.v1-RECIPIENT_DOMAIN_DISALLOWED]
+ERROR lotus_fin\lotus_fin\tests\test_copilot_full_integration.py::test_l5_policy_review_denies_side_effects[unknown-UNKNOWN_ACTION_NAME]
+ERROR lotus_fin\lotus_fin\tests\test_copilot_full_integration.py::test_cancel_and_expired_proposal
+ERROR lotus_fin\lotus_fin\tests\test_copilot_full_integration.py::test_failed_audit_rolls_back_before_simulation
+ERROR lotus_fin\lotus_fin\tests\test_copilot_full_integration.py::test_concurrent_confirmation_single_receipt
+ERROR lotus_fin\lotus_fin\tests\test_copilot_full_integration.py::test_unknown_outcome_reconciles_without_reexecution
+482 passed, 25 errors in 16.36s

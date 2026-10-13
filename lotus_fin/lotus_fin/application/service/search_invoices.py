@@ -21,7 +21,7 @@ class SearchInvoicesService:
             return failure(S.FORBIDDEN, R.CAPABILITY_DENIED)
         try:
             today = datetime.fromisoformat(context.observed_at_utc).astimezone(ZoneInfo(context.timezone)).date()
-            filters = InvoiceReadFilters(**filters.model_dump()).normalized(today)
+            filters = InvoiceReadFilters(**filters.model_dump(exclude_unset=True)).normalized(today)
             digest = filters.fingerprint(page_size)
         except (ValueError, TypeError):
             return failure(S.NOT_AVAILABLE, R.INVALID_REQUEST)

@@ -1,0 +1,81 @@
+{
+  "checks": [
+    {
+      "case": "guest-denied",
+      "status": 401,
+      "body_sha256": "93c289532cddea3ae8367f291141df546bcae4cdb850ffb9e6194f8756248300"
+    },
+    {
+      "case": "real-login",
+      "status": 200,
+      "body_sha256": "a14faf16ee8395d457879bf422ce448aab56db06a6af2ba978ec531cf47dfca4"
+    },
+    {
+      "case": "real-session-csrf",
+      "status": 200,
+      "body_sha256": "422b2d60eee190d46841d30a39ef2eac26b2dad7fc9a3f89e1c0cde692689a5b"
+    },
+    {
+      "case": "authenticated-spa",
+      "status": 200,
+      "body_sha256": "58b60a87be7e39aeff69294fb0d7199e00cd51ce6b87b6ee350f2e3e19d1bc2e"
+    },
+    {
+      "case": "csrf-denied",
+      "status": 400,
+      "body_sha256": "6b039b053024ff27bb5e08a1bcf83f1ca376155f0e519a55a57421becb1e4e3f"
+    },
+    {
+      "case": "get-denied",
+      "status": 403,
+      "body_sha256": "9bbf3890746ef03af930d203bd856d386663fec6d87af59d848a72616e0857da"
+    },
+    {
+      "case": "core-unavailable",
+      "status": 503,
+      "body_sha256": "48b58bcd9da0cbcef75667447c63a98a78528b78142031ab5f3c5d7a3ac6fc95"
+    },
+    {
+      "case": "v1-demo-evaluator",
+      "status": 200,
+      "body_sha256": "417f3d0f6edb2aa63a3052db0a1a4c85c2d9fd9773936ffa5f943f2f8537c710"
+    },
+    {
+      "case": "l4-propose",
+      "status": 200,
+      "body_sha256": "8971f573795ea3e28e5cc2456cc3e6396dce6d8faba246a89a73645421576a87"
+    },
+    {
+      "case": "l4-confirm-simulation",
+      "status": 200,
+      "body_sha256": "bb2b0c360c524b1d03f14414b63a0ba32851dc6910ff7a30e68131f37a8d360c"
+    },
+    {
+      "case": "l4-repeat-single-receipt",
+      "status": 200,
+      "body_sha256": "bb2b0c360c524b1d03f14414b63a0ba32851dc6910ff7a30e68131f37a8d360c"
+    },
+    {
+      "case": "l5-no-side-effects",
+      "status": 200,
+      "body_sha256": "e04b280043721aa7f2912aac932033f892a5c0266e1e63310dc9b0594f830ff9"
+    },
+    {
+      "case": "client-authority-rejected",
+      "status": 400,
+      "body_sha256": "096194efe75d80526c406310286a87af4dc05bbbd0775d33222459473f446f14"
+    },
+    {
+      "case": "logout",
+      "status": 200,
+      "body_sha256": "3bd6d0c423e1ea1b4e270af060195046fb51136e05cbb3e7a2d5399092fc49d7"
+    },
+    {
+      "case": "old-confirm-denied",
+      "status": 401,
+      "body_sha256": "2ba651420ed58f6947fc402650f56bde62c60b07c3030a3ff3148ef812a7240c"
+    }
+  ],
+  "layer": "actual HTTP builder checks",
+  "scope": "isolated fictional DEMO, native and real writes remain blocked"
+}

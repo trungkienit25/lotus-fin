@@ -169,7 +169,7 @@ export const TailAdminSidebar: React.FC<SidebarProps> = ({
       <div className="flex h-16 items-center justify-between px-6 border-b border-gray-200 dark:border-gray-800">
         <Link to="/home" className="flex items-center gap-3">
           <div className="flex size-9 items-center justify-center rounded-xl bg-white border border-gray-200 overflow-hidden shadow-theme-xs">
-            <img src="/brand/favicon.jpg" alt="Lotus Fin" className="size-7 object-contain" />
+            <img src={`${import.meta.env.BASE_URL}brand/favicon.jpg`} alt="Lotus Fin" className="size-7 object-contain" />
           </div>
           <div>
             <h1 className="text-sm font-bold text-gray-900 tracking-tight truncate max-w-[130px]">
