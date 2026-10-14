@@ -1,0 +1,76 @@
+- banner:
+  - link "Lotus Fin":
+    - /url: /home
+    - img "Lotus Fin"
+  - link "Desk":
+    - /url: /home
+  - generic: /
+  - link "Lotus Fin AI":
+    - /url: /workspace/Lotus%20Fin%20AI
+  - generic: /
+  - generic: Copilot
+  - textbox "Search or type a command (Ctrl + K)..."
+  - generic: Ctrl+K
+  - button "Notifications":
+  - button "P p6-alice@example.invalid":
+    - generic: P
+    - generic: p6-alice@example.invalid
+- main:
+  - button "+ New Chat":
+    - generic: +
+    - generic: New Chat
+  - generic: Chat History
+  - generic: "5"
+  - generic: Phân tích sức khỏe tài chính 2026
+  - generic: Hôm nay
+  - generic: Dự báo dòng tiền 30 ngày tới
+  - generic: Hôm nay
+  - generic: Mô phỏng Stress-Test What-If
+  - generic: Hôm qua
+  - generic: Kiểm tra nợ quá hạn và NCC
+  - generic: 2 ngày trước
+  - generic: Khớp nối gói vay & Lịch trả nợ
+  - generic: Tuần này
+  - button "▶ Auxiliary Financial Tools 6":
+    - generic: ▶
+    - generic: Auxiliary Financial Tools
+    - generic: "6"
+  - generic: "Company Audit Scope:"
+  - combobox:
+    - option "Lotus Fin Core" [selected]
+  - button "Collapse sidebar":
+  - generic: ✦
+  - generic: Lotus Fin AI
+  - generic: "Scope: Lotus Fin Core"
+  - tablist "Copilot modes":
+    - tab "Chat mode" [selected]: Chat
+    - tab "Invoice Actions mode": Invoice Actions
+    - tab "Followup L3 mode": Followup (L3)
+  - button "Reports unavailable" [disabled]:
+    - generic: Reports
+    - generic: ↗
+  - button "Reset conversation":
+  - generic "Integrated capabilities":
+    - button "Select CORE globally": CORE
+    - button "Select DEMO globally" [pressed]: DEMO — Fictional
+    - button "L4 · DEMO_ONLY"
+    - button "L5 · DEMO_ONLY"
+    - button "V1 · DEMO_ONLY"
+    - generic: L0/L3 READY · L1/L2 DEMO_ONLY
+  - paragraph: L5 · DEMO_ONLY — dữ liệu giả, thao tác mô phỏng
+  - paragraph: Đánh giá tác động và trạng thái phê duyệt. Email, submit, cancel, payment và scheduler đều không thực thi.
+  - combobox "High impact action":
+    - option "Submit hóa đơn" [selected]
+    - option "Cancel hóa đơn"
+    - option "Gửi email"
+    - option "Thanh toán"
+    - option "Scheduler"
+  - button "Xem chính sách L5"
+  - generic: L5 Action Blocked by Policy
+  - generic: "l5.doc.submit_sales_invoice.v1 · Risk: HIGH · Gate: FINANCE_OFFICER_GATE"
+  - paragraph: Submit an approved draft Sales Invoice into submitted status.
+  - paragraph: Side effects DISABLED · DEMO fictional policy review
+  - text: "Reason:"
+  - code: APPROVAL_PROVIDER_UNAVAILABLE
+  - generic: "{\"policy\":{\"decision\":\"PERMITTED\",\"reason_code\":\"POLICY_ALLOW\",\"risk_level\":\"HIGH\",\"required_approval_level\":\"FINANCE_OFFICER_GATE\",\"details\":{\"action_name\":\"l5.doc.submit_sales_invoice.v1\",\"family\":\"DOCUMENT_SUBMIT\"}},\"source\":\"DEMO FICTIONAL POLICY REVIEW\",\"side_effects\":\"DISABLED\"}"
+  - status: APPROVAL_PROVIDER_UNAVAILABLE

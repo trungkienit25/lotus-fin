@@ -1,0 +1,8 @@
+# Historical source snapshots and local tool packs are not executable product source.
+docs/reviews/evidence/
+my-skills/
+.claude/
+.runtime/
+frontend/node_modules/
+frontend/dist/
+**/__pycache__/

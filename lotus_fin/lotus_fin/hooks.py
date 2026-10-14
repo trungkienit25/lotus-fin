@@ -10,66 +10,41 @@ app_license = "MIT"
 
 # include js, css files in header of desk.html
 app_include_css = "/assets/lotus_fin/css/lotus_fin.css"
-app_include_js = "/assets/lotus_fin/js/lotus_fin.js"
+app_include_js = []  # Legacy ERP Desk customizations are not loaded by core.
 
 
 # Document Events (Hooks for AI analysis & automation)
 # ---------------
-doc_events = {
-	"Sales Invoice": {
-		"on_submit": "lotus_fin.api.ai_insights.on_sales_invoice_submit"
-	},
-	"Payment Entry": {
-		"on_submit": "lotus_fin.api.ai_insights.on_payment_entry_submit"
-	}
-}
+doc_events = {}
+before_request = ["lotus_fin.runtime.boundary.enforce_request_boundary"]
+after_request = ["lotus_fin.runtime.boundary.sanitize_error_response"]
+page_renderer = ["lotus_fin.runtime.spa.LotusSpaPage"]
 
 # Scheduled Tasks (Cron for AI Cash Flow Forecast & Health Check)
 # ---------------
-scheduler_events = {
-	"daily": [
-		"lotus_fin.api.ai_insights.generate_daily_cashflow_digest"
-	],
-	"weekly": [
-		"lotus_fin.api.ai_insights.evaluate_sme_financial_health"
-	]
-}
+scheduler_events = {}
 
-app_home = "/app/lotus-copilot"
+app_home = "/app"
 
 add_to_apps_screen = [
 	{
 		"name": "lotus_fin",
-		"logo": "/assets/erpnext/images/erpnext-logo.svg",
+		"logo": "/assets/lotus_fin/logo.svg",
 		"title": "Lotus Fin AI",
-		"route": "/app/lotus-copilot",
+		"route": "/app",
 	}
 ]
 
-fixtures = [
-	{
-		"doctype": "Custom HTML Block",
-		"filters": [["name", "in", ["Lotus Fin AI Widget"]]]
-	},
-	{
-		"doctype": "Custom Field",
-		"filters": [["name", "in", ["Company-ai002_approved_cash_accounts"]]]
-	}
-]
+fixtures = []
 
 
 # Desk Workspaces Configuration (Filtering allowed modules for Lotus Fin)
 # ------------------
 # Allowed core modules: Accounting, Buying, Selling, Assets, Subcontracting, Settings
 ALLOWED_WORKSPACES = [
-	"Accounting",
-	"Buying",
-	"Selling",
-	"Assets",
-	"Subcontracting",
 	"Settings",
 	"Lotus Fin AI"
 ]
 
 # Persistent Cache Keys (Preserved across clear_cache)
-persistent_cache_keys = ["ai003:evidence"]
+persistent_cache_keys = []

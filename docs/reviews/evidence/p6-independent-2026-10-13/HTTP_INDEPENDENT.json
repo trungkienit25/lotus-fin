@@ -1,0 +1,224 @@
+[
+  {
+    "case": "login:p6-alice@example.invalid",
+    "result": "PASS",
+    "http": 200
+  },
+  {
+    "case": "bootstrap:p6-alice@example.invalid",
+    "result": "PASS",
+    "http": 200
+  },
+  {
+    "case": "login:p6-bob@example.invalid",
+    "result": "PASS",
+    "http": 200
+  },
+  {
+    "case": "bootstrap:p6-bob@example.invalid",
+    "result": "PASS",
+    "http": 200
+  },
+  {
+    "case": "guest",
+    "result": "PASS",
+    "http": 401
+  },
+  {
+    "case": "csrf-invalid",
+    "result": "PASS",
+    "http": 400
+  },
+  {
+    "case": "csrf-missing",
+    "result": "PASS",
+    "http": 400
+  },
+  {
+    "case": "V1-http-independent-gold",
+    "result": "PASS",
+    "http": 200,
+    "rows": [
+      {
+        "invoice_id": "DEMO-INV-001",
+        "final_due_date": "2026-10-01",
+        "current_outstanding_decimal": "15000000.00",
+        "party_account_currency": "VND",
+        "source_modified": "v_demo_1",
+        "selection_ref": null,
+        "overdue_days": 12,
+        "evidence_ref": "demo_hash_001"
+      },
+      {
+        "invoice_id": "DEMO-INV-002",
+        "final_due_date": "2026-10-05",
+        "current_outstanding_decimal": "2850000.50",
+        "party_account_currency": "VND",
+        "source_modified": "v_demo_2",
+        "selection_ref": null,
+        "overdue_days": 8,
+        "evidence_ref": "demo_hash_002"
+      }
+    ]
+  },
+  {
+    "case": "integration-no-store",
+    "result": "PASS",
+    "cache": "private, no-store"
+  },
+  {
+    "case": "CORE-forged-header-query:past_final_due",
+    "result": "PASS",
+    "http": 503
+  },
+  {
+    "case": "CORE-forged-header-query:l4_propose",
+    "result": "PASS",
+    "http": 503
+  },
+  {
+    "case": "CORE-forged-header-query:l4_confirm",
+    "result": "PASS",
+    "http": 503
+  },
+  {
+    "case": "CORE-forged-header-query:l5_review",
+    "result": "PASS",
+    "http": 503
+  },
+  {
+    "case": "L4-propose",
+    "result": "PASS",
+    "http": 200
+  },
+  {
+    "case": "L4-cross-actor-denied",
+    "result": "PASS",
+    "http": 400
+  },
+  {
+    "case": "login:p6-alice@example.invalid",
+    "result": "PASS",
+    "http": 200
+  },
+  {
+    "case": "bootstrap:p6-alice@example.invalid",
+    "result": "PASS",
+    "http": 200
+  },
+  {
+    "case": "L4-cross-session-denied",
+    "result": "PASS",
+    "http": 400
+  },
+  {
+    "case": "L4-forged-challenge",
+    "result": "PASS",
+    "http": 400
+  },
+  {
+    "case": "L4-concurrent-confirm-single-receipt",
+    "result": "PASS",
+    "states": [
+      "SUCCEEDED",
+      "SUCCEEDED",
+      "SUCCEEDED",
+      "SUCCEEDED"
+    ]
+  },
+  {
+    "case": "L4-durable-new-request-status",
+    "result": "PASS",
+    "http": 200
+  },
+  {
+    "case": "L5-review:l5.doc.submit_sales_invoice.v1",
+    "result": "PASS",
+    "reason": "APPROVAL_PROVIDER_UNAVAILABLE"
+  },
+  {
+    "case": "L5-review:l5.doc.cancel_sales_invoice.v1",
+    "result": "PASS",
+    "reason": "INSUFFICIENT_ROLE"
+  },
+  {
+    "case": "L5-review:l5.comm.send_statement_email.v1",
+    "result": "PASS",
+    "reason": "RECIPIENT_DOMAIN_DISALLOWED"
+  },
+  {
+    "case": "L5-review:l5.pay.execute_wire_transfer.v1",
+    "result": "PASS",
+    "reason": "CAPABILITY_DISABLED"
+  },
+  {
+    "case": "L5-review:l5.sched.autonomous_reconciliation.v1",
+    "result": "PASS",
+    "reason": "CAPABILITY_DISABLED"
+  },
+  {
+    "case": "unapproved-execute:l5_execute",
+    "result": "PASS",
+    "http": 400
+  },
+  {
+    "case": "unapproved-execute:send",
+    "result": "PASS",
+    "http": 400
+  },
+  {
+    "case": "unapproved-execute:submit",
+    "result": "PASS",
+    "http": 400
+  },
+  {
+    "case": "unapproved-execute:cancel",
+    "result": "PASS",
+    "http": 400
+  },
+  {
+    "case": "unapproved-execute:payment",
+    "result": "PASS",
+    "http": 400
+  },
+  {
+    "case": "unapproved-execute:scheduler",
+    "result": "PASS",
+    "http": 400
+  },
+  {
+    "case": "forged-authority:actor",
+    "result": "PASS",
+    "http": 400
+  },
+  {
+    "case": "forged-authority:session",
+    "result": "PASS",
+    "http": 400
+  },
+  {
+    "case": "forged-authority:company",
+    "result": "PASS",
+    "http": 400
+  },
+  {
+    "case": "forged-authority:adapter",
+    "result": "PASS",
+    "http": 400
+  },
+  {
+    "case": "forged-authority:simulated",
+    "result": "PASS",
+    "http": 400
+  },
+  {
+    "case": "logged-out-cookie-bootstrap",
+    "result": "PASS",
+    "http": 401
+  },
+  {
+    "case": "logged-out-cookie-operation",
+    "result": "PASS",
+    "http": 401
+  }
+]

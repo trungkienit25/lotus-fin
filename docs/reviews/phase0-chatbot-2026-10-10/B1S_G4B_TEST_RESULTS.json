@@ -1,0 +1,819 @@
+{
+  "contract": "B1S_UI_SAFETY_V1",
+  "verdict": "B1S_G4B_CHANGES_REQUIRED",
+  "date": "2026-10-10",
+  "branch": "develop",
+  "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+  "source_manifest_sha256": "A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4",
+  "scope": "2 existing edits +7 new paths; no application/source changes by reviewer",
+  "counts": {
+    "note": "Overlapping suites reported separately; no combined coverage count",
+    "supplemental_named_cases": {
+      "PASS": 20,
+      "FAIL": 16,
+      "BLOCKED": 0
+    },
+    "supplied_tests": {
+      "PASS": 3
+    }
+  },
+  "gates": {
+    "G2": "FAIL",
+    "G4A": "PARTIAL",
+    "G4B": "CHANGES_REQUIRED",
+    "G1": "PASS narrow identity",
+    "G10": "BLOCKED independently",
+    "G01_G03": "NOT_CLOSED",
+    "G3": "PARTIAL"
+  },
+  "environment": {
+    "docker": "NOT_USED",
+    "python": "3.13.7",
+    "pytest": "9.0.2",
+    "dependency_install": "NOT_RUN",
+    "playwright": "1.58.0",
+    "chromium": "chromium-1208",
+    "npm": "11.7.0",
+    "node": "22.19.0",
+    "network": "all undeclared browser requests denied; local Vite WS intercepted without connect_to_server"
+  },
+  "cleanup": {
+    "server_pid": 9968,
+    "server_exit": 1,
+    "port_5188_open_after": false,
+    "owned_workspace_preserved_for_reproduction": "C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-91a916222c9f4c209fab43091fc89366"
+  },
+  "tests": [
+    {
+      "test_id": "TYPECHECK",
+      "test_name": "Frontend actual TypeScript project",
+      "exact_command": "node node_modules/typescript/bin/tsc -b --pretty false",
+      "cwd": "private-copy/frontend",
+      "expected_behavior": "Typecheck succeeds without source edits",
+      "actual_behavior": {
+        "exit_code": 0
+      },
+      "status": "PASS",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/TYPECHECK.txt",
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "BUILD",
+      "test_name": "Frontend production build",
+      "exact_command": "npm.cmd run build",
+      "cwd": "private-copy/frontend",
+      "expected_behavior": "tsc and Vite build succeed",
+      "actual_behavior": {
+        "warning": "chunk greater than 500kB; no throughput/latency PASS",
+        "exit_code": 0
+      },
+      "status": "PASS",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/BUILD.txt",
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "LINT",
+      "test_name": "Configured lint on changed production files",
+      "exact_command": "npm.cmd run lint -- src/pages/copilot/components/copilotPresentation.ts src/pages/copilot/components/useCopilotRequest.ts src/pages/copilot/components/CopilotMessageBody.tsx src/pages/copilot/components/VercelChatPanel.tsx src/components/copilot/LotusCopilotDrawer.tsx",
+      "cwd": "private-copy/frontend",
+      "expected_behavior": "Configured command completes",
+      "actual_behavior": {
+        "warnings": "render-time ref access/effect state updates/unused variable/purity; preserved in log",
+        "exit_code": 0
+      },
+      "status": "PASS",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/LINT.txt",
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "SUPPLIED_test_unqualified_context_makes_zero_post_calls",
+      "test_name": "test_unqualified_context_makes_zero_post_calls",
+      "exact_command": "Get-Content -Raw docs/reviews/evidence/b1s-g4b-2026-10-10/REVIEW_REPRODUCTION.txt | C:/Python313/python.exe -",
+      "inner_command": "pytest.main([private-copy/tests_e2e/test_copilot_failclosed.py,-v,-s,--tb=short,-o,cache_dir=private-copy/pytest_cache,--junitxml=SUPPLIED_JUNIT.xml],plugins=[ServerOverride()])",
+      "expected_behavior": "Original supplied assertion body passes with isolated lifecycle/network",
+      "actual_behavior": {
+        "outer_error": "subsequent supplemental stdout encoding error, not supplied assertion failure",
+        "seconds": "8.308",
+        "pytest_exit": 0,
+        "outer_exit": 1
+      },
+      "status": "PASS",
+      "boundary": "real production imports; synthetic hook context; original gold unchanged; independent network/server/browser setup",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/SUPPLIED_JUNIT.xml",
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "SUPPLIED_test_copilot_failclosed_normalization_scenarios",
+      "test_name": "test_copilot_failclosed_normalization_scenarios",
+      "exact_command": "Get-Content -Raw docs/reviews/evidence/b1s-g4b-2026-10-10/REVIEW_REPRODUCTION.txt | C:/Python313/python.exe -",
+      "inner_command": "pytest.main([private-copy/tests_e2e/test_copilot_failclosed.py,-v,-s,--tb=short,-o,cache_dir=private-copy/pytest_cache,--junitxml=SUPPLIED_JUNIT.xml],plugins=[ServerOverride()])",
+      "expected_behavior": "Original supplied assertion body passes with isolated lifecycle/network",
+      "actual_behavior": {
+        "outer_error": "subsequent supplemental stdout encoding error, not supplied assertion failure",
+        "seconds": "6.054",
+        "pytest_exit": 0,
+        "outer_exit": 1
+      },
+      "status": "PASS",
+      "boundary": "real production imports; synthetic hook context; original gold unchanged; independent network/server/browser setup",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/SUPPLIED_JUNIT.xml",
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "SUPPLIED_test_xss_injection_rendered_safely_as_text",
+      "test_name": "test_xss_injection_rendered_safely_as_text",
+      "exact_command": "Get-Content -Raw docs/reviews/evidence/b1s-g4b-2026-10-10/REVIEW_REPRODUCTION.txt | C:/Python313/python.exe -",
+      "inner_command": "pytest.main([private-copy/tests_e2e/test_copilot_failclosed.py,-v,-s,--tb=short,-o,cache_dir=private-copy/pytest_cache,--junitxml=SUPPLIED_JUNIT.xml],plugins=[ServerOverride()])",
+      "expected_behavior": "Original supplied assertion body passes with isolated lifecycle/network",
+      "actual_behavior": {
+        "outer_error": "subsequent supplemental stdout encoding error, not supplied assertion failure",
+        "seconds": "4.907",
+        "pytest_exit": 0,
+        "outer_exit": 1
+      },
+      "status": "PASS",
+      "boundary": "real production imports; synthetic hook context; original gold unchanged; independent network/server/browser setup",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/SUPPLIED_JUNIT.xml",
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "EMPTY",
+      "test_name": "EMPTY",
+      "exact_command": "Get-Content -Raw docs/reviews/evidence/b1s-g4b-2026-10-10/REVIEW_REPRODUCTION.txt | C:/Python313/python.exe - --supplemental-only",
+      "expected_behavior": "NOT_AVAILABLE; no secret/widget",
+      "actual_behavior": {
+        "status": "NOT_AVAILABLE",
+        "text": "Chưa đủ ngữ cảnh hoặc nguồn đã xác minh để thực hiện yêu cầu này.",
+        "widgets": "FALSE"
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/DOM_RESULTS.json",
+      "exit_code": 1,
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "FORBIDDEN",
+      "test_name": "FORBIDDEN",
+      "exact_command": "Get-Content -Raw docs/reviews/evidence/b1s-g4b-2026-10-10/REVIEW_REPRODUCTION.txt | C:/Python313/python.exe - --supplemental-only",
+      "expected_behavior": "FORBIDDEN; no secret/widget",
+      "actual_behavior": {
+        "status": "FORBIDDEN",
+        "text": "Bạn không có quyền thực hiện yêu cầu này.",
+        "widgets": "FALSE"
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/DOM_RESULTS.json",
+      "exit_code": 1,
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "NESTED_TOOL_ERROR",
+      "test_name": "NESTED_TOOL_ERROR",
+      "exact_command": "Get-Content -Raw docs/reviews/evidence/b1s-g4b-2026-10-10/REVIEW_REPRODUCTION.txt | C:/Python313/python.exe - --supplemental-only",
+      "expected_behavior": "SOURCE_ERROR; no secret/widget",
+      "actual_behavior": {
+        "status": "NOT_AVAILABLE",
+        "text": "Chưa đủ ngữ cảnh hoặc nguồn đã xác minh để thực hiện yêu cầu này.",
+        "widgets": "FALSE"
+      },
+      "status": "FAIL",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/DOM_RESULTS.json",
+      "exit_code": 1,
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "NESTED_TOOL_FORBIDDEN",
+      "test_name": "NESTED_TOOL_FORBIDDEN",
+      "exact_command": "Get-Content -Raw docs/reviews/evidence/b1s-g4b-2026-10-10/REVIEW_REPRODUCTION.txt | C:/Python313/python.exe - --supplemental-only",
+      "expected_behavior": "FORBIDDEN; no secret/widget",
+      "actual_behavior": {
+        "status": "NOT_AVAILABLE",
+        "text": "Chưa đủ ngữ cảnh hoặc nguồn đã xác minh để thực hiện yêu cầu này.",
+        "widgets": "FALSE"
+      },
+      "status": "FAIL",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/DOM_RESULTS.json",
+      "exit_code": 1,
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "CONTRADICTORY",
+      "test_name": "CONTRADICTORY",
+      "exact_command": "Get-Content -Raw docs/reviews/evidence/b1s-g4b-2026-10-10/REVIEW_REPRODUCTION.txt | C:/Python313/python.exe - --supplemental-only",
+      "expected_behavior": "NOT_AVAILABLE; no secret/widget",
+      "actual_behavior": {
+        "status": "TIMEOUT",
+        "text": "Yêu cầu đã hết thời gian chờ.",
+        "widgets": "FALSE"
+      },
+      "status": "FAIL",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/DOM_RESULTS.json",
+      "exit_code": 1,
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "ROOT_DENIAL",
+      "test_name": "ROOT_DENIAL",
+      "exact_command": "Get-Content -Raw docs/reviews/evidence/b1s-g4b-2026-10-10/REVIEW_REPRODUCTION.txt | C:/Python313/python.exe - --supplemental-only",
+      "expected_behavior": "FORBIDDEN; no secret/widget",
+      "actual_behavior": {
+        "status": "OK",
+        "text": "SENSITIVE_MARKER",
+        "widgets": "FALSE"
+      },
+      "status": "FAIL",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/DOM_RESULTS.json",
+      "exit_code": 1,
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "UNKNOWN_STATUS",
+      "test_name": "UNKNOWN_STATUS",
+      "exact_command": "Get-Content -Raw docs/reviews/evidence/b1s-g4b-2026-10-10/REVIEW_REPRODUCTION.txt | C:/Python313/python.exe - --supplemental-only",
+      "expected_behavior": "NOT_AVAILABLE; no secret/widget",
+      "actual_behavior": {
+        "status": "OK",
+        "text": "SENSITIVE_MARKER",
+        "widgets": "FALSE"
+      },
+      "status": "FAIL",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/DOM_RESULTS.json",
+      "exit_code": 1,
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "NOT_AVAILABLE_STATUS",
+      "test_name": "NOT_AVAILABLE_STATUS",
+      "exact_command": "Get-Content -Raw docs/reviews/evidence/b1s-g4b-2026-10-10/REVIEW_REPRODUCTION.txt | C:/Python313/python.exe - --supplemental-only",
+      "expected_behavior": "NOT_AVAILABLE; no secret/widget",
+      "actual_behavior": {
+        "status": "OK",
+        "text": "SENSITIVE_MARKER",
+        "widgets": "FALSE"
+      },
+      "status": "FAIL",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/DOM_RESULTS.json",
+      "exit_code": 1,
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "PARTIAL_FINANCIAL",
+      "test_name": "PARTIAL_FINANCIAL",
+      "exact_command": "Get-Content -Raw docs/reviews/evidence/b1s-g4b-2026-10-10/REVIEW_REPRODUCTION.txt | C:/Python313/python.exe - --supplemental-only",
+      "expected_behavior": "PARTIAL; no secret/widget",
+      "actual_behavior": {
+        "status": "NOT_AVAILABLE",
+        "text": "Chưa đủ ngữ cảnh hoặc nguồn đã xác minh để thực hiện yêu cầu này.",
+        "widgets": "FALSE"
+      },
+      "status": "FAIL",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/DOM_RESULTS.json",
+      "exit_code": 1,
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "RESULT_FINANCIAL",
+      "test_name": "RESULT_FINANCIAL",
+      "exact_command": "Get-Content -Raw docs/reviews/evidence/b1s-g4b-2026-10-10/REVIEW_REPRODUCTION.txt | C:/Python313/python.exe - --supplemental-only",
+      "expected_behavior": "NOT_AVAILABLE; no secret/widget",
+      "actual_behavior": {
+        "status": "OK",
+        "text": "SENSITIVE_MARKER",
+        "widgets": "FALSE"
+      },
+      "status": "FAIL",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/DOM_RESULTS.json",
+      "exit_code": 1,
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "ACTION_FINANCIAL",
+      "test_name": "ACTION_FINANCIAL",
+      "exact_command": "Get-Content -Raw docs/reviews/evidence/b1s-g4b-2026-10-10/REVIEW_REPRODUCTION.txt | C:/Python313/python.exe - --supplemental-only",
+      "expected_behavior": "NOT_AVAILABLE; no secret/widget",
+      "actual_behavior": {
+        "status": "OK",
+        "text": "SENSITIVE_MARKER",
+        "widgets": "FALSE"
+      },
+      "status": "FAIL",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/DOM_RESULTS.json",
+      "exit_code": 1,
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "UNKNOWN_TOOL",
+      "test_name": "UNKNOWN_TOOL",
+      "exact_command": "Get-Content -Raw docs/reviews/evidence/b1s-g4b-2026-10-10/REVIEW_REPRODUCTION.txt | C:/Python313/python.exe - --supplemental-only",
+      "expected_behavior": "NOT_AVAILABLE; no secret/widget",
+      "actual_behavior": {
+        "status": "NOT_AVAILABLE",
+        "text": "Chưa đủ ngữ cảnh hoặc nguồn đã xác minh để thực hiện yêu cầu này.",
+        "widgets": "FALSE"
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/DOM_RESULTS.json",
+      "exit_code": 1,
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "DEMO_FINANCIAL",
+      "test_name": "DEMO_FINANCIAL",
+      "exact_command": "Get-Content -Raw docs/reviews/evidence/b1s-g4b-2026-10-10/REVIEW_REPRODUCTION.txt | C:/Python313/python.exe - --supplemental-only",
+      "expected_behavior": "NOT_AVAILABLE; no secret/widget",
+      "actual_behavior": {
+        "status": "OK",
+        "text": "SENSITIVE_MARKER",
+        "widgets": "FALSE"
+      },
+      "status": "FAIL",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/DOM_RESULTS.json",
+      "exit_code": 1,
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "BENIGN",
+      "test_name": "BENIGN",
+      "exact_command": "Get-Content -Raw docs/reviews/evidence/b1s-g4b-2026-10-10/REVIEW_REPRODUCTION.txt | C:/Python313/python.exe - --supplemental-only",
+      "expected_behavior": "OK; no secret/widget",
+      "actual_behavior": {
+        "status": "OK",
+        "text": "SAFE_REPLY",
+        "widgets": "FALSE"
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/DOM_RESULTS.json",
+      "exit_code": 1,
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "CID_VALID",
+      "test_name": "CID_VALID",
+      "exact_command": "Get-Content -Raw docs/reviews/evidence/b1s-g4b-2026-10-10/REVIEW_REPRODUCTION.txt | C:/Python313/python.exe - --supplemental-only",
+      "expected_behavior": "safe-cid:1",
+      "actual_behavior": "safe-cid:1",
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/DOM_RESULTS.json",
+      "exit_code": 1,
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "CID_LONG",
+      "test_name": "CID_LONG",
+      "exact_command": "Get-Content -Raw docs/reviews/evidence/b1s-g4b-2026-10-10/REVIEW_REPRODUCTION.txt | C:/Python313/python.exe - --supplemental-only",
+      "expected_behavior": "NONE",
+      "actual_behavior": "NONE",
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/DOM_RESULTS.json",
+      "exit_code": 1,
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "CID_CONFLICT",
+      "test_name": "CID_CONFLICT",
+      "exact_command": "Get-Content -Raw docs/reviews/evidence/b1s-g4b-2026-10-10/REVIEW_REPRODUCTION.txt | C:/Python313/python.exe - --supplemental-only",
+      "expected_behavior": "NONE",
+      "actual_behavior": "NONE",
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/DOM_RESULTS.json",
+      "exit_code": 1,
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "CID_FORGED",
+      "test_name": "CID_FORGED",
+      "exact_command": "Get-Content -Raw docs/reviews/evidence/b1s-g4b-2026-10-10/REVIEW_REPRODUCTION.txt | C:/Python313/python.exe - --supplemental-only",
+      "expected_behavior": "NONE",
+      "actual_behavior": "NONE",
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/DOM_RESULTS.json",
+      "exit_code": 1,
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "BODY_INJECTION",
+      "test_name": "BODY_INJECTION",
+      "exact_command": "Get-Content -Raw docs/reviews/evidence/b1s-g4b-2026-10-10/REVIEW_REPRODUCTION.txt | C:/Python313/python.exe - --supplemental-only",
+      "expected_behavior": "literal text; 0 unsafe elements/JS",
+      "actual_behavior": {
+        "elements": 0,
+        "execution": false
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/DOM_RESULTS.json",
+      "exit_code": 1,
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "PANEL_USER_INJECTION",
+      "test_name": "PANEL_USER_INJECTION",
+      "exact_command": "Get-Content -Raw docs/reviews/evidence/b1s-g4b-2026-10-10/REVIEW_REPRODUCTION.txt | C:/Python313/python.exe - --supplemental-only",
+      "expected_behavior": "0 unsafe elements/JS",
+      "actual_behavior": {
+        "elements": 0
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/DOM_RESULTS.json",
+      "exit_code": 1,
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "REAL_PAGE_NO_POST",
+      "test_name": "REAL_PAGE_NO_POST",
+      "exact_command": "Get-Content -Raw docs/reviews/evidence/b1s-g4b-2026-10-10/REVIEW_REPRODUCTION.txt | C:/Python313/python.exe - --supplemental-only",
+      "expected_behavior": "actual LotusCopilotPage blocked POST/local input works",
+      "actual_behavior": {
+        "copilot_posts": 0,
+        "local_message": 1
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/DOM_RESULTS.json",
+      "exit_code": 1,
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "REAL_PAGE_COMPANY_CLEAR",
+      "test_name": "REAL_PAGE_COMPANY_CLEAR",
+      "exact_command": "Get-Content -Raw docs/reviews/evidence/b1s-g4b-2026-10-10/REVIEW_REPRODUCTION.txt | C:/Python313/python.exe - --supplemental-only",
+      "expected_behavior": "old scope messages cleared on company change",
+      "actual_behavior": {
+        "old_message_count": 1
+      },
+      "status": "FAIL",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/DOM_RESULTS.json",
+      "exit_code": 1,
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "UNQUALIFIED_PROVENANCE",
+      "test_name": "UNQUALIFIED_PROVENANCE",
+      "exact_command": "Get-Content -Raw docs/reviews/evidence/b1s-g4b-2026-10-10/REVIEW_REPRODUCTION.txt | C:/Python313/python.exe - --supplemental-only",
+      "expected_behavior": "no unqualified GL connection claim",
+      "actual_behavior": {
+        "GL_claim": true
+      },
+      "status": "FAIL",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/DOM_RESULTS.json",
+      "exit_code": 1,
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "INSPECTOR_GATE",
+      "test_name": "INSPECTOR_GATE",
+      "exact_command": "Get-Content -Raw docs/reviews/evidence/b1s-g4b-2026-10-10/REVIEW_REPRODUCTION.txt | C:/Python313/python.exe - --supplemental-only",
+      "expected_behavior": "panel financial inspector unavailable",
+      "actual_behavior": {
+        "enabled": true
+      },
+      "status": "FAIL",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/DOM_RESULTS.json",
+      "exit_code": 1,
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "PANEL_CONTEXT_CLEAR",
+      "test_name": "PANEL_CONTEXT_CLEAR",
+      "exact_command": "Get-Content -Raw docs/reviews/evidence/b1s-g4b-2026-10-10/REVIEW_REPRODUCTION.txt | C:/Python313/python.exe - --supplemental-only",
+      "expected_behavior": "old context messages cleared",
+      "actual_behavior": {
+        "old_message_count": 1
+      },
+      "status": "FAIL",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/DOM_RESULTS.json",
+      "exit_code": 1,
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "RACE_COMPANY_SUCCESS",
+      "test_name": "RACE_COMPANY_SUCCESS",
+      "exact_command": "Get-Content -Raw docs/reviews/evidence/b1s-g4b-2026-10-10/REVIEW_REPRODUCTION.txt | C:/Python313/python.exe - --supplemental-only",
+      "expected_behavior": "old completion discarded; new loading preserved",
+      "actual_behavior": {
+        "aborted": true,
+        "loading": true,
+        "result": "{\"status\":\"TIMEOUT\",\"userFacingText\":\"\",\"sourceLabel\":\"Stale\",\"allowFinancialWidgets\":false}"
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/DOM_RESULTS.json",
+      "exit_code": 1,
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "RACE_COMPANY_FAILURE",
+      "test_name": "RACE_COMPANY_FAILURE",
+      "exact_command": "Get-Content -Raw docs/reviews/evidence/b1s-g4b-2026-10-10/REVIEW_REPRODUCTION.txt | C:/Python313/python.exe - --supplemental-only",
+      "expected_behavior": "old completion discarded; new loading preserved",
+      "actual_behavior": {
+        "aborted": true,
+        "loading": true,
+        "result": "{\"status\":\"TIMEOUT\",\"userFacingText\":\"\",\"sourceLabel\":\"Stale\",\"allowFinancialWidgets\":false}"
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/DOM_RESULTS.json",
+      "exit_code": 1,
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "RACE_KEY_SUCCESS",
+      "test_name": "RACE_KEY_SUCCESS",
+      "exact_command": "Get-Content -Raw docs/reviews/evidence/b1s-g4b-2026-10-10/REVIEW_REPRODUCTION.txt | C:/Python313/python.exe - --supplemental-only",
+      "expected_behavior": "old completion discarded; new loading preserved",
+      "actual_behavior": {
+        "aborted": true,
+        "loading": true,
+        "result": "{\"status\":\"TIMEOUT\",\"userFacingText\":\"\",\"sourceLabel\":\"Stale\",\"allowFinancialWidgets\":false}"
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/DOM_RESULTS.json",
+      "exit_code": 1,
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "RACE_KEY_FAILURE",
+      "test_name": "RACE_KEY_FAILURE",
+      "exact_command": "Get-Content -Raw docs/reviews/evidence/b1s-g4b-2026-10-10/REVIEW_REPRODUCTION.txt | C:/Python313/python.exe - --supplemental-only",
+      "expected_behavior": "old completion discarded; new loading preserved",
+      "actual_behavior": {
+        "aborted": true,
+        "loading": true,
+        "result": "{\"status\":\"TIMEOUT\",\"userFacingText\":\"\",\"sourceLabel\":\"Stale\",\"allowFinancialWidgets\":false}"
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/DOM_RESULTS.json",
+      "exit_code": 1,
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "RACE_RESET_SUCCESS",
+      "test_name": "RACE_RESET_SUCCESS",
+      "exact_command": "Get-Content -Raw docs/reviews/evidence/b1s-g4b-2026-10-10/REVIEW_REPRODUCTION.txt | C:/Python313/python.exe - --supplemental-only",
+      "expected_behavior": "old completion discarded; new loading preserved",
+      "actual_behavior": {
+        "aborted": true,
+        "loading": true,
+        "result": "{\"status\":\"TIMEOUT\",\"userFacingText\":\"\",\"sourceLabel\":\"Stale\",\"allowFinancialWidgets\":false}"
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/DOM_RESULTS.json",
+      "exit_code": 1,
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "RACE_RESET_FAILURE",
+      "test_name": "RACE_RESET_FAILURE",
+      "exact_command": "Get-Content -Raw docs/reviews/evidence/b1s-g4b-2026-10-10/REVIEW_REPRODUCTION.txt | C:/Python313/python.exe - --supplemental-only",
+      "expected_behavior": "old completion discarded; new loading preserved",
+      "actual_behavior": {
+        "aborted": true,
+        "loading": true,
+        "result": "{\"status\":\"TIMEOUT\",\"userFacingText\":\"\",\"sourceLabel\":\"Stale\",\"allowFinancialWidgets\":false}"
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/DOM_RESULTS.json",
+      "exit_code": 1,
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "TRANSPORT_TIMEOUT",
+      "test_name": "TRANSPORT_TIMEOUT",
+      "exact_command": "Get-Content -Raw docs/reviews/evidence/b1s-g4b-2026-10-10/REVIEW_REPRODUCTION.txt | C:/Python313/python.exe - --supplemental-only",
+      "expected_behavior": "TIMEOUT; no raw error",
+      "actual_behavior": {
+        "loading": false,
+        "result": "{\"status\":\"SOURCE_ERROR\",\"userFacingText\":\"Không thể truy cập nguồn dữ liệu. Vui lòng thử lại.\",\"sourceLabel\":\"Lỗi nguồn dữ liệu\",\"allowFinancialWidgets\":false}"
+      },
+      "status": "FAIL",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/DOM_RESULTS.json",
+      "exit_code": 1,
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "HOOK_UNMOUNT",
+      "test_name": "HOOK_UNMOUNT",
+      "exact_command": "Get-Content -Raw docs/reviews/evidence/b1s-g4b-2026-10-10/REVIEW_REPRODUCTION.txt | C:/Python313/python.exe - --supplemental-only",
+      "expected_behavior": "unmount invalidates completion (transport ignores abort)",
+      "actual_behavior": [
+        {
+          "status": "SOURCE_ERROR",
+          "userFacingText": "Không thể truy cập nguồn dữ liệu. Vui lòng thử lại.",
+          "sourceLabel": "Lỗi nguồn dữ liệu",
+          "allowFinancialWidgets": false,
+          "correlationId": null
+        },
+        {
+          "status": "OK",
+          "userFacingText": "UNMOUNT_OLD_MARKER",
+          "sourceLabel": "Nguồn chưa xác minh",
+          "allowFinancialWidgets": false,
+          "correlationId": null
+        }
+      ],
+      "status": "FAIL",
+      "boundary": "hook result observed by review consumer; React unmounted DOM cannot show updates",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/DOM_RESULTS.json",
+      "exit_code": 1,
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "DRAWER_REMOUNT",
+      "test_name": "DRAWER_REMOUNT",
+      "exact_command": "Get-Content -Raw docs/reviews/evidence/b1s-g4b-2026-10-10/REVIEW_REPRODUCTION.txt | C:/Python313/python.exe - --supplemental-only",
+      "expected_behavior": "empty new Drawer; 0 old message",
+      "actual_behavior": {
+        "old_message_count": 0
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/DOM_RESULTS.json",
+      "exit_code": 1,
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "NETWORK_ISOLATION",
+      "test_name": "NETWORK_ISOLATION",
+      "exact_command": "Get-Content -Raw docs/reviews/evidence/b1s-g4b-2026-10-10/REVIEW_REPRODUCTION.txt | C:/Python313/python.exe - --supplemental-only",
+      "expected_behavior": "no unexpected outbound/API/websocket",
+      "actual_behavior": [],
+      "status": "PASS",
+      "boundary": "all browser pages deny undeclared network; mock APIs only",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/DOM_RESULTS.json",
+      "exit_code": 1,
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "CONSOLE_REDACTION",
+      "test_name": "CONSOLE_REDACTION",
+      "exact_command": "Get-Content -Raw docs/reviews/evidence/b1s-g4b-2026-10-10/REVIEW_REPRODUCTION.txt | C:/Python313/python.exe - --supplemental-only",
+      "expected_behavior": "no sensitive markers in console",
+      "actual_behavior": [],
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence_path": "E:/lotus-fin/docs/reviews/evidence/b1s-g4b-2026-10-10/DOM_RESULTS.json",
+      "exit_code": 1,
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "REAL_ERP_PERMISSION_AND_SOURCE",
+      "test_name": "REAL_ERP_PERMISSION_AND_SOURCE",
+      "exact_command": "NOT_RUN",
+      "expected_behavior": "Separate approved isolated qualification",
+      "actual_behavior": "Not exercised by this local UI scope; Drawer cannot originate remote request under current production guard",
+      "status": "BLOCKED",
+      "evidence_path": "B1S_INDEPENDENT_G4B_VERIFICATION.md",
+      "boundary": "No PASS inferred from mocks, source inspection or one browser request",
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "REAL_TIMEOUT_WALL_CLOCK",
+      "test_name": "REAL_TIMEOUT_WALL_CLOCK",
+      "exact_command": "NOT_RUN",
+      "expected_behavior": "Separate approved isolated qualification",
+      "actual_behavior": "Not exercised by this local UI scope; Drawer cannot originate remote request under current production guard",
+      "status": "NOT_RUN",
+      "evidence_path": "B1S_INDEPENDENT_G4B_VERIFICATION.md",
+      "boundary": "No PASS inferred from mocks, source inspection or one browser request",
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "UNMOUNT_DELAYED_FAILURE",
+      "test_name": "UNMOUNT_DELAYED_FAILURE",
+      "exact_command": "NOT_RUN",
+      "expected_behavior": "Separate approved isolated qualification",
+      "actual_behavior": "Not exercised by this local UI scope; Drawer cannot originate remote request under current production guard",
+      "status": "NOT_RUN",
+      "evidence_path": "B1S_INDEPENDENT_G4B_VERIFICATION.md",
+      "boundary": "No PASS inferred from mocks, source inspection or one browser request",
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "DRAWER_DELAYED_REMOTE_SUCCESS_FAILURE",
+      "test_name": "DRAWER_DELAYED_REMOTE_SUCCESS_FAILURE",
+      "exact_command": "NOT_RUN",
+      "expected_behavior": "Separate approved isolated qualification",
+      "actual_behavior": "Not exercised by this local UI scope; Drawer cannot originate remote request under current production guard",
+      "status": "NOT_RUN",
+      "evidence_path": "B1S_INDEPENDENT_G4B_VERIFICATION.md",
+      "boundary": "No PASS inferred from mocks, source inspection or one browser request",
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "DEPLOYMENT_G10",
+      "test_name": "DEPLOYMENT_G10",
+      "exact_command": "NOT_RUN",
+      "expected_behavior": "Separate approved isolated qualification",
+      "actual_behavior": "Not exercised by this local UI scope; Drawer cannot originate remote request under current production guard",
+      "status": "BLOCKED",
+      "evidence_path": "B1S_INDEPENDENT_G4B_VERIFICATION.md",
+      "boundary": "No PASS inferred from mocks, source inspection or one browser request",
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "SESSION_G01_G03",
+      "test_name": "SESSION_G01_G03",
+      "exact_command": "NOT_RUN",
+      "expected_behavior": "Separate approved isolated qualification",
+      "actual_behavior": "Not exercised by this local UI scope; Drawer cannot originate remote request under current production guard",
+      "status": "BLOCKED",
+      "evidence_path": "B1S_INDEPENDENT_G4B_VERIFICATION.md",
+      "boundary": "No PASS inferred from mocks, source inspection or one browser request",
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    },
+    {
+      "test_id": "PERFORMANCE_QUALIFICATION",
+      "test_name": "PERFORMANCE_QUALIFICATION",
+      "exact_command": "NOT_RUN",
+      "expected_behavior": "Separate approved isolated qualification",
+      "actual_behavior": "Not exercised by this local UI scope; Drawer cannot originate remote request under current production guard",
+      "status": "NOT_RUN",
+      "evidence_path": "B1S_INDEPENDENT_G4B_VERIFICATION.md",
+      "boundary": "No PASS inferred from mocks, source inspection or one browser request",
+      "source_revision": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+      "artifact_identity": "uncommitted source manifest SHA256 A4DB7E3CA09B7E53EB707FB8348B2259B568E6B32F7FF39EB979874C6E6A36E4"
+    }
+  ],
+  "private_workspace_cleanup": {
+    "validated_root": "C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-91a916222c9f4c209fab43091fc89366",
+    "exists_after": false,
+    "cleanup": "COMPLETE"
+  }
+}

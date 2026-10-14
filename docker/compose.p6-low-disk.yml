@@ -1,0 +1,28 @@
+# Overlay for only the owned P6 demo. Bound container stdout/stderr log storage.
+services:
+  db:
+    logging: {driver: local, options: {max-size: 1m, max-file: '2'}}
+  redis-cache:
+    command: [redis-server, --save, '', --appendonly, 'no']
+    volumes:
+      - type: tmpfs
+        target: /data
+        tmpfs: {size: 33554432, mode: 1023}
+    logging: {driver: local, options: {max-size: 1m, max-file: '2'}}
+  redis-queue:
+    command: [redis-server, --save, '', --appendonly, 'no']
+    logging: {driver: local, options: {max-size: 1m, max-file: '2'}}
+  init:
+    logging: {driver: local, options: {max-size: 1m, max-file: '2'}}
+  backend:
+    logging: {driver: local, options: {max-size: 1m, max-file: '2'}}
+  frontend:
+    logging: {driver: local, options: {max-size: 1m, max-file: '2'}}
+  websocket:
+    logging: {driver: local, options: {max-size: 1m, max-file: '2'}}
+  queue-long:
+    logging: {driver: local, options: {max-size: 1m, max-file: '2'}}
+  queue-short:
+    logging: {driver: local, options: {max-size: 1m, max-file: '2'}}
+  scheduler:
+    logging: {driver: local, options: {max-size: 1m, max-file: '2'}}

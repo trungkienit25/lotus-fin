@@ -1,0 +1,680 @@
+{
+  "review": "B1-S correction round 1 independent recheck",
+  "verdict": "B1S_G4B_CHANGES_REQUIRED",
+  "head": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+  "branch": "develop",
+  "identity": "uncommitted source fingerprints in SOURCE_BEFORE.json; not immutable deployment identity",
+  "old_gold_regression": {
+    "cases": 36,
+    "pass": 36,
+    "previous_failed_cases_closed": 16,
+    "previous_passing_cases_preserved": 20
+  },
+  "current_independent_dom": {
+    "cases": 48,
+    "PASS": 37,
+    "FAIL": 11,
+    "BLOCKED": 0
+  },
+  "suites_separate_overlapping": {
+    "current_supplied_tests": 4,
+    "current_supplied_passed": 4,
+    "original_supplied_tests": 3,
+    "original_supplied_passed": 3,
+    "server_browser_network_wrapper_used": true,
+    "native_harness_acceptance": "NOT_RUN; F07 remains open"
+  },
+  "reviewer_oracle_erratum": {
+    "id": "R1_HOOK_UNMOUNT_FAILURE",
+    "initial_error": "Assertion read result.text instead of result.userFacingText; raw observed completion was correctly empty and fenced. Initial product FAIL is invalid.",
+    "resolution": "Corrected oracle independently rerun in FOLLOWUP_REPRODUCTION.txt; PASS. Original raw execution retained.",
+    "raw_initial_evidence": "DOM_RESULTS.json",
+    "corrected_evidence": "FOLLOWUP_RESULTS.json"
+  },
+  "results": [
+    {
+      "id": "SUPPLIED_SUITE",
+      "expected": "4 current supplied tests pass unchanged",
+      "actual": {
+        "pytest_exit": 0
+      },
+      "status": "PASS",
+      "boundary": "supplied assertions with reviewed lifecycle/network wrapper",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "EMPTY",
+      "expected": "NOT_AVAILABLE; no secret/widget",
+      "actual": {
+        "status": "NOT_AVAILABLE",
+        "text": "Chưa đủ ngữ cảnh hoặc nguồn đã xác minh để thực hiện yêu cầu này.",
+        "widgets": "FALSE"
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "FORBIDDEN",
+      "expected": "FORBIDDEN; no secret/widget",
+      "actual": {
+        "status": "FORBIDDEN",
+        "text": "Bạn không có quyền thực hiện yêu cầu này.",
+        "widgets": "FALSE"
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "NESTED_TOOL_ERROR",
+      "expected": "SOURCE_ERROR; no secret/widget",
+      "actual": {
+        "status": "SOURCE_ERROR",
+        "text": "Không thể truy cập nguồn dữ liệu. Vui lòng thử lại.",
+        "widgets": "FALSE"
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "NESTED_TOOL_FORBIDDEN",
+      "expected": "FORBIDDEN; no secret/widget",
+      "actual": {
+        "status": "FORBIDDEN",
+        "text": "Bạn không có quyền thực hiện yêu cầu này.",
+        "widgets": "FALSE"
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "CONTRADICTORY",
+      "expected": "NOT_AVAILABLE; no secret/widget",
+      "actual": {
+        "status": "NOT_AVAILABLE",
+        "text": "Chưa đủ ngữ cảnh hoặc nguồn đã xác minh để thực hiện yêu cầu này.",
+        "widgets": "FALSE"
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "ROOT_DENIAL",
+      "expected": "FORBIDDEN; no secret/widget",
+      "actual": {
+        "status": "FORBIDDEN",
+        "text": "Bạn không có quyền thực hiện yêu cầu này.",
+        "widgets": "FALSE"
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "UNKNOWN_STATUS",
+      "expected": "NOT_AVAILABLE; no secret/widget",
+      "actual": {
+        "status": "NOT_AVAILABLE",
+        "text": "Chưa đủ ngữ cảnh hoặc nguồn đã xác minh để thực hiện yêu cầu này.",
+        "widgets": "FALSE"
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "NOT_AVAILABLE_STATUS",
+      "expected": "NOT_AVAILABLE; no secret/widget",
+      "actual": {
+        "status": "NOT_AVAILABLE",
+        "text": "Chưa đủ ngữ cảnh hoặc nguồn đã xác minh để thực hiện yêu cầu này.",
+        "widgets": "FALSE"
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "PARTIAL_FINANCIAL",
+      "expected": "PARTIAL; no secret/widget",
+      "actual": {
+        "status": "PARTIAL",
+        "text": "Dữ liệu chỉ khả dụng một phần.",
+        "widgets": "FALSE"
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "RESULT_FINANCIAL",
+      "expected": "NOT_AVAILABLE; no secret/widget",
+      "actual": {
+        "status": "NOT_AVAILABLE",
+        "text": "Chưa đủ ngữ cảnh hoặc nguồn đã xác minh để thực hiện yêu cầu này.",
+        "widgets": "FALSE"
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "ACTION_FINANCIAL",
+      "expected": "NOT_AVAILABLE; no secret/widget",
+      "actual": {
+        "status": "NOT_AVAILABLE",
+        "text": "Chưa đủ ngữ cảnh hoặc nguồn đã xác minh để thực hiện yêu cầu này.",
+        "widgets": "FALSE"
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "UNKNOWN_TOOL",
+      "expected": "NOT_AVAILABLE; no secret/widget",
+      "actual": {
+        "status": "NOT_AVAILABLE",
+        "text": "Chưa đủ ngữ cảnh hoặc nguồn đã xác minh để thực hiện yêu cầu này.",
+        "widgets": "FALSE"
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "DEMO_FINANCIAL",
+      "expected": "NOT_AVAILABLE; no secret/widget",
+      "actual": {
+        "status": "NOT_AVAILABLE",
+        "text": "Chưa đủ ngữ cảnh hoặc nguồn đã xác minh để thực hiện yêu cầu này.",
+        "widgets": "FALSE"
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "BENIGN",
+      "expected": "OK; no secret/widget",
+      "actual": {
+        "status": "OK",
+        "text": "SAFE_REPLY",
+        "widgets": "FALSE"
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "R1_DENIAL_UNKNOWN",
+      "expected": "FORBIDDEN; no secret/widget",
+      "actual": {
+        "status": "NOT_AVAILABLE",
+        "text": "Chưa đủ ngữ cảnh hoặc nguồn đã xác minh để thực hiện yêu cầu này.",
+        "widgets": "FALSE"
+      },
+      "status": "FAIL",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "R1_OBJECT_STATUS",
+      "expected": "NOT_AVAILABLE; no secret/widget",
+      "actual": {
+        "status": "OK",
+        "text": "SENSITIVE_MARKER",
+        "widgets": "FALSE"
+      },
+      "status": "FAIL",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "R1_BOOLEAN_STATUS",
+      "expected": "NOT_AVAILABLE; no secret/widget",
+      "actual": {
+        "status": "OK",
+        "text": "SENSITIVE_MARKER",
+        "widgets": "FALSE"
+      },
+      "status": "FAIL",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "R1_ARRAY_STATUS",
+      "expected": "NOT_AVAILABLE; no secret/widget",
+      "actual": {
+        "status": "OK",
+        "text": "SENSITIVE_MARKER",
+        "widgets": "FALSE"
+      },
+      "status": "FAIL",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "R1_SOURCE_UNAVAILABLE_CONFLICT",
+      "expected": "NOT_AVAILABLE; no secret/widget",
+      "actual": {
+        "status": "SOURCE_ERROR",
+        "text": "Không thể truy cập nguồn dữ liệu. Vui lòng thử lại.",
+        "widgets": "FALSE"
+      },
+      "status": "FAIL",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "R1_TIMEOUT_UNAVAILABLE_CONFLICT",
+      "expected": "NOT_AVAILABLE; no secret/widget",
+      "actual": {
+        "status": "TIMEOUT",
+        "text": "Yêu cầu đã hết thời gian chờ.",
+        "widgets": "FALSE"
+      },
+      "status": "FAIL",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "R1_HTTP_500_DENIAL",
+      "expected": "FORBIDDEN; no secret",
+      "actual": {
+        "status": "SOURCE_ERROR",
+        "text": "Không thể truy cập nguồn dữ liệu. Vui lòng thử lại."
+      },
+      "status": "FAIL",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "R1_HTTP_504_DENIAL",
+      "expected": "FORBIDDEN; no secret",
+      "actual": {
+        "status": "TIMEOUT",
+        "text": "Yêu cầu đã hết thời gian chờ."
+      },
+      "status": "FAIL",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "CID_VALID",
+      "expected": "safe-cid:1",
+      "actual": "safe-cid:1",
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "CID_LONG",
+      "expected": "NONE",
+      "actual": "NONE",
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "CID_CONFLICT",
+      "expected": "NONE",
+      "actual": "NONE",
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "CID_FORGED",
+      "expected": "NONE",
+      "actual": "NONE",
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "BODY_INJECTION",
+      "expected": "literal text; 0 unsafe elements/JS",
+      "actual": {
+        "elements": 0,
+        "execution": false
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "PANEL_USER_INJECTION",
+      "expected": "0 unsafe elements/JS",
+      "actual": {
+        "elements": 0
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "REAL_PAGE_NO_POST",
+      "expected": "actual LotusCopilotPage blocked POST/local input works",
+      "actual": {
+        "copilot_posts": 0,
+        "local_message": 1
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "REAL_PAGE_COMPANY_CLEAR",
+      "expected": "old scope messages cleared on company change",
+      "actual": {
+        "old_message_count": 0
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "UNQUALIFIED_PROVENANCE",
+      "expected": "no unqualified GL connection claim",
+      "actual": {
+        "GL_claim": false
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "INSPECTOR_GATE",
+      "expected": "panel financial inspector unavailable",
+      "actual": {
+        "enabled": false
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "PANEL_CONTEXT_CLEAR",
+      "expected": "old context messages cleared",
+      "actual": {
+        "old_message_count": 0
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "RACE_COMPANY_SUCCESS",
+      "expected": "old completion discarded; new loading preserved",
+      "actual": {
+        "aborted": true,
+        "loading": true,
+        "result": "{\"status\":\"TIMEOUT\",\"userFacingText\":\"\",\"sourceLabel\":\"Stale\",\"allowFinancialWidgets\":false}"
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "RACE_COMPANY_FAILURE",
+      "expected": "old completion discarded; new loading preserved",
+      "actual": {
+        "aborted": true,
+        "loading": true,
+        "result": "{\"status\":\"TIMEOUT\",\"userFacingText\":\"\",\"sourceLabel\":\"Stale\",\"allowFinancialWidgets\":false}"
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "RACE_KEY_SUCCESS",
+      "expected": "old completion discarded; new loading preserved",
+      "actual": {
+        "aborted": true,
+        "loading": true,
+        "result": "{\"status\":\"TIMEOUT\",\"userFacingText\":\"\",\"sourceLabel\":\"Stale\",\"allowFinancialWidgets\":false}"
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "RACE_KEY_FAILURE",
+      "expected": "old completion discarded; new loading preserved",
+      "actual": {
+        "aborted": true,
+        "loading": true,
+        "result": "{\"status\":\"TIMEOUT\",\"userFacingText\":\"\",\"sourceLabel\":\"Stale\",\"allowFinancialWidgets\":false}"
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "RACE_RESET_SUCCESS",
+      "expected": "old completion discarded; new loading preserved",
+      "actual": {
+        "aborted": true,
+        "loading": true,
+        "result": "{\"status\":\"TIMEOUT\",\"userFacingText\":\"\",\"sourceLabel\":\"Stale\",\"allowFinancialWidgets\":false}"
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "RACE_RESET_FAILURE",
+      "expected": "old completion discarded; new loading preserved",
+      "actual": {
+        "aborted": true,
+        "loading": true,
+        "result": "{\"status\":\"TIMEOUT\",\"userFacingText\":\"\",\"sourceLabel\":\"Stale\",\"allowFinancialWidgets\":false}"
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "TRANSPORT_TIMEOUT",
+      "expected": "TIMEOUT; no raw error",
+      "actual": {
+        "loading": false,
+        "result": "{\"status\":\"TIMEOUT\",\"userFacingText\":\"Yêu cầu đã hết thời gian chờ.\",\"sourceLabel\":\"Hết thời gian chờ\",\"allowFinancialWidgets\":false}"
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "R1_ETIMEDOUT",
+      "expected": "TIMEOUT; no raw error",
+      "actual": {
+        "loading": false,
+        "result": "{\"status\":\"SOURCE_ERROR\",\"userFacingText\":\"Không thể truy cập nguồn dữ liệu. Vui lòng thử lại.\",\"sourceLabel\":\"Lỗi nguồn dữ liệu\",\"allowFinancialWidgets\":false}"
+      },
+      "status": "FAIL",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "R1_DENIAL_TIMEOUT_WORD",
+      "expected": "FORBIDDEN; no raw error",
+      "actual": {
+        "loading": false,
+        "result": "{\"status\":\"TIMEOUT\",\"userFacingText\":\"Yêu cầu đã hết thời gian chờ.\",\"sourceLabel\":\"Hết thời gian chờ\",\"allowFinancialWidgets\":false}"
+      },
+      "status": "FAIL",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "HOOK_UNMOUNT",
+      "expected": "unmount invalidates completion (transport ignores abort)",
+      "actual": [
+        {
+          "status": "TIMEOUT",
+          "userFacingText": "Yêu cầu đã hết thời gian chờ.",
+          "sourceLabel": "Hết thời gian chờ",
+          "allowFinancialWidgets": false
+        },
+        {
+          "status": "TIMEOUT",
+          "userFacingText": "",
+          "sourceLabel": "Stale",
+          "allowFinancialWidgets": false
+        }
+      ],
+      "status": "PASS",
+      "boundary": "hook result observed by review consumer; React unmounted DOM cannot show updates",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "R1_HOOK_UNMOUNT_FAILURE",
+      "expected": "empty fenced completion; no raw error",
+      "actual": [
+        {
+          "status": "TIMEOUT",
+          "userFacingText": "",
+          "sourceLabel": "Stale",
+          "allowFinancialWidgets": false
+        }
+      ],
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "FOLLOWUP_RESULTS.json"
+    },
+    {
+      "id": "DRAWER_REMOUNT",
+      "expected": "empty new Drawer; 0 old message",
+      "actual": {
+        "old_message_count": 0
+      },
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "NETWORK_ISOLATION",
+      "expected": "no unexpected outbound/API/websocket",
+      "actual": [],
+      "status": "PASS",
+      "boundary": "all browser pages deny undeclared network; mock APIs only",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "CONSOLE_REDACTION",
+      "expected": "no sensitive markers in console",
+      "actual": [],
+      "status": "PASS",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "DOM_RESULTS.json"
+    },
+    {
+      "id": "R1_QUICK_ACTIONS_GATE",
+      "expected": "disabled or visibly unavailable finance shortcuts",
+      "actual": [
+        {
+          "name": "Financial Health",
+          "enabled": true,
+          "title": null,
+          "text": "Financial Health"
+        },
+        {
+          "name": "Cash Forecast 30D",
+          "enabled": true,
+          "title": null,
+          "text": "Cash Forecast 30D"
+        },
+        {
+          "name": "Risk Signals",
+          "enabled": true,
+          "title": null,
+          "text": "Risk Signals"
+        },
+        {
+          "name": "What-If Studio",
+          "enabled": true,
+          "title": null,
+          "text": "What-If Studio"
+        }
+      ],
+      "status": "FAIL",
+      "boundary": "actual production DOM with synthetic transport",
+      "evidence": "FOLLOWUP_RESULTS.json"
+    },
+    {
+      "id": "ORIGINAL_GOLD_SUITE",
+      "expected": "3 original supplied tests; exact source hash and assertions",
+      "actual": {
+        "pytest_exit": 0
+      },
+      "status": "PASS",
+      "boundary": "original golden assertions with reviewed server/browser/network wrapper",
+      "evidence": "ORIGINAL_GOLD_RESULTS.json"
+    }
+  ],
+  "commands": [
+    {
+      "id": "TYPECHECK",
+      "command": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "-b",
+        "--pretty",
+        "false"
+      ],
+      "cwd": "C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-044261a9d2e54c51814b42b9541eb32c\\frontend",
+      "exit_code": 0,
+      "elapsed_seconds": 13.755
+    },
+    {
+      "id": "BUILD",
+      "command": [
+        "node",
+        "node_modules/vite/bin/vite.js",
+        "build"
+      ],
+      "cwd": "C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-044261a9d2e54c51814b42b9541eb32c\\frontend",
+      "exit_code": 0,
+      "elapsed_seconds": 27.106
+    },
+    {
+      "id": "LINT",
+      "command": [
+        "node",
+        "node_modules/oxlint/bin/oxlint",
+        "src/pages/copilot/components/copilotPresentation.ts",
+        "src/pages/copilot/components/useCopilotRequest.ts",
+        "src/pages/copilot/components/VercelChatPanel.tsx",
+        "src/pages/copilot/components/CopilotMessageBody.tsx",
+        "src/components/copilot/LotusCopilotDrawer.tsx"
+      ],
+      "cwd": "C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-044261a9d2e54c51814b42b9541eb32c\\frontend",
+      "exit_code": 0,
+      "elapsed_seconds": 0.518
+    }
+  ],
+  "gates": {
+    "G1": "PASS narrow source/environment identity",
+    "G2": "FAIL",
+    "G3": "PARTIAL; production0POST and no financial widgets; source qualification NOT_RUN",
+    "G4A": "PARTIAL; supplied harness insufficient",
+    "G4B": "CHANGES_REQUIRED",
+    "G10": "BLOCKED separately; unchanged",
+    "G01-G03": "NOT_CLOSED"
+  },
+  "not_run": [
+    "live ERP/LLM/financial truth",
+    "authorization/session/cross-user/site/product runtime",
+    "native supplied server/outbound lifecycle acceptance",
+    "immutable image/site/worker/HTTP deployment smoke",
+    "p95/throughput/RSS/SQL qualification",
+    "real network timeout-after-commit/UNKNOWN_OUTCOME"
+  ]
+}

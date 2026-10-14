@@ -140,7 +140,7 @@ export const TailAdminHeader: React.FC<HeaderProps> = ({
           title="Lotus Fin Desk"
         >
           <img
-            src="/brand/logo.jpg"
+            src={`${import.meta.env.BASE_URL}brand/logo.jpg`}
             alt="Lotus Fin"
             className="size-8 object-contain"
           />

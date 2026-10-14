@@ -1,0 +1,112 @@
+[
+  {
+    "gate": "backend",
+    "argv": [
+      "C:\\Python313\\python.exe",
+      "-m",
+      "pytest",
+      "-p",
+      "no:cacheprovider",
+      "-q",
+      "lotus_fin\\lotus_fin\\tests\\test_invoice_auth_delivery.py",
+      "lotus_fin\\lotus_fin\\tests\\test_invoice_config_loader.py",
+      "lotus_fin\\lotus_fin\\tests\\test_invoice_config_rotation_security.py",
+      "lotus_fin\\lotus_fin\\tests\\test_invoice_context.py",
+      "lotus_fin\\lotus_fin\\tests\\test_invoice_context_data_correction.py",
+      "lotus_fin\\lotus_fin\\tests\\test_invoice_controller_context_expiry.py",
+      "lotus_fin\\lotus_fin\\tests\\test_invoice_controller_wiring.py",
+      "lotus_fin\\lotus_fin\\tests\\test_invoice_delivery_boundary.py",
+      "lotus_fin\\lotus_fin\\tests\\test_invoice_http_boundary.py",
+      "lotus_fin\\lotus_fin\\tests\\test_invoice_permission_seam.py",
+      "lotus_fin\\lotus_fin\\tests\\test_invoice_read.py",
+      "lotus_fin\\lotus_fin\\tests\\test_invoice_read_budgets.py",
+      "lotus_fin\\lotus_fin\\tests\\test_invoice_read_delivery.py",
+      "lotus_fin\\lotus_fin\\tests\\test_invoice_read_family_correction.py",
+      "lotus_fin\\lotus_fin\\tests\\test_invoice_read_references.py",
+      "lotus_fin\\lotus_fin\\tests\\test_invoice_read_security.py",
+      "lotus_fin\\lotus_fin\\tests\\test_invoice_request_correction.py",
+      "lotus_fin\\lotus_fin\\tests\\test_invoice_terminal_delivery.py",
+      "lotus_fin\\lotus_fin\\tests\\test_action_delivery.py",
+      "lotus_fin\\lotus_fin\\tests\\test_action_denial_policy.py",
+      "lotus_fin\\lotus_fin\\tests\\test_action_outcome.py",
+      "lotus_fin\\lotus_fin\\tests\\test_action_reference_privacy.py",
+      "lotus_fin\\lotus_fin\\tests\\test_action_references.py",
+      "lotus_fin\\lotus_fin\\tests\\test_action_security_regressions.py",
+      "lotus_fin\\lotus_fin\\tests\\test_action_sink_ack.py",
+      "lotus_fin\\lotus_fin\\tests\\test_copilot_full_integration.py",
+      "lotus_fin\\lotus_fin\\tests\\test_l4_mutation_security.py",
+      "lotus_fin\\lotus_fin\\tests\\test_l5_action_workflows.py",
+      "lotus_fin\\lotus_fin\\tests\\test_overdue_evaluator.py",
+      "lotus_fin\\lotus_fin\\tests\\test_search_overdue_invoices.py",
+      "lotus_fin\\lotus_fin\\tests\\test_disabled_user_revocation.py",
+      "lotus_fin\\lotus_fin\\tests\\test_frappe_only_boundary.py"
+    ],
+    "cwd": "E:\\lotus-fin",
+    "exit": 0,
+    "output_sha256": "3957bb4e32d37c2e64842861e3887e7f34268e4275aed932c0d29c8c31d7ac9d"
+  },
+  {
+    "gate": "frontend",
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "--experimental-strip-types",
+      "--test",
+      "frontend\\tests\\followupPreview.test.ts",
+      "frontend\\tests\\followupPreviewController.test.ts",
+      "frontend\\tests\\p2b\\client.test.ts",
+      "frontend\\tests\\p2b\\controller.test.ts",
+      "frontend\\tests\\p2b\\presentation.test.ts",
+      "frontend\\tests\\p3_transport_and_demo.test.ts",
+      "frontend\\tests\\p4a_profile_and_demo_security.test.ts",
+      "frontend\\tests\\p4c_session_bootstrap.test.ts",
+      "frontend\\tests\\p6_full_integration.test.ts",
+      "frontend\\tests\\p6_session_scope_security.test.ts"
+    ],
+    "cwd": "E:\\lotus-fin",
+    "exit": 0,
+    "output_sha256": "b08e6daaab1ecc2ac37a863ba820a8625b38444836a82f3cbfa11c217b2b8297"
+  },
+  {
+    "gate": "types",
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "node_modules/typescript/bin/tsc",
+      "-b"
+    ],
+    "cwd": "E:\\lotus-fin\\frontend",
+    "exit": 0,
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "gate": "build",
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "node_modules/vite/bin/vite.js",
+      "build",
+      "--base=/assets/lotus_fin/core/"
+    ],
+    "cwd": "E:\\lotus-fin\\frontend",
+    "exit": 0,
+    "output_sha256": "d902835222c8d4f17bf099cd1827a4bd7316204866eac564f577058204dbf30d"
+  },
+  {
+    "gate": "lint",
+    "argv": [
+      "E:\\lotus-fin\\frontend\\node_modules\\.bin\\oxlint.cmd"
+    ],
+    "cwd": "E:\\lotus-fin\\frontend",
+    "exit": 0,
+    "output_sha256": "54687464834e9de2d4ec6d6f43b2ccd2c297e923f8a5cdc261a31edea4843290"
+  },
+  {
+    "gate": "whitespace",
+    "argv": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "cwd": "E:\\lotus-fin",
+    "exit": 0,
+    "output_sha256": "35b8e719b16e33bcfdab0daba8890b1c35f9d86d8362d4b58494aa2a7f2422f9"
+  }
+]
