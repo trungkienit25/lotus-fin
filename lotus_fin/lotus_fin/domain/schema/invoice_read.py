@@ -35,6 +35,8 @@ class InvoiceReadFilters(BaseModel):
     @field_validator("posting_from", "posting_to", mode="before")
     @classmethod
     def json_date(cls, value):
+        if value is None:
+            raise ValueError("Posting dates may be omitted, never explicitly null")
         if isinstance(value, str):
             parsed = date.fromisoformat(value)
             if parsed.isoformat() != value:
@@ -53,7 +55,7 @@ class InvoiceReadFilters(BaseModel):
         return unicodedata.normalize("NFC", value) if type(value) is str else value
 
     def normalized(self, today):
-        values = self.model_dump()
+        values = self.model_dump(exclude_unset=True)
         if self.posting_from is None:
             values.update(posting_from=today - timedelta(days=89), posting_to=today)
         if values["posting_to"] > today:
@@ -96,6 +98,18 @@ class InvoiceReadRow(BaseModel):
     docstatus: Literal[0, 1] = Field(...)
     record_version: str = Field(..., min_length=1, max_length=64)
     selection_ref: Optional[str] = Field(default=None, max_length=2048)
+
+    @field_validator("posting_date", mode="before")
+    @classmethod
+    def json_date(cls, value):
+        if value is None:
+            raise ValueError("posting_date cannot be null")
+        if isinstance(value, str):
+            parsed = date.fromisoformat(value)
+            if parsed.isoformat() != value:
+                raise ValueError("Noncanonical date")
+            return parsed
+        return value
 
     @field_validator("docstatus", mode="before")
     @classmethod
@@ -145,6 +159,11 @@ class InvoiceReadDocument(BaseModel):
         if value != {"kind": "LOTUS_READ_VIEW", "view": "sales-invoice-minimal-v1"}:
             raise ValueError("Unsupported navigation")
         return value
+
+    @field_validator("posting_date", mode="before")
+    @classmethod
+    def json_date(cls, value):
+        return InvoiceReadRow.json_date(value)
 
     @field_validator("docstatus", mode="before")
     @classmethod

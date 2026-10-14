@@ -1,0 +1,124 @@
+{
+  "scope": "design artifact validation only; not financial/UI/permission/live tests",
+  "checks": {
+    "six_requested_files": true,
+    "local_links": true,
+    "code_fences": true,
+    "v1_gold_unique_74": true,
+    "l3_gold_unique_22": true,
+    "l3_exact_literal": true
+  },
+  "links_checked": 40,
+  "broken_links": [],
+  "fences": [
+    {
+      "file": "CHATBOT_L3_ANTIGRAVITY_HANDOFF.md",
+      "fences": 4,
+      "balanced": true
+    },
+    {
+      "file": "CHATBOT_L3_PREPARE_PREFILL_CONTRACT.md",
+      "fences": 8,
+      "balanced": true
+    },
+    {
+      "file": "CHATBOT_L4_MUTATION_SECURITY_DESIGN.md",
+      "fences": 4,
+      "balanced": true
+    },
+    {
+      "file": "CHATBOT_PROPOSAL_COMPLETION_PLAN_UPDATED.md",
+      "fences": 4,
+      "balanced": true
+    },
+    {
+      "file": "CHATBOT_V1_INDEPENDENT_GOLD_SPEC.md",
+      "fences": 0,
+      "balanced": true
+    },
+    {
+      "file": "CHATBOT_V1_PAST_FINAL_DUE_CONTRACT.md",
+      "fences": 6,
+      "balanced": true
+    }
+  ],
+  "gold": {
+    "v1_defined_rows": 74,
+    "l3_defined_rows": 22,
+    "expectations": "PROPOSED synthetic spec; not ERP verified",
+    "execution": "NOT_RUN"
+  },
+  "template": {
+    "utf8_bytes": 187,
+    "matches_independent_handoff_literal": true
+  },
+  "protected_files": 557,
+  "changed_existing_paths": [
+    {
+      "path": "frontend/src\\pages\\copilot\\actions\\invoiceActionController.ts",
+      "sha256": "ebcd3afda6ab3dd3dba24d7a5f55cc15bfab4a4095a72e0aeede2dbd961bf66b",
+      "before_sha256": "778e36f317d3ea092cb46848c054e11e626c98bc5e7e2e6e29e1a548dfe0a296"
+    },
+    {
+      "path": "frontend/src\\pages\\copilot\\actions\\invoiceActionDecoders.ts",
+      "sha256": "c159593868f879e440691dea7677d0a82273e103b58baf60b436465ab625a5cc",
+      "before_sha256": "c6a30e3b72aa6f361f6653039abee8abfb99c54eecc415f4539beb742cfd28a7"
+    },
+    {
+      "path": "frontend/tests\\p2b\\fixtures.ts",
+      "sha256": "0d368fb06ca686bcea8c37211212ab8557dd6d8ad9b58028a03d5984bed1584e",
+      "before_sha256": "ed839d836e8de25fb97a88ae9dad89e184258770c957857c19355f4c9bbc8d01"
+    },
+    {
+      "path": "frontend/tests\\p2b\\presentation.test.ts",
+      "sha256": "4805c6ce361c469a37aaeddfb283efe3eec9630be18d97ad2939f399cf2dde04",
+      "before_sha256": "b33a10eda5dc670c65e37583d690fc1ef14e51256dd1472eb00c7409d774758c"
+    },
+    {
+      "path": "tests_e2e\\test_invoice_actions_e2e.py",
+      "sha256": "e48760a982d95ba08d6f6c8a6fcea3cef4c5e4e28d957922b9d8be6138445f0b",
+      "before_sha256": "d08f07faa4f7afc9492d4b82de56f4640ba44fd8064e7343ebb69d100ff24b1d"
+    }
+  ],
+  "existing_path_changes": "observed concurrent shared-workspace edits; no writes by this design task to existing code/test/authority paths; not restored",
+  "artifact_hashes": [
+    {
+      "file": "CHATBOT_L3_ANTIGRAVITY_HANDOFF.md",
+      "sha256": "0a0df43bd10fdaf65aa2ee9c42898a180748a9dc2e9f91c1f4f9d3cc1309079a",
+      "bytes": 11844
+    },
+    {
+      "file": "CHATBOT_L3_PREPARE_PREFILL_CONTRACT.md",
+      "sha256": "71607f7e104da0b846bdece54b48a7f2758a5de9b3c150a8b7e64a56ae778c6a",
+      "bytes": 9435
+    },
+    {
+      "file": "CHATBOT_L4_MUTATION_SECURITY_DESIGN.md",
+      "sha256": "236eb654d6de43e5df117a7bf62da6ece32d852d2a312460c99a73bbcd457553",
+      "bytes": 23022
+    },
+    {
+      "file": "CHATBOT_PROPOSAL_COMPLETION_PLAN_UPDATED.md",
+      "sha256": "47884716ed6f856957e1d9330d9ba2edfa444e041467ee65be3a6c53da3e6e46",
+      "bytes": 20972
+    },
+    {
+      "file": "CHATBOT_V1_INDEPENDENT_GOLD_SPEC.md",
+      "sha256": "183b8767a31e32b0cf8a2d500f5b109c35b76f2a46f96067ed0b38b89efc9316",
+      "bytes": 16352
+    },
+    {
+      "file": "CHATBOT_V1_PAST_FINAL_DUE_CONTRACT.md",
+      "sha256": "fc07e30878a66b77c49ac5fa1b1362a66a59537e8d2b2428daedef0fadd44d31",
+      "bytes": 20873
+    }
+  ],
+  "head": "5f805ef34f788245a3ec0e9c2f44e224eb16c305",
+  "branch": "codex/p2a-invoice-read-backend",
+  "implementation_tests": "NOT_RUN: no implementation changed",
+  "erp_operations": "NONE",
+  "deployment": "NONE",
+  "feature_flags": "UNCHANGED BY THIS TASK",
+  "commit": "NONE",
+  "push": "NONE"
+}

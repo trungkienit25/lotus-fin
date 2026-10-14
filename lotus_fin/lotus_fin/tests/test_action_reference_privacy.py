@@ -25,6 +25,7 @@ def foundation(monkeypatch):
     f = types.ModuleType("frappe")
     f.session = types.SimpleNamespace(user=ACTOR, sid=SID)
     f.local = types.SimpleNamespace(site="site")
+    f.get_system_settings = lambda key: "Asia/Ho_Chi_Minh"
     f.has_permission = lambda dt, **kw: (dt, kw) == (
         "Company", dict(ptype="read", doc="Company A", user=ACTOR))
     monkeypatch.setitem(sys.modules, "frappe", f)

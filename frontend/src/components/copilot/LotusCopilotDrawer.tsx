@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { VercelChatPanel } from "../../pages/copilot/components/VercelChatPanel";
+import { useAuthenticatedActionScope } from "../../providers/sessionScope.ts";
 
 export const LotusCopilotDrawer: React.FC = () => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const scope = useAuthenticatedActionScope();
 
   const handleExpandToFullPage = () => {
     setOpen(false);
@@ -26,7 +28,8 @@ export const LotusCopilotDrawer: React.FC = () => {
         >
           <div className="flex-1 h-full overflow-hidden">
             <VercelChatPanel
-              company="Lotus-fin (Demo)"
+              company=""
+              scope={scope}
               onOpenInspector={handleOpenInspector}
               onExpand={handleExpandToFullPage}
               onClose={() => setOpen(false)}
@@ -41,6 +44,7 @@ export const LotusCopilotDrawer: React.FC = () => {
           onClick={() => setOpen(true)}
           className="fixed bottom-5 right-4 sm:right-6 z-40 flex size-12 items-center justify-center rounded-full bg-gradient-to-br from-[#1E63B7] via-[#6EC1F6] to-[#2FB29A] text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200 border-2 border-white/80 cursor-pointer group"
           title="Open Lotus Fin AI Copilot"
+          aria-label="Open Lotus Fin AI Copilot"
         >
           <div className="flex items-center justify-center relative">
             <span className="text-xl group-hover:rotate-12 transition-transform duration-200">✦</span>

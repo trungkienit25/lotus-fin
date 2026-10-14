@@ -1,0 +1,1 @@
+{'actor': 'p6-bob@example.invalid', 'revoked_test_sessions': 3, 'remaining': 0}

@@ -1,0 +1,51 @@
+warning: in the working copy of 'frontend/src/pages/copilot/components/VercelChatPanel.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lotus_fin/lotus_fin/api/invoice_actions_api.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lotus_fin/lotus_fin/application/service/search_invoices.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lotus_fin/lotus_fin/domain/schema/invoice_read.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lotus_fin/lotus_fin/infrastructure/config/invoice_actions_config.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lotus_fin/lotus_fin/presentation/controller/invoice_actions_controller.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lotus_fin/lotus_fin/presentation/dto/invoice_action_request.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lotus_fin/lotus_fin/tests/test_action_reference_privacy.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lotus_fin/lotus_fin/tests/test_invoice_permission_seam.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lotus_fin/lotus_fin/tests/test_invoice_terminal_delivery.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'run.ps1', LF will be replaced by CRLF the next time Git touches it
+lotus_fin/lotus_fin/infrastructure/security/frappe_invoice_authorizer.py:9: trailing whitespace.
++import json
+lotus_fin/lotus_fin/infrastructure/security/frappe_invoice_authorizer.py:10: trailing whitespace.
++from zoneinfo import ZoneInfo
+lotus_fin/lotus_fin/infrastructure/security/frappe_invoice_authorizer.py:123: trailing whitespace.
++        try:
+lotus_fin/lotus_fin/infrastructure/security/frappe_invoice_authorizer.py:124: trailing whitespace.
++            site_timezone = frappe.get_system_settings("time_zone")
+lotus_fin/lotus_fin/infrastructure/security/frappe_invoice_authorizer.py:125: trailing whitespace.
++            if type(site_timezone) is not str or not site_timezone:
+lotus_fin/lotus_fin/infrastructure/security/frappe_invoice_authorizer.py:126: trailing whitespace.
++                raise ValueError("Missing site timezone")
+lotus_fin/lotus_fin/infrastructure/security/frappe_invoice_authorizer.py:127: trailing whitespace.
++            ZoneInfo(site_timezone)
+lotus_fin/lotus_fin/infrastructure/security/frappe_invoice_authorizer.py:128: trailing whitespace.
++        except Exception:
+lotus_fin/lotus_fin/infrastructure/security/frappe_invoice_authorizer.py:129: trailing whitespace.
++            return None, AuthCheckResult(is_authorized=False, status=ActionStatus.NOT_AVAILABLE,
+lotus_fin/lotus_fin/infrastructure/security/frappe_invoice_authorizer.py:130: trailing whitespace.
++                reason_code=ActionReasonCode.TARGET_UNQUALIFIED, denial_message="Múi giờ site chưa đủ điều kiện.")
+lotus_fin/lotus_fin/infrastructure/security/frappe_invoice_authorizer.py:131: trailing whitespace.
++        # Stable read-family scope; capability authorization above remains per execution.
+lotus_fin/lotus_fin/infrastructure/security/frappe_invoice_authorizer.py:132: trailing whitespace.
++        policy = self._config.model_dump(exclude={"signing_secret"})
+lotus_fin/lotus_fin/infrastructure/security/frappe_invoice_authorizer.py:133: trailing whitespace.
++        policy["allowed_capabilities"] = sorted(policy["allowed_capabilities"])
+lotus_fin/lotus_fin/infrastructure/security/frappe_invoice_authorizer.py:134: trailing whitespace.
++        raw_fp = json.dumps(["p1.invoice.v1", "invoice.min.v1", user, sid, site,
+lotus_fin/lotus_fin/infrastructure/security/frappe_invoice_authorizer.py:135: trailing whitespace.
++            conn.product_id, conn.site_id, conn.connection_id, conn.connection_version,
+lotus_fin/lotus_fin/infrastructure/security/frappe_invoice_authorizer.py:136: trailing whitespace.
++            candidate_company, site_timezone, policy, hashlib.sha256(self._config.signing_secret.encode()).hexdigest()],
+lotus_fin/lotus_fin/infrastructure/security/frappe_invoice_authorizer.py:137: trailing whitespace.
++            sort_keys=True, separators=(",", ":"))
+lotus_fin/lotus_fin/infrastructure/security/frappe_invoice_authorizer.py:154: trailing whitespace.
++            timezone=site_timezone,
+lotus_fin/lotus_fin/tests/test_invoice_auth_delivery.py:78: trailing whitespace.
++    monkeypatch.setitem(sys.modules, "frappe", SimpleNamespace(get_system_settings=lambda key: "Asia/Ho_Chi_Minh", has_permission=lambda dt, **kw:
+lotus_fin/lotus_fin/tests/test_invoice_context.py:128: trailing whitespace.
++    monkeypatch.setitem(sys.modules, "frappe", SimpleNamespace(get_system_settings=lambda key: "Asia/Ho_Chi_Minh", has_permission=lambda dt, **kw:

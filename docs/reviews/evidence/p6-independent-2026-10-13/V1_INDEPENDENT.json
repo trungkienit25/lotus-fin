@@ -1,0 +1,136 @@
+[
+  {
+    "case": "strict-positive-small-decimal",
+    "expected": "ELIGIBLE",
+    "actual": "ELIGIBLE",
+    "result": "PASS"
+  },
+  {
+    "case": "due-today",
+    "expected": "NOT_ELIGIBLE",
+    "actual": "NOT_ELIGIBLE",
+    "result": "PASS"
+  },
+  {
+    "case": "due-future",
+    "expected": "NOT_ELIGIBLE",
+    "actual": "NOT_ELIGIBLE",
+    "result": "PASS"
+  },
+  {
+    "case": "zero",
+    "expected": "NOT_ELIGIBLE",
+    "actual": "NOT_ELIGIBLE",
+    "result": "PASS"
+  },
+  {
+    "case": "negative",
+    "expected": "NOT_ELIGIBLE",
+    "actual": "NOT_ELIGIBLE",
+    "result": "PASS"
+  },
+  {
+    "case": "draft",
+    "expected": "NOT_ELIGIBLE",
+    "actual": "NOT_ELIGIBLE",
+    "result": "PASS"
+  },
+  {
+    "case": "cancelled",
+    "expected": "NOT_ELIGIBLE",
+    "actual": "NOT_ELIGIBLE",
+    "result": "PASS"
+  },
+  {
+    "case": "return",
+    "expected": "NOT_ELIGIBLE",
+    "actual": "NOT_ELIGIBLE",
+    "result": "PASS"
+  },
+  {
+    "case": "credit",
+    "expected": "NOT_ELIGIBLE",
+    "actual": "NOT_ELIGIBLE",
+    "result": "PASS"
+  },
+  {
+    "case": "writeoff",
+    "expected": "NOT_ELIGIBLE",
+    "actual": "NOT_ELIGIBLE",
+    "result": "PASS"
+  },
+  {
+    "case": "future-posting",
+    "expected": "UNQUALIFIED",
+    "actual": "UNQUALIFIED",
+    "result": "PASS"
+  },
+  {
+    "case": "partial",
+    "expected": "UNQUALIFIED",
+    "actual": "UNQUALIFIED",
+    "result": "PASS"
+  },
+  {
+    "case": "tenant",
+    "expected": "NOT_ELIGIBLE",
+    "actual": "NOT_ELIGIBLE",
+    "result": "PASS"
+  },
+  {
+    "case": "company",
+    "expected": "NOT_ELIGIBLE",
+    "actual": "NOT_ELIGIBLE",
+    "result": "PASS"
+  },
+  {
+    "case": "nan",
+    "expected": "INVALID",
+    "actual": "INVALID",
+    "result": "PASS"
+  },
+  {
+    "case": "infinity",
+    "expected": "INVALID",
+    "actual": "INVALID",
+    "result": "PASS"
+  },
+  {
+    "case": "float",
+    "expected": "INVALID",
+    "actual": "INVALID",
+    "result": "PASS"
+  },
+  {
+    "case": "naive-observation-time",
+    "expected": "INVALID",
+    "actual": "NOT_ELIGIBLE",
+    "result": "FAIL"
+  },
+  {
+    "case": "invalid-currency",
+    "expected": "INVALID",
+    "actual": "ELIGIBLE",
+    "result": "FAIL"
+  },
+  {
+    "case": "missing-source-completeness",
+    "expected": "INVALID",
+    "actual": "ELIGIBLE",
+    "result": "FAIL"
+  },
+  {
+    "case": "currency-filter",
+    "expected": "NOT_ELIGIBLE",
+    "actual": "NOT_ELIGIBLE",
+    "result": "PASS"
+  },
+  {
+    "case": "missing-source-evidence",
+    "expected": "fail-closed",
+    "actual": "OK",
+    "returned_rows": 1,
+    "coverage_complete": true,
+    "result": "FAIL"
+  }
+]

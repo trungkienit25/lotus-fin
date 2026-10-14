@@ -1,0 +1,742 @@
+{
+  "target": {
+    "id": "Function:frontend/src/providers/sessionScope.ts:fetchServerSession",
+    "name": "fetchServerSession",
+    "type": "Function",
+    "filePath": "frontend/src/providers/sessionScope.ts"
+  },
+  "direction": "upstream",
+  "impactedCount": 12,
+  "risk": "CRITICAL",
+  "riskSharedAxes": "LOW",
+  "riskScale": {
+    "comparableAcrossKinds": true,
+    "unusedAxes": []
+  },
+  "epistemic": "exact",
+  "summary": {
+    "direct": 3,
+    "processes_affected": 8,
+    "modules_affected": 2
+  },
+  "byDepthCounts": {
+    "1": 3,
+    "2": 8,
+    "3": 1
+  },
+  "affected_processes": [
+    {
+      "name": "IntegratedCapabilities",
+      "type": "Function",
+      "filePath": "frontend/src/pages/copilot/components/IntegratedCapabilities.tsx",
+      "affected_process_count": 7,
+      "total_hits": 20,
+      "earliest_broken_step": 2
+    },
+    {
+      "name": "subscribeSessionScope",
+      "type": "Function",
+      "filePath": "frontend/src/providers/sessionScope.ts",
+      "affected_process_count": 5,
+      "total_hits": 14,
+      "earliest_broken_step": 1
+    },
+    {
+      "name": "post",
+      "type": "Function",
+      "filePath": "frontend/src/pages/copilot/actions/invoiceActionClient.ts",
+      "affected_process_count": 6,
+      "total_hits": 12,
+      "earliest_broken_step": 1
+    },
+    {
+      "name": "check",
+      "type": "Function",
+      "filePath": "frontend/src/providers/authProvider.ts",
+      "affected_process_count": 6,
+      "total_hits": 12,
+      "earliest_broken_step": 1
+    },
+    {
+      "name": "login",
+      "type": "Function",
+      "filePath": "frontend/src/providers/authProvider.ts",
+      "affected_process_count": 5,
+      "total_hits": 10,
+      "earliest_broken_step": 1
+    },
+    {
+      "name": "logout",
+      "type": "Function",
+      "filePath": "frontend/src/providers/authProvider.ts",
+      "affected_process_count": 5,
+      "total_hits": 10,
+      "earliest_broken_step": 1
+    },
+    {
+      "name": "run",
+      "type": "Function",
+      "filePath": "frontend/src/pages/copilot/components/IntegratedCapabilities.tsx",
+      "affected_process_count": 2,
+      "total_hits": 5,
+      "earliest_broken_step": 1
+    },
+    {
+      "name": "callIntegration",
+      "type": "Function",
+      "filePath": "frontend/src/pages/copilot/actions/copilotIntegrationClient.ts",
+      "affected_process_count": 1,
+      "total_hits": 2,
+      "earliest_broken_step": 1
+    }
+  ],
+  "affected_modules": [
+    {
+      "name": "Providers",
+      "hits": 10,
+      "impact": "direct"
+    },
+    {
+      "name": "Actions",
+      "hits": 2,
+      "impact": "indirect"
+    }
+  ],
+  "byDepth": {
+    "1": [
+      {
+        "depth": 1,
+        "id": "Function:frontend/src/providers/sessionBootstrap.ts:bootstrapSession",
+        "name": "bootstrapSession",
+        "filePath": "frontend/src/providers/sessionBootstrap.ts",
+        "relationType": "CALLS",
+        "confidence": 0.85,
+        "processes": [
+          {
+            "id": "proc_220_check",
+            "label": "Check → Notify",
+            "processType": "cross_community",
+            "step": 2
+          },
+          {
+            "id": "proc_279_check",
+            "label": "Check → DoAttempt",
+            "processType": "cross_community",
+            "step": 2
+          },
+          {
+            "id": "proc_227_check",
+            "label": "Check → DeriveOpaqueSessionEpoch",
+            "processType": "cross_community",
+            "step": 2
+          },
+          {
+            "id": "proc_240_login",
+            "label": "Login → AssertSessionGeneration",
+            "processType": "intra_community",
+            "step": 2
+          },
+          {
+            "id": "proc_297_login",
+            "label": "Login → DoAttempt",
+            "processType": "cross_community",
+            "step": 2
+          },
+          {
+            "id": "proc_2_integratedcapabiliti",
+            "label": "IntegratedCapabilities → GetSiteScope",
+            "processType": "cross_community",
+            "step": 4
+          },
+          {
+            "id": "proc_257_callintegration",
+            "label": "CallIntegration → DoAttempt",
+            "processType": "cross_community",
+            "step": 2
+          },
+          {
+            "id": "proc_320_post",
+            "label": "Post → DoAttempt",
+            "processType": "cross_community",
+            "step": 2
+          },
+          {
+            "id": "proc_27_integratedcapabiliti",
+            "label": "IntegratedCapabilities → AssertSessionGeneration",
+            "processType": "cross_community",
+            "step": 4
+          },
+          {
+            "id": "proc_265_login",
+            "label": "Login → DeriveOpaqueSessionEpoch",
+            "processType": "cross_community",
+            "step": 2
+          },
+          {
+            "id": "proc_287_logout",
+            "label": "Logout → DeriveOpaqueSessionEpoch",
+            "processType": "cross_community",
+            "step": 2
+          },
+          {
+            "id": "proc_294_post",
+            "label": "Post → AssertSessionGeneration",
+            "processType": "intra_community",
+            "step": 2
+          },
+          {
+            "id": "proc_298_post",
+            "label": "Post → GetSiteScope",
+            "processType": "cross_community",
+            "step": 2
+          },
+          {
+            "id": "proc_10_integratedcapabiliti",
+            "label": "IntegratedCapabilities → DeriveOpaqueSessionEpoch",
+            "processType": "cross_community",
+            "step": 4
+          },
+          {
+            "id": "proc_3_integratedcapabiliti",
+            "label": "IntegratedCapabilities → Notify",
+            "processType": "cross_community",
+            "step": 4
+          },
+          {
+            "id": "proc_165_check",
+            "label": "Check → SessionBootstrapError",
+            "processType": "intra_community",
+            "step": 2
+          },
+          {
+            "id": "proc_142_run",
+            "label": "Run → DoAttempt",
+            "processType": "cross_community",
+            "step": 3
+          },
+          {
+            "id": "proc_219_check",
+            "label": "Check → GetSiteScope",
+            "processType": "cross_community",
+            "step": 2
+          },
+          {
+            "id": "proc_299_post",
+            "label": "Post → Notify",
+            "processType": "cross_community",
+            "step": 2
+          },
+          {
+            "id": "proc_272_logout",
+            "label": "Logout → AssertSessionGeneration",
+            "processType": "intra_community",
+            "step": 2
+          },
+          {
+            "id": "proc_26_integratedcapabiliti",
+            "label": "IntegratedCapabilities → SessionBootstrapError",
+            "processType": "cross_community",
+            "step": 4
+          },
+          {
+            "id": "proc_258_login",
+            "label": "Login → GetSiteScope",
+            "processType": "cross_community",
+            "step": 2
+          },
+          {
+            "id": "proc_280_logout",
+            "label": "Logout → GetSiteScope",
+            "processType": "cross_community",
+            "step": 2
+          },
+          {
+            "id": "proc_304_post",
+            "label": "Post → DeriveOpaqueSessionEpoch",
+            "processType": "cross_community",
+            "step": 2
+          },
+          {
+            "id": "proc_166_check",
+            "label": "Check → AssertSessionGeneration",
+            "processType": "intra_community",
+            "step": 2
+          },
+          {
+            "id": "proc_239_post",
+            "label": "Post → SessionBootstrapError",
+            "processType": "intra_community",
+            "step": 2
+          },
+          {
+            "id": "proc_259_login",
+            "label": "Login → Notify",
+            "processType": "cross_community",
+            "step": 2
+          },
+          {
+            "id": "proc_0_integratedcapabiliti",
+            "label": "IntegratedCapabilities → DoAttempt",
+            "processType": "cross_community",
+            "step": 4
+          },
+          {
+            "id": "proc_281_logout",
+            "label": "Logout → Notify",
+            "processType": "cross_community",
+            "step": 2
+          },
+          {
+            "id": "proc_310_logout",
+            "label": "Logout → DoAttempt",
+            "processType": "cross_community",
+            "step": 2
+          }
+        ]
+      },
+      {
+        "depth": 1,
+        "id": "Function:frontend/src/providers/sessionScope.ts:revalidateSessionScope",
+        "name": "revalidateSessionScope",
+        "filePath": "frontend/src/providers/sessionScope.ts",
+        "relationType": "CALLS",
+        "confidence": 0.85,
+        "processes": [
+          {
+            "id": "proc_218_subscribesessionscop",
+            "label": "SubscribeSessionScope → DoAttempt",
+            "processType": "cross_community",
+            "step": 3
+          },
+          {
+            "id": "proc_144_subscribesessionscop",
+            "label": "SubscribeSessionScope → Notify",
+            "processType": "cross_community",
+            "step": 3
+          },
+          {
+            "id": "proc_143_subscribesessionscop",
+            "label": "SubscribeSessionScope → GetSiteScope",
+            "processType": "cross_community",
+            "step": 3
+          },
+          {
+            "id": "proc_151_subscribesessionscop",
+            "label": "SubscribeSessionScope → DeriveOpaqueSessionEpoch",
+            "processType": "cross_community",
+            "step": 3
+          }
+        ]
+      },
+      {
+        "depth": 1,
+        "id": "Function:frontend/src/providers/sessionScope.ts:startPeriodicRevalidation",
+        "name": "startPeriodicRevalidation",
+        "filePath": "frontend/src/providers/sessionScope.ts",
+        "relationType": "CALLS",
+        "confidence": 0.85,
+        "processes": [
+          {
+            "id": "proc_104_subscribesessionscop",
+            "label": "SubscribeSessionScope → GetCookie",
+            "processType": "cross_community",
+            "step": 2
+          }
+        ]
+      }
+    ],
+    "2": [
+      {
+        "depth": 2,
+        "id": "Function:frontend/src/pages/copilot/actions/copilotIntegrationClient.ts:callIntegration",
+        "name": "callIntegration",
+        "filePath": "frontend/src/pages/copilot/actions/copilotIntegrationClient.ts",
+        "relationType": "CALLS",
+        "confidence": 0.85,
+        "processes": [
+          {
+            "id": "proc_1_integratedcapabiliti",
+            "label": "IntegratedCapabilities → CallIntegration",
+            "processType": "cross_community",
+            "step": 3
+          },
+          {
+            "id": "proc_142_run",
+            "label": "Run → DoAttempt",
+            "processType": "cross_community",
+            "step": 2
+          },
+          {
+            "id": "proc_0_integratedcapabiliti",
+            "label": "IntegratedCapabilities → DoAttempt",
+            "processType": "cross_community",
+            "step": 3
+          },
+          {
+            "id": "proc_10_integratedcapabiliti",
+            "label": "IntegratedCapabilities → DeriveOpaqueSessionEpoch",
+            "processType": "cross_community",
+            "step": 3
+          },
+          {
+            "id": "proc_2_integratedcapabiliti",
+            "label": "IntegratedCapabilities → GetSiteScope",
+            "processType": "cross_community",
+            "step": 3
+          },
+          {
+            "id": "proc_97_run",
+            "label": "Run → SameActionScope",
+            "processType": "intra_community",
+            "step": 2
+          },
+          {
+            "id": "proc_27_integratedcapabiliti",
+            "label": "IntegratedCapabilities → AssertSessionGeneration",
+            "processType": "cross_community",
+            "step": 3
+          },
+          {
+            "id": "proc_3_integratedcapabiliti",
+            "label": "IntegratedCapabilities → Notify",
+            "processType": "cross_community",
+            "step": 3
+          },
+          {
+            "id": "proc_26_integratedcapabiliti",
+            "label": "IntegratedCapabilities → SessionBootstrapError",
+            "processType": "cross_community",
+            "step": 3
+          },
+          {
+            "id": "proc_257_callintegration",
+            "label": "CallIntegration → DoAttempt",
+            "processType": "cross_community",
+            "step": 1
+          }
+        ]
+      },
+      {
+        "depth": 2,
+        "id": "Function:frontend/src/providers/authProvider.ts:authProvider.check",
+        "name": "check",
+        "filePath": "frontend/src/providers/authProvider.ts",
+        "relationType": "CALLS",
+        "confidence": 0.85,
+        "processes": [
+          {
+            "id": "proc_166_check",
+            "label": "Check → AssertSessionGeneration",
+            "processType": "intra_community",
+            "step": 1
+          },
+          {
+            "id": "proc_165_check",
+            "label": "Check → SessionBootstrapError",
+            "processType": "intra_community",
+            "step": 1
+          },
+          {
+            "id": "proc_219_check",
+            "label": "Check → GetSiteScope",
+            "processType": "cross_community",
+            "step": 1
+          },
+          {
+            "id": "proc_220_check",
+            "label": "Check → Notify",
+            "processType": "cross_community",
+            "step": 1
+          },
+          {
+            "id": "proc_279_check",
+            "label": "Check → DoAttempt",
+            "processType": "cross_community",
+            "step": 1
+          },
+          {
+            "id": "proc_227_check",
+            "label": "Check → DeriveOpaqueSessionEpoch",
+            "processType": "cross_community",
+            "step": 1
+          }
+        ]
+      },
+      {
+        "depth": 2,
+        "id": "Function:frontend/src/providers/authProvider.ts:authProvider.getIdentity",
+        "name": "getIdentity",
+        "filePath": "frontend/src/providers/authProvider.ts",
+        "relationType": "CALLS",
+        "confidence": 0.85,
+        "processes": []
+      },
+      {
+        "depth": 2,
+        "id": "Function:frontend/src/providers/authProvider.ts:authProvider.login",
+        "name": "login",
+        "filePath": "frontend/src/providers/authProvider.ts",
+        "relationType": "CALLS",
+        "confidence": 0.85,
+        "processes": [
+          {
+            "id": "proc_240_login",
+            "label": "Login → AssertSessionGeneration",
+            "processType": "intra_community",
+            "step": 1
+          },
+          {
+            "id": "proc_297_login",
+            "label": "Login → DoAttempt",
+            "processType": "cross_community",
+            "step": 1
+          },
+          {
+            "id": "proc_259_login",
+            "label": "Login → Notify",
+            "processType": "cross_community",
+            "step": 1
+          },
+          {
+            "id": "proc_258_login",
+            "label": "Login → GetSiteScope",
+            "processType": "cross_community",
+            "step": 1
+          },
+          {
+            "id": "proc_265_login",
+            "label": "Login → DeriveOpaqueSessionEpoch",
+            "processType": "cross_community",
+            "step": 1
+          }
+        ]
+      },
+      {
+        "depth": 2,
+        "id": "Function:frontend/src/providers/authProvider.ts:authProvider.logout",
+        "name": "logout",
+        "filePath": "frontend/src/providers/authProvider.ts",
+        "relationType": "CALLS",
+        "confidence": 0.85,
+        "processes": [
+          {
+            "id": "proc_272_logout",
+            "label": "Logout → AssertSessionGeneration",
+            "processType": "intra_community",
+            "step": 1
+          },
+          {
+            "id": "proc_280_logout",
+            "label": "Logout → GetSiteScope",
+            "processType": "cross_community",
+            "step": 1
+          },
+          {
+            "id": "proc_287_logout",
+            "label": "Logout → DeriveOpaqueSessionEpoch",
+            "processType": "cross_community",
+            "step": 1
+          },
+          {
+            "id": "proc_281_logout",
+            "label": "Logout → Notify",
+            "processType": "cross_community",
+            "step": 1
+          },
+          {
+            "id": "proc_310_logout",
+            "label": "Logout → DoAttempt",
+            "processType": "cross_community",
+            "step": 1
+          }
+        ]
+      },
+      {
+        "depth": 2,
+        "id": "Function:frontend/src/providers/sessionScope.ts:registerWindowEvents",
+        "name": "registerWindowEvents",
+        "filePath": "frontend/src/providers/sessionScope.ts",
+        "relationType": "CALLS",
+        "confidence": 0.85,
+        "processes": [
+          {
+            "id": "proc_218_subscribesessionscop",
+            "label": "SubscribeSessionScope → DoAttempt",
+            "processType": "cross_community",
+            "step": 2
+          },
+          {
+            "id": "proc_143_subscribesessionscop",
+            "label": "SubscribeSessionScope → GetSiteScope",
+            "processType": "cross_community",
+            "step": 2
+          },
+          {
+            "id": "proc_151_subscribesessionscop",
+            "label": "SubscribeSessionScope → DeriveOpaqueSessionEpoch",
+            "processType": "cross_community",
+            "step": 2
+          },
+          {
+            "id": "proc_144_subscribesessionscop",
+            "label": "SubscribeSessionScope → Notify",
+            "processType": "cross_community",
+            "step": 2
+          }
+        ]
+      },
+      {
+        "depth": 2,
+        "id": "Function:frontend/src/providers/sessionScope.ts:subscribeSessionScope",
+        "name": "subscribeSessionScope",
+        "filePath": "frontend/src/providers/sessionScope.ts",
+        "relationType": "CALLS",
+        "confidence": 0.85,
+        "processes": [
+          {
+            "id": "proc_104_subscribesessionscop",
+            "label": "SubscribeSessionScope → GetCookie",
+            "processType": "cross_community",
+            "step": 1
+          },
+          {
+            "id": "proc_144_subscribesessionscop",
+            "label": "SubscribeSessionScope → Notify",
+            "processType": "cross_community",
+            "step": 1
+          },
+          {
+            "id": "proc_143_subscribesessionscop",
+            "label": "SubscribeSessionScope → GetSiteScope",
+            "processType": "cross_community",
+            "step": 1
+          },
+          {
+            "id": "proc_151_subscribesessionscop",
+            "label": "SubscribeSessionScope → DeriveOpaqueSessionEpoch",
+            "processType": "cross_community",
+            "step": 1
+          },
+          {
+            "id": "proc_218_subscribesessionscop",
+            "label": "SubscribeSessionScope → DoAttempt",
+            "processType": "cross_community",
+            "step": 1
+          }
+        ]
+      },
+      {
+        "depth": 2,
+        "id": "Method:frontend/src/pages/copilot/actions/invoiceActionClient.ts:createHttpTransport.post@39:4#3",
+        "name": "post",
+        "filePath": "frontend/src/pages/copilot/actions/invoiceActionClient.ts",
+        "relationType": "CALLS",
+        "confidence": 0.85,
+        "processes": [
+          {
+            "id": "proc_320_post",
+            "label": "Post → DoAttempt",
+            "processType": "cross_community",
+            "step": 1
+          },
+          {
+            "id": "proc_239_post",
+            "label": "Post → SessionBootstrapError",
+            "processType": "intra_community",
+            "step": 1
+          },
+          {
+            "id": "proc_299_post",
+            "label": "Post → Notify",
+            "processType": "cross_community",
+            "step": 1
+          },
+          {
+            "id": "proc_304_post",
+            "label": "Post → DeriveOpaqueSessionEpoch",
+            "processType": "cross_community",
+            "step": 1
+          },
+          {
+            "id": "proc_294_post",
+            "label": "Post → AssertSessionGeneration",
+            "processType": "intra_community",
+            "step": 1
+          },
+          {
+            "id": "proc_298_post",
+            "label": "Post → GetSiteScope",
+            "processType": "cross_community",
+            "step": 1
+          }
+        ]
+      }
+    ],
+    "3": [
+      {
+        "depth": 3,
+        "id": "Function:frontend/src/pages/copilot/components/IntegratedCapabilities.tsx:IntegratedCapabilities.run@26:2",
+        "name": "run",
+        "filePath": "frontend/src/pages/copilot/components/IntegratedCapabilities.tsx",
+        "relationType": "CALLS",
+        "confidence": 0.85,
+        "processes": [
+          {
+            "id": "proc_97_run",
+            "label": "Run → SameActionScope",
+            "processType": "intra_community",
+            "step": 1
+          },
+          {
+            "id": "proc_3_integratedcapabiliti",
+            "label": "IntegratedCapabilities → Notify",
+            "processType": "cross_community",
+            "step": 2
+          },
+          {
+            "id": "proc_26_integratedcapabiliti",
+            "label": "IntegratedCapabilities → SessionBootstrapError",
+            "processType": "cross_community",
+            "step": 2
+          },
+          {
+            "id": "proc_0_integratedcapabiliti",
+            "label": "IntegratedCapabilities → DoAttempt",
+            "processType": "cross_community",
+            "step": 2
+          },
+          {
+            "id": "proc_10_integratedcapabiliti",
+            "label": "IntegratedCapabilities → DeriveOpaqueSessionEpoch",
+            "processType": "cross_community",
+            "step": 2
+          },
+          {
+            "id": "proc_2_integratedcapabiliti",
+            "label": "IntegratedCapabilities → GetSiteScope",
+            "processType": "cross_community",
+            "step": 2
+          },
+          {
+            "id": "proc_1_integratedcapabiliti",
+            "label": "IntegratedCapabilities → CallIntegration",
+            "processType": "cross_community",
+            "step": 2
+          },
+          {
+            "id": "proc_142_run",
+            "label": "Run → DoAttempt",
+            "processType": "cross_community",
+            "step": 1
+          },
+          {
+            "id": "proc_27_integratedcapabiliti",
+            "label": "IntegratedCapabilities → AssertSessionGeneration",
+            "processType": "cross_community",
+            "step": 2
+          }
+        ]
+      }
+    ]
+  }
+}

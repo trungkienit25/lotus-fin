@@ -1,0 +1,178 @@
+{
+  "status": "found",
+  "symbol": {
+    "uid": "Class:lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py:AuthorizedOutstandingInvoiceObservation",
+    "name": "AuthorizedOutstandingInvoiceObservation",
+    "kind": "Class",
+    "filePath": "lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py",
+    "startLine": 15,
+    "endLine": 86
+  },
+  "epistemic": "exact",
+  "incoming": {
+    "imports": [
+      {
+        "uid": "File:lotus_fin/lotus_fin/application/port/i_overdue_observation_port.py",
+        "name": "i_overdue_observation_port.py",
+        "filePath": "lotus_fin/lotus_fin/application/port/i_overdue_observation_port.py"
+      },
+      {
+        "uid": "File:lotus_fin/lotus_fin/domain/policy/past_final_due_evaluator.py",
+        "name": "past_final_due_evaluator.py",
+        "filePath": "lotus_fin/lotus_fin/domain/policy/past_final_due_evaluator.py"
+      },
+      {
+        "uid": "File:lotus_fin/lotus_fin/infrastructure/persistence/core_overdue_provider.py",
+        "name": "core_overdue_provider.py",
+        "filePath": "lotus_fin/lotus_fin/infrastructure/persistence/core_overdue_provider.py"
+      },
+      {
+        "uid": "File:lotus_fin/lotus_fin/infrastructure/persistence/demo_overdue_provider.py",
+        "name": "demo_overdue_provider.py",
+        "filePath": "lotus_fin/lotus_fin/infrastructure/persistence/demo_overdue_provider.py"
+      },
+      {
+        "uid": "File:lotus_fin/lotus_fin/infrastructure/persistence/native_overdue_adapter.py",
+        "name": "native_overdue_adapter.py",
+        "filePath": "lotus_fin/lotus_fin/infrastructure/persistence/native_overdue_adapter.py"
+      },
+      {
+        "uid": "File:lotus_fin/lotus_fin/tests/test_overdue_evaluator.py",
+        "name": "test_overdue_evaluator.py",
+        "filePath": "lotus_fin/lotus_fin/tests/test_overdue_evaluator.py"
+      },
+      {
+        "uid": "File:lotus_fin/lotus_fin/tests/test_search_overdue_invoices.py",
+        "name": "test_search_overdue_invoices.py",
+        "filePath": "lotus_fin/lotus_fin/tests/test_search_overdue_invoices.py"
+      }
+    ]
+  },
+  "outgoing": {
+    "has_method": [
+      {
+        "uid": "Method:lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py:AuthorizedOutstandingInvoiceObservation.outstanding_decimal#0",
+        "name": "outstanding_decimal",
+        "filePath": "lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py"
+      },
+      {
+        "uid": "Method:lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py:AuthorizedOutstandingInvoiceObservation.validate_decimal_string#1",
+        "name": "validate_decimal_string",
+        "filePath": "lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py"
+      },
+      {
+        "uid": "Method:lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py:AuthorizedOutstandingInvoiceObservation.validate_iso_timestamps#1",
+        "name": "validate_iso_timestamps",
+        "filePath": "lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py"
+      },
+      {
+        "uid": "Method:lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py:AuthorizedOutstandingInvoiceObservation.validate_tz#1",
+        "name": "validate_tz",
+        "filePath": "lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py"
+      }
+    ],
+    "has_property": [
+      {
+        "uid": "Property:lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py:AuthorizedOutstandingInvoiceObservation.authorized_scope",
+        "name": "authorized_scope",
+        "filePath": "lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py"
+      },
+      {
+        "uid": "Property:lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py:AuthorizedOutstandingInvoiceObservation.company_id",
+        "name": "company_id",
+        "filePath": "lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py"
+      },
+      {
+        "uid": "Property:lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py:AuthorizedOutstandingInvoiceObservation.currency_precision",
+        "name": "currency_precision",
+        "filePath": "lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py"
+      },
+      {
+        "uid": "Property:lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py:AuthorizedOutstandingInvoiceObservation.document_version",
+        "name": "document_version",
+        "filePath": "lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py"
+      },
+      {
+        "uid": "Property:lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py:AuthorizedOutstandingInvoiceObservation.final_due_date",
+        "name": "final_due_date",
+        "filePath": "lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py"
+      },
+      {
+        "uid": "Property:lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py:AuthorizedOutstandingInvoiceObservation.invoice_currency",
+        "name": "invoice_currency",
+        "filePath": "lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py"
+      },
+      {
+        "uid": "Property:lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py:AuthorizedOutstandingInvoiceObservation.invoice_id",
+        "name": "invoice_id",
+        "filePath": "lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py"
+      },
+      {
+        "uid": "Property:lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py:AuthorizedOutstandingInvoiceObservation.is_credit_note",
+        "name": "is_credit_note",
+        "filePath": "lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py"
+      },
+      {
+        "uid": "Property:lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py:AuthorizedOutstandingInvoiceObservation.is_return",
+        "name": "is_return",
+        "filePath": "lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py"
+      },
+      {
+        "uid": "Property:lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py:AuthorizedOutstandingInvoiceObservation.is_write_off",
+        "name": "is_write_off",
+        "filePath": "lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py"
+      },
+      {
+        "uid": "Property:lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py:AuthorizedOutstandingInvoiceObservation.lifecycle_status",
+        "name": "lifecycle_status",
+        "filePath": "lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py"
+      },
+      {
+        "uid": "Property:lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py:AuthorizedOutstandingInvoiceObservation.observed_at_utc",
+        "name": "observed_at_utc",
+        "filePath": "lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py"
+      },
+      {
+        "uid": "Property:lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py:AuthorizedOutstandingInvoiceObservation.outstanding_balance",
+        "name": "outstanding_balance",
+        "filePath": "lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py"
+      },
+      {
+        "uid": "Property:lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py:AuthorizedOutstandingInvoiceObservation.party_account_currency",
+        "name": "party_account_currency",
+        "filePath": "lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py"
+      },
+      {
+        "uid": "Property:lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py:AuthorizedOutstandingInvoiceObservation.posting_date",
+        "name": "posting_date",
+        "filePath": "lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py"
+      },
+      {
+        "uid": "Property:lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py:AuthorizedOutstandingInvoiceObservation.provenance_hash",
+        "name": "provenance_hash",
+        "filePath": "lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py"
+      },
+      {
+        "uid": "Property:lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py:AuthorizedOutstandingInvoiceObservation.site_timezone",
+        "name": "site_timezone",
+        "filePath": "lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py"
+      },
+      {
+        "uid": "Property:lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py:AuthorizedOutstandingInvoiceObservation.source_completeness",
+        "name": "source_completeness",
+        "filePath": "lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py"
+      },
+      {
+        "uid": "Property:lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py:AuthorizedOutstandingInvoiceObservation.source_system",
+        "name": "source_system",
+        "filePath": "lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py"
+      },
+      {
+        "uid": "Property:lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py:AuthorizedOutstandingInvoiceObservation.tenant_id",
+        "name": "tenant_id",
+        "filePath": "lotus_fin/lotus_fin/domain/model/overdue_invoice_observation.py"
+      }
+    ]
+  },
+  "processes": []
+}

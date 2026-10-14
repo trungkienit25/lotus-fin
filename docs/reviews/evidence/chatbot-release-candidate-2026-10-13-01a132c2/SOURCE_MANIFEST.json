@@ -1,0 +1,2792 @@
+{
+  "branch": "codex/p2a-invoice-read-backend",
+  "head": "5f805ef34f788245a3ec0e9c2f44e224eb16c305",
+  "scope": "complete selected app/frontend/runtime/test inputs; no installed/generated dependencies or secrets",
+  "files": [
+    {
+      "path": ".env.example",
+      "sha256": "1b233dfbf8ef775de51873b6bf5026a501fdd7afa753c88c91fbce6274955e5b",
+      "bytes": 2015
+    },
+    {
+      "path": ".gitattributes",
+      "sha256": "f02f86ec7cea164a279f9d16ba8fbb409236124ecff304dddb300eaea36ba337",
+      "bytes": 126
+    },
+    {
+      "path": ".gitignore",
+      "sha256": "d7ba0f278077255cb459d2d277c13bdac2c47e75f09870f80c4a4d58a8e889ba",
+      "bytes": 1125
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "f481948ea6b51d00bcc95b9e8d2220588538b3a891c3e9f68fb005fa48688baa",
+      "bytes": 3618
+    },
+    {
+      "path": "docker/ai003-local/ai003_smoke_probe.py",
+      "sha256": "1fcec35c0823b9853e628dd2a8eb6a528d922558e54b4656159dbb5bc3d83005",
+      "bytes": 4682
+    },
+    {
+      "path": "docker/ai003-local/compose.override.yml",
+      "sha256": "023efa045d09408f9941bca9cff365453670c1536e59639fcb8fd2e7823df591",
+      "bytes": 735
+    },
+    {
+      "path": "docker/ai003-local/Dockerfile",
+      "sha256": "9cfa468b3f7cc162f06408f8f9c0f128fb1ef28967ee212830b5492c478f86b5",
+      "bytes": 1002
+    },
+    {
+      "path": "docker/ai003-local/Dockerfile.dockerignore",
+      "sha256": "427850cd73c5568a63a7bc6f2356d4fc5de253921cd6a9287f5f8ddef6921af6",
+      "bytes": 191
+    },
+    {
+      "path": "docker/ai003-local/ivl_ap_dup_fix.py",
+      "sha256": "050bda4ae5aaa1e5b600d92da01fb1769f908b0dde65ebee0b2129167f115eb8",
+      "bytes": 1666
+    },
+    {
+      "path": "docker/ai003-local/ivl_cleanup.py",
+      "sha256": "8a8ed5f6566db9fa1c3546f0ce9effe9f0b832b82a3b103f3566521ac21d74da",
+      "bytes": 1650
+    },
+    {
+      "path": "docker/ai003-local/ivl_cleanup2.py",
+      "sha256": "753c8ba740de106307995b86dabd7dbd9309ffb3d905c7a3a54584f683077182",
+      "bytes": 2254
+    },
+    {
+      "path": "docker/ai003-local/ivl_cleanup3.py",
+      "sha256": "b74a443ba524c608d8c084930cbb462916ad2e20e3d9ec2677bc3d25e1fd7aa9",
+      "bytes": 2224
+    },
+    {
+      "path": "docker/ai003-local/ivl_cleanup4.py",
+      "sha256": "b49fcb17e41bf1318ecd4d4827b48e3ccd49cba55b7849dd694a587aabf94c0d",
+      "bytes": 2020
+    },
+    {
+      "path": "docker/ai003-local/ivl_phase_a_probe.py",
+      "sha256": "e25f64f35b9db30800d4980cd156c110677f56f3dcd90799d380a83d74685f0e",
+      "bytes": 11011
+    },
+    {
+      "path": "docker/ai003-local/ivl_phase_c_replay_harness.py",
+      "sha256": "668f3250aa8053da2621a06c7dd7879548e0813219e6e77eee358218ba5ed6a9",
+      "bytes": 10776
+    },
+    {
+      "path": "docker/ai003-local/nginx/frappe.conf",
+      "sha256": "5086da31b695b1684b27d5c6dba3fbd50041e5ecc432627fc28ad35332ed9849",
+      "bytes": 2881
+    },
+    {
+      "path": "docker/ai003-local/wr_inject_probe.py",
+      "sha256": "40da576ccdb0182466c063bb9fbcb49d4b700516d230602494f076edf9a58405",
+      "bytes": 2196
+    },
+    {
+      "path": "docker/ai003-local/wr_replay.py",
+      "sha256": "78540f84cc0073895f1360e357970e017ad01f4147418fda3c2f45c83aaa86ab",
+      "bytes": 2785
+    },
+    {
+      "path": "docker/compose.judge.yml",
+      "sha256": "ff4c957f7a5054b6a9fd1abb05fd40bf01136f12d871bff9b476ebb1e8882063",
+      "bytes": 3051
+    },
+    {
+      "path": "docker/judge/init.sh",
+      "sha256": "00080119d2086c9ee97a9f2e27167e1e925b6b64f9edf8a524935ba3748ea6c9",
+      "bytes": 1229
+    },
+    {
+      "path": "docker/judge/smoke.py",
+      "sha256": "6a87a1a5c6c86ce4081f47675808b7576ec2434b89fb95779353b6fe3cbefcdf",
+      "bytes": 1285
+    },
+    {
+      "path": "docker/offline-acceptance/Dockerfile",
+      "sha256": "32814beb833ec2f2950a23e5d6d8f22f0e6d91737c9d0643ad285462e78306e6",
+      "bytes": 809
+    },
+    {
+      "path": "docker/offline-acceptance/requirements.lock",
+      "sha256": "2e5db0822725e7ec959bdb6ebded286dfcf2104fd64993c3832d1870ee06897b",
+      "bytes": 309
+    },
+    {
+      "path": "frontend/.gitignore",
+      "sha256": "d50ab07e11fa4bf3b1c7c3312e1d7baeab56cca756832ccf40476823ad2a38b7",
+      "bytes": 277
+    },
+    {
+      "path": "frontend/.oxlintrc.json",
+      "sha256": "3f46d4038fd69c0011da897b887d747e3d66f0bbda8b523a54891fbd473d67ef",
+      "bytes": 253
+    },
+    {
+      "path": "frontend/index.html",
+      "sha256": "430915b78c953dadc381401c0b4f896f769287f18512034a233256d3ce312908",
+      "bytes": 757
+    },
+    {
+      "path": "frontend/package-lock.json",
+      "sha256": "4530fd8c3e9496a684a8569ee6a47dd0f3eb8d010b3def7a6d4222db67f23dd9",
+      "bytes": 223319
+    },
+    {
+      "path": "frontend/package.json",
+      "sha256": "35386677a8ec903a6fd9c75b09e5732603a2a4626eabcb4e528386f7e81da50c",
+      "bytes": 1000
+    },
+    {
+      "path": "frontend/postcss.config.js",
+      "sha256": "f28f8aa532c7254b0b389d3d3bd6486ea61e83d8d50a17c01ba72d7454baafdb",
+      "bytes": 89
+    },
+    {
+      "path": "frontend/public/brand/brand-guideline.jpg",
+      "sha256": "af5d27a0e1459753b856a201a0c687b83372c3d88428d6b3e2d6162123591b38",
+      "bytes": 176046
+    },
+    {
+      "path": "frontend/public/brand/favicon.jpg",
+      "sha256": "b1fa180bd6186d712bd892bc1fbf0a1ffe01e334e00c41b5684943a0b656a2ad",
+      "bytes": 84053
+    },
+    {
+      "path": "frontend/public/brand/logo.jpg",
+      "sha256": "a2991266444fddb324009682ef21e1bd1330a6a81682ed16a2801278b7e33d79",
+      "bytes": 36469
+    },
+    {
+      "path": "frontend/public/brand/text.jpg",
+      "sha256": "de86bd071cf1fdc7c5ef900b134394f3bc246d7c40dab16008e2e497e762f767",
+      "bytes": 111681
+    },
+    {
+      "path": "frontend/public/favicon.svg",
+      "sha256": "61bc9a161de58248288e6905425d7180f0624c2865007b97d763fdac12043a66",
+      "bytes": 9522
+    },
+    {
+      "path": "frontend/public/icons.svg",
+      "sha256": "7ca2d67c9c3aebf50cdc8709ee8aacf8cdb8cc7ea6325ea94939caef5da1c53d",
+      "bytes": 5055
+    },
+    {
+      "path": "frontend/README.md",
+      "sha256": "24f82e0842a4471b3d8ffab6b61d98cc5e07688256ab764f70e2eb24d1832b02",
+      "bytes": 1264
+    },
+    {
+      "path": "frontend/src/App.css",
+      "sha256": "c2571ce7245629994b8adc84f6c48e1920f047a4e7e29c89a4aeb51eeb1b5433",
+      "bytes": 3075
+    },
+    {
+      "path": "frontend/src/App.tsx",
+      "sha256": "d97b68ab9574caca541613a96f1862ff1b6f97dabce3cf54e6ee2a9a6e4216a1",
+      "bytes": 3716
+    },
+    {
+      "path": "frontend/src/assets/hero.png",
+      "sha256": "881ffbcaafc212e49addad08846a5b82761355fa20624253af3477ba33262c5c",
+      "bytes": 13057
+    },
+    {
+      "path": "frontend/src/assets/react.svg",
+      "sha256": "35ef61ed53b323ae94a16a8ec659b3d0af3880698791133f23b084085ab1c2e5",
+      "bytes": 4126
+    },
+    {
+      "path": "frontend/src/assets/vite.svg",
+      "sha256": "2f1f6c6f90a0ef7422cbb4cfafcd8ad329c507a18afdc34cc21fa72179b9c54a",
+      "bytes": 8710
+    },
+    {
+      "path": "frontend/src/components/copilot/LotusCopilotDrawer.tsx",
+      "sha256": "3243e2941ec5f74ace1a0402a13d7edb32df2c83c041076b73d4532343bb6ffd",
+      "bytes": 2385
+    },
+    {
+      "path": "frontend/src/components/layout/AppLayout.tsx",
+      "sha256": "017db86c292cd21dae85462fde93b2b0e2c3e2234d67759688194a04683c84e5",
+      "bytes": 10141
+    },
+    {
+      "path": "frontend/src/components/tailadmin/EmptyState.tsx",
+      "sha256": "3201f38f9247935e9290ba00b20bbfffeb7d420447be54339867e1ac34e3e39a",
+      "bytes": 3203
+    },
+    {
+      "path": "frontend/src/components/tailadmin/FilterBar.tsx",
+      "sha256": "afd783ebc5e8b5bfa9324826ed16ca4122b9883421e7564fb2c541f10a7251ed",
+      "bytes": 17892
+    },
+    {
+      "path": "frontend/src/components/tailadmin/Header.tsx",
+      "sha256": "790892da266a065175b4c99efbad2cdb760ce5535922abca82f26b0af363239a",
+      "bytes": 16083
+    },
+    {
+      "path": "frontend/src/components/tailadmin/ListToolbar.tsx",
+      "sha256": "83d588b834dd5afd32eb34d6b83855a21b0841072c0e47a03018f1559c1d08eb",
+      "bytes": 13402
+    },
+    {
+      "path": "frontend/src/components/tailadmin/Sidebar.tsx",
+      "sha256": "d4dd58af5d1ab74afd59308b31eb70bc9d3e1d93decfbc58e1b5bab6e7237e96",
+      "bytes": 11258
+    },
+    {
+      "path": "frontend/src/components/tailadmin/sortUtils.ts",
+      "sha256": "54d6bcc99cfd87c894da781860537ff35264e103005cd0b7ec76b40008c0bc8b",
+      "bytes": 1644
+    },
+    {
+      "path": "frontend/src/components/ui/badge/Badge.tsx",
+      "sha256": "307db5810c1d11110dfd86c8106a34dd4ea82b35e3e4d8e2a2ea4705e85623ed",
+      "bytes": 2464
+    },
+    {
+      "path": "frontend/src/components/ui/button/Button.tsx",
+      "sha256": "fa39007f30b7d6704c08dd7d4fcbc06b18ad977661246be7438ba6b17c901cae",
+      "bytes": 1955
+    },
+    {
+      "path": "frontend/src/components/ui/modal/index.tsx",
+      "sha256": "1f5cafac0eb20575261cbb1df43d5920fc9feb5030510d418cbcdae86090443f",
+      "bytes": 3221
+    },
+    {
+      "path": "frontend/src/components/ui/table/index.tsx",
+      "sha256": "4a94e8365ec9aa466929756ff9fe29568028530ff13d5a4aa0f2e5cf8a8850b7",
+      "bytes": 1724
+    },
+    {
+      "path": "frontend/src/context/ThemeContext.tsx",
+      "sha256": "0cdf6c46463443450fc30002648cdfab5c11d7858a44d02ea8b1060ba07bd784",
+      "bytes": 1214
+    },
+    {
+      "path": "frontend/src/engine/controls/RefineLinkControl.tsx",
+      "sha256": "c8daa86e63a51ccc2469963a07bb1abfdab6d568dab2e114eb693658ac6b1181",
+      "bytes": 5361
+    },
+    {
+      "path": "frontend/src/engine/controls/SubTableControl.tsx",
+      "sha256": "7cbd126c9678288a0d79329767a6a5025983533e9211fd694a0da4c5c15db64f",
+      "bytes": 7084
+    },
+    {
+      "path": "frontend/src/engine/RefineComponentRegistry.tsx",
+      "sha256": "a0c722026bb3230be7844412d3f5d72f0dced603262fd273a6976e5a6ee30c82",
+      "bytes": 13193
+    },
+    {
+      "path": "frontend/src/i18n/I18nContext.tsx",
+      "sha256": "4c36e2f177146f713407d7722630d60ee31ed81c5a4f2fdd67b8dd5e57455b27",
+      "bytes": 3728
+    },
+    {
+      "path": "frontend/src/i18n/index.ts",
+      "sha256": "53701ab3156ce0f9f1eec1722a788e475b0384d6665576718ccb860ef1f21c06",
+      "bytes": 132
+    },
+    {
+      "path": "frontend/src/i18n/locales/en.ts",
+      "sha256": "d3c66a1980c181260f3f9a479bedce727df077b95a5ae64d09f8b7c96b160772",
+      "bytes": 5666
+    },
+    {
+      "path": "frontend/src/i18n/locales/vi.ts",
+      "sha256": "de281d44978c29676d6c136124c8b65286891bfb8fa53c37aad0fb5ef106fdf6",
+      "bytes": 6670
+    },
+    {
+      "path": "frontend/src/i18n/locales/zh.ts",
+      "sha256": "8110dde17c30f7a889c365e082e65466342a861dde4d85ff6f2d6fc47c99115f",
+      "bytes": 5684
+    },
+    {
+      "path": "frontend/src/i18n/types.ts",
+      "sha256": "c644a96546d6032c686331a0570f4cf2bb27b29fe34080a181b5b8399f259ac8",
+      "bytes": 3721
+    },
+    {
+      "path": "frontend/src/icons/alert.svg",
+      "sha256": "c1e180c5d876ec8da25713dcc264e20b2ba040be0e7c6e530ebaf556c54636a4",
+      "bytes": 1116
+    },
+    {
+      "path": "frontend/src/icons/angle-down.svg",
+      "sha256": "a87b1d7aa4530dbf535bbdcd18f6726d4da6a040df737d22db96251b08ca78fd",
+      "bytes": 595
+    },
+    {
+      "path": "frontend/src/icons/angle-left.svg",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "frontend/src/icons/angle-right.svg",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "frontend/src/icons/angle-up.svg",
+      "sha256": "eedde284e5695fde806cc32fbfd70def4bd56b52affd026657ce47f1effc2c0f",
+      "bytes": 621
+    },
+    {
+      "path": "frontend/src/icons/arrow-down.svg",
+      "sha256": "ea16b20bb9cfaf5b3b6c2393ec0bb83861788954bd6a313a1c161f0d2406d9b8",
+      "bytes": 864
+    },
+    {
+      "path": "frontend/src/icons/arrow-right.svg",
+      "sha256": "6fa62a4edbbe4c7be63391ded343a1f9fb78e42b7196a3fbe040a985db2caa73",
+      "bytes": 896
+    },
+    {
+      "path": "frontend/src/icons/arrow-up.svg",
+      "sha256": "6b73041b74ce0fe75e032b7551385e2f5e254ba37088cf02f5fabdf8d2d438de",
+      "bytes": 929
+    },
+    {
+      "path": "frontend/src/icons/audio.svg",
+      "sha256": "235642996de627d01d2f8b87df2cb2de426ea922a0f8a27fa6aa22225c1c6894",
+      "bytes": 2208
+    },
+    {
+      "path": "frontend/src/icons/bell.svg",
+      "sha256": "267bbc8bb272ed5b5a49db6868c808bcd8e8154c55c82df99e6ab015ecfd8bb7",
+      "bytes": 1094
+    },
+    {
+      "path": "frontend/src/icons/bolt.svg",
+      "sha256": "1bc5998048979f731603de20d1f4bef3cc201df80b2be4e13b907dedc8ae54ac",
+      "bytes": 425
+    },
+    {
+      "path": "frontend/src/icons/box-cube.svg",
+      "sha256": "f48f3c1f029b0a1881d46251c99420befc5a4794eb5de4358510030eddafbe89",
+      "bytes": 1324
+    },
+    {
+      "path": "frontend/src/icons/box-line.svg",
+      "sha256": "6fd01519e4794b0f2d0db2d1dc9c4cf5f050784d83a917ee7e4d5e870fc15256",
+      "bytes": 1268
+    },
+    {
+      "path": "frontend/src/icons/box.svg",
+      "sha256": "e05ae74c93730a21739d0db0ed9875ac7ed395f15747749cfb65472176c5b660",
+      "bytes": 1224
+    },
+    {
+      "path": "frontend/src/icons/calendar.svg",
+      "sha256": "9a212fbf242ae910ecbcf72bf59cf78903f44fade630eb0863a3d4f249d3ef90",
+      "bytes": 913
+    },
+    {
+      "path": "frontend/src/icons/calender-line.svg",
+      "sha256": "e57ecd59767a0c8834dbc7da7bc4dde8cdd5c64c7c25025123885a001be73825",
+      "bytes": 705
+    },
+    {
+      "path": "frontend/src/icons/chat.svg",
+      "sha256": "ee58b416849b130efe56421ff68290fe1936c9efe01792183dc74f4859584e94",
+      "bytes": 1414
+    },
+    {
+      "path": "frontend/src/icons/check-circle.svg",
+      "sha256": "538114b034abe32c7b9d35c1e6d068350b3800186cff5dc1ea38005955e79698",
+      "bytes": 1054
+    },
+    {
+      "path": "frontend/src/icons/check-line.svg",
+      "sha256": "3a69e497336d4b88178a6c71b3628a98571a90a46ca692517d0c8bcf5dea8a7a",
+      "bytes": 441
+    },
+    {
+      "path": "frontend/src/icons/chevron-down.svg",
+      "sha256": "e35d3f35f1d44e3f4bb0863c9e04ee3858b493c28e91283e3b47f66652157782",
+      "bytes": 265
+    },
+    {
+      "path": "frontend/src/icons/chevron-left.svg",
+      "sha256": "32b121287b3b353c3d136e1bcc0fc9a99f3ce60684ec5d0320c67d53949bc32f",
+      "bytes": 474
+    },
+    {
+      "path": "frontend/src/icons/chevron-up.svg",
+      "sha256": "501f15bd5cd5665d305277872040998edbd28553578302dfed8ccd0eaf5222c4",
+      "bytes": 252
+    },
+    {
+      "path": "frontend/src/icons/close-line.svg",
+      "sha256": "3cab11f43c1b8c5e069902b12d9c0ec4270b9d05bdafc1ab90b53ced848ddb37",
+      "bytes": 903
+    },
+    {
+      "path": "frontend/src/icons/close.svg",
+      "sha256": "2caa49e57901c751c938b05873aecd0399f08098914f1100dcf94f0d3c6d7c59",
+      "bytes": 809
+    },
+    {
+      "path": "frontend/src/icons/copy.svg",
+      "sha256": "1c9b4aea002de833ee366b7d714e5b2e3ddbd54628475fb894fe664353c4bda7",
+      "bytes": 1480
+    },
+    {
+      "path": "frontend/src/icons/docs.svg",
+      "sha256": "49d3cf6388999153eaafee74dfb55bcccd00bdfd723ab4c7e5a9fe1fe4fc8951",
+      "bytes": 1285
+    },
+    {
+      "path": "frontend/src/icons/dollar-line.svg",
+      "sha256": "f58988639fef615b3561f8e3fb9ccd247019daaf77dbeae7ca98bb6fdf66d6d2",
+      "bytes": 1437
+    },
+    {
+      "path": "frontend/src/icons/download.svg",
+      "sha256": "eddb7eb2ca31e79d9397875bbf4010a8427bb0d1f52a2a34bdf67836830b464d",
+      "bytes": 1251
+    },
+    {
+      "path": "frontend/src/icons/envelope.svg",
+      "sha256": "0a3c76c8732bfa98568eb1fe0915721c55db716fc6b09904a4c27cd7ae5076ad",
+      "bytes": 1510
+    },
+    {
+      "path": "frontend/src/icons/eye-close.svg",
+      "sha256": "54364c6759fd0a3a801907b198f9fbaff4b9df30f6ac53f6960124869cfa057f",
+      "bytes": 1581
+    },
+    {
+      "path": "frontend/src/icons/eye.svg",
+      "sha256": "4055499228620d48b239305bc5e6a4ba3f7855d40ca710e3e83946e26cbc3137",
+      "bytes": 1149
+    },
+    {
+      "path": "frontend/src/icons/file.svg",
+      "sha256": "3d80d392aa5d7de7ce565c115297deef0f36726e9921fe03362be0dbf2e24d06",
+      "bytes": 1405
+    },
+    {
+      "path": "frontend/src/icons/flag-de.svg",
+      "sha256": "e91aa5074a0f55b4a3bc68d136be105c9919b78513807954be684d07fe342fb9",
+      "bytes": 234
+    },
+    {
+      "path": "frontend/src/icons/flag-es.svg",
+      "sha256": "213505763b83c705ed4fe59500a05f928fc4a4d9584fd97471cda9f124b135b7",
+      "bytes": 82696
+    },
+    {
+      "path": "frontend/src/icons/flag-sa.svg",
+      "sha256": "9054be4ba0405e918c4f0a708d2490668bd12a250a9bed14939e10de1c4c1abc",
+      "bytes": 9878
+    },
+    {
+      "path": "frontend/src/icons/flag-us.svg",
+      "sha256": "43a00def4fa058cc317d79aba935eaf1622f2d215442bb35a6f8fbc6a01a4d5f",
+      "bytes": 659
+    },
+    {
+      "path": "frontend/src/icons/folder.svg",
+      "sha256": "94612abde3bc94d4f34d46d3b3309e71259806037df7404fc7eb03f842383ece",
+      "bytes": 1125
+    },
+    {
+      "path": "frontend/src/icons/grid.svg",
+      "sha256": "81ccfd85bcf50ba88a895b95c0fe8a844372d9bcc1ce3531fc56e927bf5f9bc2",
+      "bytes": 1809
+    },
+    {
+      "path": "frontend/src/icons/group.svg",
+      "sha256": "fba477f3b58f4e2baa4be8a3375f6850a8d66fef924df8610b5db083e98b21da",
+      "bytes": 2479
+    },
+    {
+      "path": "frontend/src/icons/horizontal-dots.svg",
+      "sha256": "1801f0dd7bc5f830be2967c37ff5ac2f927cd05c23ff77bece9894123cccfc6f",
+      "bytes": 1095
+    },
+    {
+      "path": "frontend/src/icons/index.tsx",
+      "sha256": "67737aa2be3e3d60e097ee1ce0adc1a2793b60eddf2a54ff90a51fdfa4a09d00",
+      "bytes": 3269
+    },
+    {
+      "path": "frontend/src/icons/info-hexa.svg",
+      "sha256": "62ad4141fe5d26625cdb270d4a0245bd604463507db52c34a2572bb042845a41",
+      "bytes": 1516
+    },
+    {
+      "path": "frontend/src/icons/info.svg",
+      "sha256": "ec1e8399481c2f65bb14e07a21c7e8df9e0a9a5a95a95c1dc0cfcdd8b6961635",
+      "bytes": 1006
+    },
+    {
+      "path": "frontend/src/icons/list.svg",
+      "sha256": "f4dae7e35fed0e3ae6679efeb49b48b35e356bc1b67d6736c3c3c155d85f619c",
+      "bytes": 1226
+    },
+    {
+      "path": "frontend/src/icons/lock.svg",
+      "sha256": "a9c16c99fa7cca0d5ee29f5793a7c1fb8886314105fd36aacbbef5973439e23a",
+      "bytes": 1717
+    },
+    {
+      "path": "frontend/src/icons/mail-line.svg",
+      "sha256": "21409874f845a35c58db07d1bb807f365dffc66167cba1bc913f4b8be2eb1fdd",
+      "bytes": 1175
+    },
+    {
+      "path": "frontend/src/icons/more-dot.svg",
+      "sha256": "d4b798b4aa103e4ac958e45a933f163cfe396066d3b495d75465e4abfee193a7",
+      "bytes": 1012
+    },
+    {
+      "path": "frontend/src/icons/page.svg",
+      "sha256": "769e2ca852e67bdd73dfb9e41b1441bacfe2fc052aa7e94cebc58240d91dcb1f",
+      "bytes": 1333
+    },
+    {
+      "path": "frontend/src/icons/paper-plane.svg",
+      "sha256": "f6805c38ff42c3a30cf574582e77bd9c07010021f18df827b512d13bc6784ebe",
+      "bytes": 1327
+    },
+    {
+      "path": "frontend/src/icons/pencil.svg",
+      "sha256": "b4c0fb2cc58e173541494f799c9f853a9e5e16e9402dc8419a48300c78926262",
+      "bytes": 1301
+    },
+    {
+      "path": "frontend/src/icons/pie-chart.svg",
+      "sha256": "d88811b0a4145d555915f29dbe3e32425dbd02c1b87ba7930537409245eae3a9",
+      "bytes": 1012
+    },
+    {
+      "path": "frontend/src/icons/plug-in.svg",
+      "sha256": "042a70e726e3b96342d2091743429fec4068e16eab59e524530f9cdc4c360387",
+      "bytes": 1113
+    },
+    {
+      "path": "frontend/src/icons/plus.svg",
+      "sha256": "521fb8afd51507cc9870e4c9a7949e4c3255dfe9bd0c0fdd3371e3fe266c33cf",
+      "bytes": 706
+    },
+    {
+      "path": "frontend/src/icons/shooting-star.svg",
+      "sha256": "f84d0f146951d8b6fa61592ce21ab76aced1ca340f24a46c469339d19dff17a4",
+      "bytes": 2128
+    },
+    {
+      "path": "frontend/src/icons/table.svg",
+      "sha256": "9d28124495b29d1e8771670ce0f00f0800af463a3b3f11fdcf7bd0d8e4683449",
+      "bytes": 1064
+    },
+    {
+      "path": "frontend/src/icons/task-icon.svg",
+      "sha256": "59125cbfe197db216eb569e1dc9ffdfdaa9109e055e43a175801adeb0be1edc5",
+      "bytes": 1319
+    },
+    {
+      "path": "frontend/src/icons/task.svg",
+      "sha256": "4793e74cd467ee61e738a5399ef5344c5ffae26c225905a596233aea9cb789de",
+      "bytes": 1078
+    },
+    {
+      "path": "frontend/src/icons/time.svg",
+      "sha256": "d5e2b368e31aff046779e54e84e6ae195418f15f14850c36ddcf39f5e75c9bce",
+      "bytes": 1287
+    },
+    {
+      "path": "frontend/src/icons/trash.svg",
+      "sha256": "6fd209ffc88ca190bd46fd02f8f839201654c3ee39ac65f17ebfd91419c033e3",
+      "bytes": 1626
+    },
+    {
+      "path": "frontend/src/icons/upload.svg",
+      "sha256": "6e11d7c131fa6119a09a42fa1ba93bc48ea33f477f4b7d58823e9223f243b6e9",
+      "bytes": 1165
+    },
+    {
+      "path": "frontend/src/icons/user-circle.svg",
+      "sha256": "d5b466f54c508e02c4e6e9b498dc91653011657432da65ce79ceddea814ff97a",
+      "bytes": 1174
+    },
+    {
+      "path": "frontend/src/icons/user-line.svg",
+      "sha256": "06429de756745a040a0b908949c02a668631a0024051e9b54d8a66f7205ba474",
+      "bytes": 1460
+    },
+    {
+      "path": "frontend/src/icons/videos.svg",
+      "sha256": "3041912f592d8979ce8da16860d1a5e658719b960273e13e0266d32db4711aeb",
+      "bytes": 594
+    },
+    {
+      "path": "frontend/src/index.css",
+      "sha256": "cee5fd9d9716bd6868d39113704ef41d320a158d4681f288c59354bfffcad156",
+      "bytes": 1144
+    },
+    {
+      "path": "frontend/src/main.tsx",
+      "sha256": "484f93f3048565a86a47e308f5a12ee27aa12f5291f3b52a4bb5dc03d887dbc7",
+      "bytes": 240
+    },
+    {
+      "path": "frontend/src/pages/copilot/actions/invoiceActionClient.ts",
+      "sha256": "53293aeb57721d0671abc7b6bd533952b1ee0a5706edca3bdf0ec2b1403e3a9c",
+      "bytes": 1818
+    },
+    {
+      "path": "frontend/src/pages/copilot/actions/invoiceActionController.ts",
+      "sha256": "485341b353915d0e5ec05da9ad1a7247833b5bc2482bc3b3aa0917f8dc176843",
+      "bytes": 6214
+    },
+    {
+      "path": "frontend/src/pages/copilot/actions/invoiceActionControllerOps.ts",
+      "sha256": "7a2a9d5920c21e79c932bdaa017344e72f3247db36dabee87d189dd727cf6c9d",
+      "bytes": 2039
+    },
+    {
+      "path": "frontend/src/pages/copilot/actions/invoiceActionControllerState.ts",
+      "sha256": "8a758c5c1b117c18dd65bf3f94ae413554409d7a2d35551bcdf8f8613878efa7",
+      "bytes": 1088
+    },
+    {
+      "path": "frontend/src/pages/copilot/actions/invoiceActionCriteria.ts",
+      "sha256": "25c3584789ae184b7187ee03795ad0e9e3eed0d81a7e2c887d3edd894859ea32",
+      "bytes": 5088
+    },
+    {
+      "path": "frontend/src/pages/copilot/actions/invoiceActionDecoderHelpers.ts",
+      "sha256": "8f575b3c6471b7a5a7428bc7fabe4366ce11b19e35656eb686564ded5d745f0f",
+      "bytes": 5215
+    },
+    {
+      "path": "frontend/src/pages/copilot/actions/invoiceActionDecoders.ts",
+      "sha256": "08649fb91d980aad9afc491352276c4ee61096300d006f4bf499e4ae58d6b551",
+      "bytes": 5710
+    },
+    {
+      "path": "frontend/src/pages/copilot/actions/InvoiceActionPanel.tsx",
+      "sha256": "0e02ec5e0a14b96b6a669d856406322d043757a06f2cc531b42800abd3cc9463",
+      "bytes": 6268
+    },
+    {
+      "path": "frontend/src/pages/copilot/actions/invoiceActionPayloadDecoders.ts",
+      "sha256": "9ef21dfbb8853e1d238e3c8a3d535c0c7d3392019c9e7f40f7eb1909c443afb0",
+      "bytes": 4948
+    },
+    {
+      "path": "frontend/src/pages/copilot/actions/invoiceActionPresentation.ts",
+      "sha256": "c3432aedb3cd46a1f549cccc86a547565236b7e1b7bc720fe9d30bd239bd1861",
+      "bytes": 315
+    },
+    {
+      "path": "frontend/src/pages/copilot/actions/invoiceActionTypes.ts",
+      "sha256": "6adc5aef03fe99c4f70bdfcc0bb9d1bb833c82c29452919a37c5dcd3aa9b9b2e",
+      "bytes": 3385
+    },
+    {
+      "path": "frontend/src/pages/copilot/actions/InvoiceReadView.tsx",
+      "sha256": "84559d4162dece8c61093f1a6a25737f171d2c1169aadeafbebb0b1da7974aae",
+      "bytes": 2174
+    },
+    {
+      "path": "frontend/src/pages/copilot/actions/InvoiceSearchResults.tsx",
+      "sha256": "740a7f9448c95c23720b3684d0bb09d8ce1a4652bd8955cf6d9245549ec1134a",
+      "bytes": 2776
+    },
+    {
+      "path": "frontend/src/pages/copilot/actions/useInvoiceActions.ts",
+      "sha256": "e254951a620ec2b91b16a2702d134b39410e4d22910492bab35caa040dab6e5b",
+      "bytes": 1483
+    },
+    {
+      "path": "frontend/src/pages/copilot/components/CashForecastView.tsx",
+      "sha256": "a9efe83ff86a6df82cf053f68762181dcb32a230b205e7c582d23bdae81d2b08",
+      "bytes": 15992
+    },
+    {
+      "path": "frontend/src/pages/copilot/components/CopilotMessageBody.tsx",
+      "sha256": "20b647b36fe5bad565fecd64fc20228ba0b9eb8371696c2c8f197f44654f554d",
+      "bytes": 1693
+    },
+    {
+      "path": "frontend/src/pages/copilot/components/copilotPresentation.ts",
+      "sha256": "ebd1218ca7d8249653cfff7b2e789f96ffbab823ec4c39a189da5b329d4d4f0c",
+      "bytes": 7027
+    },
+    {
+      "path": "frontend/src/pages/copilot/components/FinancialHealthView.tsx",
+      "sha256": "f8ca591787a6eb6b7be5e59b7281c9767b13e702ad5ae5d73cd6334c765c4ed9",
+      "bytes": 24518
+    },
+    {
+      "path": "frontend/src/pages/copilot/components/FinancingCopilotView.tsx",
+      "sha256": "89675970861333e526274d3ac67bb49d9dd1f3cbbecdd99b31d9e606056d7008",
+      "bytes": 14272
+    },
+    {
+      "path": "frontend/src/pages/copilot/components/index.ts",
+      "sha256": "8ad900227b35b0c32970cb575b2cc9fdc67e7b277dcbff5c76b497dac6b61823",
+      "bytes": 846
+    },
+    {
+      "path": "frontend/src/pages/copilot/components/ModuleBadge.tsx",
+      "sha256": "e003fb08ba65f438674a50a64684b069300255383dc73b4feece8a81677fc988",
+      "bytes": 6770
+    },
+    {
+      "path": "frontend/src/pages/copilot/components/RepaymentScheduleView.tsx",
+      "sha256": "14ce1cd7a27244b2788171756b1abaeae2b636c5496aaa502a44d5cd96988eaf",
+      "bytes": 12424
+    },
+    {
+      "path": "frontend/src/pages/copilot/components/RiskSignalView.tsx",
+      "sha256": "d36a42e17e7ba16dc15b9cb4cb44d33ad045b5e0e03c226321b97929683e8ee9",
+      "bytes": 11480
+    },
+    {
+      "path": "frontend/src/pages/copilot/components/useCopilotRequest.ts",
+      "sha256": "97365ea11f0cb06be0c3a15435453df99f1c5fd50ab31fccc5aab8e77584be76",
+      "bytes": 6077
+    },
+    {
+      "path": "frontend/src/pages/copilot/components/VercelChatPanel.tsx",
+      "sha256": "ffd0213c67f26f7618fbee4b0f486bcb689d04777a99170d67466d05400f0f39",
+      "bytes": 24425
+    },
+    {
+      "path": "frontend/src/pages/copilot/components/WhatIfStudioView.tsx",
+      "sha256": "93468afffed62b51225708a087815c6efbe0bde43342c53dba1f738e46424cce",
+      "bytes": 27533
+    },
+    {
+      "path": "frontend/src/pages/copilot/LotusCopilotPage.tsx",
+      "sha256": "3b728165954ccc04b684aa0ac6879e781c6ad57259bfb24b20d89ac8a8cea149",
+      "bytes": 19417
+    },
+    {
+      "path": "frontend/src/pages/copilot/prepare/followupPreview.ts",
+      "sha256": "04290ace5ae982d1e5c440dcf6377f4c2b18734d3717e2534c1a5c271c269de1",
+      "bytes": 4932
+    },
+    {
+      "path": "frontend/src/pages/copilot/prepare/FollowupPreview.tsx",
+      "sha256": "73e368e9b66260f1d3e49f630bca0b30c3103474606a40a7e075f0f08a91b9b3",
+      "bytes": 7652
+    },
+    {
+      "path": "frontend/src/pages/copilot/prepare/followupPreviewController.ts",
+      "sha256": "324962915a642110a63d691b2952522203b8e0f721f8125c6a1b3fac1b642c84",
+      "bytes": 8728
+    },
+    {
+      "path": "frontend/src/pages/dynamic/UniversalFormView.tsx",
+      "sha256": "8808cf640305009f40ca91524cd37d40e252c7a590aef9007ce29a2a1dfe9d81",
+      "bytes": 18900
+    },
+    {
+      "path": "frontend/src/pages/dynamic/UniversalListView.tsx",
+      "sha256": "de2f8c6e5feb23fb4b591e72c4330f08cf002386049ead0ed84b6c0212a9d637",
+      "bytes": 52346
+    },
+    {
+      "path": "frontend/src/pages/dynamic/UniversalPageView.tsx",
+      "sha256": "c18e8cecc89ff8ef82e8a1cfa1f19a373bbb640afb300020e65b86266eb98c86",
+      "bytes": 25347
+    },
+    {
+      "path": "frontend/src/pages/dynamic/UniversalReportView.tsx",
+      "sha256": "b51cdc35d2eaaefe47383e1f2e44efabfd78cc04ee6f841360a50b54195b2489",
+      "bytes": 25346
+    },
+    {
+      "path": "frontend/src/pages/dynamic/UniversalWorkspaceView.tsx",
+      "sha256": "61b1b2193984e3226f20b7e224a431a6f6022dc43a5c25c22721b83b3f84d15f",
+      "bytes": 19028
+    },
+    {
+      "path": "frontend/src/pages/home/ModuleSelectorHome.tsx",
+      "sha256": "d727911b235e7a055b61f4f14db67a975f345214f9a6f9b5093b68b67e94d66b",
+      "bytes": 12522
+    },
+    {
+      "path": "frontend/src/pages/login/index.tsx",
+      "sha256": "41faacdba1920e708dd17166b950985d5e6b001ce271a6bff45f44d6da212eaa",
+      "bytes": 5857
+    },
+    {
+      "path": "frontend/src/providers/authProvider.ts",
+      "sha256": "9024eb868a3d1d015242944b6d249161c708558369d39a23b26ae7a63416cbc4",
+      "bytes": 2536
+    },
+    {
+      "path": "frontend/src/providers/dataProvider.ts",
+      "sha256": "b57059e1c5b2ecf3d35d6368b6c0ba47c93cbd89e203e7969becdfd278903ae5",
+      "bytes": 3605
+    },
+    {
+      "path": "frontend/src/theme/brandTokens.ts",
+      "sha256": "0b0325fdb37bab706e18459f454173152159c64e6d8398072139f0655672d4d5",
+      "bytes": 2042
+    },
+    {
+      "path": "frontend/src/utils/brand.ts",
+      "sha256": "e8458e51b44ece774ff3dc0a1a7277dbd8d63fe8d81489c0f7c7baaca12c75a0",
+      "bytes": 972
+    },
+    {
+      "path": "frontend/tailwind.config.js",
+      "sha256": "fa94708fec4b43bc36ead5dc6af7f2e6315a1f6945590c7f08bda6c54642eb9e",
+      "bytes": 2920
+    },
+    {
+      "path": "frontend/tests/followupPreview.test.ts",
+      "sha256": "f638baef2646d425efec230c7693523f9a4f896d547030edf88027404847c871",
+      "bytes": 6236
+    },
+    {
+      "path": "frontend/tests/followupPreviewController.test.ts",
+      "sha256": "9c55e8eba38785e3745dea0633e61b23dc6db969862a81153e6647ec71ed2247",
+      "bytes": 12319
+    },
+    {
+      "path": "frontend/tests/p2b/client.test.ts",
+      "sha256": "133c032985fb146d2164a4735b09150605338fd9a31073fdee4e8df38e05816d",
+      "bytes": 3208
+    },
+    {
+      "path": "frontend/tests/p2b/controller.test.ts",
+      "sha256": "a4c4be043532c88254da57e2449441a8de53173941442c311e40d61e1a26c59d",
+      "bytes": 10687
+    },
+    {
+      "path": "frontend/tests/p2b/fixtures.ts",
+      "sha256": "0d368fb06ca686bcea8c37211212ab8557dd6d8ad9b58028a03d5984bed1584e",
+      "bytes": 3373
+    },
+    {
+      "path": "frontend/tests/p2b/presentation.test.ts",
+      "sha256": "4805c6ce361c469a37aaeddfb283efe3eec9630be18d97ad2939f399cf2dde04",
+      "bytes": 16643
+    },
+    {
+      "path": "frontend/tsconfig.app.json",
+      "sha256": "98fac172d25a16a58f04c59a83218ee1f2276c9e6bd89edee66d0e1edd647d39",
+      "bytes": 685
+    },
+    {
+      "path": "frontend/tsconfig.json",
+      "sha256": "ad28d132ee48d6e23917cf5827cace785d0fc01a44ca68b0dda51cc8c3fd3f52",
+      "bytes": 126
+    },
+    {
+      "path": "frontend/tsconfig.node.json",
+      "sha256": "a9e6c7f6fd3ec455a6fe1d4fbb83091e774b62fe116008ab6d8c5e1e88af4629",
+      "bytes": 581
+    },
+    {
+      "path": "frontend/vite.config.ts",
+      "sha256": "891f5a759089020e62cfcceb221765f49ca97885b853e43ceb6cd67cce6c69d9",
+      "bytes": 597
+    },
+    {
+      "path": "lotus_fin/.env.example",
+      "sha256": "0e8db65bf7214024b070cd4ff64a2dccded8d8a339fd6a05b7dc7ce7e049b053",
+      "bytes": 670
+    },
+    {
+      "path": "lotus_fin/DEVELOPER_FE_GUIDE.md",
+      "sha256": "6df757a99b506e1973fae0be9e35bda2b37e5d69e92ad9d205d69b3d7e7409ea",
+      "bytes": 4839
+    },
+    {
+      "path": "lotus_fin/license.txt",
+      "sha256": "cc0426f98d1662516cc7489b0629cc0329f4313d67c2641cf0b2d949ce0c25da",
+      "bytes": 624
+    },
+    {
+      "path": "lotus_fin/lotus_fin/__init__.py",
+      "sha256": "2935d14af6aae7f2e113262218fecb4c7f5d349cb8af94ba346fb39cef53f44a",
+      "bytes": 212
+    },
+    {
+      "path": "lotus_fin/lotus_fin/api/__init__.py",
+      "sha256": "ede4341d8b25801b0108b1ecd4da76a35bd5c5cac690ec687298054596b1679c",
+      "bytes": 17
+    },
+    {
+      "path": "lotus_fin/lotus_fin/api/ai_insights.py",
+      "sha256": "cadc25f865ddbebf866204d059262eebf6c66297a0b11390f505eab25f2f09e9",
+      "bytes": 12820
+    },
+    {
+      "path": "lotus_fin/lotus_fin/api/cashflow_api.py",
+      "sha256": "29fc55cea0a0b852c47832779bdefea1b34b8f59c07f5c15eebd0c1e447dfd64",
+      "bytes": 7720
+    },
+    {
+      "path": "lotus_fin/lotus_fin/api/copilot_api.py",
+      "sha256": "511141a47618c3a8c3a5eda58bdbc15733c5213d405f1a6890e71ea3f1fc83c2",
+      "bytes": 1529
+    },
+    {
+      "path": "lotus_fin/lotus_fin/api/events.py",
+      "sha256": "befdcecc315a2622c65980c3d2c8cdffb7a49471de8c04c9f00925d803cca9ba",
+      "bytes": 1523
+    },
+    {
+      "path": "lotus_fin/lotus_fin/api/invoice_actions_api.py",
+      "sha256": "5014b7c161b55f98ce6e5128dc9bdc6f1276b0e6e59fed44906a84f5c6a9928d",
+      "bytes": 3503
+    },
+    {
+      "path": "lotus_fin/lotus_fin/api/key_reports.py",
+      "sha256": "a2ca639fd6ff6c98f88b637c710b170d81caf726d335f092e60a194c02e6e42f",
+      "bytes": 13286
+    },
+    {
+      "path": "lotus_fin/lotus_fin/api/workspace_sync.py",
+      "sha256": "f55383e0648c050fbfd1ee6e96425b608e084380792b0aa85349d2a9b6724fde",
+      "bytes": 5187
+    },
+    {
+      "path": "lotus_fin/lotus_fin/application/agent/agent_runner.py",
+      "sha256": "89c7e5f7742736f075b9694737d151bb1c28c68a0f76b1904dce4d7601c68f3e",
+      "bytes": 5186
+    },
+    {
+      "path": "lotus_fin/lotus_fin/application/agent/prompt_engine.py",
+      "sha256": "633274579d5a123dd693af15fb7f0364995ac93a42705511af26ee4df51a3fbe",
+      "bytes": 1726
+    },
+    {
+      "path": "lotus_fin/lotus_fin/application/port/i_action_events.py",
+      "sha256": "9573fd752755e463ecb0cf24d9e6e01941865561c2e8dbd744b633950423876e",
+      "bytes": 3124
+    },
+    {
+      "path": "lotus_fin/lotus_fin/application/port/i_authorized_invoice_read.py",
+      "sha256": "0ee5ec44fc2a3063c1b5a96df121116eff27e81c67cb2a0d2c840176db929e9d",
+      "bytes": 1840
+    },
+    {
+      "path": "lotus_fin/lotus_fin/application/port/i_chat_service.py",
+      "sha256": "ce0d505b95883b42dfe325fe1484eaa61cc9f620a595dfee682b8bfde30bd92a",
+      "bytes": 424
+    },
+    {
+      "path": "lotus_fin/lotus_fin/application/port/i_invoice_references.py",
+      "sha256": "f5bbc496e58e20a67cf667b46922284defea04240c7eba19ad823df5917063a5",
+      "bytes": 544
+    },
+    {
+      "path": "lotus_fin/lotus_fin/application/port/i_llm_provider.py",
+      "sha256": "9379f61e024aaa5e353043f734139b3b4fa92f8a3f1dab795b695363a980fd5f",
+      "bytes": 931
+    },
+    {
+      "path": "lotus_fin/lotus_fin/application/port/i_read_authorizer.py",
+      "sha256": "81114c6bd2e81500e779f10f2b4af40607b97334043002f6cd33b167513a1583",
+      "bytes": 1487
+    },
+    {
+      "path": "lotus_fin/lotus_fin/application/port/i_tool_invoker.py",
+      "sha256": "fda172ffbca99a07c81613856121f9bc77c08b3b8a17e71005dd91f13dbe1528",
+      "bytes": 487
+    },
+    {
+      "path": "lotus_fin/lotus_fin/application/port/i_tool_registry.py",
+      "sha256": "576902131bf66afe35ef56bc2213a64af441c483c6fa801b5c558033b92ff40e",
+      "bytes": 564
+    },
+    {
+      "path": "lotus_fin/lotus_fin/application/service/copilot_service.py",
+      "sha256": "ee4160ae290ea49086760f1aa0198383ea9310fa452334979db03cbc5a7e411f",
+      "bytes": 2923
+    },
+    {
+      "path": "lotus_fin/lotus_fin/application/service/invoice_read_validation.py",
+      "sha256": "211b8a7b1d02c630021781be1911ab4fded5b91e896da7b09c2ec0cfbb276d33",
+      "bytes": 2331
+    },
+    {
+      "path": "lotus_fin/lotus_fin/application/service/open_authorized_invoice.py",
+      "sha256": "53c9219b8d57861e853ce2ec2ee5ca1fa5d4ca50ce8ab05b98ca83934aaec040",
+      "bytes": 2850
+    },
+    {
+      "path": "lotus_fin/lotus_fin/application/service/resolve_read_context.py",
+      "sha256": "0def479f8c61488958128e2dd80cda3822ffa8bb0db2bba9457b97bcde2568a1",
+      "bytes": 1519
+    },
+    {
+      "path": "lotus_fin/lotus_fin/application/service/search_invoices.py",
+      "sha256": "3d51430d3c0769178e9e3f141ae79a6517e1122b8a635520798cac4a617817ef",
+      "bytes": 5909
+    },
+    {
+      "path": "lotus_fin/lotus_fin/config/__init__.py",
+      "sha256": "63dbee9d3690ca5599c7f4d9cbd988ea195f9ab28be85ee0401eecbf933b123d",
+      "bytes": 20
+    },
+    {
+      "path": "lotus_fin/lotus_fin/config/desktop.py",
+      "sha256": "9df5d72b9ff8ec9cde2ea33c4560e3387fc4f8c1342329c627fac5d21720a20a",
+      "bytes": 303
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/adapters/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/adapters/erpnext_gateway.py",
+      "sha256": "c51648229f9b87a63ce936c39878aefd7b6a990b51d207e0f311695082a5380e",
+      "bytes": 246
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/ai/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/ai/agent_copilot.py",
+      "sha256": "343506aeed0347d378ea357d36f678e2dc18e722448b410e3ad0d2a8bc6907c4",
+      "bytes": 17315
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/ai/agent_orchestrator.py",
+      "sha256": "24e74a0d7a10f10fa0fbdd4238cdcd8f6ff957311f1e4ba4a3291e42a351aff2",
+      "bytes": 5002
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/ai/providers/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/ai/providers/base_provider.py",
+      "sha256": "47de821b60c44e4e690ee55791d2ceb3ad5c599d5ffcc894e7dcd7d0cfdcd694",
+      "bytes": 1689
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/ai/providers/factory.py",
+      "sha256": "994e86f17a8f844ac176c6ef06f6786b5da6840aa100f600ef70dc2a4bca0275",
+      "bytes": 1205
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/ai/providers/gemini_provider.py",
+      "sha256": "cd61ee5819ac081e589122dff0297434e6688cc55248f7cd36d6872fee830cd5",
+      "bytes": 3502
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/ai/providers/mock_provider.py",
+      "sha256": "93ce046417f92713a363320c88b7e7462697e023937281a75aae4a926656fb30",
+      "bytes": 1519
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/ai/providers/openai_provider.py",
+      "sha256": "407e3c7b4d79d54afeb4f60959fa57edc22246aca0db574a7c476c0edc6ad108",
+      "bytes": 3335
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/ai/resilience/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/ai/resilience/circuit_breaker.py",
+      "sha256": "7402c0b1e962c0181ce935abe580aead286aea833fa00d3afcc22a926673d0dd",
+      "bytes": 2549
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/ai/resilience/token_manager.py",
+      "sha256": "931cd84f63a1473f8b72b0d2b9f0e23983a82b490ad0eaf9e7e846d45855aa6e",
+      "bytes": 3532
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/ai/tools/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/ai/tools/tool_registry.py",
+      "sha256": "aa6d85f0b0b486bb56f676dfc7f320594e7fb7480c6bbd0790fda90d69817b7e",
+      "bytes": 2071
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/compat/legacy_module_resolver.py",
+      "sha256": "6cbe56a01b9b3e2956fff9ebf731d580b14e58557a69ec36ad70ceed18ae58e2",
+      "bytes": 4380
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/domain/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/domain/calculators/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/domain/calculators/ap_cash_extractor.py",
+      "sha256": "aa72ee2404eb4b111bcf438725ff919a905053d949d9e8199bfd21561c7b5c0b",
+      "bytes": 15864
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/domain/calculators/ar_extractor.py",
+      "sha256": "11952c092c9bfe01c1dca9e7240040fb9dccedeaa94dbf97040409d2a4ab1baf",
+      "bytes": 19128
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/domain/calculators/credit_scorer.py",
+      "sha256": "b7206c8cfcae410e2f370ee77bbe9b10a2d0f3429e545f21b90da03eead56b5a",
+      "bytes": 8296
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/domain/calculators/grounding_guard.py",
+      "sha256": "f105d59d3bbd1bd40ff7b7f70429d78588daf8906edebc01842ffd4a91b9099e",
+      "bytes": 4324
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/domain/calculators/kpi_calculator.py",
+      "sha256": "659815d5fea5374e450b031105f45fee6115b15997e3b06494fe83a7bb57ec00",
+      "bytes": 3825
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/domain/calculators/observation_reconciliation.py",
+      "sha256": "98f2afb778fe7dcf7c8fa1798ae4f1496740398c5b53e3ab5f985c70f7ed1d26",
+      "bytes": 4447
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/domain/calculators/pnl_extractor.py",
+      "sha256": "90c4b3c93234f198316b083295aaaec8667472a4c44ce2abb00400cebef1633a",
+      "bytes": 4329
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/domain/calculators/scenario_calculator.py",
+      "sha256": "9bf1b2c15605929cb4479711482a6659b304e97e2690f163d62d5476911e4191",
+      "bytes": 7683
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/domain/entities/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/domain/entities/evidence.py",
+      "sha256": "2e01e02c4c07a4153510df6b9e32da3396364cee595690ebec096424f3d9df97",
+      "bytes": 2838
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/domain/entities/financial_snapshot.py",
+      "sha256": "efa65640b57d023003779dd978f70de158ac3e783bbbcaf27cc70a8fea48ea83",
+      "bytes": 3392
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/domain/entities/loan_product.py",
+      "sha256": "28a45b71ab62b52d1d8f33ee9106a8349213da4389a68d0525143d044e49ba68",
+      "bytes": 3794
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/domain/entities/scenario.py",
+      "sha256": "24e980d45ff39cdc065710577b0fa1f505f31ac45266f793dc6cc62ec4298a8b",
+      "bytes": 4440
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/domain/errors.py",
+      "sha256": "07dac3bf838566ce4167ba11d185aafc74cf24d5377bed3bad74d6067a38bc2f",
+      "bytes": 334
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/domain/invariants/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/domain/values/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/domain/values/metric_types.py",
+      "sha256": "50981d4143567559dfd67c9a478aa649e9ec53ff867811fac51c266df50fad2a",
+      "bytes": 1000
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/domain/values/money.py",
+      "sha256": "b8e6089c0f066e72cf34f95c425efd8e35641896149598fe1e65adb88129db17",
+      "bytes": 1948
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/domain/values/period.py",
+      "sha256": "a8d38fe9422b17f3a52ea625adbb3931cf5c8a52740eebbe3a60684bd92f495d",
+      "bytes": 2075
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/domain/values/ratio.py",
+      "sha256": "51e82b7870fa1ec106872baa91895626755ae8574a89061e1a9800dceaeaa4c6",
+      "bytes": 1509
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/dto/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/dto/envelope.py",
+      "sha256": "f6e12d0686e871fca8b89c5b69189ee093efaa82d5c86000c585f94d955dce81",
+      "bytes": 1436
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/dto/financing_dto.py",
+      "sha256": "fcf028035dac0bbf83ca477a550f2290be54fecea595addeae2b44bdd3afc420",
+      "bytes": 1618
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/dto/scenario_dto.py",
+      "sha256": "8b28e044e946a30a9551b0a9fcb7f2629cf81bebb6b63ba20abe7f2a20fac1a4",
+      "bytes": 1628
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/dto/snapshot_dto.py",
+      "sha256": "462ebb20fcc13d8cf3a1b2cc1817a9c440c178b61fc3172fd82eca4681b8ac08",
+      "bytes": 1269
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/plugin/__init__.py",
+      "sha256": "c33dfa267020622cd322458baefe3277dc85c1dbfe1d5f3588e3a20f78f6f12d",
+      "bytes": 256
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/plugin/base_plugin.py",
+      "sha256": "01ee2b49c918a0bfb7d50f6bd9600268be91ae04088855e7b49e8bb8648e4cbe",
+      "bytes": 2199
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/plugin/registry.py",
+      "sha256": "edae089ab54c72e987030693739feb73217af0925b16a9b58d7526918a2cbcee",
+      "bytes": 5289
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/use_cases/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/use_cases/financing_coordinator.py",
+      "sha256": "ab6b7ee64cc3ba4d3c7a1fe8d19cba102d4c935ff3bfeac46872649974022309",
+      "bytes": 3895
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/use_cases/metric_assembler.py",
+      "sha256": "10297d880dd07b1c0fef8ed0a947b6b1b51d9eb47741dc3d768a0cedf7194f37",
+      "bytes": 9382
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/use_cases/simulation_coordinator.py",
+      "sha256": "54c49887abe8d57fbb45c319854f6303522bb137282695d1dbe4e037e7f0ef33",
+      "bytes": 2113
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/use_cases/snapshot_coordinator.py",
+      "sha256": "654c33a2f15122c40e61c8e03fda359e34a284bc673185f01314d97ecb2ef88f",
+      "bytes": 20103
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/use_cases/source_gatherer.py",
+      "sha256": "d5e900be1965e41e52c7c4e2a6ca01d6ca959c600cf636d0e89d1dd72f9c28df",
+      "bytes": 3722
+    },
+    {
+      "path": "lotus_fin/lotus_fin/core/use_cases/source_validation.py",
+      "sha256": "89e62abbc601c8173eadbc4e31bfea8753330caa5daa1d7d1dfb8ecb4c5a2bbe",
+      "bytes": 3666
+    },
+    {
+      "path": "lotus_fin/lotus_fin/domain/model/authorized_read_context.py",
+      "sha256": "495b2ca9c91a4b077743d5a277d7f23a919c56d8be91cbd16e6ba39b6b21cd70",
+      "bytes": 2830
+    },
+    {
+      "path": "lotus_fin/lotus_fin/domain/model/chat_message.py",
+      "sha256": "f2012c9a472f8bc358dcdebbd87814c4132b8ef0b1b5f5afe1f16c56c6486410",
+      "bytes": 1437
+    },
+    {
+      "path": "lotus_fin/lotus_fin/domain/model/chat_session.py",
+      "sha256": "a03e4083cdbb3b973e7a40b2170b6d5b97eee5c05fdb6b8bd4a529432e8f50a9",
+      "bytes": 1462
+    },
+    {
+      "path": "lotus_fin/lotus_fin/domain/model/invoice_read_budget.py",
+      "sha256": "839fdf67ffed5f21004c51d0a93d4d94c15014b4bbe0862cbcee062d107b39a9",
+      "bytes": 1839
+    },
+    {
+      "path": "lotus_fin/lotus_fin/domain/model/message_role.py",
+      "sha256": "a3df005a084f40d285513f8d7f54cb244e3df6df6248fa728d4e3a79d6412c6d",
+      "bytes": 150
+    },
+    {
+      "path": "lotus_fin/lotus_fin/domain/model/user_context.py",
+      "sha256": "cb2a352a1d5aba9f6805b0564f3c0115db3813c6c68d9093e6bdb1cf6f80d971",
+      "bytes": 585
+    },
+    {
+      "path": "lotus_fin/lotus_fin/domain/policy/permission_policy.py",
+      "sha256": "a55dbd54052c8b68f177d9e120aa187f85fe64639bac79587b67dd5c6062c326",
+      "bytes": 1586
+    },
+    {
+      "path": "lotus_fin/lotus_fin/domain/repository/i_session_repository.py",
+      "sha256": "9c979394960a1852ac389e4142348ee0012732c2ba784c0bed01dda3ed91bafb",
+      "bytes": 458
+    },
+    {
+      "path": "lotus_fin/lotus_fin/domain/schema/action_outcome.py",
+      "sha256": "bf90ca6b85743b7152a9b749528240c9c48d48a39e4682c18e674adf78fc2bb9",
+      "bytes": 8478
+    },
+    {
+      "path": "lotus_fin/lotus_fin/domain/schema/invoice_read.py",
+      "sha256": "b456ebf98efa9b98e197f13e0549260c6f09592eeb84db4977771494f7da7402",
+      "bytes": 6544
+    },
+    {
+      "path": "lotus_fin/lotus_fin/domain/schema/tool_call_request.py",
+      "sha256": "1465d339dd2c809c40960b5325dcdf6bbcd9755ce57546b0f72d836143d29f10",
+      "bytes": 367
+    },
+    {
+      "path": "lotus_fin/lotus_fin/domain/schema/tool_definition.py",
+      "sha256": "05c7c1de1877b77530736501168146dd3f78b108c2f8b230fda1c5d41baf4699",
+      "bytes": 738
+    },
+    {
+      "path": "lotus_fin/lotus_fin/domain/schema/tool_execution_result.py",
+      "sha256": "89ce39cf3efdd8c0604b0cdf685432dc31889e4af436d4570437d29977d3ffd2",
+      "bytes": 1025
+    },
+    {
+      "path": "lotus_fin/lotus_fin/fixtures/custom_field.json",
+      "sha256": "e688c655d7662d82ce3ac9642529b284fc037bb3315fd79e8c46f4cec3b34941",
+      "bytes": 615
+    },
+    {
+      "path": "lotus_fin/lotus_fin/hooks.py",
+      "sha256": "8cf19213cfea71a16f40317d514fe0f1d1bd81142ad5851fe2826c20ca773ec7",
+      "bytes": 1861
+    },
+    {
+      "path": "lotus_fin/lotus_fin/infrastructure/config/invoice_actions_config.py",
+      "sha256": "30a03c9fba7eb48cf357f269027847903a9fed4ab7aa55600931a6394fe0cd23",
+      "bytes": 1496
+    },
+    {
+      "path": "lotus_fin/lotus_fin/infrastructure/config/invoice_actions_config_loader.py",
+      "sha256": "bb477eafa12b84bd529a29eb109c06510eb255d59988c363f32d177d0fd4ab58",
+      "bytes": 5596
+    },
+    {
+      "path": "lotus_fin/lotus_fin/infrastructure/erpnext/__init__.py",
+      "sha256": "ec4411b57409d8b64bf12ed64430ce63d0355d56cc0acceb1585c29ba3cb08fc",
+      "bytes": 79
+    },
+    {
+      "path": "lotus_fin/lotus_fin/infrastructure/erpnext/erpnext_gateway.py",
+      "sha256": "9402fd0d25864a38af1de869f4d75ef03b547c324c0df41fcf265e0bf61fc3db",
+      "bytes": 1571
+    },
+    {
+      "path": "lotus_fin/lotus_fin/infrastructure/llm/__init__.py",
+      "sha256": "11a36bc8ba9feded49d517253da2c123ca7f4a0eb7fe03316168134505e12cea",
+      "bytes": 445
+    },
+    {
+      "path": "lotus_fin/lotus_fin/infrastructure/llm/adapter/gemini_llm_adapter.py",
+      "sha256": "79e1d08302704c2c5e86a09a3ded30ecc39eb1c8b8ee0ebae5f31105a189d53d",
+      "bytes": 5926
+    },
+    {
+      "path": "lotus_fin/lotus_fin/infrastructure/llm/adapter/mock_llm_adapter.py",
+      "sha256": "7f57542394866d07ebaad02519431d2fb62a37c532e62449e0517373c83b802e",
+      "bytes": 1894
+    },
+    {
+      "path": "lotus_fin/lotus_fin/infrastructure/llm/adapter/openai_llm_adapter.py",
+      "sha256": "9d4562e298d361574efda24e6800e9847977bdaed22c2107a848e3df6aac3eb6",
+      "bytes": 4565
+    },
+    {
+      "path": "lotus_fin/lotus_fin/infrastructure/llm/llm_factory.py",
+      "sha256": "ce36dbd4f3f0b89acb388847df7367e0cbfa32d811856e31db2f10902db8416e",
+      "bytes": 2959
+    },
+    {
+      "path": "lotus_fin/lotus_fin/infrastructure/observability/__init__.py",
+      "sha256": "92d92321e66c71d49c8ee992d3c3029b53ec1e46296c744d36b9012f862fc4d9",
+      "bytes": 30
+    },
+    {
+      "path": "lotus_fin/lotus_fin/infrastructure/observability/action_events.py",
+      "sha256": "990ee5243e2f50264b5664d2360e60fa0eb422547bd93412f7f1ee3ee045b198",
+      "bytes": 4612
+    },
+    {
+      "path": "lotus_fin/lotus_fin/infrastructure/observability/observability.py",
+      "sha256": "99ed709b0ce67c22345258e15c73b646ec116915684766080af50365a76c58c3",
+      "bytes": 8187
+    },
+    {
+      "path": "lotus_fin/lotus_fin/infrastructure/persistence/frappe_cache_session_repository.py",
+      "sha256": "c0365a5096daa24a7e5888f54e2cabe3d67abc48c9cdbf571c832de644f345a0",
+      "bytes": 9243
+    },
+    {
+      "path": "lotus_fin/lotus_fin/infrastructure/persistence/in_memory_session_repository.py",
+      "sha256": "fb389d14ec5145951f5fda16399faf4c17e711b8de0ba2ecd4b69b77b6b1af44",
+      "bytes": 760
+    },
+    {
+      "path": "lotus_fin/lotus_fin/infrastructure/security/__init__.py",
+      "sha256": "325feb6bec51d4acf1da80a698f3205237d630aeb70cc0c1c47afe08abb2a066",
+      "bytes": 189
+    },
+    {
+      "path": "lotus_fin/lotus_fin/infrastructure/security/action_reference_codec.py",
+      "sha256": "a9d8ec5bd15838d9034dca1bf7296bf9ae2cac1c52a7df461b35eb3995cc394a",
+      "bytes": 7024
+    },
+    {
+      "path": "lotus_fin/lotus_fin/infrastructure/security/frappe_access_gateway.py",
+      "sha256": "821b6254cf1bcb458f054b80c890e07a64f3688c766a0ef045790e67b5538ab7",
+      "bytes": 9646
+    },
+    {
+      "path": "lotus_fin/lotus_fin/infrastructure/security/frappe_invoice_authorizer.py",
+      "sha256": "0f6af5e31a20b8d49a8084e02e9dbcf65b6c0d4b8019e1e9730f8efb10d79a7b",
+      "bytes": 8953
+    },
+    {
+      "path": "lotus_fin/lotus_fin/infrastructure/security/invoice_reference_claims.py",
+      "sha256": "314acff0920486aadde2216c703abc2d67e8155a8b6d67110bbcacb1d96fdbfe",
+      "bytes": 2957
+    },
+    {
+      "path": "lotus_fin/lotus_fin/infrastructure/security/invoice_reference_codec.py",
+      "sha256": "a951b667f5f5d53d960461bee58c393691fb04d72002d4123272254539d0ec16",
+      "bytes": 4577
+    },
+    {
+      "path": "lotus_fin/lotus_fin/infrastructure/tool/command/base_tool_command.py",
+      "sha256": "80049ea1e34f1303afe02e0a80d31c3f6b8cbe252b26889ba2d35c731d69a1eb",
+      "bytes": 846
+    },
+    {
+      "path": "lotus_fin/lotus_fin/infrastructure/tool/impl/f001_health_tool.py",
+      "sha256": "8de162cffadcb28776cf994cc003c2fa29c316367b8f3009301280aba957a0f3",
+      "bytes": 1860
+    },
+    {
+      "path": "lotus_fin/lotus_fin/infrastructure/tool/impl/f002_cashflow_tool.py",
+      "sha256": "b7bcd75113b71ce8d665f22f54b734e7b1139d47ece1651b6ddad05f0e29f5b7",
+      "bytes": 1861
+    },
+    {
+      "path": "lotus_fin/lotus_fin/infrastructure/tool/impl/f003_risk_tool.py",
+      "sha256": "bae368c03f07c6cfb315051efb1842876162e85ac98003b44dda9a3323bd9325",
+      "bytes": 1993
+    },
+    {
+      "path": "lotus_fin/lotus_fin/infrastructure/tool/impl/f004_whatif_tool.py",
+      "sha256": "a1e423fd73ac3362fcd40c500c4aa59ab0b1d3e9a36f1aa4bd2b120fb30b4826",
+      "bytes": 2228
+    },
+    {
+      "path": "lotus_fin/lotus_fin/infrastructure/tool/impl/f005_financing_tool.py",
+      "sha256": "bae5eeca72f30466fef7a48fec6f84b66cd85efa6171e59f1f521df050d45cbf",
+      "bytes": 2041
+    },
+    {
+      "path": "lotus_fin/lotus_fin/infrastructure/tool/impl/f006_repayment_tool.py",
+      "sha256": "0ed72094ae53ead1aed5e478972ee5507d4d327ae7386db0ac259eb4dcddb3cb",
+      "bytes": 4528
+    },
+    {
+      "path": "lotus_fin/lotus_fin/infrastructure/tool/invoker/tool_invoker.py",
+      "sha256": "95c37739eda13e8c7921545838fe87b3e36b064f746af372366a70215f6a9ded",
+      "bytes": 2067
+    },
+    {
+      "path": "lotus_fin/lotus_fin/infrastructure/tool/registry/default_tools.py",
+      "sha256": "a49642818b00f7a6db5120e2710f0c6c166d78e3cc864227c57636301d9c03e0",
+      "bytes": 1036
+    },
+    {
+      "path": "lotus_fin/lotus_fin/infrastructure/tool/registry/tool_registry.py",
+      "sha256": "6329ec3cb504bb398a8112427ceb572f9d527008de759e41b6a07c96082f4809",
+      "bytes": 1231
+    },
+    {
+      "path": "lotus_fin/lotus_fin/lotus_fin_ai/__init__.py",
+      "sha256": "e151e91b1b6d82acaee38b8d84a7291f24de73ec095f9ce97f2944a1b6d19b29",
+      "bytes": 23
+    },
+    {
+      "path": "lotus_fin/lotus_fin/lotus_fin_ai/page/__init__.py",
+      "sha256": "2687438801b47337f206ad3a4bc0fe8978be7cd41a5b1256b50faa1132be847e",
+      "bytes": 29
+    },
+    {
+      "path": "lotus_fin/lotus_fin/lotus_fin_ai/page/cash_forecast/__init__.py",
+      "sha256": "f25b2457ca9b4afc0ab83a870d2aef70f6945a098267bf481f4afe6e6d6b7360",
+      "bytes": 30
+    },
+    {
+      "path": "lotus_fin/lotus_fin/lotus_fin_ai/page/cash_forecast/cash_forecast.js",
+      "sha256": "ad1b393715056ffcaabc029dddc8e388cd96532e22197841b4ed8473757bdb9d",
+      "bytes": 25679
+    },
+    {
+      "path": "lotus_fin/lotus_fin/lotus_fin_ai/page/cash_forecast/cash_forecast.json",
+      "sha256": "21d5f3b39e225056b48324ffb9747ab6d7300762f11b396514a66ff6a189527a",
+      "bytes": 584
+    },
+    {
+      "path": "lotus_fin/lotus_fin/lotus_fin_ai/page/cash_forecast/cash_forecast.py",
+      "sha256": "6cad85bc870e68b7db6f91cb69663139013f0b92923a22ca017001860066781f",
+      "bytes": 105
+    },
+    {
+      "path": "lotus_fin/lotus_fin/lotus_fin_ai/page/financial_health/__init__.py",
+      "sha256": "bce57995e6ad44b48be3134ea6f137ecc7f8d4df37810997952b6463c5efc3eb",
+      "bytes": 46
+    },
+    {
+      "path": "lotus_fin/lotus_fin/lotus_fin_ai/page/financial_health/financial_health.js",
+      "sha256": "8fc163e4fae7de3aa8655ade2468d72fe8e91f60465e12899b3b573c2be6b4fa",
+      "bytes": 37827
+    },
+    {
+      "path": "lotus_fin/lotus_fin/lotus_fin_ai/page/financial_health/financial_health.json",
+      "sha256": "1f13b10f2fff763f481f50739c7f5c002c637ba8ff2b9a849e988603be59b204",
+      "bytes": 593
+    },
+    {
+      "path": "lotus_fin/lotus_fin/lotus_fin_ai/page/financial_health/financial_health.py",
+      "sha256": "911ace5b3b30eecfae6b97515a86f09d51e6dd9aa2033741dd9862f2a696192c",
+      "bytes": 108
+    },
+    {
+      "path": "lotus_fin/lotus_fin/lotus_fin_ai/page/financing_copilot/financing_copilot.js",
+      "sha256": "1cd8e3039d5f0515b75466fe3538a12d1f59d6439e3e48daeec65ce0c52cc162",
+      "bytes": 16311
+    },
+    {
+      "path": "lotus_fin/lotus_fin/lotus_fin_ai/page/financing_copilot/financing_copilot.json",
+      "sha256": "3a27ff318afa66de3335fdd58f69c15ca825920a6d10acd54ad5625ff787a3df",
+      "bytes": 612
+    },
+    {
+      "path": "lotus_fin/lotus_fin/lotus_fin_ai/page/financing_copilot/financing_copilot.py",
+      "sha256": "555623171238fb835c9000812c11af7844fa569acfec38097e5a0d681cfe822d",
+      "bytes": 109
+    },
+    {
+      "path": "lotus_fin/lotus_fin/lotus_fin_ai/page/lotus_copilot/lotus_copilot.js",
+      "sha256": "a18c31be739e750ce524f2d0073e00478c064ce0e6d716883d5c1a756316a065",
+      "bytes": 3576
+    },
+    {
+      "path": "lotus_fin/lotus_fin/lotus_fin_ai/page/lotus_copilot/lotus_copilot.json",
+      "sha256": "e0843b3244bb383513593bf8c0362727d6341d9dd84e3996b998443e8bd29b98",
+      "bytes": 591
+    },
+    {
+      "path": "lotus_fin/lotus_fin/lotus_fin_ai/page/lotus_copilot/lotus_copilot.py",
+      "sha256": "90b14bf90b8267d63c160f271269f8545907bcd19fa8bafa0679460767296adf",
+      "bytes": 96
+    },
+    {
+      "path": "lotus_fin/lotus_fin/lotus_fin_ai/page/repayment_schedule/__init__.py",
+      "sha256": "97aad1a30e6f5fc21a2d8ed6266f5b5d663b89118a935a33ebf9c1a3c9cdf586",
+      "bytes": 14
+    },
+    {
+      "path": "lotus_fin/lotus_fin/lotus_fin_ai/page/repayment_schedule/repayment_schedule.js",
+      "sha256": "277cd98b85c8fa647ab2753fa572748a4518371fb615f5d8ea94473a93e1be96",
+      "bytes": 15594
+    },
+    {
+      "path": "lotus_fin/lotus_fin/lotus_fin_ai/page/repayment_schedule/repayment_schedule.json",
+      "sha256": "81894141385dbf5eef7120a0ea33d32fa43b4b548ac5bf35c550548e7dcab005",
+      "bytes": 608
+    },
+    {
+      "path": "lotus_fin/lotus_fin/lotus_fin_ai/page/repayment_schedule/repayment_schedule.py",
+      "sha256": "25df3cff4bb4962aeea2800801ea59a017df39dca0eced26e38a3cbe14a3adf8",
+      "bytes": 110
+    },
+    {
+      "path": "lotus_fin/lotus_fin/lotus_fin_ai/page/risk_signal/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "lotus_fin/lotus_fin/lotus_fin_ai/page/risk_signal/risk_signal.js",
+      "sha256": "9a908bf84544964ddd0f64fbe9343618bfb77cefeb49a2a7647843eff2f694ed",
+      "bytes": 24187
+    },
+    {
+      "path": "lotus_fin/lotus_fin/lotus_fin_ai/page/risk_signal/risk_signal.json",
+      "sha256": "7ee2e51e8b86d7a4250bdf59fb2b48e7b4424b8852cc936687c09d7e9d95ea7f",
+      "bytes": 578
+    },
+    {
+      "path": "lotus_fin/lotus_fin/lotus_fin_ai/page/risk_signal/risk_signal.py",
+      "sha256": "9124c136b2cf4d5513005a306484db99e2aee0f35b18e78f3b23458ac19742b3",
+      "bytes": 103
+    },
+    {
+      "path": "lotus_fin/lotus_fin/lotus_fin_ai/page/what_if_studio/what_if_studio.js",
+      "sha256": "8d1de0af2a321bb7e9b461685d10011e730b5761a881d10cabe5ca8fecd78c65",
+      "bytes": 3341
+    },
+    {
+      "path": "lotus_fin/lotus_fin/lotus_fin_ai/page/what_if_studio/what_if_studio.json",
+      "sha256": "79a7cbfc5a79561298ffd0d1df1bfee74a27df6d526fc1c844f117c529675140",
+      "bytes": 602
+    },
+    {
+      "path": "lotus_fin/lotus_fin/lotus_fin_ai/page/what_if_studio/what_if_studio.py",
+      "sha256": "055f6a3b206d65cb667bd7bc2d0a1084cae8c20656f2ca71e99d8343a44f0fb3",
+      "bytes": 100
+    },
+    {
+      "path": "lotus_fin/lotus_fin/lotus_fin_ai/workspace/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "lotus_fin/lotus_fin/lotus_fin_ai/workspace/lotus_fin_ai/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "lotus_fin/lotus_fin/lotus_fin_ai/workspace/lotus_fin_ai/lotus_fin_ai.json",
+      "sha256": "d4fe3ad8ead5157810c320c99444daee537a80cb0f0e71e52742064ebdec2b7d",
+      "bytes": 5501
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/__init__.py",
+      "sha256": "21d59de68cb068a7f73a267855524a0ba0e98c4735f0a0124b6a36f83319194c",
+      "bytes": 1251
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f001_health/__init__.py",
+      "sha256": "1c2c2c867fff82cfefbf2595a9475ff23b146bbe0a351641ddd29f51f2272dcd",
+      "bytes": 361
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f001_health/explanation.py",
+      "sha256": "2752388c72c26361705474cbe6e48441eae2345538436365a89b1884be5c9e9a",
+      "bytes": 11551
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f001_health/explanation_validator.py",
+      "sha256": "ad67a08bf224089c8556d02bd7b98dc19e79e44e6c57f1e0254b0178a5bd441c",
+      "bytes": 4768
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f001_health/extractors.py",
+      "sha256": "15ef15535569a626abc3842d34803286dd29cdf7f0da3b5e1c02abc2368d8ae3",
+      "bytes": 1005
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f001_health/financial_health.py",
+      "sha256": "acce59cd5e14d0d936a690d3f87f589dd05f84e3370f33e35ebf51f5691d8a02",
+      "bytes": 6662
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f001_health/financial_snapshot.py",
+      "sha256": "a72b4f4d492f31ffc0079a233a788c7d5db4170237e4b472d35c49a914c659fd",
+      "bytes": 3146
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f001_health/models.py",
+      "sha256": "a220b2a6e6e64ac2f56a4f4bb04dd971084cefe19bf77d29c3ad1aac832ea572",
+      "bytes": 1778
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f001_health/plugin.py",
+      "sha256": "9449e49a9cbacf801a6d63c451463170c818278f762985df60e50b7194dad64e",
+      "bytes": 3425
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f001_health/service.py",
+      "sha256": "13316f32858db06dd70ee53a915732c82c7f93f83a6c74d4946350d0546ccd8b",
+      "bytes": 1110
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f002_cashflow/__init__.py",
+      "sha256": "2865b64d06b8d166e3000299d25286daa39d0bbe34e4723f72e1a35776a52c27",
+      "bytes": 53
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f002_cashflow/adapters.py",
+      "sha256": "625fcf49daad5b92964e70fdc212e998f1798c2ffcd0dd95533f2429f134ae8a",
+      "bytes": 40371
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f002_cashflow/agent.py",
+      "sha256": "af5ae3d412b049b15da75977555a82e524018eb69b1a93d3e2b113da4c36c4c6",
+      "bytes": 9189
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f002_cashflow/cache.py",
+      "sha256": "0081a92a7425a9be69da2bf074531d7d792afac8f02fcdcffd59d7acc235f2dd",
+      "bytes": 2430
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f002_cashflow/engine.py",
+      "sha256": "2ae54845bd7bef43d94454b765fb47d62cdba1c11a17cc785251c8ceadc5b4e7",
+      "bytes": 3235
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f002_cashflow/grounding.py",
+      "sha256": "07c070eda3f67c1962170ecdd1c7d3d7489c18428dfecabb9cebae9dd7000188",
+      "bytes": 6582
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f002_cashflow/models.py",
+      "sha256": "8afbedf92aff7ebe2a4ce7fac7c69731223fa9f4d19d0bcef6d5c13672962b5b",
+      "bytes": 4950
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f002_cashflow/plugin.py",
+      "sha256": "7f10f88f6a0bf8a213cb2388c6670aebfc8deb298e3d1c6232a0a6ce9d983735",
+      "bytes": 5163
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f002_cashflow/service.py",
+      "sha256": "08b26048205fc2c1e249d6befaeb99ee4055fc29e2414adb04654ea9d837f608",
+      "bytes": 19690
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f002_cashflow/source_interface.py",
+      "sha256": "4dbe4f077ccb86b6bad68360d7c6eb470868c5afd827b1cb2fe928f91d7086e8",
+      "bytes": 3826
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f002_cashflow/tools.py",
+      "sha256": "86729a8d359554e38d044d4492035b7a5bf3d1bfef9920cad99092eadcbb872a",
+      "bytes": 4505
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f002_cashflow/validation.py",
+      "sha256": "cc73ede01e20f457db9611d12efd93f55280dcba5ea4d32a6cfd377be86b301c",
+      "bytes": 5398
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f003_risk_signal/__init__.py",
+      "sha256": "e7a5016f725bf54b23eb74335fd03092daa62ca53c780d095206cfdd949dda7f",
+      "bytes": 2396
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f003_risk_signal/agent.py",
+      "sha256": "20303423f5a6ba3e7cb340ff36a1127ae7580ac3ba796e8ec7628243fd5f4a5d",
+      "bytes": 12760
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f003_risk_signal/contracts.py",
+      "sha256": "63358ad367a5603a774316c20e2298b658e272b2dbeff83b50ca5906c50a0eaf",
+      "bytes": 24588
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f003_risk_signal/coverage.py",
+      "sha256": "6c19d02d829d45a5f11ed21aa1cfca77ece935acd917df375fdfcb8dfe735f03",
+      "bytes": 6773
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f003_risk_signal/evaluation.py",
+      "sha256": "bd5b6461a8ec47902c8862ec55cee3e1349f9b73e0e6e55d48d04094ed877958",
+      "bytes": 6170
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f003_risk_signal/evidence.py",
+      "sha256": "5898b8740b5f1f9a6e406030433e795968f7a2bf3c348b7e9bbe5d3cf148aa2e",
+      "bytes": 19100
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f003_risk_signal/interfaces.py",
+      "sha256": "1e66b0baf18daa4554b144675e29c4007308c88c700b250ebb73716b2c079d83",
+      "bytes": 3393
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f003_risk_signal/observability.py",
+      "sha256": "081c64613108c9ef4d5221641a11f4c034f709a434fdf686c48232e16d4b3851",
+      "bytes": 4070
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f003_risk_signal/policy.py",
+      "sha256": "c77031bd0c0197add693c3a16b7112650e4c2043b55fa3087f868382d9f79a4e",
+      "bytes": 7212
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f003_risk_signal/provenance.py",
+      "sha256": "cb76b3e7a515dd14b2709d4bb972fed4b1ff736b57f5fd4939890a4f0cb781bd",
+      "bytes": 7380
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f003_risk_signal/service.py",
+      "sha256": "4fa68b8ccbd1a05ad265da40214455ae51289f1cc1dd08a00d710e5ddb071e0a",
+      "bytes": 26338
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f003_risk_signal/sources.py",
+      "sha256": "68bba695d01e314bed1c22d2a83a4487731383b05d5f325a63ee88a3b5ef27bf",
+      "bytes": 19330
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f004_what_if/__init__.py",
+      "sha256": "2257b2d99eb1dbf3a4305d2bf1cfb8780894c826259ef4a5c00fc9247800d999",
+      "bytes": 190
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f004_what_if/adapters/__init__.py",
+      "sha256": "fe882f075f3292660047751f9a1614031a623f676ab8ecbf1dd53b88d6a7f9c1",
+      "bytes": 20
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f004_what_if/adapters/baseline_adapter.py",
+      "sha256": "28c1b0606aeb6d8b0846519825f5f998b7ae317054fe068ea41fbd61ab75a29a",
+      "bytes": 5165
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f004_what_if/adapters/llm_explainer.py",
+      "sha256": "d3471c7f7ee026ec3e7535d4066bfbe9df3fc4c77fc28cc2b301a2c6c964c384",
+      "bytes": 2456
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f004_what_if/api.py",
+      "sha256": "d368824b1afc919ea142807413695b24e8a8f5f6805da09e2e2b52e72f11417d",
+      "bytes": 2710
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f004_what_if/domain/__init__.py",
+      "sha256": "4dc580145fb5511e5a106b7e8035a25a24c6c84752410eb615689c54d8578a25",
+      "bytes": 18
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f004_what_if/domain/enums.py",
+      "sha256": "e2b989b13d453673e751d626c0e6738d9ccbc7fb33ddbd18a2b9991a8cfc2a55",
+      "bytes": 738
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f004_what_if/domain/models.py",
+      "sha256": "0078adc01f51f58092b671678629b877bcb88b95f26385f65af9fb619909c1c9",
+      "bytes": 7943
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f004_what_if/engine/__init__.py",
+      "sha256": "8f78399dc29fea6e80dc74c7c0e0fb9003e34a1aad4573d9e9f53ff4c840c3ca",
+      "bytes": 18
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f004_what_if/engine/metrics.py",
+      "sha256": "f644955a81749f40cccf82e28ea352875cec84959612084228f2ade8e7044c9b",
+      "bytes": 5555
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f004_what_if/engine/pipeline.py",
+      "sha256": "ba105e69d8ff5c7fdaebab2f35f103a027dadc898251d75690b1ae481accde1d",
+      "bytes": 1036
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f004_what_if/engine/simulator.py",
+      "sha256": "7c94577d2b3cb9fca08dc01d4cd91fd4e9fa589c897368542f6906249bc77f8b",
+      "bytes": 4187
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f004_what_if/modifiers/__init__.py",
+      "sha256": "657d7c9325bd81999a291d51ea8b1385952b9af2373fa77bdf8f394230fc3e9a",
+      "bytes": 21
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f004_what_if/modifiers/base.py",
+      "sha256": "f46bba5d2f508386f1d7fff2b24243fb0fd05b5fb8b0bbf03067aaffc5674d56",
+      "bytes": 1059
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f004_what_if/modifiers/collection_modifier.py",
+      "sha256": "d1fc1051632c7e2b6098f874ada68027783abbd12eee3048e371788fc59f8c82",
+      "bytes": 2030
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f004_what_if/modifiers/expense_modifier.py",
+      "sha256": "b53c37524e4c82048f8c95e56d0a974b9400d5bbef139b046d99f0990a1bf361",
+      "bytes": 4391
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f004_what_if/modifiers/factory.py",
+      "sha256": "3639cae774e362cf804a2bd86aa80e3335ba5960b282a17584f19b2dd1c4f11d",
+      "bytes": 1066
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f004_what_if/modifiers/financing_modifier.py",
+      "sha256": "d6eca4147583e3ec2ebf046cddc673fce672298135a1f48286fa835679118225",
+      "bytes": 1757
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f004_what_if/modifiers/payable_modifier.py",
+      "sha256": "0e8bc152ae9913643ae36526990884e6956905d65ba57f59b605ed0a1bf6f5e7",
+      "bytes": 2042
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f004_what_if/modifiers/sales_modifier.py",
+      "sha256": "0ab10ed152a48647a578f146d5a9eb2cb4fd146361a81c660ecb0cbac2586e8c",
+      "bytes": 2182
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f004_what_if/plugin.py",
+      "sha256": "9dbde0ca251b14094457a86fbd95c34818d0d862a9cac67909dc853a1f3d7ad3",
+      "bytes": 3857
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f004_what_if/service.py",
+      "sha256": "f051ab96db20b7eb83a37f46e8a2dd3ce4c60097fec4cca26bd65a83cae2c578",
+      "bytes": 3206
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f005_financing/__init__.py",
+      "sha256": "30345ca08e93325833e93fd268cbf31003e3ab58da5a398d16e1331645e60675",
+      "bytes": 1198
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f005_financing/advisor.py",
+      "sha256": "b73223675e6997b7cd901e30317a16188392666516ccebffd69011fe83c4ccd1",
+      "bytes": 6578
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f005_financing/catalog.py",
+      "sha256": "5d019d15eaf34bdd015dccdfb7a45ea95df32e6ceb52cfaadc255d25c923790b",
+      "bytes": 7899
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f005_financing/eligibility_rules.py",
+      "sha256": "fe0a9616be6d17535b55a87af733b5f8d6a4a7325730428c2f7b9e4240089d8b",
+      "bytes": 3914
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f005_financing/matcher.py",
+      "sha256": "7d067d2dcdf9320f1258cd4478f2f393c987d33614e5b2fef6cbee9a148b2d20",
+      "bytes": 6496
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f005_financing/models.py",
+      "sha256": "e1510b21d3caec7385720d191448b1cf964813a5240555e321f06653840108d6",
+      "bytes": 6079
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f005_financing/plugin.py",
+      "sha256": "adb87489a0db9978dbc6fa5daf15f85735a6fd0c4ed847b6433eb2d35586d78d",
+      "bytes": 4461
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f005_financing/scenario_engine.py",
+      "sha256": "a0cc910f17448d978fb7a4e80841fbcffc66b14bef0dbb9bc05864d932221600",
+      "bytes": 7211
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f005_financing/scoring_rules.py",
+      "sha256": "39a269efde67705f298228c2d0b280d56d50ceaecc7af0a6f1526ad66a2b0206",
+      "bytes": 1897
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f005_financing/service.py",
+      "sha256": "fe84d6a24a30b7cca198e891ebca4f0a689b630286b24223c65469a659fd1bfc",
+      "bytes": 10922
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f005_financing/test_ai005.py",
+      "sha256": "035495defb584a09bb1653dc97a2980cbef4b06d87bb893ecadc6af1aaff2b90",
+      "bytes": 9165
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f006_repayment/__init__.py",
+      "sha256": "efd72874df1ddd9edaa7c8333e130699440bdd34fc00899df01bb5afdcca8a2f",
+      "bytes": 750
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f006_repayment/ai_advisor.py",
+      "sha256": "42c382a895f1e074fd297995a5293eaa123e249172d3b951dd15e96ea98fc5be",
+      "bytes": 3240
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f006_repayment/contracts.py",
+      "sha256": "e76ee477a76c76be716efe87fe30e0c06ea29292a7863a5a98ac13b9582c8dec",
+      "bytes": 2067
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f006_repayment/engine.py",
+      "sha256": "6afc82a70fbee5d53b0c1870afdba349f7d2d1308340ddc0dd7e9e0530038b8a",
+      "bytes": 20042
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f006_repayment/math_utils.py",
+      "sha256": "d94965e27f82200aca2fc44f5fa078bafb97b04d33ed18a642d17ef40e0c51dc",
+      "bytes": 2103
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f006_repayment/models.py",
+      "sha256": "ffd8514459cbddeba41423a06a44f6809493062d0d60994d2f5b6ae261de3011",
+      "bytes": 6851
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f006_repayment/README.md",
+      "sha256": "f17b453b5fce48fce501676082e2561f5a89c5769e855c6351cd4c5ca027ee70",
+      "bytes": 2032
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f006_repayment/service.py",
+      "sha256": "0579db5b0f8809512088df2b0778002f07aed29efe8dd71d2d86cc437bdfb87b",
+      "bytes": 4536
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f006_repayment/stress.py",
+      "sha256": "75eb240eb394c21905a1136965dec9d4af32b00afdfd810fb0a1f1cf56e73d42",
+      "bytes": 16595
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f006_repayment/test_ai006.py",
+      "sha256": "be9188b9aa2596d9a80ce544696f150a0f4556151863b7674386e0ff967521c6",
+      "bytes": 3765
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f007_copilot/__init__.py",
+      "sha256": "ba2c7498831c279a8e15b4faf7fe5be5c1a2ff5d0297c6371d2236300b2a9a01",
+      "bytes": 413
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f007_copilot/models.py",
+      "sha256": "34153498b8d8b948ffc0fe31626a7f39639986433bd7990ced60621d7ec21a92",
+      "bytes": 2338
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f007_copilot/orchestrator.py",
+      "sha256": "cfa2c57fa5437f61d59726146f4a01e89035263fcb70ed3012a629dd0d62d47c",
+      "bytes": 10297
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f007_copilot/README.md",
+      "sha256": "0484e50ec6d8b8b63aa1d615df5ef3de8f7498658ec2cf08c6893dd61ead363d",
+      "bytes": 2650
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f007_copilot/service.py",
+      "sha256": "62782e679c6dba8af81d9fdae7b6dedfa992684f201682ecaf5c27dbcf483dd1",
+      "bytes": 1692
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules/f007_copilot/test_ai007.py",
+      "sha256": "e232d5754448f437da3e44f1f565d204e10d43d67fdd113dfe6a175d5def40b9",
+      "bytes": 2197
+    },
+    {
+      "path": "lotus_fin/lotus_fin/modules.txt",
+      "sha256": "463f2544f0958d4d833d262eb30902b16831d47bb8744956b12758851d59b3a0",
+      "bytes": 14
+    },
+    {
+      "path": "lotus_fin/lotus_fin/patches.txt",
+      "sha256": "774134d3c62655551254d906f51c7c361b7a9886b165f328f1b2b1bea23ef985",
+      "bytes": 27
+    },
+    {
+      "path": "lotus_fin/lotus_fin/presentation/controller/copilot_controller.py",
+      "sha256": "4cda41678815f6598a115e39a81749dad84f6c51b56416a2ef7f0c217efcb9ed",
+      "bytes": 4115
+    },
+    {
+      "path": "lotus_fin/lotus_fin/presentation/controller/invoice_actions_controller.py",
+      "sha256": "859c56d2b40d1793855ac891f08361d3cc8ddbb3cb1b8db9b435092142111b15",
+      "bytes": 10232
+    },
+    {
+      "path": "lotus_fin/lotus_fin/presentation/dto/action_outcome.py",
+      "sha256": "2c89b0c5ea422972cd6855230bb99c594630134956d5e901b54cd25e5833796f",
+      "bytes": 4940
+    },
+    {
+      "path": "lotus_fin/lotus_fin/presentation/dto/chat_request.py",
+      "sha256": "1608e3a04ee2766568ff41e35141830c03df7f339cac32b0d8abfa4a6101eee7",
+      "bytes": 594
+    },
+    {
+      "path": "lotus_fin/lotus_fin/presentation/dto/chat_response.py",
+      "sha256": "262f3f8ecd9b7470aa06738beab232506dbc2b777c37ef4778a22d6c7eed06cf",
+      "bytes": 512
+    },
+    {
+      "path": "lotus_fin/lotus_fin/presentation/dto/invoice_action_http_request.py",
+      "sha256": "bb903c0e0d8fb7214cc3ceb409356f7dd69343c08b95d46edce174894a220c86",
+      "bytes": 1630
+    },
+    {
+      "path": "lotus_fin/lotus_fin/presentation/dto/invoice_action_request.py",
+      "sha256": "0fead5649c07730ad1741a5fc6bbcd93e7fdfa17567b6bd655b3c7af03f6f684",
+      "bytes": 3766
+    },
+    {
+      "path": "lotus_fin/lotus_fin/presentation/dto/invoice_action_response.py",
+      "sha256": "b3dcf58e2af77b296ce9aea9892c4a3f137190d40c6e3bd16ebf904b227e6592",
+      "bytes": 1360
+    },
+    {
+      "path": "lotus_fin/lotus_fin/presentation/response/action_response.py",
+      "sha256": "599f7afd0e0a1dd79671f0796a87cdd16e26fb2d3ad66a670889ae01a42521bb",
+      "bytes": 7179
+    },
+    {
+      "path": "lotus_fin/lotus_fin/presentation/response/invoice_action_delivery.py",
+      "sha256": "0bfdd70dfb485b3f415bcf3da54b80d531b41f0e35a0f5cdd4d05cd131ed8c84",
+      "bytes": 2783
+    },
+    {
+      "path": "lotus_fin/lotus_fin/public/css/lotus_fin.css",
+      "sha256": "a4ea294acf32f89d289841c743a302e2987303402c99a848bcefaaca6406966e",
+      "bytes": 29252
+    },
+    {
+      "path": "lotus_fin/lotus_fin/public/css/lotus_material3.css",
+      "sha256": "6e7e25e777869da1be24a70e0b0c4acd4c461858853d35b5806b0e1d6c90ebcc",
+      "bytes": 10329
+    },
+    {
+      "path": "lotus_fin/lotus_fin/public/css/lotus_tokens.css",
+      "sha256": "51aed41862b3e683314008cc96d579ab376486b849894c92bdbf89e3e2c912cb",
+      "bytes": 3457
+    },
+    {
+      "path": "lotus_fin/lotus_fin/public/js/components/chat_copilot.js",
+      "sha256": "c1d73de892724fd19951c61ee385cba254e4a1463c768d4053cb0e37819f2609",
+      "bytes": 14598
+    },
+    {
+      "path": "lotus_fin/lotus_fin/public/js/components/what_if_studio.js",
+      "sha256": "908fbc01b00176792c684e65d217d2e827e4ccf39b3655f4fa142264dfe0d12f",
+      "bytes": 25057
+    },
+    {
+      "path": "lotus_fin/lotus_fin/public/js/core/api_client.js",
+      "sha256": "4bdf81e80047036005a5a741576243079e50674e74e694f6b0fe4c5298850c24",
+      "bytes": 449
+    },
+    {
+      "path": "lotus_fin/lotus_fin/public/js/core/dom_helper.js",
+      "sha256": "f45965493262b454afd60fed4c2b3f3477795203639209fdb3799250ab16f795",
+      "bytes": 790
+    },
+    {
+      "path": "lotus_fin/lotus_fin/public/js/lotus_fin.js",
+      "sha256": "8fc48a95bc89cc287966eeb32471ea47f72b32fb3fb11e8c4439380318e980c7",
+      "bytes": 49561
+    },
+    {
+      "path": "lotus_fin/lotus_fin/public/js/ui/badge.js",
+      "sha256": "505cf3b3436ceb5123ef77ab4a01381c35d81bf077d672950854d348d527da67",
+      "bytes": 805
+    },
+    {
+      "path": "lotus_fin/lotus_fin/public/js/ui/button.js",
+      "sha256": "e0e9b8628b1e74d0104f7997821e03115f7977deb1580f7451377837273dadf6",
+      "bytes": 1790
+    },
+    {
+      "path": "lotus_fin/lotus_fin/public/js/ui/card.js",
+      "sha256": "e6dd85e6f80ba5667c222a39b9a4758ceb87616b733d5c22a2d11608356de911",
+      "bytes": 1518
+    },
+    {
+      "path": "lotus_fin/lotus_fin/public/js/ui/input.js",
+      "sha256": "de971b0e8353d0f0452d6ec2c05d9a1dc7d6cc950a5a8d897ce6e8f4aa9a21d6",
+      "bytes": 1729
+    },
+    {
+      "path": "lotus_fin/lotus_fin/public/js/ui/metric_card.js",
+      "sha256": "d721b933875e332f0c345acc4734c759dd4b118f7b056b4049b589acfad21288",
+      "bytes": 2017
+    },
+    {
+      "path": "lotus_fin/lotus_fin/public/js/ui/table.js",
+      "sha256": "bb056cea8545fcd7a9e9336ea78c752c8f8636e05eddfb9b9b935b9216ed6341",
+      "bytes": 1995
+    },
+    {
+      "path": "lotus_fin/lotus_fin/public/js/widgets/chat_copilot_widget.js",
+      "sha256": "580177c42ee1e28d28efb9c52459e2c47bcca206d738123d68d6905b0dddf45a",
+      "bytes": 15225
+    },
+    {
+      "path": "lotus_fin/lotus_fin/security/__init__.py",
+      "sha256": "f2e11b2386eed18910e3a8d4d964327f0097e276db87222d302eb8597881466f",
+      "bytes": 34
+    },
+    {
+      "path": "lotus_fin/lotus_fin/security/access.py",
+      "sha256": "39323d28b3e07bdc768a84a931da3faed31238e56d21514dfbf778e288fb8dab",
+      "bytes": 3694
+    },
+    {
+      "path": "lotus_fin/lotus_fin/setup_data.py",
+      "sha256": "a69826dac388f881e8d05b102e359a77296fdc5d00d8a479567860f8bf6a45ae",
+      "bytes": 2332
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/__init__.py",
+      "sha256": "e35531a0fac15d78d7cc8095959a7d691a63f19c5c231aebd2fb420c1b2c04d5",
+      "bytes": 31
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/data/ai001_eval_scenarios.json",
+      "sha256": "f8a7d3624a9828e1ab9357b29e1e5601593309d866b577b3314217f220854146",
+      "bytes": 22714
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_access_and_reports.py",
+      "sha256": "8c65a505eb2e2d906c5896ea36e49da0e1d2d32aff4817e120f9a5cbbf265b4c",
+      "bytes": 14947
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_action_delivery.py",
+      "sha256": "477a1ee435df065ef8fa21b3dfc95aad4660342ea91a99d7271e2c2fb3461148",
+      "bytes": 6799
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_action_denial_policy.py",
+      "sha256": "daf02b869f337d092854222782000cadda3f0aaffb559fed9f612a15a52a3c37",
+      "bytes": 3303
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_action_outcome.py",
+      "sha256": "1f681972a3e1c68bd3b3332d72f326882df024ca1ec8f6ff59751e51e562a99b",
+      "bytes": 6072
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_action_reference_privacy.py",
+      "sha256": "a107119ca0f95ca9d52af4e27fc1ffec4bd27fc9617b8ccf56d04b25e6197f4e",
+      "bytes": 5465
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_action_references.py",
+      "sha256": "252eadaef57b83135e8a2512a947bd993ce2a660ba4b4edf0de85a3966497633",
+      "bytes": 3769
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_action_security_regressions.py",
+      "sha256": "dd77f86eb31257c626fc7fc00fded85788c6a20020ce71337cba2ba983198f30",
+      "bytes": 8012
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_action_sink_ack.py",
+      "sha256": "46e74e9ac26336f3f8b47d24f27270c7fe95dd079d70ec7ead654919948fc245",
+      "bytes": 6315
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_ai001_foundation_blockers.py",
+      "sha256": "e6a3aefeeca93f435321c99e99e364e2ba5336a977ac62f9285216e79caffb8a",
+      "bytes": 23394
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_ai002_foundation_blockers.py",
+      "sha256": "c564aeb9e843dad942566069e4e9eabcd555913f6e81a0f447f68cf349e496b7",
+      "bytes": 9912
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_ai003_foundation_remediation.py",
+      "sha256": "56f086a8a138161464ec516cedc49417d9314366b24945ba8ac0ee059a91a254",
+      "bytes": 56816
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_ai004_scenario.py",
+      "sha256": "fd8ee8990db5f6474c207edb91c4585bb09a08fc993320f14723da7313e5686b",
+      "bytes": 9994
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_architecture_remediation.py",
+      "sha256": "f4560a114ea0601bbbbb6059e314247ed472c154d2710e3e6ad8229ab82a38aa",
+      "bytes": 31215
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_cashflow_engine.py",
+      "sha256": "afe9d6fc66ca9c8de4bd8521953eff814d26134ccecf13af3bd3f980604b84be",
+      "bytes": 20326
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_cashflow_failclosed.py",
+      "sha256": "b6388d6a9c10e1dac8dd4781217cac0a36ab9d329f009b1103c7d5a11bb9d097",
+      "bytes": 46254
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_cashflow_security.py",
+      "sha256": "d03b69a7b3c3ce5e3cd45fe43423b2b4b2b2bda976c3bbe3a59cb9d44656819e",
+      "bytes": 13859
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_clean_architecture.py",
+      "sha256": "749f07b5a037f48cbafcfdfb59759e107567e1efb35b1a452d5f2a1c69bc2d13",
+      "bytes": 7502
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_eval_rubric.py",
+      "sha256": "743f82589ced8738bd59c787747c562efa4056bc2f335b3bd7f245ef2e63c30e",
+      "bytes": 3736
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_explanation.py",
+      "sha256": "e6acb5257d7217f0343e4d1cdccc1ca23aa6c5a7624fc33aca2bb051476e6501",
+      "bytes": 9951
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_f002_import_identity.py",
+      "sha256": "4b3ee663564798c6b8b713886ff4c415d0e9282a2acc0a37ee700165c7f1a996",
+      "bytes": 5809
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_financial_health.py",
+      "sha256": "bf9f86e19a7084fdae17306dd35c9548fc1a8372f2f3d96c4dccf5bb7052c021",
+      "bytes": 12409
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_financial_snapshot.py",
+      "sha256": "f854f964a3bf4eb27706b9c5436ddb42f0acb404f9069a78f17be5e6b7aed0b9",
+      "bytes": 14074
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_invoice_auth_delivery.py",
+      "sha256": "cf796508ce6cd5aa30baa4b269a8bfabf7dcf801a6ba84ba2947d120152876be",
+      "bytes": 5057
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_invoice_config_loader.py",
+      "sha256": "5f186961603d2baf238372bdaf837891786ac73739f5404bba07e526d084fd9e",
+      "bytes": 5647
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_invoice_config_rotation_security.py",
+      "sha256": "2276afe4ab6c87b248141ce1efaeee8ea579ebbfb9ed676e5adc23a37f7b7159",
+      "bytes": 3816
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_invoice_context.py",
+      "sha256": "bd06caa647c4bcea49f679a866a91fadc306894547ea8b3a1f9ca534f2d3ba22",
+      "bytes": 7343
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_invoice_context_data_correction.py",
+      "sha256": "e3106269c3d240fa769d6a86cfb23d379dfbe2844f22946311b57a83ec0ce38d",
+      "bytes": 5639
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_invoice_controller_context_expiry.py",
+      "sha256": "227857fc7277abf10813bd1ac352faf2fe7c8453e83af6bb5ebbb4d4e3e6d951",
+      "bytes": 2243
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_invoice_controller_wiring.py",
+      "sha256": "a5a6b4ab72ec4e2c667db7c3f22e147035bb8043abdaeead51039b89bf6ec94f",
+      "bytes": 7278
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_invoice_delivery_boundary.py",
+      "sha256": "42d509429010e36a114a064d8a3f491675e8dad6a84bad73e5168649b90d73fe",
+      "bytes": 3348
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_invoice_http_boundary.py",
+      "sha256": "ea657d8a322dc1d54e38332040d5b9fbafd2007b2b5a2586c6e44ba0dcbc5b04",
+      "bytes": 4583
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_invoice_permission_seam.py",
+      "sha256": "acfd2d4f013183d1dc180ba50f7f7914bf4a64b695b34749eb317d5cadfd37ab",
+      "bytes": 3444
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_invoice_read.py",
+      "sha256": "194a59712bb1ffb5330561d2d015a12f68228e5d565390fa84c8dc5d47c8973c",
+      "bytes": 4335
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_invoice_read_budgets.py",
+      "sha256": "44c45d2ceb05a6dc30a4070d02b6b1ad2ababb89188d1f58402fce70da5cad50",
+      "bytes": 6012
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_invoice_read_delivery.py",
+      "sha256": "330790902e1fd095630daa28edd73e97f3de54860da75027d6c0b944b97062be",
+      "bytes": 3735
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_invoice_read_family_correction.py",
+      "sha256": "efabedf0ca53ce2b87fb1700122e3c731e49fb7987f38031dd3bc3ac0ee29ed9",
+      "bytes": 7572
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_invoice_read_references.py",
+      "sha256": "abbaed14116a7839416bebca5c38dcced44e55a24c890d2195d67bb96f428310",
+      "bytes": 4978
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_invoice_read_security.py",
+      "sha256": "7e754307d91fdc0cd64cdf61542e45fbcfb2d0ab8e809e5718432ff2be639355",
+      "bytes": 8716
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_invoice_request_correction.py",
+      "sha256": "d3826d9fe17ddb2046fdd949ca98c62e8e579b66784de1415ff810a4df662dae",
+      "bytes": 5612
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_invoice_terminal_delivery.py",
+      "sha256": "56bb7ecac9d745947bb706a6a41b15a84687b1cd9e1d991841860cbeaf811a52",
+      "bytes": 7360
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_numeric_contract.py",
+      "sha256": "f71af3964957e63b3ba589c443a2c400f8a0caeefab0120cdbca86f3dceec974",
+      "bytes": 5725
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_open_authorized_invoice.py",
+      "sha256": "e9863ec93f1ef471895a03f7125702e106c7e425d52e5044aaa1717c9a7d41a2",
+      "bytes": 5658
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_plugin_subsystem.py",
+      "sha256": "81987a39735fe48fdbba9275b0197a51974d442a3b0b1a675a2994b83885d78d",
+      "bytes": 3453
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_pydantic_b1_hardening.py",
+      "sha256": "8bcaac35aeb667ab4d0b8c6f3eb222ecf4a111722d988f90e289f0845700950d",
+      "bytes": 5036
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_risk_signal_contract.py",
+      "sha256": "568f4a08ebb7962c21abd367e265fa74bb1c4ece00d829615e86017203d95467",
+      "bytes": 14102
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_risk_signal_evidence.py",
+      "sha256": "b40327b273866ec8e4d97555cb559e34e5b1b8c4786ad80aa767c8c8de2f1b96",
+      "bytes": 27102
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_risk_signal_policy.py",
+      "sha256": "f1f9d64831b57670e193fe7f7b7c040d0008e6972f8e32180e26b0341e340769",
+      "bytes": 15465
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_risk_signal_service.py",
+      "sha256": "e9c09c664a3df22c2d61c5a1c9bde29ecc124b85aaab708febcc3e8100f883e6",
+      "bytes": 25961
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_risk_signal_sources.py",
+      "sha256": "c326927197c381659d786b6d18f341b193f5a6128a2fffc633e45c8140e6473b",
+      "bytes": 21403
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_search_invoices.py",
+      "sha256": "0e403e91bd231c233dca033de11a7f558ad874fcfbf5f5ed4f0dc8f69bcb92bc",
+      "bytes": 7597
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_security_hardening.py",
+      "sha256": "2da4f5d66eab55b74afda5902bfd5ed87fc51b7241d92968ae5a3e7e778b8883",
+      "bytes": 2794
+    },
+    {
+      "path": "lotus_fin/lotus_fin/tests/test_workspace_ui.py",
+      "sha256": "8c6126af9feea26c730a2e95ab9a622d6e87d65626d90d7eaee6eda61592008e",
+      "bytes": 7454
+    },
+    {
+      "path": "lotus_fin/pyproject.toml",
+      "sha256": "68172e8ea1d45298ed4065611a9db7e9be602f5fbe17568d2db37e4154839533",
+      "bytes": 549
+    },
+    {
+      "path": "lotus_fin/README.md",
+      "sha256": "70c7cc2ae6105239c69445e14e92117d71d8c0415f4895e4543cecac279e4554",
+      "bytes": 2637
+    },
+    {
+      "path": "lotus_fin/requirements.txt",
+      "sha256": "3be20eb0a14a84838756f9cfd94ef15affa550c59805922e28e37bb41cc26659",
+      "bytes": 91
+    },
+    {
+      "path": "README.md",
+      "sha256": "a1f37ee3d2d8dd606e79aeabc45eb019578fcc826fba973f81be7f75970ed447",
+      "bytes": 3265
+    },
+    {
+      "path": "run-fe.ps1",
+      "sha256": "6b3f748d9b3bc0be51d69ffe798f6c65e4178cdbe8481577e93330027f399150",
+      "bytes": 4764
+    },
+    {
+      "path": "run-fe.sh",
+      "sha256": "55de3d5e5dbe680f2a238ad9efe7530011435b3ad0d12204199db97239196aba",
+      "bytes": 3871
+    },
+    {
+      "path": "run.ps1",
+      "sha256": "dd14348bdf44ff2f284576a803253c76bac3e4e6cd57f6f534d79382fcd2329f",
+      "bytes": 9583
+    },
+    {
+      "path": "run.sh",
+      "sha256": "108255f724c3f2ce8e1d4700cda72e4b6862cab2ace4c15c56b9a0e759b24f85",
+      "bytes": 7111
+    },
+    {
+      "path": "tests_e2e/copilot_fixture/index.html",
+      "sha256": "d67d5f312a4d51f9c4adb8bb3d8c0960c2d0a7785e0b77aca90a6fc21bbf21b7",
+      "bytes": 347
+    },
+    {
+      "path": "tests_e2e/copilot_fixture/main.tsx",
+      "sha256": "a11dd58857ec12378dfa573a687fe2016f5b8b10eb2b2afffad957defa4d76b6",
+      "bytes": 8150
+    },
+    {
+      "path": "tests_e2e/copilot_fixture/vite.config.ts",
+      "sha256": "1b973e8bf9c9e5862c3cf3e3848b4e132b01e556116200f3fb9c35365c683085",
+      "bytes": 804
+    },
+    {
+      "path": "tests_e2e/copilot_test_harness.py",
+      "sha256": "575511a078aa4a56954c74ec26cf6af2fd0d6f8ce23404a1881324348568e265",
+      "bytes": 7122
+    },
+    {
+      "path": "tests_e2e/followup_preview_fixture/index.html",
+      "sha256": "965b3dc321baae83d4385490bd9407663920b7dac29ef5323faefcde59ce3e7f",
+      "bytes": 350
+    },
+    {
+      "path": "tests_e2e/followup_preview_fixture/main.tsx",
+      "sha256": "046e868398e8260bc8c9d4160ac28e063f7ca68713493e7e5a75109d50dff8fb",
+      "bytes": 2756
+    },
+    {
+      "path": "tests_e2e/followup_preview_fixture/vite.config.ts",
+      "sha256": "02c556474d785a047d541839b919cac2b97827f7f6bbce77f13b10b459ecbdfc",
+      "bytes": 654
+    },
+    {
+      "path": "tests_e2e/screenshots/01_financial_health_page.png",
+      "sha256": "9cff82cba00a773bea45f8a7871a020c218477efb7cc2eb0dc2009562fe5abb6",
+      "bytes": 99304
+    },
+    {
+      "path": "tests_e2e/screenshots/01_login_page.png",
+      "sha256": "49da561bb22af02133e1766dd5f61e2e6e576d26e1deca3157e2edb37ba518de",
+      "bytes": 19241
+    },
+    {
+      "path": "tests_e2e/screenshots/02_desk_home.png",
+      "sha256": "7d3f69a12ad1dbe98891ec340b4001758437a331ed2ff91d208bd7f194331382",
+      "bytes": 34567
+    },
+    {
+      "path": "tests_e2e/screenshots/02_kpi_summary.png",
+      "sha256": "95c35afcd51e22e5597cbf5d8374326497aff6deb7644b91d682223e2a64f803",
+      "bytes": 99644
+    },
+    {
+      "path": "tests_e2e/screenshots/03_period_comparison.png",
+      "sha256": "e5bc7067b3d053dc36685463ca02ddfefbb6913b47bea5dbc1d384222aae37c9",
+      "bytes": 97585
+    },
+    {
+      "path": "tests_e2e/screenshots/03_sales_invoice_form.png",
+      "sha256": "c4d185f94a93c21c45c77f3ae9bb69012c80f6248816c597495948a0a224ac84",
+      "bytes": 110265
+    },
+    {
+      "path": "tests_e2e/screenshots/04_ai_analysis.png",
+      "sha256": "d33d55d9bc82728095f4ce49678ddd42bac398e02d8d41b8b74055aa89af4efd",
+      "bytes": 92362
+    },
+    {
+      "path": "tests_e2e/screenshots/04_dropdown_opened.png",
+      "sha256": "11dc0fb6f9fc2d9d7927f10457ce1fd2ec612c902538e7ff4d2212aaca72ed2e",
+      "bytes": 114349
+    },
+    {
+      "path": "tests_e2e/screenshots/05_ai_result_dialog.png",
+      "sha256": "f2a8481e33b3df56b5c2073c472ae06fb75d867c43e6f228015c0aac379ab071",
+      "bytes": 98291
+    },
+    {
+      "path": "tests_e2e/screenshots/05_evidence_drawer.png",
+      "sha256": "19ca0a93e3d321cd92774a7af774766b46fd2d4a16bf3190819ae7754c040b7c",
+      "bytes": 105713
+    },
+    {
+      "path": "tests_e2e/screenshots/06_partial_or_model_unavailable.png",
+      "sha256": "461ab628078aaaa760d09fc1b4516cb7c30470b6807e655d5c0678b7ad703194",
+      "bytes": 98186
+    },
+    {
+      "path": "tests_e2e/screenshots/cf_01_login.png",
+      "sha256": "49da561bb22af02133e1766dd5f61e2e6e576d26e1deca3157e2edb37ba518de",
+      "bytes": 19241
+    },
+    {
+      "path": "tests_e2e/screenshots/cf_02_desk.png",
+      "sha256": "471e9734d24ac1ce4ff213d4e6e610d35e3b00a62d2421c362eedd7443d941d2",
+      "bytes": 32519
+    },
+    {
+      "path": "tests_e2e/screenshots/cf_03_initial_view.png",
+      "sha256": "01da6b7bfb85dd32d81b0451ab390291bf23555b36173f2a82e1b7251f0ecb3e",
+      "bytes": 84910
+    },
+    {
+      "path": "tests_e2e/screenshots/cf_04_computed_forecast.png",
+      "sha256": "59a57d4a18ea4d7ea970e2623919d8de433b975ca9dec38e584b3443b8080163",
+      "bytes": 85234
+    },
+    {
+      "path": "tests_e2e/screenshots/cf_05_final_dashboard.png",
+      "sha256": "59a57d4a18ea4d7ea970e2623919d8de433b975ca9dec38e584b3443b8080163",
+      "bytes": 85234
+    },
+    {
+      "path": "tests_e2e/screenshots/cf_error_state.png",
+      "sha256": "80dcdc5fb5e13fa448282ddf5ede88d5bb0b962125ed43a579a1a50738bffa57",
+      "bytes": 67986
+    },
+    {
+      "path": "tests_e2e/screenshots/error_state.png",
+      "sha256": "07103e85c83a1ba0333e96a8b7916964f35208cb292e460a2fa919d4338ceb11",
+      "bytes": 94586
+    },
+    {
+      "path": "tests_e2e/screenshots/rs_01_high_ar.png",
+      "sha256": "ad9b009fde6f8deb2dcaee4099bb42ddedccf88d1cbfdf1ea0f6d0e2b7640b49",
+      "bytes": 132692
+    },
+    {
+      "path": "tests_e2e/screenshots/rs_02_evidence_match.png",
+      "sha256": "2512b74b3ed745f4c437130517913eee37ebc7edc005197b928f0f4e1ac48d92",
+      "bytes": 128353
+    },
+    {
+      "path": "tests_e2e/screenshots/rs_03_benign_ap.png",
+      "sha256": "83ab550170e6463d3b5c23e0f2edc51053cbd102a613e61c291595675e06a770",
+      "bytes": 128350
+    },
+    {
+      "path": "tests_e2e/screenshots/rs_04_inconclusive_multi.png",
+      "sha256": "afa678d6a94765dcdc66a77e4c8e1da06827b2b08e1a9434d7df5f0f9a1a255d",
+      "bytes": 86889
+    },
+    {
+      "path": "tests_e2e/screenshots/rs_05_mobile.png",
+      "sha256": "f9c33ef6ee6ae80ba308c16de27de2522f1d6aa537eb67b3f926b90ebde6a5de",
+      "bytes": 56926
+    },
+    {
+      "path": "tests_e2e/test_cash_forecast_e2e.py",
+      "sha256": "01e60763238813fcb4c1933ea20db36f48c6e25aa242f2b721561c552df71fa8",
+      "bytes": 4203
+    },
+    {
+      "path": "tests_e2e/test_copilot_failclosed.py",
+      "sha256": "4075d799ec2a1d7f89e3accf82671797e2e96ed03e44ec2dd38c4e128d2dcc09",
+      "bytes": 15796
+    },
+    {
+      "path": "tests_e2e/test_cross_worker_evidence.py",
+      "sha256": "cc32d9b08e2c14b19ed37b613faa2f43455ecb40daf93cd5d4d9859b2035f723",
+      "bytes": 4691
+    },
+    {
+      "path": "tests_e2e/test_decode_boundary_endpoint.py",
+      "sha256": "46cfaa1727ba449b6195fd5a03c33b69ed545b5d87cb6e9673eb0397a760dbe9",
+      "bytes": 5844
+    },
+    {
+      "path": "tests_e2e/test_financial_health_workspace.py",
+      "sha256": "adb984bc1ad0b06b7aed4cdf958acdb02890cfbb8cc9284ba18aa878cd377685",
+      "bytes": 6454
+    },
+    {
+      "path": "tests_e2e/test_followup_preview_e2e.py",
+      "sha256": "eff1c0aadad3989312475b25ab34194d78cbccbd26054fc4d9ad6b298b339e5b",
+      "bytes": 7314
+    },
+    {
+      "path": "tests_e2e/test_invoice_actions_e2e.py",
+      "sha256": "e48760a982d95ba08d6f6c8a6fcea3cef4c5e4e28d957922b9d8be6138445f0b",
+      "bytes": 20371
+    },
+    {
+      "path": "tests_e2e/test_raw_redis_fault_probe.py",
+      "sha256": "1047914e32fcd7acfd44c489b9dc5f3a9204b65b44ec3583aae7c693271ff173",
+      "bytes": 6833
+    },
+    {
+      "path": "tests_e2e/test_risk_signal_workspace.py",
+      "sha256": "7afb3d26782f46394b2826f4ec3bbfe0ff75100e8bc343b7af462afe51a0dd73",
+      "bytes": 29521
+    },
+    {
+      "path": "tests_e2e/test_sales_invoice_ai.py",
+      "sha256": "a73ccbcfad4c960827f3099c159a7c283cf70d0e408e97e57d3db01758a293f7",
+      "bytes": 5741
+    },
+    {
+      "path": "tests_e2e/test_security_revoke_regrant.py",
+      "sha256": "b66b48288d13631c591d1cc37e940dd74625435ef1e2a97532735635a2ff6eb5",
+      "bytes": 11652
+    },
+    {
+      "path": "tests_e2e/test_ttl_expiry_http.py",
+      "sha256": "f92b65c46359b8250045577cab4def5c6398f5108d27aefd18ec126c8a92e5be",
+      "bytes": 7626
+    },
+    {
+      "path": "tests_e2e/videos/ai003_risk_signal_e2e.webm",
+      "sha256": "2fad2d4f45162d85490311024b1d8979e8e3ccacff7909c12967537837d12104",
+      "bytes": 4935739
+    }
+  ]
+}

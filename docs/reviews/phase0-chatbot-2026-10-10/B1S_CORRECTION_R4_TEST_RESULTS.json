@@ -1,0 +1,1070 @@
+{
+  "review": "B1-S correction round4 independent targeted F07 recheck",
+  "date": "2026-10-10 to 2026-10-11 Asia/Saigon",
+  "verdict": "B1S_G4B_CHANGES_REQUIRED",
+  "implementation_closure": "B1S_R4_PARTIAL",
+  "head": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+  "branch": "develop",
+  "identity": "SOURCE_BEFORE.json uncommitted fingerprints, not deployment identity",
+  "scope": "F07 test-only review; production/source not modified by reviewer",
+  "application_dom": {
+    "PASS": 52,
+    "FAIL": 0,
+    "BLOCKED": 0,
+    "previous48_gold": 48,
+    "F05": "CLOSED; actual ETIMEDOUT500 nested denial retains FORBIDDEN",
+    "current_supplied_with_reviewed_server_wrapper": {
+      "tests": 4,
+      "pytest_exit": 0
+    },
+    "gold_expectations_modified": false
+  },
+  "exact_message_assertions": {
+    "PASS": 32,
+    "FAIL": 0,
+    "basis": "additional checks on already captured results, not new cases"
+  },
+  "normal_native_suite": {
+    "tests": 4,
+    "PASS": 4,
+    "pytest_exit": 0,
+    "server_fixture_overridden": false,
+    "owned_pid": 22680,
+    "listener_pids": [
+      22680
+    ],
+    "cleanup": "PASS"
+  },
+  "round3_original_four_failures": "PASS at matching original probes: alias, foreign outbound, foreignWS, setup fault cleanup",
+  "original_native_qualification_records": {
+    "PASS": 17,
+    "FAIL": 0,
+    "includes": "normal/negative owner/cleanup and foreign preflight"
+  },
+  "native_unique_record_counts": {
+    "PASS": 31,
+    "FAIL": 8,
+    "BLOCKED": 0
+  },
+  "duplicate_raw_assertions_excluded_from_unique_count": [
+    {
+      "id": "NATIVE_WS_FAILS_PYTEST",
+      "expected": "WebSocket attempt blocked AND enclosing test fails",
+      "actual": {
+        "pytest_exit": 0,
+        "probe": {
+          "attempt": "ws://127.0.0.1:5188/reviewer_undeclared_ws",
+          "reviewer_fallback_observed": false
+        },
+        "reviewer_blocked": []
+      },
+      "status": "FAIL",
+      "boundary": "WebSocket intercepted without upstream; no actual outbound connection",
+      "evidence": "LOCAL_WS_RESULTS.json"
+    }
+  ],
+  "native_results": [
+    {
+      "id": "NATIVE_OWNER_NORMAL",
+      "expected": "listener equals exact direct owned Node PID",
+      "actual": {
+        "phase": "first_native_page",
+        "listeners": [
+          22680
+        ],
+        "owned_nodes": [
+          {
+            "ProcessId": 22680,
+            "ParentProcessId": 27584,
+            "CommandLine": "\"C:\\Program Files\\nodejs\\node.EXE\" C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\frontend\\node_modules\\vite\\bin\\vite.js --config C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\tests_e2e\\copilot_fixture\\vite.config.ts --host 127.0.0.1 --port 5188 --strictPort"
+          }
+        ],
+        "spawned": [
+          {
+            "owned_pid": 22680,
+            "args": [
+              "C:\\Program Files\\nodejs\\node.EXE",
+              "C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\frontend\\node_modules\\vite\\bin\\vite.js",
+              "--config",
+              "C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\tests_e2e\\copilot_fixture\\vite.config.ts",
+              "--host",
+              "127.0.0.1",
+              "--port",
+              "5188",
+              "--strictPort"
+            ]
+          }
+        ]
+      },
+      "status": "PASS",
+      "boundary": "native server fixture; independent PID/listener observation",
+      "evidence": "NORMAL_RESULTS.json"
+    },
+    {
+      "id": "NATIVE_ASSERTIONS_NORMAL",
+      "expected": "4 native supplied tests PASS",
+      "actual": {
+        "pytest_exit": 0
+      },
+      "status": "PASS",
+      "boundary": "native server startup/teardown unchanged; reviewer browser binary/outbound containment only",
+      "evidence": "NORMAL_RESULTS.json"
+    },
+    {
+      "id": "NATIVE_CLEANUP_NORMAL",
+      "expected": "native completion/failure releases owned Node and5188",
+      "actual": {
+        "owned_nodes": [],
+        "listeners": []
+      },
+      "status": "PASS",
+      "boundary": "native teardown before reviewer cleanup",
+      "evidence": "NORMAL_RESULTS.json"
+    },
+    {
+      "id": "NATIVE_OWNER_ALIAS",
+      "expected": "listener equals exact direct owned Node PID",
+      "actual": {
+        "phase": "first_native_page",
+        "listeners": [
+          22860
+        ],
+        "owned_nodes": [
+          {
+            "ProcessId": 22860,
+            "ParentProcessId": 29484,
+            "CommandLine": "\"C:\\Program Files\\nodejs\\node.EXE\" C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\frontend\\node_modules\\vite\\bin\\vite.js --config C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\tests_e2e\\copilot_fixture\\vite.config.ts --host 127.0.0.1 --port 5188 --strictPort"
+          }
+        ],
+        "spawned": [
+          {
+            "owned_pid": 22860,
+            "args": [
+              "C:\\Program Files\\nodejs\\node.EXE",
+              "C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\frontend\\node_modules\\vite\\bin\\vite.js",
+              "--config",
+              "C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\tests_e2e\\copilot_fixture\\vite.config.ts",
+              "--host",
+              "127.0.0.1",
+              "--port",
+              "5188",
+              "--strictPort"
+            ]
+          }
+        ]
+      },
+      "status": "PASS",
+      "boundary": "native server fixture; independent PID/listener observation",
+      "evidence": "ALIAS_RESULTS.json"
+    },
+    {
+      "id": "NATIVE_EXACT_API_ALLOWLIST",
+      "expected": "substring alias is undeclared: abort AND pytest exit1",
+      "actual": {
+        "pytest_exit": 1,
+        "probe": {
+          "fulfilled": false
+        }
+      },
+      "status": "PASS",
+      "boundary": "local synthetic endpoint; proves declared endpoint matching, no business calls",
+      "evidence": "ALIAS_RESULTS.json"
+    },
+    {
+      "id": "NATIVE_CLEANUP_ALIAS",
+      "expected": "native completion/failure releases owned Node and5188",
+      "actual": {
+        "owned_nodes": [],
+        "listeners": []
+      },
+      "status": "PASS",
+      "boundary": "native teardown before reviewer cleanup",
+      "evidence": "ALIAS_RESULTS.json"
+    },
+    {
+      "id": "NATIVE_OWNER_OUTBOUND",
+      "expected": "listener equals exact direct owned Node PID",
+      "actual": {
+        "phase": "first_native_page",
+        "listeners": [
+          7364
+        ],
+        "owned_nodes": [
+          {
+            "ProcessId": 7364,
+            "ParentProcessId": 28280,
+            "CommandLine": "\"C:\\Program Files\\nodejs\\node.EXE\" C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\frontend\\node_modules\\vite\\bin\\vite.js --config C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\tests_e2e\\copilot_fixture\\vite.config.ts --host 127.0.0.1 --port 5188 --strictPort"
+          }
+        ],
+        "spawned": [
+          {
+            "owned_pid": 7364,
+            "args": [
+              "C:\\Program Files\\nodejs\\node.EXE",
+              "C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\frontend\\node_modules\\vite\\bin\\vite.js",
+              "--config",
+              "C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\tests_e2e\\copilot_fixture\\vite.config.ts",
+              "--host",
+              "127.0.0.1",
+              "--port",
+              "5188",
+              "--strictPort"
+            ]
+          }
+        ]
+      },
+      "status": "PASS",
+      "boundary": "native server fixture; independent PID/listener observation",
+      "evidence": "OUTBOUND_RESULTS.json"
+    },
+    {
+      "id": "NATIVE_OUTBOUND_FAILS_PYTEST",
+      "expected": "outbound attempt blocked AND enclosing test fails",
+      "actual": {
+        "pytest_exit": 1,
+        "probe": {
+          "fulfilled": false
+        },
+        "reviewer_blocked": []
+      },
+      "status": "PASS",
+      "boundary": "external request intercepted locally by reviewer; no actual outbound connection",
+      "evidence": "OUTBOUND_RESULTS.json"
+    },
+    {
+      "id": "NATIVE_CLEANUP_OUTBOUND",
+      "expected": "native completion/failure releases owned Node and5188",
+      "actual": {
+        "owned_nodes": [],
+        "listeners": []
+      },
+      "status": "PASS",
+      "boundary": "native teardown before reviewer cleanup",
+      "evidence": "OUTBOUND_RESULTS.json"
+    },
+    {
+      "id": "NATIVE_OWNER_WS",
+      "expected": "listener equals exact direct owned Node PID",
+      "actual": {
+        "phase": "first_native_page",
+        "listeners": [
+          28936
+        ],
+        "owned_nodes": [
+          {
+            "ProcessId": 28936,
+            "ParentProcessId": 28756,
+            "CommandLine": "\"C:\\Program Files\\nodejs\\node.EXE\" C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\frontend\\node_modules\\vite\\bin\\vite.js --config C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\tests_e2e\\copilot_fixture\\vite.config.ts --host 127.0.0.1 --port 5188 --strictPort"
+          }
+        ],
+        "spawned": [
+          {
+            "owned_pid": 28936,
+            "args": [
+              "C:\\Program Files\\nodejs\\node.EXE",
+              "C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\frontend\\node_modules\\vite\\bin\\vite.js",
+              "--config",
+              "C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\tests_e2e\\copilot_fixture\\vite.config.ts",
+              "--host",
+              "127.0.0.1",
+              "--port",
+              "5188",
+              "--strictPort"
+            ]
+          }
+        ]
+      },
+      "status": "PASS",
+      "boundary": "native server fixture; independent PID/listener observation",
+      "evidence": "WS_RESULTS.json"
+    },
+    {
+      "id": "NATIVE_WS_FAILS_PYTEST",
+      "expected": "WebSocket attempt blocked AND enclosing test fails",
+      "actual": {
+        "pytest_exit": 1,
+        "probe": {
+          "attempt": "wss://reviewer.invalid/ws-probe",
+          "reviewer_fallback_observed": false
+        },
+        "reviewer_blocked": []
+      },
+      "status": "PASS",
+      "boundary": "WebSocket intercepted without upstream; no actual outbound connection",
+      "evidence": "WS_RESULTS.json"
+    },
+    {
+      "id": "NATIVE_CLEANUP_WS",
+      "expected": "native completion/failure releases owned Node and5188",
+      "actual": {
+        "owned_nodes": [],
+        "listeners": []
+      },
+      "status": "PASS",
+      "boundary": "native teardown before reviewer cleanup",
+      "evidence": "WS_RESULTS.json"
+    },
+    {
+      "id": "NATIVE_SETUP_EXCEPTION_CLEANUP",
+      "expected": "setup error still terminates owned server and releases5188",
+      "actual": {
+        "probe": {
+          "error": "review injected readiness/setup error"
+        },
+        "owned_nodes": [],
+        "listeners": []
+      },
+      "status": "PASS",
+      "boundary": "native fixture readiness fault injection; actual Node process, no source edits",
+      "evidence": "SETUP_RESULTS.json"
+    },
+    {
+      "id": "NATIVE_OWNER_API",
+      "expected": "listener equals exact direct owned Node PID",
+      "actual": {
+        "phase": "first_native_page",
+        "listeners": [
+          16748
+        ],
+        "owned_nodes": [
+          {
+            "ProcessId": 16748,
+            "ParentProcessId": 7460,
+            "CommandLine": "\"C:\\Program Files\\nodejs\\node.EXE\" C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\frontend\\node_modules\\vite\\bin\\vite.js --config C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\tests_e2e\\copilot_fixture\\vite.config.ts --host 127.0.0.1 --port 5188 --strictPort"
+          }
+        ],
+        "spawned": [
+          {
+            "owned_pid": 16748,
+            "args": [
+              "C:\\Program Files\\nodejs\\node.EXE",
+              "C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\frontend\\node_modules\\vite\\bin\\vite.js",
+              "--config",
+              "C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\tests_e2e\\copilot_fixture\\vite.config.ts",
+              "--host",
+              "127.0.0.1",
+              "--port",
+              "5188",
+              "--strictPort"
+            ]
+          }
+        ]
+      },
+      "status": "PASS",
+      "boundary": "native server fixture; independent PID/listener observation",
+      "evidence": "API_RESULTS.json"
+    },
+    {
+      "id": "NATIVE_UNDECLARED_API_FAILS_PYTEST",
+      "expected": "unknown API aborted and enclosing pytest exit1 due unexpected API assertion",
+      "actual": {
+        "pytest_exit": 1,
+        "probe": {
+          "fulfilled": false
+        },
+        "unexpected_assertion_in_junit": true
+      },
+      "status": "PASS",
+      "boundary": "native assertion failure is expected PASS of negative qualification",
+      "evidence": "API_RESULTS.json"
+    },
+    {
+      "id": "NATIVE_CLEANUP_API",
+      "expected": "native completion/failure releases owned Node and5188",
+      "actual": {
+        "owned_nodes": [],
+        "listeners": []
+      },
+      "status": "PASS",
+      "boundary": "native teardown before reviewer cleanup",
+      "evidence": "API_RESULTS.json"
+    },
+    {
+      "id": "NATIVE_OWNER_METHOD",
+      "expected": "listener equals exact direct owned Node PID",
+      "actual": {
+        "phase": "first_native_page",
+        "listeners": [
+          14836
+        ],
+        "owned_nodes": [
+          {
+            "ProcessId": 14836,
+            "ParentProcessId": 17088,
+            "CommandLine": "\"C:\\Program Files\\nodejs\\node.EXE\" C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\frontend\\node_modules\\vite\\bin\\vite.js --config C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\tests_e2e\\copilot_fixture\\vite.config.ts --host 127.0.0.1 --port 5188 --strictPort"
+          }
+        ],
+        "spawned": [
+          {
+            "owned_pid": 14836,
+            "args": [
+              "C:\\Program Files\\nodejs\\node.EXE",
+              "C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\frontend\\node_modules\\vite\\bin\\vite.js",
+              "--config",
+              "C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\tests_e2e\\copilot_fixture\\vite.config.ts",
+              "--host",
+              "127.0.0.1",
+              "--port",
+              "5188",
+              "--strictPort"
+            ]
+          }
+        ]
+      },
+      "status": "PASS",
+      "boundary": "native server fixture; independent PID/listener observation",
+      "evidence": "METHOD_RESULTS.json"
+    },
+    {
+      "id": "NATIVE_UNDECLARED_METHOD",
+      "expected": "undeclared method/query/path/channel denied AND pytest exit1",
+      "actual": {
+        "pytest_exit": 0,
+        "probe": {
+          "fulfilled": true,
+          "status": 200,
+          "body": ""
+        },
+        "unexpected_assertion": false
+      },
+      "status": "FAIL",
+      "boundary": "native policy qualification; local synthetic only, no business API",
+      "evidence": "METHOD_RESULTS.json"
+    },
+    {
+      "id": "NATIVE_CLEANUP_METHOD",
+      "expected": "native completion/failure releases owned Node and5188",
+      "actual": {
+        "owned_nodes": [],
+        "listeners": []
+      },
+      "status": "PASS",
+      "boundary": "native teardown before reviewer cleanup",
+      "evidence": "METHOD_RESULTS.json"
+    },
+    {
+      "id": "NATIVE_OWNER_QUERY",
+      "expected": "listener equals exact direct owned Node PID",
+      "actual": {
+        "phase": "first_native_page",
+        "listeners": [
+          20372
+        ],
+        "owned_nodes": [
+          {
+            "ProcessId": 20372,
+            "ParentProcessId": 10352,
+            "CommandLine": "\"C:\\Program Files\\nodejs\\node.EXE\" C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\frontend\\node_modules\\vite\\bin\\vite.js --config C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\tests_e2e\\copilot_fixture\\vite.config.ts --host 127.0.0.1 --port 5188 --strictPort"
+          }
+        ],
+        "spawned": [
+          {
+            "owned_pid": 20372,
+            "args": [
+              "C:\\Program Files\\nodejs\\node.EXE",
+              "C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\frontend\\node_modules\\vite\\bin\\vite.js",
+              "--config",
+              "C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\tests_e2e\\copilot_fixture\\vite.config.ts",
+              "--host",
+              "127.0.0.1",
+              "--port",
+              "5188",
+              "--strictPort"
+            ]
+          }
+        ]
+      },
+      "status": "PASS",
+      "boundary": "native server fixture; independent PID/listener observation",
+      "evidence": "QUERY_RESULTS.json"
+    },
+    {
+      "id": "NATIVE_UNDECLARED_QUERY",
+      "expected": "undeclared method/query/path/channel denied AND pytest exit1",
+      "actual": {
+        "pytest_exit": 0,
+        "probe": {
+          "fulfilled": true,
+          "status": 200,
+          "body": "{\"data\":[{\"name\":\"Company A\"},{\"name\":\"Company B\"}]}"
+        },
+        "unexpected_assertion": false
+      },
+      "status": "FAIL",
+      "boundary": "native policy qualification; local synthetic only, no business API",
+      "evidence": "QUERY_RESULTS.json"
+    },
+    {
+      "id": "NATIVE_CLEANUP_QUERY",
+      "expected": "native completion/failure releases owned Node and5188",
+      "actual": {
+        "owned_nodes": [],
+        "listeners": []
+      },
+      "status": "PASS",
+      "boundary": "native teardown before reviewer cleanup",
+      "evidence": "QUERY_RESULTS.json"
+    },
+    {
+      "id": "NATIVE_OWNER_ENCODED",
+      "expected": "listener equals exact direct owned Node PID",
+      "actual": {
+        "phase": "first_native_page",
+        "listeners": [
+          24708
+        ],
+        "owned_nodes": [
+          {
+            "ProcessId": 24708,
+            "ParentProcessId": 1624,
+            "CommandLine": "\"C:\\Program Files\\nodejs\\node.EXE\" C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\frontend\\node_modules\\vite\\bin\\vite.js --config C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\tests_e2e\\copilot_fixture\\vite.config.ts --host 127.0.0.1 --port 5188 --strictPort"
+          }
+        ],
+        "spawned": [
+          {
+            "owned_pid": 24708,
+            "args": [
+              "C:\\Program Files\\nodejs\\node.EXE",
+              "C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\frontend\\node_modules\\vite\\bin\\vite.js",
+              "--config",
+              "C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\tests_e2e\\copilot_fixture\\vite.config.ts",
+              "--host",
+              "127.0.0.1",
+              "--port",
+              "5188",
+              "--strictPort"
+            ]
+          }
+        ]
+      },
+      "status": "PASS",
+      "boundary": "native server fixture; independent PID/listener observation",
+      "evidence": "ENCODED_RESULTS.json"
+    },
+    {
+      "id": "NATIVE_UNDECLARED_ENCODED",
+      "expected": "undeclared method/query/path/channel denied AND pytest exit1",
+      "actual": {
+        "pytest_exit": 0,
+        "probe": {
+          "fulfilled": true,
+          "status": 200,
+          "body": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <script type=\"module\" src=\"/@vite/client\"></script>\n\n    <meta charset=\"UTF-8\" />\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n    <title>Lotus Fin Copilot Test Fixture</title>\n  </head>\n  <body class=\"bg-gray-50 text-gray-900\">\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"/main.tsx\"></script>\n  </body>\n</html>\n"
+        },
+        "unexpected_assertion": false
+      },
+      "status": "FAIL",
+      "boundary": "native policy qualification; local synthetic only, no business API",
+      "evidence": "ENCODED_RESULTS.json"
+    },
+    {
+      "id": "NATIVE_CLEANUP_ENCODED",
+      "expected": "native completion/failure releases owned Node and5188",
+      "actual": {
+        "owned_nodes": [],
+        "listeners": []
+      },
+      "status": "PASS",
+      "boundary": "native teardown before reviewer cleanup",
+      "evidence": "ENCODED_RESULTS.json"
+    },
+    {
+      "id": "NATIVE_OWNER_ASSET",
+      "expected": "listener equals exact direct owned Node PID",
+      "actual": {
+        "phase": "first_native_page",
+        "listeners": [
+          2444
+        ],
+        "owned_nodes": [
+          {
+            "ProcessId": 2444,
+            "ParentProcessId": 15212,
+            "CommandLine": "\"C:\\Program Files\\nodejs\\node.EXE\" C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\frontend\\node_modules\\vite\\bin\\vite.js --config C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\tests_e2e\\copilot_fixture\\vite.config.ts --host 127.0.0.1 --port 5188 --strictPort"
+          }
+        ],
+        "spawned": [
+          {
+            "owned_pid": 2444,
+            "args": [
+              "C:\\Program Files\\nodejs\\node.EXE",
+              "C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\frontend\\node_modules\\vite\\bin\\vite.js",
+              "--config",
+              "C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\tests_e2e\\copilot_fixture\\vite.config.ts",
+              "--host",
+              "127.0.0.1",
+              "--port",
+              "5188",
+              "--strictPort"
+            ]
+          }
+        ]
+      },
+      "status": "PASS",
+      "boundary": "native server fixture; independent PID/listener observation",
+      "evidence": "ASSET_RESULTS.json"
+    },
+    {
+      "id": "NATIVE_UNDECLARED_ASSET",
+      "expected": "undeclared method/query/path/channel denied AND pytest exit1",
+      "actual": {
+        "pytest_exit": 0,
+        "probe": {
+          "fulfilled": true,
+          "status": 200,
+          "body": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <script type=\"module\" src=\"/@vite/client\"></script>\n\n    <meta charset=\"UTF-8\" />\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n    <title>Lotus Fin Copilot Test Fixture</title>\n  </head>\n  <body class=\"bg-gray-50 text-gray-900\">\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"/main.tsx\"></script>\n  </body>\n</html>\n"
+        },
+        "unexpected_assertion": false
+      },
+      "status": "FAIL",
+      "boundary": "native policy qualification; local synthetic only, no business API",
+      "evidence": "ASSET_RESULTS.json"
+    },
+    {
+      "id": "NATIVE_CLEANUP_ASSET",
+      "expected": "native completion/failure releases owned Node and5188",
+      "actual": {
+        "owned_nodes": [],
+        "listeners": []
+      },
+      "status": "PASS",
+      "boundary": "native teardown before reviewer cleanup",
+      "evidence": "ASSET_RESULTS.json"
+    },
+    {
+      "id": "NATIVE_OWNER_LOCAL_WS",
+      "expected": "listener equals exact direct owned Node PID",
+      "actual": {
+        "phase": "first_native_page",
+        "listeners": [
+          22952
+        ],
+        "owned_nodes": [
+          {
+            "ProcessId": 22952,
+            "ParentProcessId": 18032,
+            "CommandLine": "\"C:\\Program Files\\nodejs\\node.EXE\" C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\frontend\\node_modules\\vite\\bin\\vite.js --config C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\tests_e2e\\copilot_fixture\\vite.config.ts --host 127.0.0.1 --port 5188 --strictPort"
+          }
+        ],
+        "spawned": [
+          {
+            "owned_pid": 22952,
+            "args": [
+              "C:\\Program Files\\nodejs\\node.EXE",
+              "C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\frontend\\node_modules\\vite\\bin\\vite.js",
+              "--config",
+              "C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\tests_e2e\\copilot_fixture\\vite.config.ts",
+              "--host",
+              "127.0.0.1",
+              "--port",
+              "5188",
+              "--strictPort"
+            ]
+          }
+        ]
+      },
+      "status": "PASS",
+      "boundary": "native server fixture; independent PID/listener observation",
+      "evidence": "LOCAL_WS_RESULTS.json"
+    },
+    {
+      "id": "NATIVE_UNDECLARED_LOCAL_WS",
+      "expected": "undeclared method/query/path/channel denied AND pytest exit1",
+      "actual": {
+        "pytest_exit": 0,
+        "probe": {
+          "attempt": "ws://127.0.0.1:5188/reviewer_undeclared_ws",
+          "reviewer_fallback_observed": false
+        },
+        "unexpected_assertion": false
+      },
+      "status": "FAIL",
+      "boundary": "native policy qualification; local synthetic only, no business API",
+      "evidence": "LOCAL_WS_RESULTS.json"
+    },
+    {
+      "id": "NATIVE_CLEANUP_LOCAL_WS",
+      "expected": "native completion/failure releases owned Node and5188",
+      "actual": {
+        "owned_nodes": [],
+        "listeners": []
+      },
+      "status": "PASS",
+      "boundary": "native teardown before reviewer cleanup",
+      "evidence": "LOCAL_WS_RESULTS.json"
+    },
+    {
+      "id": "NATIVE_FOREIGN_LISTENER_REFUSED",
+      "expected": "occupied listener refused before spawn; sentinel retained",
+      "actual": {
+        "error": "Port 5188 already in use; refusing unexpected foreign listener.",
+        "spawn_attempts": []
+      },
+      "status": "PASS",
+      "boundary": "native fixture preflight; owned reviewer sentinel simulates pre-existing listener",
+      "evidence": "PREFLIGHT_RESULTS.json"
+    },
+    {
+      "id": "NATIVE_OWNER_LATE",
+      "expected": "listener equals exact direct owned Node PID",
+      "actual": {
+        "phase": "first_native_page",
+        "listeners": [
+          4972
+        ],
+        "owned_nodes": [
+          {
+            "ProcessId": 4972,
+            "ParentProcessId": 8224,
+            "CommandLine": "\"C:\\Program Files\\nodejs\\node.EXE\" C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\frontend\\node_modules\\vite\\bin\\vite.js --config C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\tests_e2e\\copilot_fixture\\vite.config.ts --host 127.0.0.1 --port 5188 --strictPort"
+          }
+        ],
+        "spawned": [
+          {
+            "owned_pid": 4972,
+            "args": [
+              "C:\\Program Files\\nodejs\\node.EXE",
+              "C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\frontend\\node_modules\\vite\\bin\\vite.js",
+              "--config",
+              "C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\tests_e2e\\copilot_fixture\\vite.config.ts",
+              "--host",
+              "127.0.0.1",
+              "--port",
+              "5188",
+              "--strictPort"
+            ]
+          }
+        ]
+      },
+      "status": "PASS",
+      "boundary": "native server fixture; independent PID/listener observation",
+      "evidence": "LATE_RESULTS.json"
+    },
+    {
+      "id": "NATIVE_LATE_UNEXPECTED_ENFORCED",
+      "expected": "unexpected event during browser close fails enclosing pytest",
+      "actual": {
+        "pytest_exit": 0,
+        "probe": {
+          "fulfilled": false
+        },
+        "native_ledgers": [
+          [
+            {
+              "type": "HTTP",
+              "url": "https://reviewer.invalid/late-probe",
+              "method": "GET"
+            }
+          ]
+        ]
+      },
+      "status": "FAIL",
+      "boundary": "native guard original callback; probe after native final assertion before browser teardown; no upstream",
+      "evidence": "LATE_RESULTS.json"
+    },
+    {
+      "id": "NATIVE_CLEANUP_LATE",
+      "expected": "native completion/failure releases owned Node and5188",
+      "actual": {
+        "owned_nodes": [],
+        "listeners": []
+      },
+      "status": "PASS",
+      "boundary": "native teardown before reviewer cleanup",
+      "evidence": "LATE_RESULTS.json"
+    },
+    {
+      "id": "NATIVE_READINESS_EXACT_OWNER",
+      "expected": "foreign listener appearing after preflight rejected before yield; actual owned Node cleaned",
+      "actual": {
+        "yielded_foreign_listener": true,
+        "listener_pids": [
+          23932
+        ],
+        "actual_owned_pid": 11308,
+        "owned_proc_poll": null,
+        "sentinel_owner_pid": 23932,
+        "sentinel_fileno": 532,
+        "error": null
+      },
+      "status": "FAIL",
+      "cleanup": {
+        "owned_exit": 1,
+        "listener_pids": [],
+        "sentinel_closed_by_reviewer": true
+      },
+      "boundary": "controlled local bind race after actual Vite spawn; no business/network external call",
+      "evidence": "READINESS_RACE_RESULTS.json"
+    },
+    {
+      "id": "NATIVE_OWNER_SYNC",
+      "expected": "listener equals exact direct owned Node PID",
+      "actual": {
+        "phase": "first_native_page",
+        "listeners": [
+          5892
+        ],
+        "owned_nodes": [
+          {
+            "ProcessId": 5892,
+            "ParentProcessId": 17004,
+            "CommandLine": "\"C:\\Program Files\\nodejs\\node.EXE\" C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\frontend\\node_modules\\vite\\bin\\vite.js --config C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\tests_e2e\\copilot_fixture\\vite.config.ts --host 127.0.0.1 --port 5188 --strictPort"
+          }
+        ],
+        "spawned": [
+          {
+            "owned_pid": 5892,
+            "args": [
+              "C:\\Program Files\\nodejs\\node.EXE",
+              "C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\frontend\\node_modules\\vite\\bin\\vite.js",
+              "--config",
+              "C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-b1s-g4b-f7ef870a2a794a7198de2e0a9964461c\\tests_e2e\\copilot_fixture\\vite.config.ts",
+              "--host",
+              "127.0.0.1",
+              "--port",
+              "5188",
+              "--strictPort"
+            ]
+          }
+        ]
+      },
+      "status": "PASS",
+      "boundary": "native server fixture; independent PID/listener observation",
+      "evidence": "SYNC_RESULTS.json"
+    },
+    {
+      "id": "NATIVE_CURRENT_GENERATION_REQUIRED",
+      "expected": "missing current-case request must fail even if prior result matches",
+      "actual": {
+        "pytest_exit": 0,
+        "attempted_send_clicks": 26,
+        "suppressed": [
+          {
+            "ordinal": 22,
+            "case": "R1_HTTP_504_DENIAL",
+            "reason": "controlled missing current action; previous result has same status/text"
+          }
+        ],
+        "actual_copilot_requests": 25
+      },
+      "status": "FAIL",
+      "boundary": "controlled action omission on repeated FORBIDDEN case; native source/assertions unchanged",
+      "evidence": "SYNC_RESULTS.json"
+    },
+    {
+      "id": "NATIVE_CLEANUP_SYNC",
+      "expected": "native completion/failure releases owned Node and5188",
+      "actual": {
+        "owned_nodes": [],
+        "listeners": []
+      },
+      "status": "PASS",
+      "boundary": "native teardown before reviewer cleanup",
+      "evidence": "SYNC_RESULTS.json"
+    }
+  ],
+  "failing_scenarios": [
+    "METHOD",
+    "QUERY",
+    "ENCODED",
+    "ASSET",
+    "LOCAL_WS",
+    "LATE",
+    "READINESS_RACE",
+    "SYNC"
+  ],
+  "findings": [
+    {
+      "id": "R4-F07-A",
+      "root_cause": "Registry validates origin/path only; no method/query contract; any other local path allowed; all local WS paths excused",
+      "lines": [
+        88,
+        93,
+        106,
+        110
+      ],
+      "evidence": [
+        "METHOD_RESULTS.json",
+        "QUERY_RESULTS.json",
+        "ENCODED_RESULTS.json",
+        "ASSET_RESULTS.json",
+        "LOCAL_WS_RESULTS.json"
+      ]
+    },
+    {
+      "id": "R4-F07-B",
+      "root_cause": "Readiness socket-connect test does not establish HTTP readiness or exact listener PID; controlled post-preflight sentinel accepted",
+      "lines": [
+        59,
+        62,
+        70
+      ],
+      "evidence": [
+        "READINESS_RACE_RESULTS.json"
+      ]
+    },
+    {
+      "id": "R4-F07-C",
+      "root_cause": "Repeated final assertions occur before browser teardown; no guaranteed shared ledger assertion afterwards",
+      "lines": [
+        150,
+        151,
+        152,
+        228,
+        229
+      ],
+      "evidence": [
+        "LATE_RESULTS.json"
+      ]
+    },
+    {
+      "id": "R4-F07-D",
+      "root_cause": "IDLE predicate is not bound to current case request/result; controlled omitted action reads prior result and pytest passes",
+      "lines": [
+        209,
+        211,
+        217
+      ],
+      "evidence": [
+        "SYNC_RESULTS.json"
+      ]
+    }
+  ],
+  "static_gaps": [
+    "full URL logged instead of sanitized query/endpoint",
+    "no native exact safe-error-message assertions; independent32 checks PASS",
+    "service_workers=block configured in all4 native pages; actual negative SW attempt NOT_RUN",
+    "builder references tests_e2e/run_q_probes.py absent at current tree; report does not link retained Q raw PIDs/exit outputs"
+  ],
+  "engineering": {
+    "python_parse_and_actual_pytest_import": "PASS",
+    "production_fingerprints": "unchanged vsRound3",
+    "test_full_file_lines": 300,
+    "test_cap": 320,
+    "build_typecheck_lint": "NOT_RUN Round4: test-only changes, production/config/lock unchanged; historicalRound3 PASS/5lintwarnings remains historical",
+    "new_dependency_install": false
+  },
+  "process_commands": [
+    {
+      "id": "NORMAL",
+      "exit_code": 0,
+      "elapsed_seconds": 43.004,
+      "deadline_seconds": 110
+    },
+    {
+      "id": "ALIAS",
+      "exit_code": 0,
+      "elapsed_seconds": 26.039,
+      "deadline_seconds": 110
+    },
+    {
+      "id": "OUTBOUND",
+      "exit_code": 0,
+      "elapsed_seconds": 22.4,
+      "deadline_seconds": 110
+    },
+    {
+      "id": "WS",
+      "exit_code": 0,
+      "elapsed_seconds": 23.395,
+      "deadline_seconds": 110
+    },
+    {
+      "id": "SETUP",
+      "exit_code": 0,
+      "elapsed_seconds": 14.947,
+      "deadline_seconds": 60
+    },
+    {
+      "id": "API",
+      "exit_code": 0,
+      "elapsed_seconds": 24.279,
+      "deadline_seconds": 110
+    },
+    {
+      "id": "METHOD",
+      "exit_code": 1,
+      "elapsed_seconds": 27.941,
+      "deadline_seconds": 110
+    },
+    {
+      "id": "QUERY",
+      "exit_code": 1,
+      "elapsed_seconds": 26.648,
+      "deadline_seconds": 110
+    },
+    {
+      "id": "ENCODED",
+      "exit_code": 1,
+      "elapsed_seconds": 26.757,
+      "deadline_seconds": 110
+    },
+    {
+      "id": "ASSET",
+      "exit_code": 1,
+      "elapsed_seconds": 26.455,
+      "deadline_seconds": 110
+    },
+    {
+      "id": "LOCAL_WS",
+      "exit_code": 1,
+      "elapsed_seconds": 26.171,
+      "deadline_seconds": 110
+    },
+    {
+      "id": "PREFLIGHT",
+      "exit_code": 0,
+      "elapsed_seconds": 1.351,
+      "deadline_seconds": 45
+    },
+    {
+      "id": "DOM",
+      "exit_code": 0,
+      "elapsed_seconds": 51.978,
+      "deadline_seconds": 180
+    },
+    {
+      "id": "LATE",
+      "exit_code": 1,
+      "elapsed_seconds": 23.214,
+      "deadline_seconds": 110
+    },
+    {
+      "id": "READINESS_RACE",
+      "exit_code": 1,
+      "elapsed_seconds": 8.7,
+      "deadline_seconds": 45
+    },
+    {
+      "id": "SYNC",
+      "exit_code": 1,
+      "elapsed_seconds": 25.886,
+      "deadline_seconds": 110
+    }
+  ],
+  "gates": {
+    "G1": "PASS narrow source/environment identity",
+    "G2": "PASS tested B1S application contract; budgets/financial authority NOT_RUN",
+    "G3": "PARTIAL; production0POST verified, financial qualification NOT_RUN",
+    "G4A": "FAIL; full F07 acceptance not closed",
+    "G4B": "CHANGES_REQUIRED",
+    "G10": "BLOCKED separate unchanged",
+    "G01-G03": "NOT_CLOSED"
+  },
+  "not_run": [
+    "real ERP/LLM/financial truth and mutation",
+    "backend/session/permission/cross-user/site/product runtime",
+    "Docker/shared frontend/site",
+    "immutable deployment/image/worker lineage",
+    "payload/SQL/p95/throughput/RSS qualification",
+    "real ERP timeout-after-commit UNKNOWN_OUTCOME",
+    "actual ServiceWorker negative probe",
+    "original3 byte-exact gold not rerunRound4; historicalPASS retained"
+  ],
+  "reviewer_diagnostics": "POSTPROCESS_DIAGNOSTIC.json; initial cleanup Target scalar guard stopped before deletion, normalized full target reverified",
+  "safety": "Independent offline containment supplied; native foreign WS handler default does not connect upstream per installed Playwright primary source; no external/ERP traffic from probes",
+  "F102": "unchanged; no new authoritative fact/gate",
+  "review_started": "2026-10-10",
+  "review_finalized": "2026-10-11",
+  "evidence_directory_date": "start-date2026-10-10 preserved"
+}

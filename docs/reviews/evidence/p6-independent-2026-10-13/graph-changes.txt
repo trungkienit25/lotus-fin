@@ -1,0 +1,34 @@
+Changes: 29 files, 104 symbols
+Affected processes: 64
+Risk level: critical
+
+Changed symbols:
+  Function LotusCopilotDrawer → frontend/src/components/copilot/LotusCopilotDrawer.tsx
+  Function TailAdminHeader → frontend/src/components/tailadmin/Header.tsx
+  Function TailAdminSidebar → frontend/src/components/tailadmin/Sidebar.tsx
+  Function LotusCopilotPage → frontend/src/pages/copilot/LotusCopilotPage.tsx
+  Interface VercelChatPanelProps → frontend/src/pages/copilot/components/VercelChatPanel.tsx
+  Property company → frontend/src/pages/copilot/components/VercelChatPanel.tsx
+  Property onClose → frontend/src/pages/copilot/components/VercelChatPanel.tsx
+  Property onExpand → frontend/src/pages/copilot/components/VercelChatPanel.tsx
+  Property isSidebarOpen → frontend/src/pages/copilot/components/VercelChatPanel.tsx
+  Property className → frontend/src/pages/copilot/components/VercelChatPanel.tsx
+  Property initialMode → frontend/src/pages/copilot/components/VercelChatPanel.tsx
+  Function createRevokedDemoTransport → frontend/src/pages/copilot/components/VercelChatPanel.tsx
+  Method post → frontend/src/pages/copilot/components/VercelChatPanel.tsx
+  Property status → frontend/src/pages/copilot/components/VercelChatPanel.tsx
+  Property data → frontend/src/pages/copilot/components/VercelChatPanel.tsx
+... and 89 more
+
+Affected execution flows:
+  • Get_context → Is_valid_uuid_v4 (7 steps) — changed: get_context
+  • App → SelectFeature (6 steps) — changed: VercelChatPanel, LotusCopilotDrawer
+  • App → SelectMode (6 steps) — changed: VercelChatPanel, LotusCopilotDrawer
+  • App → ResetRequest (6 steps) — changed: VercelChatPanel, LotusCopilotDrawer
+  • Get_context → Get_safe_message (6 steps) — changed: get_context
+  • App → UseTranslation (5 steps) — changed: VercelChatPanel, LotusCopilotDrawer
+  • App → UseAuthenticatedActionScope (5 steps) — changed: VercelChatPanel, LotusCopilotDrawer
+  • UniversalPageView → ClearInput (5 steps) — changed: VercelChatPanel, UniversalPageView, LotusCopilotPage
+  • Get_context → From_domain (5 steps) — changed: get_context, _frappe_post_handler, _failure_response
+  • Get_context → Resolve_http_status (5 steps) — changed: get_context, _frappe_post_handler, _failure_response
+... and 54 more

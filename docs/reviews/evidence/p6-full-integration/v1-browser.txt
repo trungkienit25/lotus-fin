@@ -1,0 +1,95 @@
+- banner:
+  - link "Lotus Fin":
+    - /url: /home
+    - img "Lotus Fin"
+  - link "Desk":
+    - /url: /home
+  - generic: /
+  - link "Lotus Fin AI":
+    - /url: /workspace/Lotus%20Fin%20AI
+  - generic: /
+  - generic: Copilot
+  - textbox "Search or type a command (Ctrl + K)..."
+  - generic: Ctrl+K
+  - button "Notifications":
+  - button "P p6-alice@example.invalid":
+    - generic: P
+    - generic: p6-alice@example.invalid
+- main:
+  - button "+ New Chat":
+    - generic: +
+    - generic: New Chat
+  - generic: Chat History
+  - generic: "5"
+  - generic: Phân tích sức khỏe tài chính 2026
+  - generic: Hôm nay
+  - generic: Dự báo dòng tiền 30 ngày tới
+  - generic: Hôm nay
+  - generic: Mô phỏng Stress-Test What-If
+  - generic: Hôm qua
+  - generic: Kiểm tra nợ quá hạn và NCC
+  - generic: 2 ngày trước
+  - generic: Khớp nối gói vay & Lịch trả nợ
+  - generic: Tuần này
+  - button "▶ Auxiliary Financial Tools 6":
+    - generic: ▶
+    - generic: Auxiliary Financial Tools
+    - generic: "6"
+  - generic: "Company Audit Scope:"
+  - combobox:
+    - option "Lotus Fin Core" [selected]
+  - button "Collapse sidebar":
+  - generic: ✦
+  - generic: Lotus Fin AI
+  - generic: "Scope: Lotus Fin Core"
+  - tablist "Copilot modes":
+    - tab "Chat mode" [selected]: Chat
+    - tab "Invoice Actions mode": Invoice Actions
+    - tab "Followup L3 mode": Followup (L3)
+  - button "Reports unavailable" [disabled]:
+    - generic: Reports
+    - generic: ↗
+  - button "Reset conversation":
+  - generic "Integrated capabilities":
+    - button "Select CORE globally": CORE
+    - button "Select DEMO globally" [pressed]: DEMO — Fictional
+    - button "L4 · DEMO_ONLY"
+    - button "L5 · DEMO_ONLY"
+    - button "V1 · DEMO_ONLY"
+    - generic: L0/L3 READY · L1/L2 DEMO_ONLY
+  - paragraph: V1 · DEMO_ONLY — dữ liệu giả, thao tác mô phỏng
+  - button "Tìm hóa đơn đã quá hạn cuối"
+  - heading "Hóa đơn đã qua hạn cuối còn dư nợ (Past-Final-Due)" [level=3]
+  - generic: "Site Date: 2026-10-13 (Asia/Ho_Chi_Minh) | Scope: site_demo:Lotus Demo Corp"
+  - generic: DEMO DATA (FICTIONAL)
+  - strong: "Limitations:"
+  - text: DEMO_FICTIONAL_DATA
+  - table:
+    - rowgroup:
+      - row "Invoice ID Hạn cuối (Final Due) Số ngày quá hạn Dư nợ hiện tại (Residual) Loại tiền Hành động":
+        - columnheader "Invoice ID"
+        - columnheader "Hạn cuối (Final Due)"
+        - columnheader "Số ngày quá hạn"
+        - columnheader "Dư nợ hiện tại (Residual)"
+        - columnheader "Loại tiền"
+        - columnheader "Hành động"
+    - rowgroup:
+      - row "DEMO-INV-001 2026-10-01 +12 ngày 15000000.00 VND Chưa xác thực":
+        - cell "DEMO-INV-001"
+        - cell "2026-10-01"
+        - cell "+12 ngày"
+        - cell "15000000.00"
+        - cell "VND"
+        - cell "Chưa xác thực":
+          - button "Chưa xác thực" [disabled]
+      - row "DEMO-INV-002 2026-10-05 +8 ngày 2850000.50 VND Chưa xác thực":
+        - cell "DEMO-INV-002"
+        - cell "2026-10-05"
+        - cell "+8 ngày"
+        - cell "2850000.50"
+        - cell "VND"
+        - cell "Chưa xác thực":
+          - button "Chưa xác thực" [disabled]
+  - generic: "Scanned: 5 | Returned: 2 | Observed: 2026-10-13T12:00:00+00:00"
+  - button "Làm mới (Fresh Authorization)"
+  - status: RESULTS_FOUND

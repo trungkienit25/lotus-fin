@@ -1,11 +1,13 @@
-import { AuthProvider } from "@refinedev/core";
+import type { AuthProvider } from "@refinedev/core";
 import axios from "axios";
+import { bootstrapSession, clearSessionBootstrap } from "./sessionBootstrap.ts";
 
 // Đảm bảo mọi request đều gửi kèm cookie session của Frappe (sid)
 axios.defaults.withCredentials = true;
 
 export const authProvider: AuthProvider = {
   login: async ({ email, password }) => {
+    clearSessionBootstrap();
     try {
       // Frappe endpoint /api/method/login yêu cầu application/x-www-form-urlencoded
       const params = new URLSearchParams();
@@ -19,9 +21,11 @@ export const authProvider: AuthProvider = {
       });
 
       if (response.data?.message === "Logged In") {
+        clearSessionBootstrap();
+        await bootstrapSession();
         return {
           success: true,
-          redirectTo: "/",
+          redirectTo: "/copilot",
         };
       }
 
@@ -37,17 +41,24 @@ export const authProvider: AuthProvider = {
         success: false,
         error: {
           name: "LoginError",
-          message: error.response?.data?.message || "Không thể kết nối đến máy chủ ERPNext.",
+          message: "Không thể xác minh phiên đăng nhập Lotus Fin.",
         },
       };
     }
   },
 
   logout: async () => {
+    clearSessionBootstrap();
     try {
-      await axios.post("/api/method/logout");
-    } catch (e) {
-      console.warn("Logout error:", e);
+      const session = await bootstrapSession();
+      await axios.post("/api/method/logout", undefined, {
+        headers: { "X-Frappe-CSRF-Token": session.csrfToken },
+      });
+    } catch {
+      return { success: false, error: { name: "LogoutError",
+        message: "Sign out could not be verified. Please retry." } };
+    } finally {
+      clearSessionBootstrap();
     }
     return {
       success: true,
@@ -57,27 +68,18 @@ export const authProvider: AuthProvider = {
 
   check: async () => {
     try {
-      const response = await axios.get("/api/method/frappe.auth.get_logged_user");
-      if (response.data?.message && response.data.message !== "Guest") {
-        return { authenticated: true };
-      }
-      return { authenticated: false, redirectTo: "/login" };
+      await bootstrapSession();
+      return { authenticated: true };
     } catch {
+      clearSessionBootstrap();
       return { authenticated: false, redirectTo: "/login" };
     }
   },
 
   getIdentity: async () => {
     try {
-      const userRes = await axios.get("/api/method/frappe.auth.get_logged_user");
-      const username = userRes.data?.message;
-      if (username && username !== "Guest") {
-        return {
-          id: username,
-          name: username,
-        };
-      }
-      return null;
+      const { user } = await bootstrapSession();
+      return { id: user, name: user };
     } catch {
       return null;
     }
@@ -85,6 +87,7 @@ export const authProvider: AuthProvider = {
 
   onError: async (error: any) => {
     if (error?.response?.status === 401 || error?.response?.status === 403) {
+      clearSessionBootstrap();
       return { logout: true };
     }
     return { error };

@@ -66,7 +66,8 @@ def test_explicit_qualified_affirmative_permission_control(monkeypatch):
         calls.append((doctype, ptype, doc, user))
         return (doctype, ptype, doc, user) == ("Company", "read", "Company A", "alice")
 
-    monkeypatch.setitem(sys.modules, "frappe", types.SimpleNamespace(has_permission=qualified))
+    monkeypatch.setitem(sys.modules, "frappe", types.SimpleNamespace(has_permission=qualified,
+        get_system_settings=lambda key: "Asia/Ho_Chi_Minh"))
     ctx, check = resolve()
     assert calls == [("Company", "read", "Company A", "alice")]
     assert ctx is not None and ctx.actor_id == "alice" and ctx.company_id == "Company A"

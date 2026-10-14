@@ -1,0 +1,2 @@
+{"case":"late-bootstrap-after-revoke","expected":"REVOKED","actual":"VERIFIED","actor":"alice"}
+{"case":"same-user-active-poll","expected":"server-revalidation","actual_fetches":0,"actual":"VERIFIED"}

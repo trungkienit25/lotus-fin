@@ -1,0 +1,21 @@
+
+  GitNexus Analyzer (1.6.12)
+[2K
+  Skipped 1 large files (>512KB, likely generated/vendored)
+[2K
+  - docs/reviews/product-independence-2026-10-12/BASELINE_GIT_STATUS.txt
+[2K
+  Set GITNEXUS_MAX_FILE_SIZE=<KB> to include files above the default cap.
+{"level":40,"time":1791902212776,"name":"gitnexus","msg":"[scope-resolution] 956 property read/write site(s) name a field that IS defined in this workspace, but only in another language, so per-language inference declined to link them. Queries for these fields return an empty result that does NOT mean \"unused\" — it means the definition anchor is in a different language. Affected: controller (typescript), icon (typescript), label (typescript), link_to (typescript), link_type (typescript), links (typescript), module (typescript), size (typescript), user (typescript), absolute_change (python), …"}
+{"level":40,"time":1791902214812,"name":"gitnexus","truncation":{"truncated":true,"entryPointCandidatesDropped":325,"entryPointsUnexplored":0,"walksCutByBudget":26,"tracesDepthCapped":0,"calleesDropped":800,"processesDropped":0},"msg":"[processes] 368 flows reported, but whole flows are MISSING: 325 of 525 candidate entry point(s) never ranked in, 0 ranked entry point(s) never traced, 0 deduplicated flow(s) dropped at maxProcesses, 0 trace(s) cut at maxTraceDepth, 800 callee(s) skipped at maxBranching, 26 walk(s) cut by the per-entry trace budget. An absent flow does NOT mean the code path does not exist."}
+[2K
+analysis capabilities changed (unexpected:java.heritage-captures, unexpected:java.record-component-accessors, unexpected:objective-c.provider-0.1.8.tree-sitter-objc-3.0.2, unexpected:spring.aop-advice, unexpected:spring.bean-inventory, unexpected:spring.conditionals-auto-configuration, unexpected:spring.config-bindings, unexpected:spring.non-http-handlers, unexpected:spring.route-bindings); forcing a full rebuild so persisted feature evidence is complete.
+[2K
+FTS disabled for this index. To enable keyword search, run gitnexus analyze without --skip-fts and with GITNEXUS_SKIP_FTS unset.
+  Repository indexed successfully (224.1s)
+
+  12,450 nodes | 20,686 edges | 348 clusters | 368 flows
+  E:\lotus-fin
+
+  FTS disabled for this index. To enable keyword search, run gitnexus analyze without --skip-fts and with GITNEXUS_SKIP_FTS unset.
+

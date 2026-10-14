@@ -1,0 +1,47 @@
+{
+  "record_kind": "transcribed executed tool results, not a new graph run",
+  "repository": "lotus-fin",
+  "workspace": "E:/lotus-fin",
+  "head": "5f805ef34f788245a3ec0e9c2f44e224eb16c305",
+  "branch": "codex/p2a-invoice-read-backend",
+  "index_commit": "5f805ef34f788245a3ec0e9c2f44e224eb16c305",
+  "indexed_at": "2026-10-12T07:02:27.060Z",
+  "cli_version": "1.6.12",
+  "runtime": "C:/Program Files/nodejs/node.exe",
+  "cli": "C:/Users/longm/AppData/Local/npm-cache/_npx/e46929201c1128dd/node_modules/gitnexus/dist/cli/index.js",
+  "query": {
+    "processes": 0,
+    "interpretation": "degraded discovery; not feature absence",
+    "definitions": 0,
+    "search": "invoice outstanding currency due date local preview mutation authorization",
+    "warning": "FTS disabled"
+  },
+  "context": {
+    "search_uid": "Class:lotus_fin/lotus_fin/application/service/search_invoices.py:SearchInvoicesService",
+    "ambiguity_resolved": true,
+    "gateway_uid": "Class:lotus_fin/lotus_fin/infrastructure/erpnext/erpnext_gateway.py:ERPNextGateway"
+  },
+  "impact": {
+    "direct": 1,
+    "target_uid": "Class:lotus_fin/lotus_fin/application/service/search_invoices.py:SearchInvoicesService",
+    "processes": 0,
+    "modules": 0,
+    "caller": "lotus_fin/lotus_fin/presentation/controller/invoice_actions_controller.py",
+    "direction": "upstream",
+    "risk": "LOW"
+  },
+  "new_document_impact": {
+    "text_confirmation": "no existing document; local L3/L4 terms occur in proposal matrix only, not code",
+    "target": "CHATBOT_V1_PAST_FINAL_DUE_CONTRACT",
+    "error": "Target not found",
+    "existing_symbols_edited": false,
+    "risk": "UNKNOWN"
+  },
+  "freshness": {
+    "status_command": "stopped after extended no-output execution",
+    "head_matches_index": true,
+    "dirty_content": "NOT_VERIFIED"
+  },
+  "commit": false,
+  "detect_changes": "NOT_RUN: no commit or existing source edit; no graph-clean claim"
+}

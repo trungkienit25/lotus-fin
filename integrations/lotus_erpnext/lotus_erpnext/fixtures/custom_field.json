@@ -1,0 +1,13 @@
+[
+ {
+  "doctype": "Custom Field",
+  "name": "Company-ai002_approved_cash_accounts",
+  "dt": "Company",
+  "fieldname": "ai002_approved_cash_accounts",
+  "fieldtype": "Small Text",
+  "label": "AI002 Approved Cash Account Scope",
+  "description": "JSON list of approved leaf Cash/Bank account names used as the AI002 available-cash scope (e.g. [\"Cash - A2F\"]). Empty or invalid means the AI002 forecast is blocked (NEEDS_REVIEW). Managed by finance administrators through the Company form; every change is recorded in the Company document audit fields.",
+  "insert_after": "tax_id",
+  "no_copy": 1
+ }
+]

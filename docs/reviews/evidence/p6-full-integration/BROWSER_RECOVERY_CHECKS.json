@@ -1,0 +1,12 @@
+{
+  "target": "http://127.0.0.1:8114/copilot",
+  "layer": "actual served browser builder check",
+  "loginAlice": true,
+  "v1GoldRowsVisible": true,
+  "externalLogoutClearedProtectedResults": true,
+  "revokedAvailabilityLabels": "AWAITING_PERMISSION",
+  "loginBob": true,
+  "oldResultsDidNotReturnOnActorChange": true,
+  "browserAfterColdRestart": true,
+  "nativeQualified": false
+}

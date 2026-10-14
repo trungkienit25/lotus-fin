@@ -26,10 +26,7 @@ jobs:
             p/security-audit
             p/secrets
             p/owasp-top-ten
-        continue-on-error: true
 
-  # Placeholder cho Build & Test khi dự án chốt Tech Stack
-  # (Sẽ kích hoạt tương ứng: Go, Node.js/Next.js, Java Spring, Python FastAPI, ...)
   build-and-test:
     name: Build & Test Gatekeeper
     runs-on: ubuntu-latest
@@ -37,6 +34,9 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Codebase Verification
-        run: |
-          echo "Tech stack chưa được cấu hình. Bước kiểm tra mã nguồn tổng quát hoàn thành."
+      - uses: actions/setup-node@v4
+        with: {node-version: '22.22.0'}
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+        working-directory: frontend
+      - run: npm run build
+        working-directory: frontend
