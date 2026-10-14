@@ -1,0 +1,91 @@
+name: ${LOTUS_PROJECT:?Explicit isolated project required}
+x-app: &app
+  image: ${LOTUS_IMAGE:?Explicit built image required}
+  restart: unless-stopped
+  volumes:
+    - sites:/home/frappe/frappe-bench/sites
+    - logs:/home/frappe/frappe-bench/logs
+  environment: &app-env
+    LOTUS_SITE: ${LOTUS_SITE:?Explicit isolated site required}
+services:
+  db:
+    restart: unless-stopped
+    image: mariadb:11.8@sha256:79d59758afc91b89b120b0a8904d637f5a3b3e1c4900f29b740d6d46c72fef68
+    environment:
+      MARIADB_ROOT_PASSWORD: ${LOTUS_DB_PASSWORD:?Generated private DB password required}
+    command: [--character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci, --skip-character-set-client-handshake]
+    volumes: [db-data:/var/lib/mysql]
+    healthcheck:
+      test: [CMD, healthcheck.sh, --connect, --innodb_initialized]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+  redis-cache:
+    restart: unless-stopped
+    image: redis:6.2-alpine@sha256:ad151300731763a711bf517916519e5cc8f035c95139aa1750836048390439d0
+    healthcheck: {test: [CMD, redis-cli, ping], interval: 5s, timeout: 5s, retries: 30}
+  redis-queue:
+    restart: unless-stopped
+    image: redis:6.2-alpine@sha256:ad151300731763a711bf517916519e5cc8f035c95139aa1750836048390439d0
+    volumes: [redis-queue-data:/data]
+    healthcheck: {test: [CMD, redis-cli, ping], interval: 5s, timeout: 5s, retries: 30}
+  init:
+    <<: *app
+    restart: 'no'
+    entrypoint: [/usr/local/bin/entrypoint.sh]
+    command: [bash, /home/frappe/lotus-core/init.sh]
+    environment:
+      <<: *app-env
+      LOTUS_DB_PASSWORD: ${LOTUS_DB_PASSWORD:?Required}
+      LOTUS_ADMIN_PASSWORD: ${LOTUS_ADMIN_PASSWORD:?Required}
+    depends_on:
+      db: {condition: service_healthy}
+      redis-cache: {condition: service_healthy}
+      redis-queue: {condition: service_healthy}
+  backend:
+    <<: *app
+    depends_on: {init: {condition: service_completed_successfully}}
+    healthcheck:
+      test: [CMD, /home/frappe/frappe-bench/env/bin/python, /home/frappe/lotus-core/smoke.py]
+      interval: 15s
+      timeout: 10s
+      retries: 12
+      start_period: 20s
+  frontend:
+    <<: *app
+    command: [nginx-entrypoint.sh]
+    environment:
+      <<: *app-env
+      BACKEND: backend:8000
+      FRAPPE_SITE_NAME_HEADER: ${LOTUS_SITE:?Required}
+      SOCKETIO: websocket:9000
+      UPSTREAM_REAL_IP_ADDRESS: 127.0.0.1
+      UPSTREAM_REAL_IP_HEADER: X-Forwarded-For
+      UPSTREAM_REAL_IP_RECURSIVE: 'off'
+      PROXY_READ_TIMEOUT: '120'
+      CLIENT_MAX_BODY_SIZE: 16m
+    ports: ['127.0.0.1:${LOTUS_PORT:-8097}:8080']
+    depends_on:
+      backend: {condition: service_healthy}
+      websocket: {condition: service_started}
+  websocket:
+    <<: *app
+    command: [node, /home/frappe/frappe-bench/apps/frappe/socketio.js]
+    depends_on: {init: {condition: service_completed_successfully}}
+  queue-long:
+    <<: *app
+    command: [bench, worker, --queue, 'long,default,short']
+    depends_on: {init: {condition: service_completed_successfully}}
+  queue-short:
+    <<: *app
+    command: [bench, worker, --queue, 'short,default']
+    depends_on: {init: {condition: service_completed_successfully}}
+  scheduler:
+    <<: *app
+    command: [bench, schedule]
+    depends_on: {init: {condition: service_completed_successfully}}
+volumes:
+  sites:
+  logs:
+  db-data:
+  redis-queue-data:

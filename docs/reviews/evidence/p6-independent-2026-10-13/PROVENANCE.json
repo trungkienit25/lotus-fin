@@ -1,0 +1,63 @@
+{
+  "containers": [
+    {
+      "name": "/lotus-core-p6-01a1358e-backend-1",
+      "image": "sha256:5264a4c2d7992fdeaa69f40c041752b8cfdb3849f2a852ab536eb1075737c256",
+      "source_bind_mounts": []
+    },
+    {
+      "name": "/lotus-core-p6-01a1358e-frontend-1",
+      "image": "sha256:5264a4c2d7992fdeaa69f40c041752b8cfdb3849f2a852ab536eb1075737c256",
+      "source_bind_mounts": []
+    },
+    {
+      "name": "/lotus-core-p6-01a1358e-queue-long-1",
+      "image": "sha256:5264a4c2d7992fdeaa69f40c041752b8cfdb3849f2a852ab536eb1075737c256",
+      "source_bind_mounts": []
+    },
+    {
+      "name": "/lotus-core-p6-01a1358e-queue-short-1",
+      "image": "sha256:5264a4c2d7992fdeaa69f40c041752b8cfdb3849f2a852ab536eb1075737c256",
+      "source_bind_mounts": []
+    },
+    {
+      "name": "/lotus-core-p6-01a1358e-scheduler-1",
+      "image": "sha256:5264a4c2d7992fdeaa69f40c041752b8cfdb3849f2a852ab536eb1075737c256",
+      "source_bind_mounts": []
+    },
+    {
+      "name": "/lotus-core-p6-01a1358e-websocket-1",
+      "image": "sha256:5264a4c2d7992fdeaa69f40c041752b8cfdb3849f2a852ab536eb1075737c256",
+      "source_bind_mounts": []
+    }
+  ],
+  "backend_count": 331,
+  "backend_drift": [],
+  "local_not_packaged": [],
+  "ui_drift": [],
+  "ui": {
+    "icons.svg": "7ca2d67c9c3aebf50cdc8709ee8aacf8cdb8cc7ea6325ea94939caef5da1c53d",
+    "favicon.svg": "61bc9a161de58248288e6905425d7180f0624c2865007b97d763fdac12043a66",
+    "assets/index-BkPE-kGj.js": "d6614f1598dc867d868959b280df5f8691f6152fc1a8e3c7b83cf37f5ea3fd8c",
+    "assets/index-Dzl5mkXx.css": "c44a7d18afccd01bb5abcd5b01611ce78397d41a2be010e164b2a60e2d1c4716",
+    "brand/text.jpg": "de86bd071cf1fdc7c5ef900b134394f3bc246d7c40dab16008e2e497e762f767",
+    "brand/logo.jpg": "a2991266444fddb324009682ef21e1bd1330a6a81682ed16a2801278b7e33d79",
+    "brand/favicon.jpg": "b1fa180bd6186d712bd892bc1fbf0a1ffe01e334e00c41b5684943a0b656a2ad",
+    "brand/brand-guideline.jpg": "af5d27a0e1459753b856a201a0c687b83372c3d88428d6b3e2d6162123591b38"
+  },
+  "erpnext_importable": false,
+  "http_assets": [
+    {
+      "path": "assets/index-BkPE-kGj.js",
+      "http": 200,
+      "sha256": "d6614f1598dc867d868959b280df5f8691f6152fc1a8e3c7b83cf37f5ea3fd8c",
+      "matches_image": true
+    },
+    {
+      "path": "assets/index-Dzl5mkXx.css",
+      "http": 200,
+      "sha256": "c44a7d18afccd01bb5abcd5b01611ce78397d41a2be010e164b2a60e2d1c4716",
+      "matches_image": true
+    }
+  ]
+}

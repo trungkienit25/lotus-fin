@@ -1,0 +1,3296 @@
+{
+  "schema": "lotus-fin.independent-f07-round5.v1",
+  "project": "Lotus Fin / FinTechathon Shenzhen 2026",
+  "review_date": "2026-10-11",
+  "verdict": "B1S_G4B_CHANGES_REQUIRED",
+  "scope": "F07 only; no implementation",
+  "identity": {
+    "head": "07f7251d3a0744356bf96fb2fea55ec6df9a0ce2",
+    "branch": "develop",
+    "dirty": true,
+    "staged": false,
+    "source_manifest": [
+      {
+        "path": "frontend/src/pages/copilot/components/VercelChatPanel.tsx",
+        "sha256": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+        "lines": 545,
+        "round4": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+        "added": false
+      },
+      {
+        "path": "frontend/src/components/copilot/LotusCopilotDrawer.tsx",
+        "sha256": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+        "lines": 55,
+        "round4": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+        "added": false
+      },
+      {
+        "path": "frontend/src/pages/copilot/components/copilotPresentation.ts",
+        "sha256": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+        "lines": 149,
+        "round4": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+        "added": false
+      },
+      {
+        "path": "frontend/src/pages/copilot/components/CopilotMessageBody.tsx",
+        "sha256": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+        "lines": 57,
+        "round4": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+        "added": false
+      },
+      {
+        "path": "frontend/src/pages/copilot/components/useCopilotRequest.ts",
+        "sha256": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76",
+        "lines": 173,
+        "round4": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76",
+        "added": false
+      },
+      {
+        "path": "tests_e2e/test_copilot_failclosed.py",
+        "sha256": "4075D799EC2A1D7F89E3ACCF82671797E2E96ED03E44EC2DD38C4E128D2DCC09",
+        "lines": 286,
+        "round4": "513CD72533FAD2534547344579A0A6694489BBBCD6FE4D3C39B22729718E017C",
+        "added": false
+      },
+      {
+        "path": "tests_e2e/copilot_fixture/index.html",
+        "sha256": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+        "lines": 12,
+        "round4": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+        "added": false
+      },
+      {
+        "path": "tests_e2e/copilot_fixture/main.tsx",
+        "sha256": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+        "lines": 169,
+        "round4": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+        "added": false
+      },
+      {
+        "path": "tests_e2e/copilot_fixture/vite.config.ts",
+        "sha256": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085",
+        "lines": 29,
+        "round4": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085",
+        "added": false
+      },
+      {
+        "path": "frontend/package.json",
+        "sha256": "35386677A8EC903A6FD9C75B09E5732603A2A4626EABCB4E528386F7E81DA50C",
+        "lines": 39,
+        "round4": "35386677A8EC903A6FD9C75B09E5732603A2A4626EABCB4E528386F7E81DA50C",
+        "added": false
+      },
+      {
+        "path": "frontend/package-lock.json",
+        "sha256": "4530FD8C3E9496A684A8569EE6A47DD0F3EB8D010B3DEF7A6D4222DB67F23DD9",
+        "lines": 6187,
+        "round4": "4530FD8C3E9496A684A8569EE6A47DD0F3EB8D010B3DEF7A6D4222DB67F23DD9",
+        "added": false
+      },
+      {
+        "path": "B1S_IMPLEMENTATION_REPORT.md",
+        "sha256": "647B09F49DDEC93A1910365319A07A09C2B715FB22096DF8A6D5213CC965E3B8",
+        "lines": 526,
+        "round4": "F6D0845E43F546FFE9460F3F2D578D7D52341D8B5DBD2956A3B002F39FA60015",
+        "added": false
+      },
+      {
+        "path": "tests_e2e/copilot_test_harness.py",
+        "sha256": "ADAAC78773A05C668990D5DCFDA33CAECA1C34D06755F3649A00D1D9E2BF180B",
+        "lines": 133,
+        "round4": null,
+        "added": true
+      }
+    ],
+    "environment": {
+      "python": "3.13.7",
+      "pytest": "9.0.2",
+      "playwright": "1.58.0",
+      "node": "v22.19.0",
+      "installed_frontend": {
+        "react": "19.3.0",
+        "react-dom": "19.3.0",
+        "typescript": "6.0.3",
+        "vite": "8.3.3",
+        "axios": "1.20.0",
+        "oxlint": "1.87.0",
+        "@vitejs/plugin-react": "6.1.2"
+      },
+      "browser_binary": "C:/Users/longm/AppData/Local/ms-playwright/chromium-1208/chrome-win64/chrome.exe"
+    },
+    "environment_identity": {
+      "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+      "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+    },
+    "private_copy_manifest": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\PRIVATE_COPY_HASHES.json",
+    "source_after": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\SOURCE_AFTER.json",
+    "runtime_executable_hashes": [
+      {
+        "path": "C:\\Python313\\python.exe",
+        "sha256": "D932E5E2F324D57F392E8FD063DCF6D0185BE8A664C57C6D24E7762ED02C28CA",
+        "bytes": 105816
+      },
+      {
+        "path": "C:\\Program Files\\nodejs\\node.exe",
+        "sha256": "995A3FB3CEFAD590CD3F4B321532A4B9582FB9C6575320ED2E3E894CAAC3E362",
+        "bytes": 85268464
+      },
+      {
+        "path": "C:\\Users\\longm\\AppData\\Local\\ms-playwright\\chromium-1208\\chrome-win64\\chrome.exe",
+        "sha256": "FF0C99FC5BB2301CAD77930AA76E5354CF2A5FEFB7EFDCF3B3BC10BA0550C015",
+        "bytes": 3006464
+      }
+    ],
+    "gold_additional_caller_hashes": [
+      {
+        "path": "frontend/src/pages/copilot/LotusCopilotPage.tsx",
+        "expected": "3B728165954CCC04B684AA0AC6879E781C6AD57259BFB24B20D89AC8A8CEA149",
+        "actual": "3B728165954CCC04B684AA0AC6879E781C6AD57259BFB24B20D89AC8A8CEA149",
+        "status": "UNCHANGED"
+      }
+    ]
+  },
+  "counts": {
+    "critical_round4_scenarios": {
+      "PASS": 8,
+      "FAIL": 0
+    },
+    "policy_contract_variants": {
+      "PASS": 0,
+      "FAIL": 2
+    },
+    "native_tests": {
+      "PASS": 4,
+      "FAIL": 0
+    },
+    "application_gold": {
+      "PASS": 52,
+      "FAIL": 0
+    },
+    "original_requirements": {
+      "PASS": 8,
+      "note": "overlapping lifecycle observations; not eight additional application cases"
+    },
+    "exact_messages": {
+      "PASS": 32,
+      "note": "overlap existing52; no added coverage"
+    },
+    "engineering_checks": {
+      "PASS": 3
+    },
+    "execution_invocations": 18,
+    "note": "first executions and proof refinements preserved; repeated runs never counted as new coverage"
+  },
+  "critical_qualifications": [
+    {
+      "id": "Q1",
+      "expected": "undeclared method/query/path/channel denied AND pytest exit1",
+      "actual": {
+        "pytest_exit": 1,
+        "probe": {
+          "fulfilled": false
+        },
+        "unexpected_assertion": true,
+        "probe_triggered": true,
+        "native_ledger_type": "METHOD_QUERY",
+        "intended_assertion_matched": true,
+        "native_cleanup": {
+          "owned_nodes": [],
+          "listeners": []
+        }
+      },
+      "status": "PASS",
+      "assertion": "Unexpected network traffic detected: METHOD_QUERY",
+      "pytest_exit": 1,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\METHOD_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\METHOD_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\METHOD_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\METHOD_CONTAINMENT.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\METHOD_JUNIT.xml"
+      ],
+      "source_sha256": {
+        "native_test": "4075D799EC2A1D7F89E3ACCF82671797E2E96ED03E44EC2DD38C4E128D2DCC09",
+        "native_helper": "ADAAC78773A05C668990D5DCFDA33CAECA1C34D06755F3649A00D1D9E2BF180B",
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "Q2",
+      "expected": "undeclared method/query/path/channel denied AND pytest exit1",
+      "actual": {
+        "pytest_exit": 1,
+        "probe": {
+          "fulfilled": false
+        },
+        "unexpected_assertion": true,
+        "probe_triggered": true,
+        "native_ledger_type": "METHOD_QUERY",
+        "intended_assertion_matched": true,
+        "native_cleanup": {
+          "owned_nodes": [],
+          "listeners": []
+        }
+      },
+      "status": "PASS",
+      "assertion": "Unexpected network traffic detected: METHOD_QUERY",
+      "pytest_exit": 1,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\QUERY_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\QUERY_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\QUERY_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\QUERY_CONTAINMENT.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\QUERY_JUNIT.xml"
+      ],
+      "source_sha256": {
+        "native_test": "4075D799EC2A1D7F89E3ACCF82671797E2E96ED03E44EC2DD38C4E128D2DCC09",
+        "native_helper": "ADAAC78773A05C668990D5DCFDA33CAECA1C34D06755F3649A00D1D9E2BF180B",
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "Q3",
+      "expected": "undeclared method/query/path/channel denied AND pytest exit1",
+      "actual": {
+        "pytest_exit": 1,
+        "probe": {
+          "fulfilled": false
+        },
+        "unexpected_assertion": true,
+        "probe_triggered": true,
+        "native_ledger_type": "UNDECLARED_API",
+        "intended_assertion_matched": true,
+        "native_cleanup": {
+          "owned_nodes": [],
+          "listeners": []
+        }
+      },
+      "status": "PASS",
+      "assertion": "Unexpected network traffic detected: UNDECLARED_API",
+      "pytest_exit": 1,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENCODED_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENCODED_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENCODED_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENCODED_CONTAINMENT.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENCODED_JUNIT.xml"
+      ],
+      "source_sha256": {
+        "native_test": "4075D799EC2A1D7F89E3ACCF82671797E2E96ED03E44EC2DD38C4E128D2DCC09",
+        "native_helper": "ADAAC78773A05C668990D5DCFDA33CAECA1C34D06755F3649A00D1D9E2BF180B",
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "Q4",
+      "expected": "undeclared method/query/path/channel denied AND pytest exit1",
+      "actual": {
+        "pytest_exit": 1,
+        "probe": {
+          "fulfilled": false
+        },
+        "unexpected_assertion": true,
+        "probe_triggered": true,
+        "native_ledger_type": "UNDECLARED_ASSET",
+        "intended_assertion_matched": true,
+        "native_cleanup": {
+          "owned_nodes": [],
+          "listeners": []
+        }
+      },
+      "status": "PASS",
+      "assertion": "Unexpected network traffic detected: UNDECLARED_ASSET",
+      "pytest_exit": 1,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ASSET_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ASSET_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ASSET_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ASSET_CONTAINMENT.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ASSET_JUNIT.xml"
+      ],
+      "source_sha256": {
+        "native_test": "4075D799EC2A1D7F89E3ACCF82671797E2E96ED03E44EC2DD38C4E128D2DCC09",
+        "native_helper": "ADAAC78773A05C668990D5DCFDA33CAECA1C34D06755F3649A00D1D9E2BF180B",
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "Q5",
+      "expected": "undeclared method/query/path/channel denied AND pytest exit1",
+      "actual": {
+        "pytest_exit": 1,
+        "probe": {
+          "attempt": "ws://127.0.0.1:5188/reviewer_undeclared_ws",
+          "reviewer_fallback_observed": false
+        },
+        "unexpected_assertion": true,
+        "probe_triggered": true,
+        "native_ledger_type": "WS",
+        "intended_assertion_matched": true,
+        "native_cleanup": {
+          "owned_nodes": [],
+          "listeners": []
+        }
+      },
+      "status": "PASS",
+      "assertion": "Unexpected network traffic detected: WS",
+      "pytest_exit": 1,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\LOCAL_WS_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\LOCAL_WS_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\LOCAL_WS_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\LOCAL_WS_CONTAINMENT.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\LOCAL_WS_JUNIT.xml"
+      ],
+      "source_sha256": {
+        "native_test": "4075D799EC2A1D7F89E3ACCF82671797E2E96ED03E44EC2DD38C4E128D2DCC09",
+        "native_helper": "ADAAC78773A05C668990D5DCFDA33CAECA1C34D06755F3649A00D1D9E2BF180B",
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "Q6",
+      "expected": "native PID mismatch rejection; owned process cleaned, foreign sentinel remains until reviewer cleanup; pytest1 for intended readiness check",
+      "actual": {
+        "pytest_exit": 1,
+        "probe_triggered": true,
+        "spawned": [
+          {
+            "pid": 11976,
+            "args": [
+              "C:\\Program Files\\nodejs\\node.EXE",
+              "C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-fin-b1s-r5-b836f637c45a40149866ba7daa5f7a72\\frontend\\node_modules\\vite\\bin\\vite.js",
+              "--config",
+              "C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-fin-b1s-r5-b836f637c45a40149866ba7daa5f7a72\\tests_e2e\\copilot_fixture\\vite.config.ts",
+              "--host",
+              "127.0.0.1",
+              "--port",
+              "5188",
+              "--strictPort"
+            ]
+          }
+        ],
+        "owned_exit_before_reviewer_cleanup": 1,
+        "sentinel_pid": 10676,
+        "sentinel_still_open": true,
+        "listener_pids": [
+          10676
+        ],
+        "wrong_listener_assertion": true,
+        "port_remains_foreign_cleanup_error": true,
+        "cleanup": {
+          "listeners_after_reviewer_sentinel_close": [],
+          "owned_exit": 1,
+          "fallback_owned_stop_required": false,
+          "foreign_closed_only_by_reviewer": true,
+          "unrelated_kills": 0
+        }
+      },
+      "status": "PASS",
+      "assertion": "wrong listener PID rejected; owned process stopped; secondary occupied-port error retained in exception chain",
+      "pytest_exit": 1,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\READINESS_RACE_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\READINESS_RACE_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\READINESS_RACE_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\READINESS_RACE_CONTAINMENT.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\READINESS_RACE_JUNIT.xml"
+      ],
+      "source_sha256": {
+        "native_test": "4075D799EC2A1D7F89E3ACCF82671797E2E96ED03E44EC2DD38C4E128D2DCC09",
+        "native_helper": "ADAAC78773A05C668990D5DCFDA33CAECA1C34D06755F3649A00D1D9E2BF180B",
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "Q7",
+      "expected": "unexpected event during browser close fails enclosing pytest",
+      "actual": {
+        "pytest_exit": 1,
+        "probe": {
+          "fulfilled": false
+        },
+        "native_ledgers": [
+          [
+            {
+              "type": "OUTBOUND",
+              "url": "https://reviewer.invalid/late-probe",
+              "method": "GET"
+            }
+          ]
+        ],
+        "probe_triggered": true,
+        "native_cleanup": {
+          "owned_nodes": [],
+          "listeners": []
+        }
+      },
+      "status": "PASS",
+      "assertion": "post-browser.close final ledger rejects OUTBOUND late-probe",
+      "pytest_exit": 1,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\LATE_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\LATE_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\LATE_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\LATE_CONTAINMENT.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\LATE_JUNIT.xml"
+      ],
+      "source_sha256": {
+        "native_test": "4075D799EC2A1D7F89E3ACCF82671797E2E96ED03E44EC2DD38C4E128D2DCC09",
+        "native_helper": "ADAAC78773A05C668990D5DCFDA33CAECA1C34D06755F3649A00D1D9E2BF180B",
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "Q8",
+      "expected": "missing current-case request must fail even if prior result matches",
+      "actual": {
+        "pytest_exit": 1,
+        "attempted_send_clicks": 22,
+        "suppressed": [
+          {
+            "ordinal": 22,
+            "case": "R1_HTTP_504_DENIAL",
+            "reason": "controlled missing current action; previous result has same status/text",
+            "previous_status": "FORBIDDEN",
+            "previous_text": "Bạn không có quyền thực hiện yêu cầu này.",
+            "previous_loading": "IDLE"
+          }
+        ],
+        "actual_copilot_requests": 21,
+        "probe_triggered": true,
+        "native_cleanup": {
+          "owned_nodes": [],
+          "listeners": []
+        }
+      },
+      "status": "PASS",
+      "assertion": "Timeout waiting for current response; previous FORBIDDEN/IDLE cannot satisfy case22",
+      "pytest_exit": 1,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\SYNC_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\SYNC_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\SYNC_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\SYNC_CONTAINMENT.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\SYNC_JUNIT.xml"
+      ],
+      "source_sha256": {
+        "native_test": "4075D799EC2A1D7F89E3ACCF82671797E2E96ED03E44EC2DD38C4E128D2DCC09",
+        "native_helper": "ADAAC78773A05C668990D5DCFDA33CAECA1C34D06755F3649A00D1D9E2BF180B",
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    }
+  ],
+  "policy_variants": [
+    {
+      "id": "F07_STATIC_ROOT_EXCEPTION",
+      "expected": "undeclared method/query/path/channel denied AND pytest exit1",
+      "actual": {
+        "pytest_exit": 0,
+        "probe": {
+          "fulfilled": true,
+          "status": 200,
+          "body": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <script type=\"module\" src=\"/@vite/client\"></script>\n\n    <meta charset=\"UTF-8\" />\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n    <title>Lotus Fin Copilot Test Fixture</title>\n  </head>\n  <body class=\"bg-gray-50 text-gray-900\">\n    <div id=\"root\"></div>\n    <script type=\"module\" src=\"/main.tsx\"></script>\n  </body>\n</html>\n"
+        },
+        "unexpected_assertion": false,
+        "native_ws_events": [
+          {
+            "url": "ws://127.0.0.1:5188/?token=[fixture-token-redacted]",
+            "callback_entered": true,
+            "upstream_connect_called": false
+          }
+        ],
+        "probe_triggered": true,
+        "native_cleanup": {
+          "owned_nodes": [],
+          "listeners": []
+        }
+      },
+      "status": "FAIL",
+      "assertion": "expected native unexpected-event failure absent: selected native pytest falsely succeeds",
+      "pytest_exit": 0,
+      "reviewer_exit": 1,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\POLICY_ASSET_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\POLICY_ASSET_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\POLICY_ASSET_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\POLICY_ASSET_CONTAINMENT.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\POLICY_ASSET_JUNIT.xml"
+      ],
+      "source_sha256": {
+        "native_test": "4075D799EC2A1D7F89E3ACCF82671797E2E96ED03E44EC2DD38C4E128D2DCC09",
+        "native_helper": "ADAAC78773A05C668990D5DCFDA33CAECA1C34D06755F3649A00D1D9E2BF180B",
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "F07_FORGED_HMR_EXCEPTION",
+      "expected": "undeclared method/query/path/channel denied AND pytest exit1",
+      "actual": {
+        "pytest_exit": 0,
+        "probe": {
+          "attempt": "ws://127.0.0.1:5188/?token=reviewer-forged-token",
+          "reviewer_fallback_observed": false
+        },
+        "unexpected_assertion": false,
+        "native_ws_events": [
+          {
+            "url": "ws://127.0.0.1:5188/?token=[fixture-token-redacted]",
+            "callback_entered": true,
+            "upstream_connect_called": false
+          },
+          {
+            "url": "ws://127.0.0.1:5188/?token=reviewer-forged-token",
+            "callback_entered": true,
+            "upstream_connect_called": false
+          }
+        ],
+        "probe_triggered": true,
+        "native_cleanup": {
+          "owned_nodes": [],
+          "listeners": []
+        }
+      },
+      "status": "FAIL",
+      "assertion": "expected native unexpected-event failure absent: selected native pytest falsely succeeds",
+      "pytest_exit": 0,
+      "reviewer_exit": 1,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\POLICY_LOCAL_WS_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\POLICY_LOCAL_WS_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\POLICY_LOCAL_WS_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\POLICY_LOCAL_WS_CONTAINMENT.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\POLICY_LOCAL_WS_JUNIT.xml"
+      ],
+      "source_sha256": {
+        "native_test": "4075D799EC2A1D7F89E3ACCF82671797E2E96ED03E44EC2DD38C4E128D2DCC09",
+        "native_helper": "ADAAC78773A05C668990D5DCFDA33CAECA1C34D06755F3649A00D1D9E2BF180B",
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    }
+  ],
+  "original_requirements": [
+    {
+      "id": "NATIVE_EXACT_API_ALLOWLIST",
+      "expected": "substring alias is undeclared: abort AND pytest exit1",
+      "actual": {
+        "pytest_exit": 1,
+        "probe": {
+          "fulfilled": false
+        }
+      },
+      "status": "PASS",
+      "assertion": "native unexpected-event assertion",
+      "pytest_exit": 1,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ALIAS_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ALIAS_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ALIAS_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ALIAS_CONTAINMENT.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ALIAS_JUNIT.xml"
+      ],
+      "source_sha256": {
+        "native_test": "4075D799EC2A1D7F89E3ACCF82671797E2E96ED03E44EC2DD38C4E128D2DCC09",
+        "native_helper": "ADAAC78773A05C668990D5DCFDA33CAECA1C34D06755F3649A00D1D9E2BF180B",
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "NATIVE_OUTBOUND_FAILS_PYTEST",
+      "expected": "outbound attempt blocked AND enclosing test fails",
+      "actual": {
+        "pytest_exit": 1,
+        "probe": {
+          "fulfilled": false
+        },
+        "reviewer_blocked": []
+      },
+      "status": "PASS",
+      "assertion": "native unexpected-event assertion",
+      "pytest_exit": 1,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\OUTBOUND_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\OUTBOUND_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\OUTBOUND_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\OUTBOUND_CONTAINMENT.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\OUTBOUND_JUNIT.xml"
+      ],
+      "source_sha256": {
+        "native_test": "4075D799EC2A1D7F89E3ACCF82671797E2E96ED03E44EC2DD38C4E128D2DCC09",
+        "native_helper": "ADAAC78773A05C668990D5DCFDA33CAECA1C34D06755F3649A00D1D9E2BF180B",
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "NATIVE_WS_FAILS_PYTEST",
+      "expected": "WebSocket attempt blocked AND enclosing test fails",
+      "actual": {
+        "pytest_exit": 1,
+        "probe": {
+          "attempt": "wss://reviewer.invalid/ws-probe",
+          "reviewer_fallback_observed": false
+        },
+        "reviewer_blocked": []
+      },
+      "status": "PASS",
+      "assertion": "native unexpected-event assertion",
+      "pytest_exit": 1,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\WS_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\WS_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\WS_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\WS_CONTAINMENT.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\WS_JUNIT.xml"
+      ],
+      "source_sha256": {
+        "native_test": "4075D799EC2A1D7F89E3ACCF82671797E2E96ED03E44EC2DD38C4E128D2DCC09",
+        "native_helper": "ADAAC78773A05C668990D5DCFDA33CAECA1C34D06755F3649A00D1D9E2BF180B",
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "NATIVE_FOREIGN_LISTENER_REFUSED",
+      "expected": "occupied listener refused before spawn; sentinel retained",
+      "actual": {
+        "error": "Port 5188 already in use; refusing unexpected foreign listener.",
+        "spawn_attempts": [],
+        "sentinel_before_reviewer_close": {
+          "pid": 22060,
+          "socket_open": true,
+          "address": [
+            "127.0.0.1",
+            5188
+          ],
+          "listener_pids": [
+            22060
+          ]
+        },
+        "port_free_after_reviewer_close": true
+      },
+      "status": "PASS",
+      "assertion": "native RuntimeError before Popen; sentinel retained until reviewer close",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\PREFLIGHT_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\PREFLIGHT_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\PREFLIGHT_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\PREFLIGHT_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "native_test": "4075D799EC2A1D7F89E3ACCF82671797E2E96ED03E44EC2DD38C4E128D2DCC09",
+        "native_helper": "ADAAC78773A05C668990D5DCFDA33CAECA1C34D06755F3649A00D1D9E2BF180B",
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "NATIVE_CLEANUP_NORMAL",
+      "expected": "native completion/failure releases owned Node and5188",
+      "actual": {
+        "owned_nodes": [],
+        "listeners": []
+      },
+      "status": "PASS",
+      "assertion": "actual ownership/lifecycle observation",
+      "pytest_exit": 0,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\NORMAL_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\NORMAL_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\NORMAL_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\NORMAL_CONTAINMENT.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\NORMAL_JUNIT.xml"
+      ],
+      "source_sha256": {
+        "native_test": "4075D799EC2A1D7F89E3ACCF82671797E2E96ED03E44EC2DD38C4E128D2DCC09",
+        "native_helper": "ADAAC78773A05C668990D5DCFDA33CAECA1C34D06755F3649A00D1D9E2BF180B",
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": true
+    },
+    {
+      "id": "NATIVE_CLEANUP_API",
+      "expected": "native completion/failure releases owned Node and5188",
+      "actual": {
+        "owned_nodes": [],
+        "listeners": []
+      },
+      "status": "PASS",
+      "assertion": "actual ownership/lifecycle observation",
+      "pytest_exit": 1,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\API_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\API_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\API_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\API_CONTAINMENT.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\API_JUNIT.xml"
+      ],
+      "source_sha256": {
+        "native_test": "4075D799EC2A1D7F89E3ACCF82671797E2E96ED03E44EC2DD38C4E128D2DCC09",
+        "native_helper": "ADAAC78773A05C668990D5DCFDA33CAECA1C34D06755F3649A00D1D9E2BF180B",
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": true
+    },
+    {
+      "id": "NATIVE_SETUP_EXCEPTION_CLEANUP",
+      "expected": "setup error still terminates owned server and releases5188",
+      "actual": {
+        "probe": {
+          "error": "review injected readiness/setup error"
+        },
+        "owned_nodes": [],
+        "listeners": []
+      },
+      "status": "PASS",
+      "assertion": "actual ownership/lifecycle observation",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\SETUP_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\SETUP_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\SETUP_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\SETUP_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "native_test": "4075D799EC2A1D7F89E3ACCF82671797E2E96ED03E44EC2DD38C4E128D2DCC09",
+        "native_helper": "ADAAC78773A05C668990D5DCFDA33CAECA1C34D06755F3649A00D1D9E2BF180B",
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": true
+    },
+    {
+      "id": "NATIVE_OWNER_NORMAL",
+      "expected": "listener equals exact direct owned Node PID",
+      "actual": {
+        "phase": "first_native_page",
+        "listeners": [
+          364
+        ],
+        "owned_nodes": [
+          {
+            "ProcessId": 364,
+            "ParentProcessId": 9704,
+            "CommandLine": "\"C:\\Program Files\\nodejs\\node.EXE\" C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-fin-b1s-r5-b836f637c45a40149866ba7daa5f7a72\\frontend\\node_modules\\vite\\bin\\vite.js --config C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-fin-b1s-r5-b836f637c45a40149866ba7daa5f7a72\\tests_e2e\\copilot_fixture\\vite.config.ts --host 127.0.0.1 --port 5188 --strictPort"
+          }
+        ],
+        "spawned": [
+          {
+            "owned_pid": 364,
+            "args": [
+              "C:\\Program Files\\nodejs\\node.EXE",
+              "C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-fin-b1s-r5-b836f637c45a40149866ba7daa5f7a72\\frontend\\node_modules\\vite\\bin\\vite.js",
+              "--config",
+              "C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-fin-b1s-r5-b836f637c45a40149866ba7daa5f7a72\\tests_e2e\\copilot_fixture\\vite.config.ts",
+              "--host",
+              "127.0.0.1",
+              "--port",
+              "5188",
+              "--strictPort"
+            ]
+          }
+        ]
+      },
+      "status": "PASS",
+      "assertion": "actual ownership/lifecycle observation",
+      "pytest_exit": 0,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\NORMAL_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\NORMAL_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\NORMAL_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\NORMAL_CONTAINMENT.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\NORMAL_JUNIT.xml"
+      ],
+      "source_sha256": {
+        "native_test": "4075D799EC2A1D7F89E3ACCF82671797E2E96ED03E44EC2DD38C4E128D2DCC09",
+        "native_helper": "ADAAC78773A05C668990D5DCFDA33CAECA1C34D06755F3649A00D1D9E2BF180B",
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": true
+    }
+  ],
+  "native_tests": [
+    {
+      "id": "test_unqualified_context_makes_zero_post_calls",
+      "expected": "existing native assertions pass",
+      "actual": {
+        "pytest_exit": 0,
+        "time_seconds": "11.230"
+      },
+      "status": "PASS",
+      "assertion": "original assertion bodies plus response/count synchronization",
+      "pytest_exit": 0,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\NORMAL_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\NORMAL_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\NORMAL_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\NORMAL_CONTAINMENT.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\NORMAL_JUNIT.xml"
+      ],
+      "source_sha256": {
+        "native_test": "4075D799EC2A1D7F89E3ACCF82671797E2E96ED03E44EC2DD38C4E128D2DCC09",
+        "native_helper": "ADAAC78773A05C668990D5DCFDA33CAECA1C34D06755F3649A00D1D9E2BF180B",
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "test_copilot_failclosed_normalization_scenarios",
+      "expected": "existing native assertions pass",
+      "actual": {
+        "pytest_exit": 0,
+        "time_seconds": "11.408"
+      },
+      "status": "PASS",
+      "assertion": "original assertion bodies plus response/count synchronization",
+      "pytest_exit": 0,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\NORMAL_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\NORMAL_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\NORMAL_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\NORMAL_CONTAINMENT.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\NORMAL_JUNIT.xml"
+      ],
+      "source_sha256": {
+        "native_test": "4075D799EC2A1D7F89E3ACCF82671797E2E96ED03E44EC2DD38C4E128D2DCC09",
+        "native_helper": "ADAAC78773A05C668990D5DCFDA33CAECA1C34D06755F3649A00D1D9E2BF180B",
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "test_scope_presentation_clear_and_unqualified_claims",
+      "expected": "existing native assertions pass",
+      "actual": {
+        "pytest_exit": 0,
+        "time_seconds": "6.207"
+      },
+      "status": "PASS",
+      "assertion": "original assertion bodies plus response/count synchronization",
+      "pytest_exit": 0,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\NORMAL_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\NORMAL_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\NORMAL_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\NORMAL_CONTAINMENT.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\NORMAL_JUNIT.xml"
+      ],
+      "source_sha256": {
+        "native_test": "4075D799EC2A1D7F89E3ACCF82671797E2E96ED03E44EC2DD38C4E128D2DCC09",
+        "native_helper": "ADAAC78773A05C668990D5DCFDA33CAECA1C34D06755F3649A00D1D9E2BF180B",
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "test_xss_injection_rendered_safely_as_text",
+      "expected": "existing native assertions pass",
+      "actual": {
+        "pytest_exit": 0,
+        "time_seconds": "7.463"
+      },
+      "status": "PASS",
+      "assertion": "original assertion bodies plus response/count synchronization",
+      "pytest_exit": 0,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\NORMAL_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\NORMAL_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\NORMAL_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\NORMAL_CONTAINMENT.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\NORMAL_JUNIT.xml"
+      ],
+      "source_sha256": {
+        "native_test": "4075D799EC2A1D7F89E3ACCF82671797E2E96ED03E44EC2DD38C4E128D2DCC09",
+        "native_helper": "ADAAC78773A05C668990D5DCFDA33CAECA1C34D06755F3649A00D1D9E2BF180B",
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    }
+  ],
+  "application_gold": [
+    {
+      "id": "EMPTY",
+      "expected": "NOT_AVAILABLE; no secret/widget",
+      "actual": {
+        "status": "NOT_AVAILABLE",
+        "text": "Chưa đủ ngữ cảnh hoặc nguồn đã xác minh để thực hiện yêu cầu này.",
+        "widgets": "FALSE"
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "FORBIDDEN",
+      "expected": "FORBIDDEN; no secret/widget",
+      "actual": {
+        "status": "FORBIDDEN",
+        "text": "Bạn không có quyền thực hiện yêu cầu này.",
+        "widgets": "FALSE"
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "NESTED_TOOL_ERROR",
+      "expected": "SOURCE_ERROR; no secret/widget",
+      "actual": {
+        "status": "SOURCE_ERROR",
+        "text": "Không thể truy cập nguồn dữ liệu. Vui lòng thử lại.",
+        "widgets": "FALSE"
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "NESTED_TOOL_FORBIDDEN",
+      "expected": "FORBIDDEN; no secret/widget",
+      "actual": {
+        "status": "FORBIDDEN",
+        "text": "Bạn không có quyền thực hiện yêu cầu này.",
+        "widgets": "FALSE"
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "CONTRADICTORY",
+      "expected": "NOT_AVAILABLE; no secret/widget",
+      "actual": {
+        "status": "NOT_AVAILABLE",
+        "text": "Chưa đủ ngữ cảnh hoặc nguồn đã xác minh để thực hiện yêu cầu này.",
+        "widgets": "FALSE"
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "ROOT_DENIAL",
+      "expected": "FORBIDDEN; no secret/widget",
+      "actual": {
+        "status": "FORBIDDEN",
+        "text": "Bạn không có quyền thực hiện yêu cầu này.",
+        "widgets": "FALSE"
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "UNKNOWN_STATUS",
+      "expected": "NOT_AVAILABLE; no secret/widget",
+      "actual": {
+        "status": "NOT_AVAILABLE",
+        "text": "Chưa đủ ngữ cảnh hoặc nguồn đã xác minh để thực hiện yêu cầu này.",
+        "widgets": "FALSE"
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "NOT_AVAILABLE_STATUS",
+      "expected": "NOT_AVAILABLE; no secret/widget",
+      "actual": {
+        "status": "NOT_AVAILABLE",
+        "text": "Chưa đủ ngữ cảnh hoặc nguồn đã xác minh để thực hiện yêu cầu này.",
+        "widgets": "FALSE"
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "PARTIAL_FINANCIAL",
+      "expected": "PARTIAL; no secret/widget",
+      "actual": {
+        "status": "PARTIAL",
+        "text": "Dữ liệu chỉ khả dụng một phần.",
+        "widgets": "FALSE"
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "RESULT_FINANCIAL",
+      "expected": "NOT_AVAILABLE; no secret/widget",
+      "actual": {
+        "status": "NOT_AVAILABLE",
+        "text": "Chưa đủ ngữ cảnh hoặc nguồn đã xác minh để thực hiện yêu cầu này.",
+        "widgets": "FALSE"
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "ACTION_FINANCIAL",
+      "expected": "NOT_AVAILABLE; no secret/widget",
+      "actual": {
+        "status": "NOT_AVAILABLE",
+        "text": "Chưa đủ ngữ cảnh hoặc nguồn đã xác minh để thực hiện yêu cầu này.",
+        "widgets": "FALSE"
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "UNKNOWN_TOOL",
+      "expected": "NOT_AVAILABLE; no secret/widget",
+      "actual": {
+        "status": "NOT_AVAILABLE",
+        "text": "Chưa đủ ngữ cảnh hoặc nguồn đã xác minh để thực hiện yêu cầu này.",
+        "widgets": "FALSE"
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "DEMO_FINANCIAL",
+      "expected": "NOT_AVAILABLE; no secret/widget",
+      "actual": {
+        "status": "NOT_AVAILABLE",
+        "text": "Chưa đủ ngữ cảnh hoặc nguồn đã xác minh để thực hiện yêu cầu này.",
+        "widgets": "FALSE"
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "BENIGN",
+      "expected": "OK; no secret/widget",
+      "actual": {
+        "status": "OK",
+        "text": "SAFE_REPLY",
+        "widgets": "FALSE"
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "R1_DENIAL_UNKNOWN",
+      "expected": "FORBIDDEN; no secret/widget",
+      "actual": {
+        "status": "FORBIDDEN",
+        "text": "Bạn không có quyền thực hiện yêu cầu này.",
+        "widgets": "FALSE"
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "R1_OBJECT_STATUS",
+      "expected": "NOT_AVAILABLE; no secret/widget",
+      "actual": {
+        "status": "NOT_AVAILABLE",
+        "text": "Chưa đủ ngữ cảnh hoặc nguồn đã xác minh để thực hiện yêu cầu này.",
+        "widgets": "FALSE"
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "R1_BOOLEAN_STATUS",
+      "expected": "NOT_AVAILABLE; no secret/widget",
+      "actual": {
+        "status": "NOT_AVAILABLE",
+        "text": "Chưa đủ ngữ cảnh hoặc nguồn đã xác minh để thực hiện yêu cầu này.",
+        "widgets": "FALSE"
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "R1_ARRAY_STATUS",
+      "expected": "NOT_AVAILABLE; no secret/widget",
+      "actual": {
+        "status": "NOT_AVAILABLE",
+        "text": "Chưa đủ ngữ cảnh hoặc nguồn đã xác minh để thực hiện yêu cầu này.",
+        "widgets": "FALSE"
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "R1_SOURCE_UNAVAILABLE_CONFLICT",
+      "expected": "NOT_AVAILABLE; no secret/widget",
+      "actual": {
+        "status": "NOT_AVAILABLE",
+        "text": "Chưa đủ ngữ cảnh hoặc nguồn đã xác minh để thực hiện yêu cầu này.",
+        "widgets": "FALSE"
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "R1_TIMEOUT_UNAVAILABLE_CONFLICT",
+      "expected": "NOT_AVAILABLE; no secret/widget",
+      "actual": {
+        "status": "NOT_AVAILABLE",
+        "text": "Chưa đủ ngữ cảnh hoặc nguồn đã xác minh để thực hiện yêu cầu này.",
+        "widgets": "FALSE"
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "R1_HTTP_500_DENIAL",
+      "expected": "FORBIDDEN; no secret",
+      "actual": {
+        "status": "FORBIDDEN",
+        "text": "Bạn không có quyền thực hiện yêu cầu này."
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "R1_HTTP_504_DENIAL",
+      "expected": "FORBIDDEN; no secret",
+      "actual": {
+        "status": "FORBIDDEN",
+        "text": "Bạn không có quyền thực hiện yêu cầu này."
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "CID_VALID",
+      "expected": "safe-cid:1",
+      "actual": "safe-cid:1",
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "CID_LONG",
+      "expected": "NONE",
+      "actual": "NONE",
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "CID_CONFLICT",
+      "expected": "NONE",
+      "actual": "NONE",
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "CID_FORGED",
+      "expected": "NONE",
+      "actual": "NONE",
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "BODY_INJECTION",
+      "expected": "literal text; 0 unsafe elements/JS",
+      "actual": {
+        "elements": 0,
+        "execution": false
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "PANEL_USER_INJECTION",
+      "expected": "0 unsafe elements/JS",
+      "actual": {
+        "elements": 0
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "R1_QUICK_ACTIONS_GATE",
+      "expected": "disabled or visibly unavailable finance shortcuts",
+      "actual": [
+        {
+          "name": "Financial Health",
+          "enabled": false,
+          "title": "Unavailable under unqualified observation context",
+          "text": "Financial Health"
+        },
+        {
+          "name": "Cash Forecast 30D",
+          "enabled": false,
+          "title": "Unavailable under unqualified observation context",
+          "text": "Cash Forecast 30D"
+        },
+        {
+          "name": "Risk Signals",
+          "enabled": false,
+          "title": "Unavailable under unqualified observation context",
+          "text": "Risk Signals"
+        },
+        {
+          "name": "What-If Studio",
+          "enabled": false,
+          "title": "Unavailable under unqualified observation context",
+          "text": "What-If Studio"
+        }
+      ],
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "REAL_PAGE_NO_POST",
+      "expected": "actual LotusCopilotPage blocked POST/local input works",
+      "actual": {
+        "copilot_posts": 0,
+        "local_message": 1
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "REAL_PAGE_COMPANY_CLEAR",
+      "expected": "old scope messages cleared on company change",
+      "actual": {
+        "old_message_count": 0
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "UNQUALIFIED_PROVENANCE",
+      "expected": "no unqualified GL connection claim",
+      "actual": {
+        "GL_claim": false
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "INSPECTOR_GATE",
+      "expected": "panel financial inspector unavailable",
+      "actual": {
+        "enabled": false
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "PANEL_CONTEXT_CLEAR",
+      "expected": "old context messages cleared",
+      "actual": {
+        "old_message_count": 0
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "RACE_COMPANY_SUCCESS",
+      "expected": "old completion discarded; new loading preserved",
+      "actual": {
+        "aborted": true,
+        "loading": true,
+        "result": "{\"status\":\"TIMEOUT\",\"userFacingText\":\"\",\"sourceLabel\":\"Stale\",\"allowFinancialWidgets\":false}"
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "RACE_COMPANY_FAILURE",
+      "expected": "old completion discarded; new loading preserved",
+      "actual": {
+        "aborted": true,
+        "loading": true,
+        "result": "{\"status\":\"TIMEOUT\",\"userFacingText\":\"\",\"sourceLabel\":\"Stale\",\"allowFinancialWidgets\":false}"
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "RACE_KEY_SUCCESS",
+      "expected": "old completion discarded; new loading preserved",
+      "actual": {
+        "aborted": true,
+        "loading": true,
+        "result": "{\"status\":\"TIMEOUT\",\"userFacingText\":\"\",\"sourceLabel\":\"Stale\",\"allowFinancialWidgets\":false}"
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "RACE_KEY_FAILURE",
+      "expected": "old completion discarded; new loading preserved",
+      "actual": {
+        "aborted": true,
+        "loading": true,
+        "result": "{\"status\":\"TIMEOUT\",\"userFacingText\":\"\",\"sourceLabel\":\"Stale\",\"allowFinancialWidgets\":false}"
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "RACE_RESET_SUCCESS",
+      "expected": "old completion discarded; new loading preserved",
+      "actual": {
+        "aborted": true,
+        "loading": true,
+        "result": "{\"status\":\"TIMEOUT\",\"userFacingText\":\"\",\"sourceLabel\":\"Stale\",\"allowFinancialWidgets\":false}"
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "RACE_RESET_FAILURE",
+      "expected": "old completion discarded; new loading preserved",
+      "actual": {
+        "aborted": true,
+        "loading": true,
+        "result": "{\"status\":\"TIMEOUT\",\"userFacingText\":\"\",\"sourceLabel\":\"Stale\",\"allowFinancialWidgets\":false}"
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "TRANSPORT_TIMEOUT",
+      "expected": "TIMEOUT; no raw error",
+      "actual": {
+        "loading": false,
+        "result": "{\"status\":\"TIMEOUT\",\"userFacingText\":\"Yêu cầu đã hết thời gian chờ.\",\"sourceLabel\":\"Hết thời gian chờ\",\"allowFinancialWidgets\":false}"
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "R1_ETIMEDOUT",
+      "expected": "TIMEOUT; no raw error",
+      "actual": {
+        "loading": false,
+        "result": "{\"status\":\"TIMEOUT\",\"userFacingText\":\"Yêu cầu đã hết thời gian chờ.\",\"sourceLabel\":\"Hết thời gian chờ\",\"allowFinancialWidgets\":false}"
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "R1_DENIAL_TIMEOUT_WORD",
+      "expected": "FORBIDDEN; no raw error",
+      "actual": {
+        "loading": false,
+        "result": "{\"status\":\"FORBIDDEN\",\"userFacingText\":\"Bạn không có quyền thực hiện yêu cầu này.\",\"sourceLabel\":\"Quyền truy cập bị từ chối\",\"allowFinancialWidgets\":false}"
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "R2_BODY_DENIAL_TIMEOUT",
+      "expected": "FORBIDDEN; no raw error",
+      "actual": {
+        "loading": false,
+        "result": "{\"status\":\"FORBIDDEN\",\"userFacingText\":\"Bạn không có quyền thực hiện yêu cầu này.\",\"sourceLabel\":\"Quyền truy cập bị từ chối\",\"allowFinancialWidgets\":false}"
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "R3_GENERIC_NETWORK",
+      "expected": "SOURCE_ERROR; no raw error",
+      "actual": {
+        "loading": false,
+        "result": "{\"status\":\"SOURCE_ERROR\",\"userFacingText\":\"Không thể truy cập nguồn dữ liệu. Vui lòng thử lại.\",\"sourceLabel\":\"Lỗi nguồn dữ liệu\",\"allowFinancialWidgets\":false}"
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "R3_INTENTIONAL_CANCEL",
+      "expected": "silent discard; no marker",
+      "actual": [
+        {
+          "status": "TIMEOUT",
+          "userFacingText": "",
+          "sourceLabel": "Cancelled",
+          "allowFinancialWidgets": false
+        }
+      ],
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "R3_DENIAL_CID",
+      "expected": "FORBIDDEN with safe returned CID; no marker",
+      "actual": [
+        {
+          "status": "FORBIDDEN",
+          "userFacingText": "Bạn không có quyền thực hiện yêu cầu này.",
+          "sourceLabel": "Quyền truy cập bị từ chối",
+          "allowFinancialWidgets": false,
+          "correlationId": "denial-cid:3"
+        }
+      ],
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "HOOK_UNMOUNT",
+      "expected": "unmount invalidates completion (transport ignores abort)",
+      "actual": [
+        {
+          "status": "FORBIDDEN",
+          "userFacingText": "Bạn không có quyền thực hiện yêu cầu này.",
+          "sourceLabel": "Quyền truy cập bị từ chối",
+          "allowFinancialWidgets": false,
+          "correlationId": "denial-cid:3"
+        },
+        {
+          "status": "TIMEOUT",
+          "userFacingText": "",
+          "sourceLabel": "Stale",
+          "allowFinancialWidgets": false
+        }
+      ],
+      "status": "PASS",
+      "assertion": "hook result observed by review consumer; React unmounted DOM cannot show updates",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "R1_HOOK_UNMOUNT_FAILURE",
+      "expected": "empty fenced completion; no raw error",
+      "actual": [
+        {
+          "status": "TIMEOUT",
+          "userFacingText": "",
+          "sourceLabel": "Stale",
+          "allowFinancialWidgets": false
+        }
+      ],
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "DRAWER_REMOUNT",
+      "expected": "empty new Drawer; 0 old message",
+      "actual": {
+        "old_message_count": 0
+      },
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "NETWORK_ISOLATION",
+      "expected": "no unexpected outbound/API/websocket",
+      "actual": [],
+      "status": "PASS",
+      "assertion": "all browser pages deny undeclared network; mock APIs only",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    },
+    {
+      "id": "CONSOLE_REDACTION",
+      "expected": "no sensitive markers in console",
+      "actual": [],
+      "status": "PASS",
+      "assertion": "actual production DOM with synthetic transport",
+      "pytest_exit": null,
+      "reviewer_exit": 0,
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_RESULTS.json",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_STDERR.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\DOM_CONTAINMENT.json"
+      ],
+      "source_sha256": {
+        "production_files": {
+          "frontend/src/pages/copilot/components/VercelChatPanel.tsx": "FFD0213C67F26F7618FBEE4B0F486BCB689D04777A99170D67466D05400F0F39",
+          "frontend/src/components/copilot/LotusCopilotDrawer.tsx": "3243E2941EC5F74ACE1A0402A13D7EDB32DF2C83C041076B73D4532343BB6FFD",
+          "frontend/src/pages/copilot/components/copilotPresentation.ts": "EBD1218CA7D8249653CFFF7B2E789F96FFBAB823EC4C39A189DA5B329D4D4F0C",
+          "frontend/src/pages/copilot/components/CopilotMessageBody.tsx": "20B647B36FE5BAD565FECD64FC20228BA0B9EB8371696C2C8F197F44654F554D",
+          "frontend/src/pages/copilot/components/useCopilotRequest.ts": "97365EA11F0CB06BE0C3A15435453DF99F1C5FD50AB31FCCC5AAB8E77584BE76"
+        },
+        "fixture": {
+          "tests_e2e/copilot_fixture/index.html": "D67D5F312A4D51F9C4ADB8BB3D8C0960C2D0A7785E0B77ACA90A6FC21BBF21B7",
+          "tests_e2e/copilot_fixture/main.tsx": "AAE78D630988520C02A7FABDE9DE3DCE0275E0613345E8FB155B93B8B2135CC5",
+          "tests_e2e/copilot_fixture/vite.config.ts": "1B973E8BF9C9E5862C3CF3E3848B4E132B01E556116200F3FB9C35365C683085"
+        },
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      },
+      "overlapping_observation": false
+    }
+  ],
+  "exact_message_assertions": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\EXACT_MESSAGE_ASSERTIONS.json",
+  "engineering": [
+    {
+      "id": "TYPECHECK",
+      "expected": "exit0",
+      "actual": {
+        "check": "TYPECHECK",
+        "args": [
+          "C:/Program Files/nodejs/node.exe",
+          "node_modules/typescript/bin/tsc",
+          "-b"
+        ],
+        "cwd": "C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-fin-b1s-r5-b836f637c45a40149866ba7daa5f7a72\\frontend",
+        "exit": 0,
+        "seconds": 15.206
+      },
+      "status": "PASS",
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\TYPECHECK_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\TYPECHECK_STDERR.txt"
+      ],
+      "source_sha256": {
+        "native_test": "4075D799EC2A1D7F89E3ACCF82671797E2E96ED03E44EC2DD38C4E128D2DCC09",
+        "native_helper": "ADAAC78773A05C668990D5DCFDA33CAECA1C34D06755F3649A00D1D9E2BF180B",
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      }
+    },
+    {
+      "id": "BUILD",
+      "expected": "exit0",
+      "actual": {
+        "check": "BUILD",
+        "args": [
+          "C:/Program Files/nodejs/node.exe",
+          "node_modules/vite/bin/vite.js",
+          "build"
+        ],
+        "cwd": "C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-fin-b1s-r5-b836f637c45a40149866ba7daa5f7a72\\frontend",
+        "exit": 0,
+        "seconds": 19.759
+      },
+      "status": "PASS",
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\BUILD_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\BUILD_STDERR.txt"
+      ],
+      "source_sha256": {
+        "native_test": "4075D799EC2A1D7F89E3ACCF82671797E2E96ED03E44EC2DD38C4E128D2DCC09",
+        "native_helper": "ADAAC78773A05C668990D5DCFDA33CAECA1C34D06755F3649A00D1D9E2BF180B",
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      }
+    },
+    {
+      "id": "TARGETED_LINT",
+      "expected": "exit0",
+      "actual": {
+        "check": "TARGETED_LINT",
+        "args": [
+          "C:/Program Files/nodejs/node.exe",
+          "node_modules/oxlint/bin/oxlint",
+          "src/pages/copilot/components/VercelChatPanel.tsx",
+          "src/pages/copilot/components/useCopilotRequest.ts",
+          "src/pages/copilot/components/copilotPresentation.ts",
+          "src/pages/copilot/components/CopilotMessageBody.tsx",
+          "src/components/copilot/LotusCopilotDrawer.tsx"
+        ],
+        "cwd": "C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-fin-b1s-r5-b836f637c45a40149866ba7daa5f7a72\\frontend",
+        "exit": 0,
+        "seconds": 0.369
+      },
+      "status": "PASS",
+      "evidence": [
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\TARGETED_LINT_STDOUT.txt",
+        "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\TARGETED_LINT_STDERR.txt"
+      ],
+      "source_sha256": {
+        "native_test": "4075D799EC2A1D7F89E3ACCF82671797E2E96ED03E44EC2DD38C4E128D2DCC09",
+        "native_helper": "ADAAC78773A05C668990D5DCFDA33CAECA1C34D06755F3649A00D1D9E2BF180B",
+        "manifest_sha256": "53917F6027CEAC637D32AFECFD4DE2D3E60C9C005B75BC1C423E07C561065D2C"
+      },
+      "runtime_environment": {
+        "identity_sha256": "4406B13DCD7BD7C73AF36BF1EA483C07DE00145CB179718CBB5DC43FF6860D10",
+        "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\ENVIRONMENT.json"
+      }
+    }
+  ],
+  "process_cleanup": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\PROCESS_AND_CLEANUP_SUMMARY.json",
+  "containment": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\CONTAINMENT_SUMMARY.json",
+  "scope_history": {
+    "protected_fingerprints_unchanged": 333,
+    "historical_raw_and_current_deliverables_unchanged": 576,
+    "report_append_check": {
+      "historical_substantive_content_preserved": true,
+      "strict_byte_prefix_preserved": false,
+      "delta": "two trailing blank lines replaced by separator and Round5 append; no historical substantive changes",
+      "evidence": "REPORT_EXACT_DIFF.patch"
+    },
+    "original_assertion_preservation": [
+      {
+        "test": "test_unqualified_context_makes_zero_post_calls",
+        "previous_assertions": 2,
+        "current_assertions": 2,
+        "missing_original_assertion_ast": []
+      },
+      {
+        "test": "test_copilot_failclosed_normalization_scenarios",
+        "previous_assertions": 7,
+        "current_assertions": 8,
+        "missing_original_assertion_ast": []
+      },
+      {
+        "test": "test_scope_presentation_clear_and_unqualified_claims",
+        "previous_assertions": 9,
+        "current_assertions": 9,
+        "missing_original_assertion_ast": []
+      },
+      {
+        "test": "test_xss_injection_rendered_safely_as_text",
+        "previous_assertions": 4,
+        "current_assertions": 4,
+        "missing_original_assertion_ast": []
+      }
+    ]
+  },
+  "gates": {
+    "G1": "PASS",
+    "G2": "PASS (synthetic UI contract only)",
+    "G3": "BLOCKED / current financial context unqualified; live acceptance NOT_RUN",
+    "G4A": "FAIL (static/HMR exceptions still false-green)",
+    "G4B": "B1S_G4B_CHANGES_REQUIRED",
+    "G10": "BLOCKED independently / judge deployment NOT_RUN",
+    "G01-G03": "NOT_CLOSED; backend/session acceptance NOT_RUN"
+  },
+  "limitations": [
+    {
+      "id": "REAL_FINANCIAL_RUNTIME",
+      "status": "NOT_RUN",
+      "reason": "No approved isolated ERP/site/runtime baseline in this F07 scope; production context intentionally unqualified"
+    },
+    {
+      "id": "JUDGE_DEPLOYMENT_G10",
+      "status": "BLOCKED",
+      "reason": "Separate immutable judge artifact/site/HTTP gate absent from this scope"
+    },
+    {
+      "id": "BACKEND_SESSION_G01_G03",
+      "status": "NOT_RUN",
+      "reason": "UI synthetic tests cannot qualify backend authorization/session contracts"
+    },
+    {
+      "id": "SERVICE_WORKER_ATTEMPT",
+      "status": "NOT_RUN",
+      "reason": "All native and reviewer contexts set service_workers=block; no independent SW installation attempt requested/executed"
+    },
+    {
+      "id": "NON_WINDOWS_RUNTIME",
+      "status": "NOT_RUN",
+      "reason": "Windows netstat implementation; current Windows environment only qualified"
+    },
+    {
+      "id": "PERFORMANCE_ACCEPTANCE",
+      "status": "NOT_RUN",
+      "reason": "Test/build durations are execution timings, not latency/p95/throughput/RSS qualification"
+    }
+  ],
+  "lineage": {
+    "source": "actual working tree + per-file SHA256; not HEAD alone",
+    "runtime": "private copy; installed dependency versions; local Vite/Chromium/synthetic transport only",
+    "docker_erp_image": "NOT_USED / NOT_VERIFIED",
+    "public_network": "No ERP/provider/public upstream; independent Route.continue_ origin clamp and WS upstream denial installed before native import",
+    "historical_review_append": [
+      {
+        "path": "docs/reviews/phase0-chatbot-2026-10-10/B1S_CORRECTION_R4_INDEPENDENT_RECHECK.md",
+        "historical_expected": "B9B85176B5BE7720443F2C00E63AFB1EDB18322A2B231A10BFA3B1BB1238A9CB",
+        "before_append_snapshot_sha256": "B9B85176B5BE7720443F2C00E63AFB1EDB18322A2B231A10BFA3B1BB1238A9CB",
+        "current_verified_quality_sha256": "D8A3B695982C5D0401199BC13CDB9DA253C2B022BDECE05352CCC7186BDB8FC8",
+        "snapshot_retains_expected_digest": true,
+        "current_retains_historical_text": true
+      }
+    ]
+  },
+  "safety": {
+    "production_or_test_source_edits": false,
+    "dependency_install": false,
+    "commit_push_deploy": false,
+    "docker_shared_service_mutation": false,
+    "paid_llm": false,
+    "unrelated_process_kills": 0
+  },
+  "remaining_findings": [
+    {
+      "id": "R5-F07-A",
+      "severity": "P2 / MEDIUM test infrastructure",
+      "file": "tests_e2e/copilot_test_harness.py",
+      "symbol": "is_allowed_static_asset",
+      "lines": [
+        54,
+        57
+      ],
+      "reproduction": "POLICY_ASSET",
+      "actual": "unknown /@fs/E:/lotus-fin/reviewer-undeclared-static-probe.js outside private root -> Vite HTML200; no violation; pytest0",
+      "smallest_correction": "Resolve canonical asset paths inside verified private roots and validate declared existing module/assets/query contract; deny unknown before continuation; replace product-name substring check"
+    },
+    {
+      "id": "R5-F07-B",
+      "severity": "P2 / MEDIUM test infrastructure",
+      "file": "tests_e2e/copilot_test_harness.py",
+      "symbol": "is_allowed_vite_ws",
+      "lines": [
+        60,
+        66
+      ],
+      "reproduction": "POLICY_LOCAL_WS",
+      "actual": "forged token reached native WS callback, not recorded as unexpected; pytest0; no upstream connection",
+      "smallest_correction": "Ground exception in exact owned fixture-generated HMR URL/token, or remove fixture WS attempt and deny all WS; do not accept arbitrary token or no-token solely by shape"
+    }
+  ],
+  "private_workspace_cleanup": {
+    "status": "PASS",
+    "actual": {
+      "workspace": "C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-fin-b1s-r5-b836f637c45a40149866ba7daa5f7a72",
+      "verified_private_temp": true,
+      "junction_target": "C:\\Users\\longm\\AppData\\Local\\Temp\\lotus-fin-b1s-r5-b836f637c45a40149866ba7daa5f7a72\\frontend\\node_modules",
+      "junction_removed_without_following": true,
+      "owned_nodes_before_cleanup": [],
+      "known_playwright_browsers_before_cleanup": [],
+      "listeners_before_cleanup": [],
+      "unrelated_process_kills": 0,
+      "workspace_removed": true,
+      "port_5188_listeners_after": []
+    },
+    "evidence": "E:\\lotus-fin\\docs\\reviews\\evidence\\b1s-g4b-correction-r5-2026-10-11\\WORKSPACE_CLEANUP.json"
+  }
+}

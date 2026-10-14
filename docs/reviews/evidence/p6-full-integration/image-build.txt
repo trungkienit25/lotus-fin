@@ -1,0 +1,353 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 2.87kB 0.0s done
+#1 DONE 0.1s
+
+#2 resolve image config for docker-image://docker.io/docker/dockerfile:1
+#2 DONE 2.4s
+
+#3 docker-image://docker.io/docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e
+#3 resolve docker.io/docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e 0.1s done
+#3 CACHED
+
+#4 [internal] load metadata for docker.io/frappe/base:version-16@sha256:1a70d58dcd0d4b919b00626a458b07114efe005e077761daa516bd929fd5568d
+#4 DONE 1.5s
+
+#5 [internal] load metadata for docker.io/frappe/build:version-16@sha256:e9139c9e399bc5d58b3f6e1988272f435eeb909163140eb735e4cc52697baa76
+#5 DONE 1.5s
+
+#6 [internal] load metadata for docker.io/library/node:22.22.0-bookworm-slim@sha256:dd9d21971ec4395903fa6143c2b9267d048ae01ca6d3ea96f16cb30df6187d94
+#6 DONE 1.6s
+
+#7 [internal] load build context
+#7 DONE 0.0s
+
+#8 [stage-2  1/10] FROM docker.io/frappe/base:version-16@sha256:1a70d58dcd0d4b919b00626a458b07114efe005e077761daa516bd929fd5568d
+#8 resolve docker.io/frappe/base:version-16@sha256:1a70d58dcd0d4b919b00626a458b07114efe005e077761daa516bd929fd5568d 0.1s done
+#8 DONE 0.1s
+
+#9 [ui 1/6] FROM docker.io/library/node:22.22.0-bookworm-slim@sha256:dd9d21971ec4395903fa6143c2b9267d048ae01ca6d3ea96f16cb30df6187d94
+#9 resolve docker.io/library/node:22.22.0-bookworm-slim@sha256:dd9d21971ec4395903fa6143c2b9267d048ae01ca6d3ea96f16cb30df6187d94
+#9 resolve docker.io/library/node:22.22.0-bookworm-slim@sha256:dd9d21971ec4395903fa6143c2b9267d048ae01ca6d3ea96f16cb30df6187d94 0.2s done
+#9 DONE 0.2s
+
+#10 [builder 1/8] FROM docker.io/frappe/build:version-16@sha256:e9139c9e399bc5d58b3f6e1988272f435eeb909163140eb735e4cc52697baa76
+#10 resolve docker.io/frappe/build:version-16@sha256:e9139c9e399bc5d58b3f6e1988272f435eeb909163140eb735e4cc52697baa76 0.2s done
+#10 DONE 0.2s
+
+#7 [internal] load build context
+#7 transferring context: 26B 0.0s
+#7 transferring context: 92.60kB 1.5s done
+#7 DONE 1.6s
+
+#11 [builder 2/8] RUN bench init --frappe-branch=v16.35.0 --frappe-path=https://github.com/frappe/frappe     --no-procfile --no-backups --skip-redis-config-generation --verbose /home/frappe/frappe-bench
+#11 CACHED
+
+#12 [builder 3/8] WORKDIR /home/frappe/frappe-bench
+#12 CACHED
+
+#13 [builder 4/8] RUN test "$(git -C apps/frappe rev-parse HEAD)" = 012667b9c4e7f66d5e1ff5858d2e922331d4300a
+#13 CACHED
+
+#14 [ui 2/6] WORKDIR /frontend
+#14 CACHED
+
+#15 [ui 3/6] COPY frontend/package*.json ./
+#15 CACHED
+
+#16 [ui 4/6] RUN npm ci --ignore-scripts --no-audit --no-fund
+#16 CACHED
+
+#17 [ui 5/6] COPY frontend/ ./
+#17 DONE 0.4s
+
+#18 [builder 5/8] COPY --chown=frappe:frappe lotus_fin/ apps/lotus_fin/
+#18 DONE 0.7s
+
+#19 [ui 6/6] RUN npm run build -- --base=/assets/lotus_fin/core/
+#19 ...
+
+#20 [builder 6/8] COPY --chown=frappe:frappe docker/lotus-core/requirements.lock /tmp/lotus-requirements.lock
+#20 DONE 0.2s
+
+#21 [builder 7/8] COPY --chown=frappe:frappe docker/lotus-core/framework.lock /tmp/lotus-framework.lock
+#21 DONE 0.1s
+
+#19 [ui 6/6] RUN npm run build -- --base=/assets/lotus_fin/core/
+#19 1.252 
+#19 1.252 > frontend@0.0.0 build
+#19 1.252 > tsc -b && vite build --base=/assets/lotus_fin/core/
+#19 1.252 
+#19 ...
+
+#22 [builder 8/8] RUN env/bin/pip install -r /tmp/lotus-framework.lock -r /tmp/lotus-requirements.lock -e apps/lotus_fin     && env/bin/pip check && printf 'frappe\nlotus_fin\n' > sites/apps.txt     && bench build --app lotus_fin     && env/bin/python -c 'import frappe, lotus_fin.hooks, lotus_fin.runtime.boundary, lotus_fin.runtime.health, importlib.util; assert importlib.util.find_spec("erpnext") is None'     && env/bin/pip freeze > /home/frappe/runtime-packages.lock     && printf '{}\n' > sites/common_site_config.json
+#22 4.616 Obtaining file:///home/frappe/frappe-bench/apps/lotus_fin
+#22 4.628   Installing build dependencies: started
+#22 7.435   Installing build dependencies: finished with status 'done'
+#22 7.440   Checking if build backend supports build_editable: started
+#22 7.933   Checking if build backend supports build_editable: finished with status 'done'
+#22 7.937   Getting requirements to build editable: started
+#22 8.297   Getting requirements to build editable: finished with status 'done'
+#22 8.305   Preparing editable metadata (pyproject.toml): started
+#22 8.732   Preparing editable metadata (pyproject.toml): finished with status 'done'
+#22 8.763 Collecting gunicorn @ git+https://github.com/frappe/gunicorn@54b59ca884c79dcf04d4882658a32bbaf17e999f (from -r /tmp/lotus-framework.lock (line 37))
+#22 8.764   Cloning https://github.com/frappe/gunicorn (to revision 54b59ca884c79dcf04d4882658a32bbaf17e999f) to /tmp/pip-install-lvq6jx90/gunicorn_eda33064787641d4a9ec04a8cb743d72
+#22 8.773   Running command git clone --filter=blob:none --quiet https://github.com/frappe/gunicorn /tmp/pip-install-lvq6jx90/gunicorn_eda33064787641d4a9ec04a8cb743d72
+#22 12.23   Running command git rev-parse -q --verify '54b59ca884c79dcf04d4882658a32bbaf17e999f^{commit}'
+#22 12.24   54b59ca884c79dcf04d4882658a32bbaf17e999f
+#22 12.25   Running command git checkout -q 54b59ca884c79dcf04d4882658a32bbaf17e999f
+#22 13.57   Resolved https://github.com/frappe/gunicorn to commit 54b59ca884c79dcf04d4882658a32bbaf17e999f
+#22 13.59   Installing build dependencies: started
+#22 17.15   Installing build dependencies: finished with status 'done'
+#22 17.15   Getting requirements to build wheel: started
+#22 ...
+
+#19 [ui 6/6] RUN npm run build -- --base=/assets/lotus_fin/core/
+#19 19.17 vite v8.3.3 building client environment for production...
+#19 19.21 transforming...
+#19 22.63 ✓ 408 modules transformed.
+#19 22.87 rendering chunks...
+#19 23.28 computing gzip size...
+#19 23.31 dist/index.html                   0.92 kB │ gzip:   0.49 kB
+#19 23.31 dist/assets/index-Dzl5mkXx.css   66.89 kB │ gzip:  11.35 kB
+#19 23.31 dist/assets/index-CdVQdDVD.js   837.25 kB │ gzip: 241.31 kB
+#19 23.31 
+#19 23.32 [plugin builtin:vite-reporter] 
+#19 23.32 (!) Some chunks are larger than 500 kB after minification. Consider:
+#19 23.32 - Using dynamic import() to code-split the application
+#19 23.32 - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+#19 23.32 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+#19 23.34 [INEFFECTIVE_DYNAMIC_IMPORT] src/providers/sessionScope.ts is dynamically imported by src/pages/copilot/actions/copilotIntegrationClient.ts but also statically imported by src/components/copilot/LotusCopilotDrawer.tsx, src/pages/copilot/LotusCopilotPage.tsx, src/pages/copilot/actions/copilotIntegrationClient.ts, src/pages/copilot/components/VercelChatPanel.tsx, src/pages/copilot/components/copilotMessageSender.ts, ..., dynamic import will not move module into another chunk.
+#19 23.34 
+#19 23.34 ✓ built in 4.17s
+#19 DONE 23.9s
+
+#22 [builder 8/8] RUN env/bin/pip install -r /tmp/lotus-framework.lock -r /tmp/lotus-requirements.lock -e apps/lotus_fin     && env/bin/pip check && printf 'frappe\nlotus_fin\n' > sites/apps.txt     && bench build --app lotus_fin     && env/bin/python -c 'import frappe, lotus_fin.hooks, lotus_fin.runtime.boundary, lotus_fin.runtime.health, importlib.util; assert importlib.util.find_spec("erpnext") is None'     && env/bin/pip freeze > /home/frappe/runtime-packages.lock     && printf '{}\n' > sites/common_site_config.json
+#22 19.03   Getting requirements to build wheel: finished with status 'done'
+#22 19.03   Preparing metadata (pyproject.toml): started
+#22 19.87   Preparing metadata (pyproject.toml): finished with status 'done'
+#22 19.89 Collecting PyPika @ git+https://github.com/frappe/pypika@2c50e6142b2d61d2d243e466fdd5dc03b3d918f2 (from -r /tmp/lotus-framework.lock (line 92))
+#22 19.90   Cloning https://github.com/frappe/pypika (to revision 2c50e6142b2d61d2d243e466fdd5dc03b3d918f2) to /tmp/pip-install-lvq6jx90/pypika_a60b25cd9cea44139c9db8263dca965b
+#22 19.90   Running command git clone --filter=blob:none --quiet https://github.com/frappe/pypika /tmp/pip-install-lvq6jx90/pypika_a60b25cd9cea44139c9db8263dca965b
+#22 22.56   Running command git rev-parse -q --verify '2c50e6142b2d61d2d243e466fdd5dc03b3d918f2^{commit}'
+#22 22.56   2c50e6142b2d61d2d243e466fdd5dc03b3d918f2
+#22 22.57   Running command git checkout -q 2c50e6142b2d61d2d243e466fdd5dc03b3d918f2
+#22 23.74   Resolved https://github.com/frappe/pypika to commit 2c50e6142b2d61d2d243e466fdd5dc03b3d918f2
+#22 23.75   Installing build dependencies: started
+#22 26.27   Installing build dependencies: finished with status 'done'
+#22 26.27   Getting requirements to build wheel: started
+#22 27.49   Getting requirements to build wheel: finished with status 'done'
+#22 27.49   Preparing metadata (pyproject.toml): started
+#22 28.48   Preparing metadata (pyproject.toml): finished with status 'done'
+#22 28.49 Requirement already satisfied: annotated-types==0.8.0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 2)) (0.8.0)
+#22 28.49 Requirement already satisfied: asttokens==3.0.2 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 3)) (3.0.2)
+#22 28.49 Requirement already satisfied: babel==2.16.0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 4)) (2.16.0)
+#22 28.50 Requirement already satisfied: beautifulsoup4==4.13.5 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 5)) (4.13.5)
+#22 28.50 Requirement already satisfied: bleach-allowlist==1.0.3 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 6)) (1.0.3)
+#22 28.50 Requirement already satisfied: brotli==1.2.0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 7)) (1.2.0)
+#22 28.51 Requirement already satisfied: cachetools==7.2.1 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 8)) (7.2.1)
+#22 28.51 Requirement already satisfied: certifi==2026.7.22 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 9)) (2026.7.22)
+#22 28.51 Requirement already satisfied: cffi==2.1.1 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 10)) (2.1.1)
+#22 28.52 Requirement already satisfied: chardet==5.2.0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 11)) (5.2.0)
+#22 28.52 Requirement already satisfied: charset-normalizer==3.5.2 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 12)) (3.5.2)
+#22 28.52 Requirement already satisfied: click==8.4.2 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 13)) (8.4.2)
+#22 28.52 Requirement already satisfied: croniter==6.0.0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 14)) (6.0.0)
+#22 28.53 Requirement already satisfied: cryptography==50.0.2 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 15)) (50.0.2)
+#22 28.53 Requirement already satisfied: cssselect==1.6.0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 16)) (1.6.0)
+#22 28.53 Requirement already satisfied: cssselect2==0.10.1 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 17)) (0.10.1)
+#22 28.54 Requirement already satisfied: cssutils==2.11.1 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 18)) (2.11.1)
+#22 28.54 Requirement already satisfied: decorator==5.3.1 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 19)) (5.3.1)
+#22 28.54 Requirement already satisfied: distro==1.9.0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 20)) (1.9.0)
+#22 28.54 Requirement already satisfied: docopt==0.6.2 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 21)) (0.6.2)
+#22 28.55 Requirement already satisfied: duckdb==1.4.5 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 22)) (1.4.5)
+#22 28.55 Requirement already satisfied: email-reply-parser==0.5.12 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 23)) (0.5.12)
+#22 28.55 Requirement already satisfied: et_xmlfile==2.0.0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 24)) (2.0.0)
+#22 28.55 Requirement already satisfied: executing==2.3.0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 25)) (2.3.0)
+#22 28.56 Requirement already satisfied: filelock==3.20.4 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 26)) (3.20.4)
+#22 28.56 Requirement already satisfied: filetype==1.2.0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 27)) (1.2.0)
+#22 28.56 Requirement already satisfied: fonttools==4.66.1 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 28)) (4.66.1)
+#22 28.56 Requirement already satisfied: gitdb==4.0.12 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 29)) (4.0.12)
+#22 28.56 Requirement already satisfied: GitPython==3.1.62 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 30)) (3.1.62)
+#22 28.57 Requirement already satisfied: google-api-core==2.42.0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 31)) (2.42.0)
+#22 28.57 Requirement already satisfied: google-api-python-client==2.188.0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 32)) (2.188.0)
+#22 28.57 Requirement already satisfied: google-auth==2.48.0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 33)) (2.48.0)
+#22 28.57 Requirement already satisfied: google-auth-httplib2==0.4.4 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 34)) (0.4.4)
+#22 28.58 Requirement already satisfied: google-auth-oauthlib==1.2.4 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 35)) (1.2.4)
+#22 28.58 Requirement already satisfied: googleapis-common-protos==1.75.5 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 36)) (1.75.5)
+#22 28.58 Requirement already satisfied: hiredis==3.3.1 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 38)) (3.3.1)
+#22 28.59 Requirement already satisfied: html5lib==1.1 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 39)) (1.1)
+#22 28.59 Requirement already satisfied: httplib2==0.32.0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 40)) (0.32.0)
+#22 28.59 Requirement already satisfied: idna==3.20 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 41)) (3.20)
+#22 28.59 Requirement already satisfied: ipython==8.37.0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 42)) (8.37.0)
+#22 28.60 Requirement already satisfied: jedi==0.20.1 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 43)) (0.20.1)
+#22 28.60 Requirement already satisfied: Jinja2==3.1.6 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 44)) (3.1.6)
+#22 28.61 Requirement already satisfied: ldap3==2.9.1 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 45)) (2.9.1)
+#22 28.61 Requirement already satisfied: lxml==6.1.3 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 46)) (6.1.3)
+#22 28.61 Requirement already satisfied: markdown2==2.5.5 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 47)) (2.5.5)
+#22 28.61 Requirement already satisfied: markdownify==1.2.3 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 48)) (1.2.3)
+#22 28.62 Requirement already satisfied: MarkupSafe==3.0.4 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 49)) (3.0.4)
+#22 28.62 Requirement already satisfied: matplotlib-inline==0.2.2 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 50)) (0.2.2)
+#22 28.63 Requirement already satisfied: more-itertools==11.1.0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 51)) (11.1.0)
+#22 28.63 Requirement already satisfied: mysqlclient==2.2.7 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 52)) (2.2.7)
+#22 28.63 Requirement already satisfied: nh3==0.3.7 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 53)) (0.3.7)
+#22 28.63 Requirement already satisfied: num2words==0.5.14 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 54)) (0.5.14)
+#22 29.78 Collecting numpy==2.4.2 (from -r /tmp/lotus-framework.lock (line 55))
+#22 30.05   Downloading numpy-2.4.2-cp314-cp314-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (6.6 kB)
+#22 30.08 Requirement already satisfied: oauthlib==3.3.1 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 56)) (3.3.1)
+#22 30.08 Requirement already satisfied: openpyxl==3.1.5 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 57)) (3.1.5)
+#22 30.08 Requirement already satisfied: opentelemetry-api==1.45.1 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 58)) (1.45.1)
+#22 30.09 Requirement already satisfied: orjson==3.11.9 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 59)) (3.11.9)
+#22 30.09 Requirement already satisfied: packaging==26.3 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 60)) (26.3)
+#22 30.46 Collecting pandas==2.3.3 (from -r /tmp/lotus-framework.lock (line 61))
+#22 30.53   Downloading pandas-2.3.3-cp314-cp314-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (91 kB)
+#22 30.73 Requirement already satisfied: parso==0.8.7 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 62)) (0.8.7)
+#22 30.73 Requirement already satisfied: passlib==1.7.4 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 63)) (1.7.4)
+#22 30.74 Requirement already satisfied: pdfkit==1.0.0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 64)) (1.0.0)
+#22 30.74 Requirement already satisfied: pexpect==4.9.0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 65)) (4.9.0)
+#22 30.75 Requirement already satisfied: phonenumbers==9.0.41 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 66)) (9.0.41)
+#22 30.75 Requirement already satisfied: pillow==12.3.0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 67)) (12.3.0)
+#22 30.75 Requirement already satisfied: premailer==3.10.0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 68)) (3.10.0)
+#22 30.75 Requirement already satisfied: prompt_toolkit==3.0.53 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 69)) (3.0.53)
+#22 30.76 Requirement already satisfied: proto-plus==1.29.0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 70)) (1.29.0)
+#22 30.76 Requirement already satisfied: protobuf==7.36.2 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 71)) (7.36.2)
+#22 30.77 Requirement already satisfied: psutil==7.0.0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 72)) (7.0.0)
+#22 30.77 Requirement already satisfied: psycopg2-binary==2.9.13 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 73)) (2.9.13)
+#22 30.77 Requirement already satisfied: ptyprocess==0.7.0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 74)) (0.7.0)
+#22 30.77 Requirement already satisfied: pure_eval==0.2.4 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 75)) (0.2.4)
+#22 30.77 Requirement already satisfied: pyarrow==25.0.1 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 76)) (25.0.1)
+#22 30.78 Requirement already satisfied: pyasn1==0.6.4 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 77)) (0.6.4)
+#22 30.78 Requirement already satisfied: pyasn1_modules==0.4.2 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 78)) (0.4.2)
+#22 30.78 Requirement already satisfied: pycountry==24.6.1 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 79)) (24.6.1)
+#22 30.78 Requirement already satisfied: pycparser==3.11 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 80)) (3.11)
+#22 30.78 Requirement already satisfied: pydantic==2.12.5 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 81)) (2.12.5)
+#22 30.79 Requirement already satisfied: pydantic_core==2.41.5 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 82)) (2.41.5)
+#22 30.79 Requirement already satisfied: pydyf==0.12.1 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 83)) (0.12.1)
+#22 30.80 Requirement already satisfied: Pygments==2.21.0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 84)) (2.21.0)
+#22 30.80 Requirement already satisfied: PyJWT==2.13.0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 85)) (2.13.0)
+#22 30.80 Requirement already satisfied: PyMySQL==1.1.2 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 86)) (1.1.2)
+#22 30.80 Requirement already satisfied: pyOpenSSL==26.4.0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 87)) (26.4.0)
+#22 30.80 Requirement already satisfied: pyotp==2.9.0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 88)) (2.9.0)
+#22 30.81 Requirement already satisfied: pyparsing==3.3.3 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 89)) (3.3.3)
+#22 30.81 Requirement already satisfied: pypdf==6.15.0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 90)) (6.15.0)
+#22 30.81 Requirement already satisfied: pyphen==0.18.1 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 91)) (0.18.1)
+#22 30.81 Requirement already satisfied: PyQRCode==1.2.1 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 93)) (1.2.1)
+#22 30.81 Requirement already satisfied: python-dateutil==2.9.0.post0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 94)) (2.9.0.post0)
+#22 30.82 Requirement already satisfied: pytz==2025.2 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 95)) (2025.2)
+#22 30.82 Requirement already satisfied: PyYAML==6.0.3 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 96)) (6.0.3)
+#22 30.82 Requirement already satisfied: rauth==0.7.3 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 97)) (0.7.3)
+#22 30.82 Requirement already satisfied: redis==7.1.1 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 98)) (7.1.1)
+#22 30.82 Requirement already satisfied: requests==2.33.1 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 99)) (2.33.1)
+#22 30.83 Requirement already satisfied: requests-oauthlib==2.0.0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 100)) (2.0.0)
+#22 30.83 Requirement already satisfied: RestrictedPython==8.5 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 101)) (8.5)
+#22 30.83 Requirement already satisfied: rq==2.6.1 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 102)) (2.6.1)
+#22 30.84 Requirement already satisfied: rsa==4.9.1 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 103)) (4.9.1)
+#22 30.84 Requirement already satisfied: semantic-version==2.10.0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 104)) (2.10.0)
+#22 30.84 Requirement already satisfied: sentry-sdk==1.45.1 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 105)) (1.45.1)
+#22 30.84 Requirement already satisfied: six==1.17.0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 106)) (1.17.0)
+#22 30.85 Requirement already satisfied: smmap==5.0.3 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 107)) (5.0.3)
+#22 30.85 Requirement already satisfied: soupsieve==3.0.3 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 108)) (3.0.3)
+#22 30.85 Requirement already satisfied: sql_metadata==3.0.1 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 109)) (3.0.1)
+#22 30.86 Requirement already satisfied: sqlglot==30.22.0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 110)) (30.22.0)
+#22 30.86 Requirement already satisfied: sqlparse==0.6.0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 111)) (0.6.0)
+#22 30.86 Requirement already satisfied: stack-data==0.6.3 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 112)) (0.6.3)
+#22 30.86 Requirement already satisfied: tenacity==9.1.4 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 113)) (9.1.4)
+#22 30.86 Requirement already satisfied: terminaltables==3.1.10 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 114)) (3.1.10)
+#22 30.87 Requirement already satisfied: tinycss2==1.5.1 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 115)) (1.5.1)
+#22 30.88 Requirement already satisfied: tinyhtml5==2.1.0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 116)) (2.1.0)
+#22 30.88 Requirement already satisfied: traceback-with-variables==2.2.1 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 117)) (2.2.1)
+#22 30.88 Requirement already satisfied: traitlets==5.16.1 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 118)) (5.16.1)
+#22 30.89 Requirement already satisfied: typing-inspection==0.4.4 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 119)) (0.4.4)
+#22 30.89 Requirement already satisfied: typing_extensions==4.16.0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 120)) (4.16.0)
+#22 30.98 Collecting tzdata==2026.5 (from -r /tmp/lotus-framework.lock (line 121))
+#22 31.05   Downloading tzdata-2026.5-py2.py3-none-any.whl.metadata (1.4 kB)
+#22 31.08 Requirement already satisfied: uritemplate==4.2.0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 122)) (4.2.0)
+#22 31.08 Requirement already satisfied: urllib3==2.8.0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 123)) (2.8.0)
+#22 31.08 Requirement already satisfied: vobject==0.9.9 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 124)) (0.9.9)
+#22 31.09 Requirement already satisfied: wcwidth==0.9.2 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 125)) (0.9.2)
+#22 31.09 Requirement already satisfied: weasyprint==68.0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 126)) (68.0)
+#22 31.09 Requirement already satisfied: webencodings==0.6.1 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 127)) (0.6.1)
+#22 31.09 Requirement already satisfied: websockets==15.0.1 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 128)) (15.0.1)
+#22 31.10 Requirement already satisfied: Werkzeug==3.1.6 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 129)) (3.1.6)
+#22 31.10 Requirement already satisfied: Whoosh==2.7.4 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 130)) (2.7.4)
+#22 31.10 Requirement already satisfied: xlrd==2.0.2 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 131)) (2.0.2)
+#22 31.10 Requirement already satisfied: xlsxwriter==3.2.9 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 132)) (3.2.9)
+#22 31.11 Requirement already satisfied: zopfli==0.4.3 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 133)) (0.4.3)
+#22 31.11 Requirement already satisfied: zxcvbn==4.5.0 in ./env/lib/python3.14/site-packages (from -r /tmp/lotus-framework.lock (line 134)) (4.5.0)
+#22 32.16 Downloading numpy-2.4.2-cp314-cp314-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (16.6 MB)
+#22 35.19    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 16.6/16.6 MB 5.5 MB/s  0:00:03
+#22 35.26 Downloading pandas-2.3.3-cp314-cp314-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (12.3 MB)
+#22 37.00    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 12.3/12.3 MB 7.2 MB/s  0:00:01
+#22 37.06 Downloading tzdata-2026.5-py2.py3-none-any.whl (347 kB)
+#22 37.23 Building wheels for collected packages: lotus_fin
+#22 37.24   Building editable for lotus_fin (pyproject.toml): started
+#22 37.55   Building editable for lotus_fin (pyproject.toml): finished with status 'done'
+#22 37.55   Created wheel for lotus_fin: filename=lotus_fin-0.0.1-py3-none-any.whl size=2527 sha256=424e0ed4336b7fce923da4a3d03f5dc1746aa904bafafdeed076e764f7abe211
+#22 37.55   Stored in directory: /tmp/pip-ephem-wheel-cache-hr16tg3d/wheels/2c/2c/14/99932a3c11007b704eafba77f9db1bb8dbb86b5b1157a9dddc
+#22 37.55 Successfully built lotus_fin
+#22 37.79 Installing collected packages: tzdata, numpy, pandas, lotus_fin
+#22 61.74 
+#22 61.77 Successfully installed lotus_fin-0.0.1 numpy-2.4.2 pandas-2.3.3 tzdata-2026.5
+#22 64.21 No broken requirements found.
+#22 67.69 Linking /home/frappe/frappe-bench/apps/frappe/frappe/public to ./assets/frappe  
+Linking /home/frappe/frappe-bench/apps/frappe/node_modules to ./assets/frappe/node_modules                                                                                
+Linking /home/frappe/frappe-bench/apps/lotus_fin/lotus_fin/public to ./assets/lotus_fin                                                                                
+✔ Application Assets Linked                                            
+#22 67.69 
+#22 67.70 
+#22 68.35 yarn run v1.22.22
+#22 68.46 $ node esbuild --production --apps lotus_fin --run-build-command
+#22 70.82 File                                                        Size
+#22 70.82 
+#22 70.82  DONE  Total Build Time: 1.076s
+#22 70.82 
+#22 71.65  WARN  Cannot connect to redis_cache to update assets_json
+#22 71.66  WARN  Cannot connect to redis_cache to update assets_json
+#22 71.67  WARN  Cannot connect to redis_cache to update assets_json
+#22 71.73 Done in 3.39s.
+#22 72.02 Compiling translations for lotus_fin
+#22 DONE 79.8s
+
+#8 [stage-2  1/10] FROM docker.io/frappe/base:version-16@sha256:1a70d58dcd0d4b919b00626a458b07114efe005e077761daa516bd929fd5568d
+#8 CACHED
+
+#23 [stage-2  2/10] COPY --from=builder --chown=frappe:0 /home/frappe/frappe-bench /home/frappe/frappe-bench
+#23 DONE 85.2s
+
+#24 [stage-2  3/10] COPY --from=builder --chown=frappe:0 /home/frappe/runtime-packages.lock /home/frappe/runtime-packages.lock
+#24 DONE 3.8s
+
+#25 [stage-2  4/10] COPY --from=ui --chown=frappe:0 /frontend/dist/ /home/frappe/frappe-bench/sites/assets/lotus_fin/core/
+#25 DONE 1.1s
+
+#26 [stage-2  5/10] COPY --from=ui --chown=frappe:0 /frontend/dist/index.html /home/frappe/frappe-bench/apps/lotus_fin/lotus_fin/templates/lotus_spa.html
+#26 DONE 1.1s
+
+#27 [stage-2  6/10] COPY --chown=frappe:0 docker/lotus-core/ /home/frappe/lotus-core/
+#27 DONE 1.5s
+
+#28 [stage-2  7/10] COPY --chmod=755 docker/lotus-core/upstream/main-entrypoint.sh /usr/local/bin/entrypoint.sh
+#28 DONE 0.8s
+
+#29 [stage-2  8/10] COPY --chmod=755 docker/lotus-core/upstream/start.sh /usr/local/bin/start.sh
+#29 DONE 1.2s
+
+#30 [stage-2  9/10] WORKDIR /home/frappe/frappe-bench
+#30 DONE 0.7s
+
+#31 [stage-2 10/10] RUN rm sites/assets/lotus_fin/core/index.html     && cp -r sites/assets assets && rm -rf sites/assets
+#31 DONE 1.9s
+
+#32 exporting to image
+#32 exporting layers
+#32 exporting layers 131.0s done
+#32 exporting manifest sha256:1bf17d0b77ba1229f7f6a9ed309414d3762cb46624666be519cb5e631ec5e8e7 0.0s done
+#32 exporting config sha256:f5254a521aac223c57d4f7c001938a1edd0b5aba8b1ecdf30a04ae453a49a417 0.0s done
+#32 exporting attestation manifest sha256:794b360e09fd79afb220f85dc1abc03b4364f3b0aa41671fa2ac771669aae2a6
+#32 exporting attestation manifest sha256:794b360e09fd79afb220f85dc1abc03b4364f3b0aa41671fa2ac771669aae2a6 0.1s done
+#32 exporting manifest list sha256:f2fe501c53e13c0a08638ff2c98a504f3195fe4bce04e9761109f911a76a10a0 0.0s done
+#32 naming to docker.io/library/lotus-fin:core-p6-01a1358e
+#32 naming to docker.io/library/lotus-fin:core-p6-01a1358e done
+#32 unpacking to docker.io/library/lotus-fin:core-p6-01a1358e
+#32 unpacking to docker.io/library/lotus-fin:core-p6-01a1358e 121.0s done
+#32 DONE 252.4s

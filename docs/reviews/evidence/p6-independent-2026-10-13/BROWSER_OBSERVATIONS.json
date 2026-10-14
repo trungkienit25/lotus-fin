@@ -1,0 +1,28 @@
+{
+  "review_period_local": "2026-10-13 through 2026-10-14 Asia/Saigon",
+  "method": "Interactive computer-use against served React, DOM/AX observations; no component fixture or intercepted financial transport",
+  "base_url": "http://127.0.0.1:8114",
+  "ordinary_actors": ["p6-alice@example.invalid", "p6-bob@example.invalid"],
+  "observations": [
+    {"case":"page L1 search and explicit L2 open","result":"PASS","rows":3,"opened":"DEMO-SINV-2026-001"},
+    {"case":"page external logout settled / returned focus","result":"PASS","remaining_rows":0,"remaining_documents":0,"availability":"AWAITING_PERMISSION"},
+    {"case":"page actor replacement without page reload","result":"PASS","remaining_documents":0},
+    {"case":"drawer L1 search and explicit L2 open","result":"PASS","rows":3,"opened":"DEMO-SINV-2026-001"},
+    {"case":"drawer remote Bob session revocation while visible","result":"FAIL","document_hidden":false,"remaining_rows":3,"remaining_documents":1,"old_handle_opened":"DEMO-SINV-2026-002","new_request_id":"fee72d11-1121-4372-bbbe-c0e94d5b2188"},
+    {"case":"page remote Alice session revocation while visible","result":"FAIL","document_hidden":false,"remaining_rows":3,"remaining_documents":1,"old_handle_opened":"DEMO-SINV-2026-002","new_request_id":"89bc3cc9-a318-4b92-9857-c6a149248968"},
+    {"case":"same actor new session with focus revalidation","result":"PASS_SCOPED","page_remaining_documents":0,"drawer_remaining_documents":0,"does_not_qualify":"continuous active-tab detection with unchanged user cookie"},
+    {"case":"drawer external logout after logout completion","result":"PASS","remaining_documents":0,"remaining_open_buttons":0,"search_enabled":false},
+    {"case":"both mounted surfaces after Bob login following external logout","result":"PASS","page_remaining_documents":0,"drawer_remaining_documents":0},
+    {"case":"page L3 selected invoice / edit / explicit review / transfer to L4","result":"PASS","transferred":"Independent QA: fictional reminder only.","no_financial_facts_inserted":true},
+    {"case":"page separate L4 proposal / confirmation / status refresh","result":"PASS","ui_state":"SIMULATED_SUCCEEDED","operation":"op_2b5ba2edaae00d03178d24ffa7e58cae"},
+    {"case":"drawer separate L4 proposal / confirmation","result":"PASS","ui_state":"SIMULATED_SUCCEEDED","operation":"op_9a24255f5d449016142d7136ae02a125"},
+    {"case":"page L5 submit policy review","result":"PASS","ui_state":"L5 Action Blocked by Policy","reason":"APPROVAL_PROVIDER_UNAVAILABLE","side_effects":"DISABLED"},
+    {"case":"page and drawer V1 fixed gold","result":"PASS","rows":[["DEMO-INV-001",12,"15000000.00","VND"],["DEMO-INV-002",8,"2850000.50","VND"]],"selection_buttons_disabled":true},
+    {"case":"page DEMO to CORE clearing","result":"PASS","old_gold_rows":0,"availability":"AWAITING_DATA"},
+    {"case":"actual CORE L0 request","result":"PASS_SCOPED","request":"Explain what an overdue invoice means","response_kind":"L0 Clarification","response":"Overdue or payment status is not supported yet. Search by invoice number prefix, date range, or Draft/Submitted status instead."},
+    {"case":"account label after Bob to Alice to Guest in retained drawer","result":"FAIL","displayed_actor":"p6-bob@example.invalid","protected_scope_already_cleared":true},
+    {"case":"desktop drawer scenario selector bounds","result":"FAIL","viewport":1280,"drawer_width":420,"drawer_right":1256,"selector_right":1288.6000061035156},
+    {"case":"390px responsive override","result":"NOT_VERIFIED","reason":"viewport control did not change actual document widths (614 and 1280); override reset"},
+    {"case":"browser-injected network-delay/crash/audit faults","result":"NOT_VERIFIED","qualified_layer":"source probes and isolated process/store tests only"}
+  ]
+}

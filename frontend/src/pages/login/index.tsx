@@ -30,13 +30,13 @@ export const LoginPage: React.FC = () => {
         <div className="mb-6 flex flex-col items-center text-center">
           <div className="mb-3 flex size-14 items-center justify-center rounded-2xl bg-white border border-gray-100 p-2 shadow-theme-xs">
             <img
-              src="/brand/favicon.jpg"
+              src={`${import.meta.env.BASE_URL}brand/favicon.jpg`}
               alt="Lotus Fin"
               className="size-10 object-contain"
             />
           </div>
           <img
-            src="/brand/text.jpg"
+            src={`${import.meta.env.BASE_URL}brand/text.jpg`}
             alt="Lotus Fin — Intelligence In Bloom"
             className="h-10 object-contain"
           />

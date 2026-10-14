@@ -1,0 +1,436 @@
+
+  GitNexus Impact (1.6.12)
+{
+  "target": {
+    "id": "Function:frontend/src/pages/copilot/components/VercelChatPanel.tsx:VercelChatPanel",
+    "name": "VercelChatPanel",
+    "type": "Function",
+    "filePath": "frontend/src/pages/copilot/components/VercelChatPanel.tsx"
+  },
+  "direction": "upstream",
+  "impactedCount": 7,
+  "risk": "HIGH",
+  "riskSharedAxes": "LOW",
+  "riskScale": {
+    "comparableAcrossKinds": true,
+    "unusedAxes": []
+  },
+  "epistemic": "exact",
+  "summary": {
+    "direct": 3,
+    "processes_affected": 4,
+    "modules_affected": 3
+  },
+  "byDepthCounts": {
+    "1": 3,
+    "2": 4
+  },
+  "affected_processes": [
+    {
+      "name": "App",
+      "type": "Function",
+      "filePath": "frontend/src/App.tsx",
+      "affected_process_count": 9,
+      "total_hits": 23,
+      "earliest_broken_step": 1
+    },
+    {
+      "name": "UniversalPageView",
+      "type": "Function",
+      "filePath": "frontend/src/pages/dynamic/UniversalPageView.tsx",
+      "affected_process_count": 7,
+      "total_hits": 14,
+      "earliest_broken_step": 1
+    },
+    {
+      "name": "TestHarness",
+      "type": "Function",
+      "filePath": "tests_e2e/copilot_fixture/main.tsx",
+      "affected_process_count": 6,
+      "total_hits": 9,
+      "earliest_broken_step": 1
+    },
+    {
+      "name": "LotusCopilotDrawer",
+      "type": "Function",
+      "filePath": "frontend/src/components/copilot/LotusCopilotDrawer.tsx",
+      "affected_process_count": 1,
+      "total_hits": 1,
+      "earliest_broken_step": 1
+    }
+  ],
+  "affected_modules": [
+    {
+      "name": "Components",
+      "hits": 3,
+      "impact": "direct"
+    },
+    {
+      "name": "Tailadmin",
+      "hits": 2,
+      "impact": "indirect"
+    },
+    {
+      "name": "Dynamic",
+      "hits": 1,
+      "impact": "indirect"
+    }
+  ],
+  "byDepth": {
+    "1": [
+      {
+        "depth": 1,
+        "id": "Function:frontend/src/components/copilot/LotusCopilotDrawer.tsx:LotusCopilotDrawer",
+        "name": "LotusCopilotDrawer",
+        "filePath": "frontend/src/components/copilot/LotusCopilotDrawer.tsx",
+        "relationType": "CALLS",
+        "confidence": 0.85,
+        "processes": [
+          {
+            "id": "proc_17_app",
+            "label": "App → ResetRequest",
+            "processType": "cross_community",
+            "step": 3
+          },
+          {
+            "id": "proc_167_lotuscopilotdrawer",
+            "label": "LotusCopilotDrawer → ClearInput",
+            "processType": "cross_community",
+            "step": 1
+          },
+          {
+            "id": "proc_237_testharness",
+            "label": "TestHarness → UseTranslation",
+            "processType": "cross_community",
+            "step": 2
+          },
+          {
+            "id": "proc_24_app",
+            "label": "App → UseTranslation",
+            "processType": "cross_community",
+            "step": 3
+          },
+          {
+            "id": "proc_25_app",
+            "label": "App → UseAuthenticatedActionScope",
+            "processType": "cross_community",
+            "step": 3
+          },
+          {
+            "id": "proc_233_testharness",
+            "label": "TestHarness → ResetRequest",
+            "processType": "cross_community",
+            "step": 2
+          },
+          {
+            "id": "proc_15_app",
+            "label": "App → SelectFeature",
+            "processType": "cross_community",
+            "step": 3
+          },
+          {
+            "id": "proc_16_app",
+            "label": "App → SelectMode",
+            "processType": "cross_community",
+            "step": 3
+          },
+          {
+            "id": "proc_238_testharness",
+            "label": "TestHarness → UseAuthenticatedActionScope",
+            "processType": "cross_community",
+            "step": 2
+          }
+        ]
+      },
+      {
+        "depth": 1,
+        "id": "Function:frontend/src/pages/copilot/LotusCopilotPage.tsx:LotusCopilotPage",
+        "name": "LotusCopilotPage",
+        "filePath": "frontend/src/pages/copilot/LotusCopilotPage.tsx",
+        "relationType": "CALLS",
+        "confidence": 0.85,
+        "processes": [
+          {
+            "id": "proc_163_universalpageview",
+            "label": "UniversalPageView → UseTranslation",
+            "processType": "cross_community",
+            "step": 2
+          },
+          {
+            "id": "proc_31_universalpageview",
+            "label": "UniversalPageView → ClearInput",
+            "processType": "cross_community",
+            "step": 2
+          },
+          {
+            "id": "proc_157_universalpageview",
+            "label": "UniversalPageView → SelectMode",
+            "processType": "cross_community",
+            "step": 2
+          },
+          {
+            "id": "proc_56_universalpageview",
+            "label": "UniversalPageView → GetAIModuleBadgeConfig",
+            "processType": "cross_community",
+            "step": 2
+          },
+          {
+            "id": "proc_156_universalpageview",
+            "label": "UniversalPageView → SelectFeature",
+            "processType": "cross_community",
+            "step": 2
+          },
+          {
+            "id": "proc_164_universalpageview",
+            "label": "UniversalPageView → UseAuthenticatedActionScope",
+            "processType": "cross_community",
+            "step": 2
+          },
+          {
+            "id": "proc_158_universalpageview",
+            "label": "UniversalPageView → ResetRequest",
+            "processType": "cross_community",
+            "step": 2
+          }
+        ]
+      },
+      {
+        "depth": 1,
+        "id": "Function:tests_e2e/copilot_fixture/main.tsx:TestHarness",
+        "name": "TestHarness",
+        "filePath": "tests_e2e/copilot_fixture/main.tsx",
+        "relationType": "CALLS",
+        "confidence": 0.85,
+        "processes": [
+          {
+            "id": "proc_237_testharness",
+            "label": "TestHarness → UseTranslation",
+            "processType": "cross_community",
+            "step": 1
+          },
+          {
+            "id": "proc_231_testharness",
+            "label": "TestHarness → SelectFeature",
+            "processType": "cross_community",
+            "step": 1
+          },
+          {
+            "id": "proc_232_testharness",
+            "label": "TestHarness → SelectMode",
+            "processType": "cross_community",
+            "step": 1
+          },
+          {
+            "id": "proc_233_testharness",
+            "label": "TestHarness → ResetRequest",
+            "processType": "cross_community",
+            "step": 1
+          },
+          {
+            "id": "proc_238_testharness",
+            "label": "TestHarness → UseAuthenticatedActionScope",
+            "processType": "cross_community",
+            "step": 1
+          },
+          {
+            "id": "proc_241_testharness",
+            "label": "TestHarness → ClearInput",
+            "processType": "cross_community",
+            "step": 1
+          }
+        ]
+      }
+    ],
+    "2": [
+      {
+        "depth": 2,
+        "id": "File:tests_e2e/copilot_fixture/main.tsx",
+        "name": "main.tsx",
+        "filePath": "tests_e2e/copilot_fixture/main.tsx",
+        "relationType": "CALLS",
+        "confidence": 0.85,
+        "processes": []
+      },
+      {
+        "depth": 2,
+        "id": "Function:frontend/src/App.tsx:App",
+        "name": "App",
+        "filePath": "frontend/src/App.tsx",
+        "relationType": "CALLS",
+        "confidence": 0.85,
+        "processes": [
+          {
+            "id": "proc_24_app",
+            "label": "App → UseTranslation",
+            "processType": "cross_community",
+            "step": 1
+          },
+          {
+            "id": "proc_49_app",
+            "label": "App → FormatBrandText",
+            "processType": "intra_community",
+            "step": 1
+          },
+          {
+            "id": "proc_17_app",
+            "label": "App → ResetRequest",
+            "processType": "cross_community",
+            "step": 1
+          },
+          {
+            "id": "proc_15_app",
+            "label": "App → SelectFeature",
+            "processType": "cross_community",
+            "step": 1
+          },
+          {
+            "id": "proc_16_app",
+            "label": "App → SelectMode",
+            "processType": "cross_community",
+            "step": 1
+          },
+          {
+            "id": "proc_25_app",
+            "label": "App → UseAuthenticatedActionScope",
+            "processType": "cross_community",
+            "step": 1
+          },
+          {
+            "id": "proc_50_app",
+            "label": "App → IsLinkActive",
+            "processType": "intra_community",
+            "step": 1
+          },
+          {
+            "id": "proc_51_app",
+            "label": "App → ToggleSection",
+            "processType": "intra_community",
+            "step": 1
+          },
+          {
+            "id": "proc_48_app",
+            "label": "App → HandleSelectResult",
+            "processType": "intra_community",
+            "step": 1
+          }
+        ]
+      },
+      {
+        "depth": 2,
+        "id": "Function:frontend/src/components/layout/AppLayout.tsx:AppLayout",
+        "name": "AppLayout",
+        "filePath": "frontend/src/components/layout/AppLayout.tsx",
+        "relationType": "CALLS",
+        "confidence": 0.85,
+        "processes": [
+          {
+            "id": "proc_50_app",
+            "label": "App → IsLinkActive",
+            "processType": "intra_community",
+            "step": 2
+          },
+          {
+            "id": "proc_15_app",
+            "label": "App → SelectFeature",
+            "processType": "cross_community",
+            "step": 2
+          },
+          {
+            "id": "proc_16_app",
+            "label": "App → SelectMode",
+            "processType": "cross_community",
+            "step": 2
+          },
+          {
+            "id": "proc_48_app",
+            "label": "App → HandleSelectResult",
+            "processType": "intra_community",
+            "step": 2
+          },
+          {
+            "id": "proc_25_app",
+            "label": "App → UseAuthenticatedActionScope",
+            "processType": "cross_community",
+            "step": 2
+          },
+          {
+            "id": "proc_51_app",
+            "label": "App → ToggleSection",
+            "processType": "intra_community",
+            "step": 2
+          },
+          {
+            "id": "proc_24_app",
+            "label": "App → UseTranslation",
+            "processType": "cross_community",
+            "step": 2
+          },
+          {
+            "id": "proc_49_app",
+            "label": "App → FormatBrandText",
+            "processType": "intra_community",
+            "step": 2
+          },
+          {
+            "id": "proc_17_app",
+            "label": "App → ResetRequest",
+            "processType": "cross_community",
+            "step": 2
+          }
+        ]
+      },
+      {
+        "depth": 2,
+        "id": "Function:frontend/src/pages/dynamic/UniversalPageView.tsx:UniversalPageView",
+        "name": "UniversalPageView",
+        "filePath": "frontend/src/pages/dynamic/UniversalPageView.tsx",
+        "relationType": "CALLS",
+        "confidence": 0.85,
+        "processes": [
+          {
+            "id": "proc_163_universalpageview",
+            "label": "UniversalPageView → UseTranslation",
+            "processType": "cross_community",
+            "step": 1
+          },
+          {
+            "id": "proc_157_universalpageview",
+            "label": "UniversalPageView → SelectMode",
+            "processType": "cross_community",
+            "step": 1
+          },
+          {
+            "id": "proc_31_universalpageview",
+            "label": "UniversalPageView → ClearInput",
+            "processType": "cross_community",
+            "step": 1
+          },
+          {
+            "id": "proc_56_universalpageview",
+            "label": "UniversalPageView → GetAIModuleBadgeConfig",
+            "processType": "cross_community",
+            "step": 1
+          },
+          {
+            "id": "proc_156_universalpageview",
+            "label": "UniversalPageView → SelectFeature",
+            "processType": "cross_community",
+            "step": 1
+          },
+          {
+            "id": "proc_164_universalpageview",
+            "label": "UniversalPageView → UseAuthenticatedActionScope",
+            "processType": "cross_community",
+            "step": 1
+          },
+          {
+            "id": "proc_158_universalpageview",
+            "label": "UniversalPageView → ResetRequest",
+            "processType": "cross_community",
+            "step": 1
+          }
+        ]
+      }
+    ]
+  }
+}

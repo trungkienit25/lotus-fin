@@ -1,0 +1,3 @@
+# Keep executable bootstrap scripts readable by Bash after Windows checkout.
+run.sh text eol=lf
+docker/judge/*.sh text eol=lf

@@ -1,0 +1,1 @@
+{'apps': ['frappe', 'lotus_fin'], 'erpnext_importable': False, 'users': [('p6-alice@example.invalid', 1, ['Accounts User', 'Lotus Core QA', 'All', 'Guest', 'Desk User']), ('p6-bob@example.invalid', 1, ['Accounts User', 'Lotus Core QA', 'All', 'Guest', 'Desk User'])]}

@@ -1,0 +1,71 @@
+- banner:
+  - link "Lotus Fin":
+    - /url: /home
+    - img "Lotus Fin"
+  - textbox "Search or type a command (Ctrl + K)..."
+  - generic: Ctrl+K
+  - button "Notifications":
+  - button "P p6-alice@example.invalid":
+    - generic: P
+    - generic: p6-alice@example.invalid
+- main:
+  - generic: Build
+  - generic: Integrations
+  - generic: Lotus Fin AI
+  - generic: Users
+  - generic: Website
+- generic: ✦
+- generic: Lotus Fin AI
+- generic: "Scope: Core"
+- tablist "Copilot modes":
+  - tab "Chat mode" [selected]: Chat
+  - tab "Invoice Actions mode": Invoice Actions
+  - tab "Followup L3 mode": Followup (L3)
+- button "Reports unavailable" [disabled]:
+  - generic: Reports
+  - generic: ↗
+- button "Reset conversation":
+- button "Expand to Full Copilot Page":
+- button "Close panel":
+- generic "Integrated capabilities":
+  - button "Select CORE globally": CORE
+  - button "Select DEMO globally" [pressed]: DEMO — Fictional
+  - button "L4 · DEMO_ONLY" [disabled]
+  - button "L5 · DEMO_ONLY" [disabled]
+  - button "V1 · DEMO_ONLY" [disabled]
+  - generic: L0/L3 READY · L1/L2 DEMO_ONLY
+- generic: ✦
+- heading "How can I assist with your financial analytics today?" [level=1]
+- paragraph:
+  - text: Lotus Fin AI assistant for
+  - strong: Lotus Fin Core
+  - text: .
+- button "Financial Health Snapshot Revenue, COGS, Gross Margin & Cash Balance" [disabled]:
+  - 'generic "AI001: Financial Health"':
+  - generic: Financial Health Snapshot
+  - generic: Revenue, COGS, Gross Margin & Cash Balance
+  - generic: ➔
+- button "30-Day Cash Forecast Daily balance trajectory & Liquidity runway" [disabled]:
+  - 'generic "AI002: 30-Day Cash Forecast"':
+  - generic: 30-Day Cash Forecast
+  - generic: Daily balance trajectory & Liquidity runway
+  - generic: ➔
+- button "Risk Signals & Overdue AR Overdue debt ratios & Supplier payment cluster" [disabled]:
+  - 'generic "AI003: Risk Signals"':
+  - generic: Risk Signals & Overdue AR
+  - generic: Overdue debt ratios & Supplier payment cluster
+  - generic: ➔
+- button "What-If Stress-Testing Revenue shocks & Collection delay multi-KPI model" [disabled]:
+  - 'generic "AI004: Stress-Testing Studio"':
+  - generic: What-If Stress-Testing
+  - generic: Revenue shocks & Collection delay multi-KPI model
+  - generic: ➔
+- button "Financial Health" [disabled]
+- button "Cash Forecast 30D" [disabled]
+- button "Risk Signals" [disabled]
+- button "What-If Studio" [disabled]
+- textbox "Message prompt input":
+  - /placeholder: Ask anything about invoices, followup drafts, metrics...
+- button "Attach files":
+- generic: Enter to send
+- button "Send message" [disabled]:

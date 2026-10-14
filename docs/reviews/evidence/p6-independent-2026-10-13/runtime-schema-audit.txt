@@ -1,0 +1,2 @@
+{'absent_erp_schemas': [('Company', None), ('Sales Invoice', None), ('GL Entry', None)], 'apps': ['frappe', 'lotus_fin']}
+{'audit_schema': [(0, 'id', 'INTEGER', 0, None, 1), (1, 'scope', 'TEXT', 0, None, 0), (2, 'event', 'TEXT', 0, None, 0)], 'events': [('l4_confirm', 12), ('l4_propose', 4), ('l4_status', 2), ('l5_review', 8), ('past_final_due', 7)]}
