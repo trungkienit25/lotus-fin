@@ -1,4 +1,3 @@
-cat << 'EOF' > run.sh
 #!/usr/bin/env bash
 # ==============================================================================
 # Lotus Fin — 1-Click Automated Setup & Management Script
@@ -101,7 +100,7 @@ sync_app_code() {
     print_step "4/7" "Đồng bộ ứng dụng Lotus Fin & Migrate Database..."
     docker exec --user root "$BACKEND_CONTAINER" rm -rf /home/frappe/frappe-bench/apps/lotus_fin
     docker cp "${ROOT_DIR}/lotus_fin" "${BACKEND_CONTAINER}:/home/frappe/frappe-bench/apps/lotus_fin"
-    docker exec --user root "$BACKEND_CONTAINER" chown -R frappe:frappe /home/frappe/frappe-bench/apps/lotus_fin
+    docker exec --user root "$BACKEND_CONTAINER" chown -R 1000:1000 /home/frappe/frappe-bench/apps/lotus_fin 2>/dev/null || docker exec --user root "$BACKEND_CONTAINER" chown -R frappe /home/frappe/frappe-bench/apps/lotus_fin
     docker exec "$BACKEND_CONTAINER" bash -c "grep -q 'lotus_fin' /home/frappe/frappe-bench/sites/apps.txt || echo 'lotus_fin' >> /home/frappe/frappe-bench/sites/apps.txt"
     docker exec "$BACKEND_CONTAINER" bash -c "pip install -e /home/frappe/frappe-bench/apps/lotus_fin"
     docker exec "$BACKEND_CONTAINER" bench --site frontend install-app lotus_fin >/dev/null 2>&1 || true
@@ -232,6 +231,3 @@ case "$CMD" in
         exec python3 "$ROOT_DIR/docker/lotus-core/manage.py" "$@" 2>/dev/null || echo "Usage: ./run.sh {setup|up|sync|demo|test|simulate|status|logs|stop|restart}"
         ;;
 esac
-EOF
-chmod +x run.sh
-./run.sh
