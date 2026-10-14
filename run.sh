@@ -98,15 +98,58 @@ wait_for_services() {
 
 sync_app_code() {
     print_step "4/7" "Đồng bộ ứng dụng Lotus Fin & Migrate Database..."
-    docker exec --user root "$BACKEND_CONTAINER" rm -rf /home/frappe/frappe-bench/apps/lotus_fin
-    docker cp "${ROOT_DIR}/lotus_fin" "${BACKEND_CONTAINER}:/home/frappe/frappe-bench/apps/lotus_fin"
-    docker exec --user root "$BACKEND_CONTAINER" chown -R 1000:1000 /home/frappe/frappe-bench/apps/lotus_fin 2>/dev/null || docker exec --user root "$BACKEND_CONTAINER" chown -R frappe /home/frappe/frappe-bench/apps/lotus_fin
+
+    # Tìm các container Frappe cần đồng bộ
+    FRAPPE_CONTAINERS=$(docker ps --format '{{.Names}}' | grep -E 'frappe_docker-(backend|queue-short|queue-long|scheduler)' || echo "$BACKEND_CONTAINER")
+
+    for c in $FRAPPE_CONTAINERS; do
+        echo "  -> Đang đồng bộ mã nguồn lotus_fin vào $c..."
+        docker exec --user root "$c" rm -rf /home/frappe/frappe-bench/apps/lotus_fin 2>/dev/null || true
+        docker cp "${ROOT_DIR}/lotus_fin" "${c}:/home/frappe/frappe-bench/apps/lotus_fin"
+        docker exec --user root "$c" chown -R 1000:1000 /home/frappe/frappe-bench/apps/lotus_fin 2>/dev/null || docker exec --user root "$c" chown -R frappe /home/frappe/frappe-bench/apps/lotus_fin
+
+        # Đảm bảo đường dẫn lotus_fin luôn có trong sys.path của Python virtualenv
+        docker exec --user root "$c" bash -c '
+            VENV_SITE=$(find /home/frappe/frappe-bench/env/lib -name site-packages 2>/dev/null | head -n 1)
+            if [ -n "$VENV_SITE" ]; then
+                echo "/home/frappe/frappe-bench/apps/lotus_fin" > "$VENV_SITE/lotus_fin.pth"
+            fi
+        ' 2>/dev/null || true
+
+        # Cài đặt package vào virtualenv của bench bằng quyền root để không bị hạn chế quyền ghi
+        echo "  -> Cài đặt package python vào virtualenv của $c..."
+        if docker exec "$c" test -f /home/frappe/frappe-bench/env/bin/pip 2>/dev/null; then
+            docker exec --user root "$c" /home/frappe/frappe-bench/env/bin/pip install -e /home/frappe/frappe-bench/apps/lotus_fin
+        else
+            docker exec --user root "$c" pip install -e /home/frappe/frappe-bench/apps/lotus_fin
+        fi
+
+        docker exec --user root "$c" chown -R 1000:1000 /home/frappe/frappe-bench/apps /home/frappe/frappe-bench/env 2>/dev/null || true
+    done
+
+    # Đăng ký app vào sites/apps.txt
     docker exec "$BACKEND_CONTAINER" bash -c "grep -q 'lotus_fin' /home/frappe/frappe-bench/sites/apps.txt || echo 'lotus_fin' >> /home/frappe/frappe-bench/sites/apps.txt"
-    docker exec "$BACKEND_CONTAINER" bash -c "pip install -e /home/frappe/frappe-bench/apps/lotus_fin"
-    docker exec "$BACKEND_CONTAINER" bench --site frontend install-app lotus_fin >/dev/null 2>&1 || true
+
+    # Kiểm tra xác nhận module lotus_fin đã nạp thành công
+    echo "  -> Kiểm tra nạp module lotus_fin trong môi trường Python của container..."
+    docker exec "$BACKEND_CONTAINER" /home/frappe/frappe-bench/env/bin/python -c "import lotus_fin; print('✔ Module lotus_fin loaded successfully from:', lotus_fin.__file__)"
+
+    # Cài đặt app lên site nếu chưa cài
+    if ! docker exec "$BACKEND_CONTAINER" bench --site frontend list-apps 2>/dev/null | grep -q "lotus_fin"; then
+        echo "  -> Cài đặt ứng dụng lotus_fin vào site frontend..."
+        docker exec "$BACKEND_CONTAINER" bench --site frontend install-app lotus_fin
+    fi
+
+    # Migrate Database & Clear Cache
+    echo "  -> Chạy migration database (bench migrate)..."
     docker exec "$BACKEND_CONTAINER" bench --site frontend migrate
     docker exec "$BACKEND_CONTAINER" bench --site frontend clear-cache
-    docker restart "$BACKEND_CONTAINER" >/dev/null 2>&1
+
+    # Khởi động lại các container Frappe để nạp code mới
+    echo "  -> Khởi động lại các container Frappe..."
+    for c in $FRAPPE_CONTAINERS; do
+        docker restart "$c" >/dev/null 2>&1 || true
+    done
     sleep 5
     print_success "Đã cài đặt và migrate Lotus Fin thành công!"
 }
