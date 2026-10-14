@@ -163,10 +163,9 @@ wait_for_services() {
 sync_app_code() {
     print_step "4/7" "Đồng bộ ứng dụng Lotus Fin & Migrate Database..."
 
-    # Xóa app cũ nếu có & copy mã nguồn mới nhất
     docker exec --user root "$BACKEND_CONTAINER" rm -rf /home/frappe/frappe-bench/apps/lotus_fin
     docker cp "${ROOT_DIR}/lotus_fin" "${BACKEND_CONTAINER}:/home/frappe/frappe-bench/apps/lotus_fin"
-    docker exec --user root "$BACKEND_CONTAINER" chown -R frappe:frappe /home/frappe/frappe-bench/apps/lotus_fin
+    docker exec --user root "$BACKEND_CONTAINER" chown -R 1000:1000 /home/frappe/frappe-bench/apps/lotus_fin 2>/dev/null || docker exec --user root "$BACKEND_CONTAINER" chown -R frappe /home/frappe/frappe-bench/apps/lotus_fin
 
     # Ghi nhận app vào sites/apps.txt và cài đặt vào Python venv
     docker exec "$BACKEND_CONTAINER" bash -c "grep -q 'lotus_fin' /home/frappe/frappe-bench/sites/apps.txt || echo 'lotus_fin' >> /home/frappe/frappe-bench/sites/apps.txt"
