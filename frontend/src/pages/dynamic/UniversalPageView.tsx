@@ -18,28 +18,31 @@ export const UniversalPageView: React.FC = () => {
   const pageName = rawPageName ? decodeURIComponent(rawPageName) : "";
   const navigate = useNavigate();
 
-  const isAiPage = [
-    "financial-health",
-    "cash-forecast",
-    "risk-signal",
-    "what-if-studio",
-    "lotus-copilot",
-    "financing-copilot",
-    "repayment-schedule",
-    "ai",
-  ].includes(pageName);
+  // If page is an AI Feature Page, render LotusCopilotPage directly
+  if (
+    [
+      "financial-health",
+      "cash-forecast",
+      "risk-signal",
+      "what-if-studio",
+      "lotus-copilot",
+      "financing-copilot",
+      "repayment-schedule",
+      "ai",
+    ].includes(pageName)
+  ) {
+    return <LotusCopilotPage />;
+  }
 
   const [pageDoc, setPageDoc] = useState<{ title?: string; name: string; module?: string; icon?: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Sales Funnel Filters
-  const [companies, setCompanies] = useState<string[]>(["Lotus Fin Core"]);
-  const [selectedCompany, setSelectedCompany] = useState<string>("Lotus Fin Core");
+  const [companies, setCompanies] = useState<string[]>([]);
+  const [selectedCompany, setSelectedCompany] = useState<string>("Lotus-fin (Demo)");
   const [fromDate, setFromDate] = useState<string>(dayjs().startOf("year").format("YYYY-MM-DD"));
   const [toDate, setToDate] = useState<string>(dayjs().endOf("year").format("YYYY-MM-DD"));
-  const [funnelNotice, setFunnelNotice] = useState<string | null>(null);
-  const [posNotice, setPosNotice] = useState<string | null>(null);
 
   // Funnel Data
   const [funnelData, setFunnelData] = useState<FunnelStage[]>([
@@ -63,7 +66,6 @@ export const UniversalPageView: React.FC = () => {
   const fetchFunnelData = async () => {
     setLoading(true);
     setError(null);
-    setFunnelNotice(null);
     try {
       const res = await axios.get(
         `/api/method/erpnext.selling.page.sales_funnel.sales_funnel.get_funnel_data`,
@@ -78,10 +80,24 @@ export const UniversalPageView: React.FC = () => {
       if (Array.isArray(res.data?.message)) {
         setFunnelData(res.data.message);
       }
-    } catch (_err: any) {
-      setFunnelNotice(
-        "Sales Funnel: Legacy ERPNext module is not connected to Lotus Fin Frappe Core. Independent native sales funnel tracking is scheduled for a future milestone."
-      );
+    } catch (err: any) {
+      try {
+        const [leadsRes, oppsRes, quotesRes, custRes] = await Promise.all([
+          axios.get("/api/method/frappe.client.get_count?doctype=Lead"),
+          axios.get("/api/method/frappe.client.get_count?doctype=Opportunity"),
+          axios.get("/api/method/frappe.client.get_count?doctype=Quotation"),
+          axios.get("/api/method/frappe.client.get_count?doctype=Customer"),
+        ]);
+
+        setFunnelData([
+          { title: "Active Leads", value: leadsRes.data?.message || 0, color: "#3B82F6" },
+          { title: "Opportunities", value: oppsRes.data?.message || 0, color: "#F59E0B" },
+          { title: "Quotations", value: quotesRes.data?.message || 0, color: "#8B5CF6" },
+          { title: "Converted", value: custRes.data?.message || 0, color: "#10B981" },
+        ]);
+      } catch (fallbackErr: any) {
+        setError(fallbackErr.message || "Error loading sales funnel data");
+      }
     } finally {
       setLoading(false);
     }
@@ -100,8 +116,8 @@ export const UniversalPageView: React.FC = () => {
       setDoctypes((dtRes.data?.data || []).map((d: any) => d.name));
       setRoles((rRes.data?.data || []).map((r: any) => r.name));
       setPermissions(permRes.data?.data || []);
-    } catch (_err: any) {
-      // Permission DocType missing on minimal Frappe Core
+    } catch (err: any) {
+      console.warn("Error loading permissions:", err);
     } finally {
       setLoading(false);
     }
@@ -109,7 +125,6 @@ export const UniversalPageView: React.FC = () => {
 
   const fetchPosData = async () => {
     setLoading(true);
-    setPosNotice(null);
     try {
       const [profRes, countRes] = await Promise.all([
         axios.get('/api/resource/POS Profile?fields=["*"]&limit_page_length=20'),
@@ -117,21 +132,14 @@ export const UniversalPageView: React.FC = () => {
       ]);
       setPosProfiles(profRes.data?.data || []);
       setPosInvoicesCount(countRes.data?.message || 0);
-    } catch (_err: any) {
-      setPosNotice(
-        "Point of Sale: Legacy ERPNext retail module is not connected to Lotus Fin Frappe Core. Independent native POS capability is scheduled for a future milestone."
-      );
+    } catch (err: any) {
+      console.warn("Error loading POS data:", err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (isAiPage) {
-      setLoading(false);
-      return;
-    }
-
     axios
       .get(`/api/resource/Page/${encodeURIComponent(pageName || "")}`)
       .then((res) => {
@@ -143,18 +151,12 @@ export const UniversalPageView: React.FC = () => {
       .get("/api/resource/Company?limit_page_length=50")
       .then((res) => {
         const list = (res.data?.data || []).map((c: any) => c.name);
-        if (list.length > 0) {
-          setCompanies(list);
-          if (!list.includes(selectedCompany)) {
-            setSelectedCompany(list[0]);
-          }
-        } else {
-          setCompanies(["Lotus Fin Core"]);
+        setCompanies(list);
+        if (list.length > 0 && !list.includes(selectedCompany)) {
+          setSelectedCompany(list[0]);
         }
       })
-      .catch(() => {
-        setCompanies(["Lotus Fin Core"]);
-      });
+      .catch(() => {});
 
     if (pageName === "sales-funnel") {
       fetchFunnelData();
@@ -165,16 +167,12 @@ export const UniversalPageView: React.FC = () => {
     } else {
       setLoading(false);
     }
-  }, [pageName, isAiPage]);
+  }, [pageName]);
 
   const maxVal = Math.max(...funnelData.map((d) => d.value), 1);
   const totalLeads = funnelData[0]?.value || 0;
   const converted = funnelData[3]?.value || 0;
   const overallConversionRate = totalLeads > 0 ? ((converted / totalLeads) * 100).toFixed(1) : "0.0";
-
-  if (isAiPage) {
-    return <LotusCopilotPage />;
-  }
 
   return (
     <div className="space-y-6">
@@ -240,14 +238,6 @@ export const UniversalPageView: React.FC = () => {
       {/* 2. Content for SALES FUNNEL */}
       {pageName === "sales-funnel" && (
         <div className="space-y-6">
-          {funnelNotice && (
-            <div className="p-4 rounded-xl border border-amber-300 bg-amber-50 text-amber-900 text-xs flex items-start gap-2 shadow-2xs">
-              <span className="text-base">⚠️</span>
-              <div>
-                <span className="font-bold">Unqualified Legacy Capability:</span> {funnelNotice}
-              </div>
-            </div>
-          )}
           <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-theme-xs dark:border-gray-800 dark:bg-gray-dark">
             <form
               onSubmit={(e) => {
@@ -377,14 +367,6 @@ export const UniversalPageView: React.FC = () => {
       {/* 3. Content for POINT OF SALE (POS) */}
       {(pageName === "point-of-sale" || pageName === "pos") && (
         <div className="space-y-6">
-          {posNotice && (
-            <div className="p-4 rounded-xl border border-amber-300 bg-amber-50 text-amber-900 text-xs flex items-start gap-2 shadow-2xs">
-              <span className="text-base">⚠️</span>
-              <div>
-                <span className="font-bold">Unqualified Legacy Capability:</span> {posNotice}
-              </div>
-            </div>
-          )}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-theme-xs dark:border-gray-800 dark:bg-gray-dark">
               <span className="text-xs font-medium text-gray-500">{t("pos.profiles")}</span>

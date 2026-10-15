@@ -3,6 +3,7 @@ import axios from "axios";
 import { useTranslation } from "../../../i18n";
 import { formatBrandText } from "../../../utils/brand";
 import { ModuleBadge } from "./ModuleBadge";
+import { bootstrapSession } from "../../../providers/sessionBootstrap";
 
 interface FinancialHealthViewProps {
   company: string;
@@ -36,14 +37,24 @@ export const FinancialHealthView: React.FC<FinancialHealthViewProps> = ({
       const pStart = periodPreset === "FY2020" ? "2020-01-01" : periodPreset === "FY2025" ? "2025-01-01" : `${curYear}-01-01`;
       const pEnd = periodPreset === "FY2020" ? "2020-12-31" : periodPreset === "FY2025" ? "2025-12-31" : `${curYear}-12-31`;
 
-      const res = await axios.post("/api/method/lotus_fin.api.ai_insights.get_financial_snapshot", {
-        company,
-        period_start: pStart,
-        period_end: pEnd,
-        currency: "VND",
-        comparison: comparisonMode === "NONE" ? null : "PREVIOUS_PERIOD",
-        include_explanation: 1,
-      });
+      const session = await bootstrapSession().catch(() => null);
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (session?.csrfToken) {
+        headers["X-Frappe-CSRF-Token"] = session.csrfToken;
+      }
+
+      const res = await axios.post(
+        "/api/method/lotus_fin.api.ai_insights.get_financial_snapshot",
+        {
+          company,
+          period_start: pStart,
+          period_end: pEnd,
+          currency: "VND",
+          comparison: comparisonMode === "NONE" ? null : "PREVIOUS_PERIOD",
+          include_explanation: 1,
+        },
+        { headers }
+      );
 
       const payload = res.data?.message || res.data;
       if (payload && (payload.metrics || payload.status)) {
@@ -63,15 +74,25 @@ export const FinancialHealthView: React.FC<FinancialHealthViewProps> = ({
   const runQuickSimulation = async () => {
     setSimLoading(true);
     try {
-      const res = await axios.post("/api/method/lotus_fin.modules.f005_financing.service.simulate_what_if", {
-        company,
-        sales_change_pct: simSales / 100,
-        collection_delay_days: simDelay,
-        supplier_due_shift_days: simSupplier,
-        financing_amount: simFinancing,
-        financing_term_months: 12,
-        financing_rate_annual: 0.095,
-      });
+      const session = await bootstrapSession().catch(() => null);
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (session?.csrfToken) {
+        headers["X-Frappe-CSRF-Token"] = session.csrfToken;
+      }
+
+      const res = await axios.post(
+        "/api/method/lotus_fin.modules.f005_financing.service.simulate_what_if",
+        {
+          company,
+          sales_change_pct: simSales / 100,
+          collection_delay_days: simDelay,
+          supplier_due_shift_days: simSupplier,
+          financing_amount: simFinancing,
+          financing_term_months: 12,
+          financing_rate_annual: 0.095,
+        },
+        { headers }
+      );
       const resMsg = res.data?.message || res.data;
       if (resMsg?.kpis_9_layer) {
         setSimResult(resMsg);

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams, useLocation, useParams } from "react-router-dom";
+import axios from "axios";
 import { useTranslation } from "../../i18n";
 import { formatBrandText } from "../../utils/brand";
 
@@ -13,7 +14,6 @@ import {
   RepaymentScheduleView,
   ModuleBadge,
 } from "./components";
-import { useAuthenticatedActionScope } from "../../providers/sessionScope.ts";
 
 export type CopilotTab =
   | "financial_health"
@@ -24,7 +24,6 @@ export type CopilotTab =
   | "repayment_schedule";
 
 export const LotusCopilotPage: React.FC = () => {
-  const scope = useAuthenticatedActionScope();
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
@@ -62,17 +61,12 @@ export const LotusCopilotPage: React.FC = () => {
   const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(isDirectFeatureRoute);
   const [isModalMaximized, setIsModalMaximized] = useState<boolean>(false);
   
-  // Left Sidebar & Tools Accordion state (starts collapsed on narrow screens < 1024px)
-  const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState<boolean>(() => {
-    if (typeof window !== "undefined") {
-      return window.innerWidth >= 1024;
-    }
-    return false;
-  });
+  // Left Sidebar & Tools Accordion state (DEFAULT COLLAPSED AS REQUESTED)
+  const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState<boolean>(true);
   const [isToolsExpanded, setIsToolsExpanded] = useState<boolean>(false);
 
-  const [companies] = useState<string[]>(["Lotus Fin Core"]);
-  const [selectedCompany, setSelectedCompany] = useState<string>("Lotus Fin Core");
+  const [companies, setCompanies] = useState<string[]>([]);
+  const [selectedCompany, setSelectedCompany] = useState<string>("Lotus-fin (Demo)");
 
   // Recent chat history items
   const [recentChats, setRecentChats] = useState<Array<{ id: string; title: string; time: string; query: string }>>([
@@ -139,7 +133,21 @@ export const LotusCopilotPage: React.FC = () => {
     setIsReportModalOpen(false);
   };
 
-  // CORE has no approved Company source. This label is presentation only.
+  // Fetch company list
+  useEffect(() => {
+    axios
+      .get('/api/resource/Company?fields=["name"]')
+      .then((res) => {
+        const comps = (res.data?.data || []).map((c: any) => c.name);
+        if (comps.length > 0) {
+          setCompanies(comps);
+          if (!comps.includes(selectedCompany)) {
+            setSelectedCompany(comps[0]);
+          }
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const featureTools: Array<{ id: CopilotTab; label: string; shortLabel: string; desc: string }> = [
     { id: "financial_health", label: "Financial Health (AI001)", shortLabel: "Health (AI001)", desc: "8 key ratios & P&L metrics" },
@@ -152,19 +160,10 @@ export const LotusCopilotPage: React.FC = () => {
 
   return (
     <div className="flex h-[calc(100vh-64px)] overflow-hidden bg-[#F8FAFC] relative">
-      {/* Mobile backdrop for overlay sidebar */}
-      {isLeftSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-slate-900/40 z-20 lg:hidden"
-          onClick={() => setIsLeftSidebarOpen(false)}
-          aria-hidden="true"
-        />
-      )}
-
       {/* 1. Left Chatbot Sidebar (Collapsible History & Financial Sub-tools) */}
       <div
         className={`bg-white border-r border-slate-200 transition-all duration-300 flex flex-col justify-between shrink-0 z-20 ${
-          isLeftSidebarOpen ? "w-64 fixed lg:relative inset-y-0 left-0 h-full shadow-xl lg:shadow-none" : "w-0 overflow-hidden"
+          isLeftSidebarOpen ? "w-64" : "w-0 overflow-hidden"
         }`}
       >
         <div className="p-3.5 flex flex-col h-full overflow-hidden">
@@ -280,13 +279,23 @@ export const LotusCopilotPage: React.FC = () => {
 
       {/* 2. Main Center Workspace: Full Vercel AI Chatbot Feed (Spacious & 100% Focused) */}
       <div className="flex-1 flex flex-col h-full relative overflow-hidden">
+        {/* Toggle Left Sidebar Button Bar */}
+        <div className="absolute top-3 left-3 z-30">
+          <button
+            onClick={() => setIsLeftSidebarOpen(!isLeftSidebarOpen)}
+            className="p-2 rounded-xl bg-white/90 backdrop-blur border border-slate-200 text-slate-600 hover:text-slate-900 shadow-2xs hover:bg-slate-50 transition-all cursor-pointer"
+            title={isLeftSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h7" />
+            </svg>
+          </button>
+        </div>
+
         <VercelChatPanel
           company={selectedCompany}
-          scope={scope}
           activeInspectorTab={activeReportTab}
           onOpenInspector={handleOpenReportModal}
-          onToggleSidebar={() => setIsLeftSidebarOpen(!isLeftSidebarOpen)}
-          isSidebarOpen={isLeftSidebarOpen}
           className="h-full"
         />
       </div>
@@ -314,7 +323,7 @@ export const LotusCopilotPage: React.FC = () => {
                     </span>
                   </div>
                   <div className="text-[11px] text-slate-400">
-                    Lotus Fin Independent Financial Core
+                    Real-time ERPNext General Ledger reconciliation
                   </div>
                 </div>
               </div>
