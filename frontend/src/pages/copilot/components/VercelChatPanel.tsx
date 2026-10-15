@@ -4,6 +4,14 @@ import { useTranslation } from "../../../i18n";
 import { formatBrandText } from "../../../utils/brand";
 import { ModuleBadge } from "./ModuleBadge";
 import { bootstrapSession } from "../../../providers/sessionBootstrap";
+import { routeCopilotIntent } from "../actions/copilotIntentRouter";
+import {
+  InvoiceActionChatCard,
+  L4ProposalChatCard,
+  L3FollowupChatCard,
+  L5PolicyChatCard,
+  V1PastDueChatCard,
+} from "../widgets";
 
 export interface AttachedFile {
   name: string;
@@ -24,7 +32,18 @@ export interface ChatMessage {
     args?: any;
     output?: any;
   }>;
-  widgetType?: "health" | "cash_forecast" | "risk_signal" | "what_if" | "financing" | "repayment";
+  widgetType?:
+    | "health"
+    | "cash_forecast"
+    | "risk_signal"
+    | "what_if"
+    | "financing"
+    | "repayment"
+    | "invoice_search"
+    | "l4_proposal"
+    | "l3_followup"
+    | "l5_policy"
+    | "v1_past_due";
   widgetData?: any;
   suggestedActions?: string[];
 }
@@ -129,6 +148,83 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
     setLoading(true);
 
     const assistantMsgId = `asst-${Date.now()}`;
+
+    // 1. Check bounded action intents (Invoice search L1, Followup L3, Proposal L4, Policy L5, Overdue V1)
+    const actionIntent = routeCopilotIntent(text);
+    if (actionIntent.kind === "L1" || actionIntent.kind === "L2") {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: assistantMsgId,
+          sender: "assistant",
+          content: "Tôi đã mở bảng tra cứu hóa đơn bán hàng trực tiếp theo phạm vi được cấp quyền:",
+          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          widgetType: "invoice_search",
+        },
+      ]);
+      setLoading(false);
+      return;
+    }
+
+    if (actionIntent.kind === "L4") {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: assistantMsgId,
+          sender: "assistant",
+          content: "Dưới đây là bản đề xuất tác vụ cần kiểm tra và xác nhận bằng nút bấm tường minh trước khi thực thi:",
+          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          widgetType: "l4_proposal",
+        },
+      ]);
+      setLoading(false);
+      return;
+    }
+
+    if (actionIntent.kind === "L3") {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: assistantMsgId,
+          sender: "assistant",
+          content: "Tôi đã soạn thảo bản nháp nhắc nợ cục bộ trong trình duyệt. Bạn có thể kiểm tra, chỉnh sửa hoặc sao chép:",
+          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          widgetType: "l3_followup",
+        },
+      ]);
+      setLoading(false);
+      return;
+    }
+
+    if (actionIntent.kind === "L5") {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: assistantMsgId,
+          sender: "assistant",
+          content: "Yêu cầu của bạn thuộc nhóm hành động tác động lớn và đã được đánh giá qua cổng chính sách bảo mật (L5 Safety Gate):",
+          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          widgetType: "l5_policy",
+        },
+      ]);
+      setLoading(false);
+      return;
+    }
+
+    if (actionIntent.kind === "V1") {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: assistantMsgId,
+          sender: "assistant",
+          content: "Bảng tổng hợp các hóa đơn đã qua hạn cuối còn dư nợ tại mốc quan sát được kiểm chứng:",
+          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          widgetType: "v1_past_due",
+        },
+      ]);
+      setLoading(false);
+      return;
+    }
 
     try {
       // Direct call to Copilot backend engine with CSRF protection
@@ -282,32 +378,46 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
 
   const starterCards = [
     {
+      title: "Tra cứu Hóa đơn Bán hàng",
+      description: "Tìm kiếm hóa đơn L1/L2, lọc theo trạng thái Draft / Submitted",
+      query: "Tìm hóa đơn có mã SINV",
+      inspectorTab: "invoice_actions",
+      tag: "L1 / L2",
+    },
+    {
+      title: "Tạo Việc Theo dõi Công nợ",
+      description: "Khởi tạo đề xuất L4 có đếm ngược hết hạn và xác nhận",
+      query: "Tạo task theo dõi công nợ quá hạn",
+      inspectorTab: "invoice_actions",
+      tag: "L4 Task",
+    },
+    {
+      title: "Soạn Thảo Nhắc Nợ Khách hàng",
+      description: "Tiện ích soạn thảo L3 cục bộ, sao chép hoặc chuyển sang task",
+      query: "Soạn thư nhắc nợ khách hàng",
+      inspectorTab: "invoice_actions",
+      tag: "L3 Nháp",
+    },
+    {
+      title: "Hóa đơn Quá hạn Cuối còn Dư nợ",
+      description: "Kiểm tra danh sách nợ quá hạn V1 có rủi ro",
+      query: "Cho tôi xem hóa đơn qua hạn cuối còn dư nợ",
+      inspectorTab: "invoice_actions",
+      tag: "V1 Quá hạn",
+    },
+    {
       title: "Financial Health Snapshot",
-      description: "Revenue, COGS, Gross Margin & Cash Balance",
+      description: "Doanh thu, Giá vốn, Biên lợi nhuận & Số dư tiền thực tế",
       query: "Summary of financial health snapshot and key accounting indicators",
       inspectorTab: "financial_health",
-      tag: "GL Snapshot",
+      tag: "AI001",
     },
     {
       title: "30-Day Cash Forecast",
-      description: "Daily balance trajectory & Liquidity runway",
+      description: "Quỹ đạo số dư cuối ngày & Khả năng thanh khoản",
       query: "Project 30-day cash forecast and evaluate liquidity risk",
       inspectorTab: "cash_forecast",
       tag: "AI002",
-    },
-    {
-      title: "Risk Signals & Overdue AR",
-      description: "Overdue debt ratios & Supplier payment cluster",
-      query: "Check risk signals, overdue AR ratios, and payment obligations",
-      inspectorTab: "risk_signals",
-      tag: "AI003",
-    },
-    {
-      title: "What-If Stress-Testing",
-      description: "Revenue shocks & Collection delay multi-KPI model",
-      query: "Run What-If stress test simulation under revenue reduction and collection delays",
-      inspectorTab: "what_if",
-      tag: "AI004",
     },
   ];
 
@@ -535,29 +645,113 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
                   })}
                 </div>
 
-                {/* In-Stream Interactive Generative UI Card */}
-                {msg.widgetType && onOpenInspector && (
-                  <div className="mt-4 pt-3.5 border-t border-gray-100">
-                    <div className="p-3.5 rounded-xl bg-gray-50/80 border border-gray-200 flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        <ModuleBadge moduleId={msg.widgetType} size="md" />
-                        <div>
-                          <div className="text-xs font-bold text-gray-900">
-                            {msg.widgetType === "health" ? "Financial Health Snapshot" : msg.widgetType === "cash_forecast" ? "30-Day Cash Flow Forecast" : msg.widgetType === "risk_signal" ? "Risk Signal Audit Records" : msg.widgetType === "what_if" ? "9-KPI Stress Test Matrix" : msg.widgetType === "financing" ? "Bank Financing Products" : "Loan Repayment Schedule"}
-                          </div>
-                          <div className="text-[11px] text-gray-500">Interactive visual audit & ledger records</div>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => onOpenInspector(msg.widgetType === "health" ? "financial_health" : msg.widgetType === "cash_forecast" ? "cash_forecast" : msg.widgetType === "risk_signal" ? "risk_signals" : msg.widgetType === "what_if" ? "what_if" : msg.widgetType === "financing" ? "financing_copilot" : "repayment_schedule")}
-                        className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-gray-50 border border-gray-200 text-xs font-bold text-[#1E63B7] shadow-2xs transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 hover:border-[#1E63B7]"
-                      >
-                        <span>Open Report</span>
-                        <span>↗</span>
-                      </button>
-                    </div>
-                  </div>
+                {/* Action Widgets Directly in Chat Feed */}
+                {msg.widgetType === "invoice_search" && (
+                  <InvoiceActionChatCard
+                    company={company}
+                    onOpenModalTab={() => onOpenInspector?.("invoice_actions")}
+                  />
                 )}
+
+                {msg.widgetType === "l4_proposal" && (
+                  <L4ProposalChatCard
+                    initialTitle="Theo dõi công nợ quá hạn SINV-2026-00088"
+                    targetEntity="Sales Invoice/SINV-2026-00088"
+                  />
+                )}
+
+                {msg.widgetType === "l3_followup" && (
+                  <L3FollowupChatCard
+                    invoiceId="SINV-2026-00088"
+                    customerName="Công ty TNHH Sen Vàng"
+                    onCreateTask={(text) => {
+                      setMessages((prev) => [
+                        ...prev,
+                        {
+                          id: `asst-${Date.now()}`,
+                          sender: "assistant",
+                          content: "Tôi đã chuyển nội dung này sang bản đề xuất tạo việc theo dõi (L4 Proposal):",
+                          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+                          widgetType: "l4_proposal",
+                        },
+                      ]);
+                    }}
+                  />
+                )}
+
+                {msg.widgetType === "l5_policy" && (
+                  <L5PolicyChatCard />
+                )}
+
+                {msg.widgetType === "v1_past_due" && (
+                  <V1PastDueChatCard
+                    company={company}
+                    onSelectInvoice={(invId) => {
+                      setMessages((prev) => [
+                        ...prev,
+                        {
+                          id: `asst-${Date.now()}`,
+                          sender: "assistant",
+                          content: `Tôi đã mở đề xuất việc theo dõi cho hóa đơn quá hạn **${invId}**:`,
+                          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+                          widgetType: "l4_proposal",
+                        },
+                      ]);
+                    }}
+                  />
+                )}
+
+                {/* In-Stream Interactive Generative UI Card for Financial Reports */}
+                {msg.widgetType &&
+                  ["health", "cash_forecast", "risk_signal", "what_if", "financing", "repayment"].includes(
+                    msg.widgetType
+                  ) &&
+                  onOpenInspector && (
+                    <div className="mt-4 pt-3.5 border-t border-gray-100">
+                      <div className="p-3.5 rounded-xl bg-gray-50/80 border border-gray-200 flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <ModuleBadge moduleId={msg.widgetType} size="md" />
+                          <div>
+                            <div className="text-xs font-bold text-gray-900">
+                              {msg.widgetType === "health"
+                                ? "Financial Health Snapshot"
+                                : msg.widgetType === "cash_forecast"
+                                ? "30-Day Cash Flow Forecast"
+                                : msg.widgetType === "risk_signal"
+                                ? "Risk Signal Audit Records"
+                                : msg.widgetType === "what_if"
+                                ? "9-KPI Stress Test Matrix"
+                                : msg.widgetType === "financing"
+                                ? "Bank Financing Products"
+                                : "Loan Repayment Schedule"}
+                            </div>
+                            <div className="text-[11px] text-gray-500">Interactive visual audit & ledger records</div>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() =>
+                            onOpenInspector(
+                              msg.widgetType === "health"
+                                ? "financial_health"
+                                : msg.widgetType === "cash_forecast"
+                                ? "cash_forecast"
+                                : msg.widgetType === "risk_signal"
+                                ? "risk_signals"
+                                : msg.widgetType === "what_if"
+                                ? "what_if"
+                                : msg.widgetType === "financing"
+                                ? "financing_copilot"
+                                : "repayment_schedule"
+                            )
+                          }
+                          className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-gray-50 border border-gray-200 text-xs font-bold text-[#1E63B7] shadow-2xs transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 hover:border-[#1E63B7]"
+                        >
+                          <span>Open Report</span>
+                          <span>↗</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
 
                 {/* Message Action Footer for Assistant */}
                 <div className="mt-3.5 pt-2.5 border-t border-gray-100 flex items-center justify-between text-gray-400">

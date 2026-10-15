@@ -13,7 +13,11 @@ import {
   FinancingCopilotView,
   RepaymentScheduleView,
   ModuleBadge,
+  InvoiceActionsTabView,
 } from "./components";
+import { createHttpTransport } from "./actions/invoiceActionClient";
+import { createDemoInvoiceTransport, type DemoScenario } from "./demo/demoInvoiceProvider";
+import type { InvoiceActionTransport } from "./actions/invoiceActionController";
 
 export type CopilotTab =
   | "financial_health"
@@ -21,7 +25,8 @@ export type CopilotTab =
   | "risk_signals"
   | "what_if"
   | "financing_copilot"
-  | "repayment_schedule";
+  | "repayment_schedule"
+  | "invoice_actions";
 
 export const LotusCopilotPage: React.FC = () => {
   const { t } = useTranslation();
@@ -38,6 +43,7 @@ export const LotusCopilotPage: React.FC = () => {
     if (p === "financing-copilot") return "financing_copilot";
     if (p === "repayment-schedule") return "repayment_schedule";
     if (p === "financial-health") return "financial_health";
+    if (p === "invoice-actions") return "invoice_actions";
 
     const queryTab = searchParams.get("tab") as CopilotTab;
     if (queryTab) return queryTab;
@@ -55,6 +61,7 @@ export const LotusCopilotPage: React.FC = () => {
     "what-if-studio",
     "financing-copilot",
     "repayment-schedule",
+    "invoice-actions",
   ].includes(pageName || "");
 
   // Report Modal state
@@ -67,6 +74,16 @@ export const LotusCopilotPage: React.FC = () => {
 
   const [companies, setCompanies] = useState<string[]>([]);
   const [selectedCompany, setSelectedCompany] = useState<string>("Lotus-fin (Demo)");
+
+  // Invoice Actions P2-B Profile & Transport
+  const [demoProfile, setDemoProfile] = useState<"CORE" | "DEMO">("DEMO");
+  const [demoScenario, setDemoScenario] = useState<DemoScenario>("NORMAL");
+
+  const activeInvoiceTransport: InvoiceActionTransport = React.useMemo(() => {
+    return demoProfile === "DEMO"
+      ? createDemoInvoiceTransport(demoScenario)
+      : createHttpTransport();
+  }, [demoProfile, demoScenario]);
 
   // Recent chat history items
   const [recentChats, setRecentChats] = useState<Array<{ id: string; title: string; time: string; query: string }>>([
@@ -156,6 +173,7 @@ export const LotusCopilotPage: React.FC = () => {
     { id: "what_if", label: "Stress-Testing Studio (AI004)", shortLabel: "What-If (AI004)", desc: "9-KPI stress simulations" },
     { id: "financing_copilot", label: "Loan Matchmaker (AI005)", shortLabel: "Financing (AI005)", desc: "Bank credit products" },
     { id: "repayment_schedule", label: "Repayment Schedule (AI006)", shortLabel: "Repayment (AI006)", desc: "PMT amortization table" },
+    { id: "invoice_actions", label: "Chứng từ & Tác vụ (P2-B)", shortLabel: "Chứng từ", desc: "Tra cứu hóa đơn & việc theo dõi" },
   ];
 
   return (
@@ -413,6 +431,16 @@ export const LotusCopilotPage: React.FC = () => {
                 <RepaymentScheduleView
                   company={selectedCompany}
                   onNavigateTab={(tab) => setActiveReportTab(tab as CopilotTab)}
+                />
+              )}
+              {activeReportTab === "invoice_actions" && (
+                <InvoiceActionsTabView
+                  company={selectedCompany}
+                  demoProfile={demoProfile}
+                  demoScenario={demoScenario}
+                  onSetDemoProfile={setDemoProfile}
+                  onSetDemoScenario={setDemoScenario}
+                  activeInvoiceTransport={activeInvoiceTransport}
                 />
               )}
             </div>

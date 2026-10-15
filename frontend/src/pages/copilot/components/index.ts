@@ -6,6 +6,7 @@ export * from "./WhatIfStudioView";
 export * from "./FinancingCopilotView";
 export * from "./RepaymentScheduleView";
 export * from "./ModuleBadge";
+export * from "./InvoiceActionsTabView";
 
 export { default as VercelChatPanel } from "./VercelChatPanel";
 export { default as FinancialHealthView } from "./FinancialHealthView";
@@ -15,3 +16,4 @@ export { default as WhatIfStudioView } from "./WhatIfStudioView";
 export { default as FinancingCopilotView } from "./FinancingCopilotView";
 export { default as RepaymentScheduleView } from "./RepaymentScheduleView";
 export { default as ModuleBadge } from "./ModuleBadge";
+export { InvoiceActionsTabView } from "./InvoiceActionsTabView";
