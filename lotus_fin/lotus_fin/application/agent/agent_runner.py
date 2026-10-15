@@ -21,6 +21,7 @@ class AgentExecutionResult(BaseModel):
     tool_output: Optional[Dict[str, Any]] = Field(default=None, description="Raw deterministic data returned by tool")
     ui_widget: Optional[Dict[str, Any]] = Field(default=None, description="UI Widget payload for frontend rendering")
     executed_tools: List[str] = Field(default_factory=list, description="List of all tools invoked in session")
+    status: str = Field(default="SUCCESS", description="Execution status e.g. SUCCESS, BUDGET_EXCEEDED")
 
 
 class AgentRunner:
@@ -35,11 +36,13 @@ class AgentRunner:
         self,
         llm_provider: ILLMProvider,
         tool_invoker: IToolInvoker,
-        max_iterations: int = 4
+        max_iterations: int = 4,
+        max_total_tools: int = 6
     ):
         self.llm_provider = llm_provider
         self.tool_invoker = tool_invoker
         self.max_iterations = max_iterations
+        self.max_total_tools = max_total_tools
 
     def run(
         self,
@@ -54,6 +57,8 @@ class AgentRunner:
         ] + session.get_context_window(max_messages=8)
 
         iteration = 0
+        total_tools_executed = 0
+        is_budget_exceeded = False
         executed_tool_name: Optional[str] = None
         executed_tool_output: Optional[Dict[str, Any]] = None
         executed_ui_widget: Optional[Dict[str, Any]] = None
@@ -74,7 +79,8 @@ class AgentRunner:
                     tool_called=executed_tool_name,
                     tool_output=executed_tool_output,
                     ui_widget=executed_ui_widget,
-                    executed_tools=executed_tools_list
+                    executed_tools=executed_tools_list,
+                    status="BUDGET_EXCEEDED" if is_budget_exceeded else "SUCCESS"
                 )
 
             # Case B: LLM requested tool invocation(s)
@@ -85,8 +91,26 @@ class AgentRunner:
             ))
 
             for call in response.tool_calls or []:
+                if total_tools_executed >= self.max_total_tools:
+                    _logger.warning("AgentRunner total tool budget reached (%d tools)", self.max_total_tools)
+                    budget_err = ToolExecutionResult(
+                        tool_call_id=call.id,
+                        tool_name=call.tool_name,
+                        is_success=False,
+                        error_message=f"Tool budget limit reached ({self.max_total_tools} calls per turn)."
+                    )
+                    session.add_tool_trace(budget_err)
+                    working_context.append(ChatMessage(
+                        role=MessageRole.TOOL,
+                        content=budget_err.to_json_string(),
+                        tool_call_id=call.id
+                    ))
+                    is_budget_exceeded = True
+                    break
+
                 _logger.info("AgentRunner dispatching tool: %s (%s)", call.tool_name, call.id)
                 tool_res: ToolExecutionResult = self.tool_invoker.invoke(call, user)
+                total_tools_executed += 1
                 session.add_tool_trace(tool_res)
 
                 executed_tool_name = call.tool_name
@@ -111,6 +135,6 @@ class AgentRunner:
             tool_called=executed_tool_name,
             tool_output=executed_tool_output,
             ui_widget=executed_ui_widget,
-            executed_tools=executed_tools_list
+            executed_tools=executed_tools_list,
+            status="BUDGET_EXCEEDED" if is_budget_exceeded else "SUCCESS"
         )
-

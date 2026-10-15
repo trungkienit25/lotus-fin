@@ -16,13 +16,32 @@ import json
 import logging
 import re
 from typing import Any, Dict, Optional
-import frappe
-from frappe import _
+try:
+    import frappe
+    from frappe import _
+except ImportError:
+    frappe = None
+    def _(msg):
+        return msg
 
 from lotus_fin.core.plugin.registry import plugin_registry
 from lotus_fin.security.access import get_verified_company
 
 _logger = logging.getLogger("lotus_fin.api.copilot")
+
+
+def _format_currency(val) -> str:
+    if val is None:
+        return "0 VND"
+    try:
+        if frappe and hasattr(frappe, "format"):
+            return frappe.format(val, {'fieldtype': 'Currency', 'currency': 'VND'})
+    except Exception:
+        pass
+    try:
+        return f"{int(float(val)):,} VND"
+    except Exception:
+        return f"{val} VND"
 
 
 def process_copilot_query(
@@ -92,18 +111,18 @@ def process_copilot_query(
                 int_kpi = next((k for k in st_res.comparison_kpis if k.kpi_name == "Total Interest"), None)
                 if int_kpi:
                     added_interest = float(int_kpi.absolute_change)
-                    shock_info = f"\n- **Tác động sốc lãi suất (+{shock_bps} bps):** Chi phí lãi tăng thêm **+{frappe.format(added_interest, {'fieldtype': 'Currency', 'currency': 'VND'})}**."
+                    shock_info = f"\n- **Tác động sốc lãi suất (+{shock_bps} bps):** Chi phí lãi tăng thêm **+{_format_currency(added_interest)}**."
 
             avg_monthly = float(sched_res.summary.get("average_monthly_payment", 0.0))
             total_int = float(sched_res.summary.get("total_interest", 0.0))
 
             reply = (
                 f"Đã lập kế hoạch trả nợ định lượng (AI006) cho khoản vay của **{verified_company}**:\n\n"
-                f"- **Gốc vay:** {frappe.format(principal, {'fieldtype': 'Currency', 'currency': 'VND'})}\n"
+                f"- **Gốc vay:** {_format_currency(principal)}\n"
                 f"- **Lãi suất cơ sở:** {rate*100:.1f}%/năm &bull; **Kỳ hạn:** {term} tháng\n"
                 f"- **Phương thức:** Trả góp đều (PMT — Gốc + Lãi cố định hàng tháng)\n"
-                f"- **Khoản thanh toán bình quân:** **{frappe.format(avg_monthly, {'fieldtype': 'Currency', 'currency': 'VND'})}/tháng**\n"
-                f"- **Tổng lãi dự kiến trong toàn kỳ:** {frappe.format(total_int, {'fieldtype': 'Currency', 'currency': 'VND'})}{shock_info}\n\n"
+                f"- **Khoản thanh toán bình quân:** **{_format_currency(avg_monthly)}/tháng**\n"
+                f"- **Tổng lãi dự kiến trong toàn kỳ:** {_format_currency(total_int)}{shock_info}\n\n"
                 f"💡 **Khuyến nghị:** Dòng tiền chi trả hàng tháng đã được tính toán chính xác để cân đối nguồn thu tiền mặt."
             )
 
@@ -152,7 +171,7 @@ def process_copilot_query(
         prods = res.get("matched_products", [])
         reply_lines = [
             f"Dựa trên hồ sơ tài chính thực tế của **{verified_company}**, tôi đã đối chiếu gói vay với danh mục sản phẩm tín dụng ngân hàng:",
-            f"- **Quy mô nhu cầu:** {frappe.format(amount, {'fieldtype': 'Currency', 'currency': 'VND'})}",
+            f"- **Quy mô nhu cầu:** {_format_currency(amount)}",
             f"- **Thời hạn đề xuất:** {term} tháng",
             "",
             "### 🏆 Top sản phẩm tín dụng phù hợp nhất:"
@@ -162,7 +181,7 @@ def process_copilot_query(
             monthly_interest = p.get("estimated_monthly_interest", 0.0)
             reply_lines.append(
                 f"{idx}. **{p.get('provider')} — {p.get('product_name')}** (Điểm phù hợp: {p.get('match_score')}/100)\n"
-                f"   - Lãi suất: **{p_rate:.1f}%/năm** &bull; Lãi tạm tính: **~{frappe.format(monthly_interest, {'fieldtype': 'Currency', 'currency': 'VND'})}/tháng**\n"
+                f"   - Lãi suất: **{p_rate:.1f}%/năm** &bull; Lãi tạm tính: **~{_format_currency(monthly_interest)}/tháng**\n"
                 f"   - Tốc độ giải ngân: **{p.get('disbursement_speed_days')} ngày**\n"
                 f"   - Đánh giá: {p.get('rationale', 'Đủ điều kiện tài trợ tiêu chuẩn.')}"
             )
@@ -181,13 +200,22 @@ def process_copilot_query(
     if any(k in q_lower for k in ["rủi ro", "tín hiệu", "risk signal", "quá hạn", "đột biến", "tập trung nợ", "cluster", "spike"]):
         signal_type = "AP_DUE_CLUSTER" if any(k in q_lower for k in ["phải trả", "nhà cung cấp", "ap", "due"]) else "AR_OVERDUE_SPIKE"
         try:
-            from lotus_fin.modules.f003_risk_signal.service import evaluate_signal
+            from lotus_fin.modules.f003_risk_signal.service import evaluate_signal, default_deps
             as_of_val = as_of_date or "2026-09-26"
-            sig_res = evaluate_signal({
-                "company": verified_company,
-                "signal_id": signal_type,
-                "as_of_date": as_of_val
-            })
+            session_user = "Administrator"
+            if frappe and hasattr(frappe, "session") and frappe.session and frappe.session.user:
+                session_user = frappe.session.user
+            deps = default_deps(session_user)
+            sig_res = evaluate_signal(
+                payload={
+                    "company": verified_company,
+                    "signal_id": signal_type,
+                    "as_of_date": as_of_val
+                },
+                checked_user=session_user,
+                deps=deps,
+                include_explanation=True
+            )
             
             finding_text = "Bình thường"
             severity = "BENIGN"
@@ -256,9 +284,9 @@ def process_copilot_query(
         reply = (
             f"Đã kích hoạt mô hình mô phỏng áp lực định lượng (What-If Simulation) cho **{verified_company}**:\n\n"
             f"- **Giả định áp dụng:** Doanh thu biến động **{sales_change*100:+.0f}%**, Khách hàng trả chậm **+{delay_days} ngày**.\n"
-            f"- **Doanh thu kỳ vọng:** {frappe.format(rev.get('simulation'), {'fieldtype': 'Currency', 'currency': 'VND'})} (Chênh lệch: {frappe.format(rev.get('absolute_change'), {'fieldtype': 'Currency', 'currency': 'VND'})})\n"
-            f"- **Dòng tiền thuần dự kiến:** {frappe.format(ncf.get('simulation'), {'fieldtype': 'Currency', 'currency': 'VND'})}\n"
-            f"- **Tiền mặt cuối kỳ:** **{frappe.format(ending_cash.get('simulation'), {'fieldtype': 'Currency', 'currency': 'VND'})}** ({ending_cash.get('status', 'HEALTHY')})\n\n"
+            f"- **Doanh thu kỳ vọng:** {_format_currency(rev.get('simulation'))} (Chênh lệch: {_format_currency(rev.get('absolute_change'))})\n"
+            f"- **Dòng tiền thuần dự kiến:** {_format_currency(ncf.get('simulation'))}\n"
+            f"- **Tiền mặt cuối kỳ:** **{_format_currency(ending_cash.get('simulation'))}** ({ending_cash.get('status', 'HEALTHY')})\n\n"
             f"💡 **Khuyến nghị:** {'Cần chuẩn bị phương án đệm thanh khoản hoặc hạn mức tín dụng dự phòng kịp thời.' if ending_cash.get('simulation', 0) < 50000000 else 'Doanh nghiệp vẫn duy trì được bộ đệm an toàn khả quan.'}"
         )
 
@@ -309,10 +337,10 @@ def process_copilot_query(
     ar_val = metrics.get("ar_outstanding", {}).get("value")
     ap_val = metrics.get("ap_outstanding", {}).get("value")
 
-    rev_str = frappe.format(rev_val, {"fieldtype": "Currency", "currency": "VND"}) if rev_val is not None else "Không có số liệu"
-    cash_str = frappe.format(cash_val, {"fieldtype": "Currency", "currency": "VND"}) if cash_val is not None else "Chưa ghi nhận"
-    ar_str = frappe.format(ar_val, {"fieldtype": "Currency", "currency": "VND"}) if ar_val is not None else "0 VND"
-    ap_str = frappe.format(ap_val, {"fieldtype": "Currency", "currency": "VND"}) if ap_val is not None else "0 VND"
+    rev_str = _format_currency(rev_val) if rev_val is not None else "Không có số liệu"
+    cash_str = _format_currency(cash_val) if cash_val is not None else "Chưa ghi nhận"
+    ar_str = _format_currency(ar_val) if ar_val is not None else "0 VND"
+    ap_str = _format_currency(ap_val) if ap_val is not None else "0 VND"
     margin_str = f"{(margin_val * 100):.2f}%" if margin_val is not None else "N/A"
 
     reply = (

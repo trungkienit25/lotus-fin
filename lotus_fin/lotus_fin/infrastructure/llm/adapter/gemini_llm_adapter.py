@@ -1,12 +1,8 @@
-"""
-Google Gemini LLM Adapter (Gemini 1.5/2.0/2.5 Flash & Pro REST API).
-Implements ILLMProvider with Function Declarations & Tool Calling.
-"""
-
 import json
+import logging
 import os
-import urllib.request
 import urllib.error
+import urllib.request
 from typing import Any, Dict, List, Optional
 
 from lotus_fin.application.port.i_llm_provider import ILLMProvider, LLMResponse
@@ -14,6 +10,8 @@ from lotus_fin.domain.model.chat_message import ChatMessage
 from lotus_fin.domain.model.message_role import MessageRole
 from lotus_fin.domain.schema.tool_call_request import ToolCallRequest
 from lotus_fin.domain.schema.tool_definition import ToolDefinition
+
+_logger = logging.getLogger("lotus_fin.infrastructure.llm.gemini")
 
 
 class GeminiLLMAdapter(ILLMProvider):
@@ -33,7 +31,7 @@ class GeminiLLMAdapter(ILLMProvider):
             or os.environ.get("GEMINI_MODEL")
             or os.environ.get("LOTUS_AI_MODEL")
             or os.environ.get("LOTUS_LLM_MODEL")
-            or "gemini-flash-latest"
+            or "gemini-1.5-flash"
         )
         self.api_key = (
             api_key
@@ -42,7 +40,6 @@ class GeminiLLMAdapter(ILLMProvider):
             or os.environ.get("LOTUS_LLM_API_KEY")
             or ""
         )
-
         self.timeout_seconds = timeout_seconds
 
     def generate(
@@ -50,20 +47,18 @@ class GeminiLLMAdapter(ILLMProvider):
         messages: List[ChatMessage],
         tools: Optional[List[ToolDefinition]] = None
     ) -> LLMResponse:
-        url = (
-            f"https://generativelanguage.googleapis.com/v1beta/models/{self.model_name}:generateContent"
-            f"?key={self.api_key}"
-        )
+        if not self.api_key:
+            raise ValueError("GEMINI_API_KEY (or LOTUS_AI_API_KEY / LOTUS_LLM_API_KEY) is not configured.")
 
-        contents = []
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model_name}:generateContent?key={self.api_key}"
+
+        contents: List[Dict[str, Any]] = []
         system_instruction_text = None
 
         for msg in messages:
             if msg.role == MessageRole.SYSTEM:
                 system_instruction_text = msg.content
-                continue
-
-            if msg.role == MessageRole.USER:
+            elif msg.role == MessageRole.USER:
                 contents.append({
                     "role": "user",
                     "parts": [{"text": msg.content or ""}]
@@ -74,12 +69,15 @@ class GeminiLLMAdapter(ILLMProvider):
                     parts.append({"text": msg.content})
                 if msg.tool_calls:
                     for tc in msg.tool_calls:
-                        parts.append({
-                            "functionCall": {
-                                "name": tc.tool_name,
-                                "args": tc.arguments,
-                            }
-                        })
+                        call_obj = {
+                            "name": tc.tool_name,
+                            "args": tc.arguments,
+                        }
+                        p_dict: Dict[str, Any] = {"functionCall": call_obj}
+                        ts = getattr(tc, "thought_signature", None)
+                        if ts:
+                            p_dict["thought_signature"] = ts
+                        parts.append(p_dict)
                 contents.append({
                     "role": "model",
                     "parts": parts or [{"text": ""}]
@@ -95,7 +93,6 @@ class GeminiLLMAdapter(ILLMProvider):
                         }
                     }]
                 })
-
 
         payload: Dict[str, Any] = {
             "contents": contents,
@@ -152,11 +149,13 @@ class GeminiLLMAdapter(ILLMProvider):
                 if parsed_tool_calls is None:
                     parsed_tool_calls = []
                 fn_call = part["functionCall"]
+                ts = part.get("thought_signature") or part.get("thoughtSignature")
                 parsed_tool_calls.append(
                     ToolCallRequest(
                         id=f"gemini_call_{idx}",
                         tool_name=fn_call.get("name", ""),
-                        arguments=fn_call.get("args", {})
+                        arguments=fn_call.get("args", {}),
+                        thought_signature=ts
                     )
                 )
 
@@ -164,4 +163,3 @@ class GeminiLLMAdapter(ILLMProvider):
             content="\n".join(text_content_list),
             tool_calls=parsed_tool_calls,
         )
-

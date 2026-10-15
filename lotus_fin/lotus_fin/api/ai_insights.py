@@ -22,7 +22,14 @@ from lotus_fin.api.cashflow_api import (
     get_ai002_cash_forecast,
     get_ai002_evidence,
 )
-from lotus_fin.api.copilot_api import chat_copilot
+from lotus_fin.api.copilot_api import (
+    chat_copilot,
+    get_chat_history,
+    list_chat_sessions,
+    reset_chat_session,
+    get_operation_logs,
+    export_operation_logs,
+)
 
 __all__ = [
     "on_sales_invoice_submit",
@@ -38,6 +45,11 @@ __all__ = [
     "get_risk_signal",
     "get_risk_signal_evidence",
     "chat_copilot",
+    "get_chat_history",
+    "list_chat_sessions",
+    "reset_chat_session",
+    "get_operation_logs",
+    "export_operation_logs",
 ]
 
 

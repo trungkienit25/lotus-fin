@@ -37,18 +37,65 @@ class ScenarioService:
             opening_cash = custom_opening_cash
             baseline_events = custom_baseline_events
         else:
-            opening_cash, baseline_events = self.baseline_adapter.get_baseline_data(
-                company=params.company,
-                as_of=params.as_of,
-                horizon_days=params.horizon_days
-            )
+            try:
+                opening_cash, baseline_events = self.baseline_adapter.get_baseline_data(
+                    company=params.company,
+                    as_of=params.as_of,
+                    horizon_days=params.horizon_days
+                )
+            except Exception as e:
+                from lotus_fin.modules.f004_what_if.domain.enums import SimulationStatus
+                from lotus_fin.modules.f004_what_if.domain.models import BaselineMetrics, SimulatedMetrics, DeltaMetrics
+                is_forbidden = "FORBIDDEN" in str(e) or "PermissionError" in type(e).__name__ or "CompanyAccessError" in type(e).__name__
+                status = SimulationStatus.FORBIDDEN if is_forbidden else SimulationStatus.SOURCE_ERROR
+                zero = Decimal("0.00")
+                empty_baseline = BaselineMetrics(
+                    opening_cash=zero, closing_cash=zero, minimum_cash=zero,
+                    minimum_cash_date=params.as_of, has_shortfall=False,
+                    first_shortfall_date=None, runway_days=0, total_inflows=zero, total_outflows=zero
+                )
+                empty_simulated = SimulatedMetrics(
+                    opening_cash=zero, closing_cash=zero, minimum_cash=zero,
+                    minimum_cash_date=params.as_of, has_shortfall=False,
+                    first_shortfall_date=None, runway_days=0, total_inflows=zero, total_outflows=zero
+                )
+                empty_delta = DeltaMetrics(
+                    closing_cash_delta=zero, minimum_cash_delta=zero, runway_delta_days=0,
+                    total_inflow_delta=zero, total_outflow_delta=zero,
+                    shortfall_worsened=False, new_shortfall_introduced=False
+                )
+                return ScenarioResult(
+                    scenario_id="ERROR",
+                    scenario_name=params.scenario_name,
+                    company=params.company,
+                    as_of=params.as_of,
+                    horizon_days=params.horizon_days,
+                    parameters=params,
+                    status=status,
+                    baseline_metrics=empty_baseline,
+                    simulated_metrics=empty_simulated,
+                    delta_metrics=empty_delta,
+                    simulated_timeline=[],
+                    applied_modifier_descriptions=[],
+                    narrative_explanation="",
+                    error_message=str(e),
+                    data_mode="simulation"
+                )
 
+        # Check if baseline data is completely absent (insufficient data)
+        # Note: If opening_cash == 0 and baseline_events == [], it could be INSUFFICIENT_DATA or a completely empty company.
         # 2. Run simulation engine
         result = self.simulator.simulate(
             opening_cash=opening_cash,
             baseline_events=baseline_events,
             params=params
         )
+
+        # If company has 0 cash and 0 events, mark as INSUFFICIENT_DATA if appropriate
+        if opening_cash == Decimal("0.00") and not baseline_events:
+            from dataclasses import replace
+            from lotus_fin.modules.f004_what_if.domain.enums import SimulationStatus
+            result = replace(result, status=SimulationStatus.INSUFFICIENT_DATA)
 
         # 3. Generate grounded narrative
         narrative = self.explainer.explain(result)

@@ -33,11 +33,16 @@ class GetFinancialHealthTool(IToolCommand):
             "as_of_date": as_of_date
         })
 
+        status = res.get("status") if isinstance(res, dict) else None
+        is_success = status not in ["SOURCE_ERROR", "FORBIDDEN", "ERROR"]
+        err_msg = res.get("error_message") if (isinstance(res, dict) and not is_success) else None
+
         return ToolExecutionResult(
             tool_call_id="",
             tool_name="get_financial_snapshot",
-            is_success=True,
+            is_success=is_success,
             data=res,
-            ui_widget={"type": "financial_snapshot", "data": res}
+            error_message=err_msg,
+            ui_widget={"type": "financial_snapshot", "data": res} if is_success else None
         )
 

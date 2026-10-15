@@ -105,3 +105,6 @@ lotus_fin/
    - Giải thích vai trò của từng thư mục, từng file code chính và cách chúng được hiện thực.
 3. [**docs/architecture/03_INTERACTION_AND_DESIGN_PATTERNS.md**](03_INTERACTION_AND_DESIGN_PATTERNS.md):
    - Bản đồ tương tác giữa các Class, vòng đời ReAct Loop, sơ đồ Sequence và minh chứng tuân thủ SOLID & Design Patterns.
+4. [**docs/architecture/04_CHAT_PERSISTENCE_AND_AI_AUDIT_LOGGING_PLAN.md**](04_CHAT_PERSISTENCE_AND_AI_AUDIT_LOGGING_PLAN.md):
+   - Thiết kế chi tiết hệ thống lưu trữ lịch sử trò chuyện bền vững (Two-tier Persistence: Redis + JSON) và Hệ thống ghi nhật ký vận hành AI Sandbox (JSON Lines) đáp ứng tiêu chí Mục 06 FinTechathon 2026.
+

@@ -257,6 +257,13 @@ case "$CMD" in
         docker ps --filter "name=frappe_docker"
         docker stats --no-stream --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.MemPerc}}"
         ;;
+    evidence)
+        echo ">>> Tạo dữ liệu minh chứng vận hành AI Copilot (FinTechathon Item 06 Evidence)..."
+        docker exec "$BACKEND_CONTAINER" python3 /home/frappe/frappe-bench/apps/lotus_fin/lotus_fin/scripts/generate_sandbox_evidence.py "${2:-Lotus-fin (Demo)}"
+        mkdir -p "$ROOT_DIR/evidence"
+        docker cp "$BACKEND_CONTAINER:/home/frappe/frappe-bench/sites/frontend/logs/sandbox_operation_logs.jsonl" "$ROOT_DIR/evidence/sandbox_operation_logs.jsonl" 2>/dev/null || true
+        echo "✔ Hoàn tất trích xuất file minh chứng: evidence/sandbox_operation_logs.jsonl"
+        ;;
     logs)
         docker logs "$BACKEND_CONTAINER" --tail 100 -f
         ;;

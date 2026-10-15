@@ -10,6 +10,15 @@ lotus_fin.components.ChatCopilot = class ChatCopilot {
 		this.min_height = opts.min_height || "480px";
 		this.show_quick_pills = opts.show_quick_pills !== false;
 		this.chat_history = [];
+		
+		// Manage stable persistent session ID across page reloads
+		this.storage_key = `lotus_copilot_session_${frappe.session ? frappe.session.user : "guest"}`;
+		this.session_id = localStorage.getItem(this.storage_key);
+		if (!this.session_id) {
+			this.session_id = `sess_${(frappe.session && frappe.session.user) ? frappe.session.user.replace(/[^a-zA-Z0-9]/g, "_") : "admin"}_${Math.random().toString(36).substring(2, 10)}`;
+			localStorage.setItem(this.storage_key, this.session_id);
+		}
+
 		this.render();
 		this.bind_events();
 		this.init_chat();
@@ -32,14 +41,22 @@ lotus_fin.components.ChatCopilot = class ChatCopilot {
 
 		this.$el = $(`
 			<div class="lotus-section-card lotus-copilot-card">
-				<div class="d-flex justify-content-between align-items-center mb-2">
+				<div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
 					<div class="lotus-section-title mb-0">
 						<span style="font-size: 16px;">🤖 <b>${this.title}</b></span>
 						<span class="lotus-ai-badge">${this.badge}</span>
 					</div>
-					<button class="lotus-btn-secondary btn-clear-chat" style="font-size: 11px; padding: 4px 12px;" title="${__("Clear conversation history")}">
-						🗑️ ${__("Reset Chat")}
-					</button>
+					<div class="d-flex align-items-center gap-1">
+						<button class="lotus-btn-secondary btn-view-audit" style="font-size: 11px; padding: 4px 10px;" title="${__("View AI Sandbox Operational Audit Log")}">
+							📋 ${__("Audit Log")}
+						</button>
+						<button class="lotus-btn-secondary btn-export-audit" style="font-size: 11px; padding: 4px 10px;" title="${__("Export Evidence JSON Lines (.jsonl)")}">
+							📥 ${__("Evidence")}
+						</button>
+						<button class="lotus-btn-secondary btn-clear-chat" style="font-size: 11px; padding: 4px 10px;" title="${__("Clear conversation history")}">
+							🗑️ ${__("Reset")}
+						</button>
+					</div>
 				</div>
 				<p class="text-muted" style="font-size: 13px; margin-bottom: 14px; line-height: 1.5;">
 					${__("Natural language financial copilot powered by <b>Agentic Tool Calling</b>: understands financial context and orchestrates accounting tools (F001 Health, F002 Cashflow, F003 Risk Signals, F004 What-If, F005 Financing, F006 Repayment) to compute verified facts and transparent explanations.")}
@@ -92,35 +109,103 @@ lotus_fin.components.ChatCopilot = class ChatCopilot {
 		this.$el.on("click", ".btn-clear-chat", function () {
 			me.init_chat(true);
 		});
+
+		this.$el.on("click", ".btn-view-audit", function () {
+			me.show_audit_modal();
+		});
+
+		this.$el.on("click", ".btn-export-audit", function () {
+			me.export_evidence_jsonl();
+		});
 	}
 
 	init_chat(reset = false) {
-		if (reset || !this.chat_history || this.chat_history.length === 0) {
-			this.chat_history = [];
-			this.$thread.empty();
-			const welcome = `
-				<div class="lotus-chat-msg copilot">
-					<div class="lotus-msg-bubble">
-						<div class="d-flex align-items-center mb-1">
-							<span style="font-size: 16px; margin-right: 6px;">🤖</span>
-							<b style="color: #0369a1;">Lotus Fin AI Copilot</b>
-						</div>
-						<div>
-							Hello! I am your AI Financial Copilot. Powered by deterministic <b>Agentic Tool Calling</b>, I analyze natural language inquiries and dispatch verified accounting engines:
-							<ul class="mb-0 mt-2 pl-3" style="line-height: 1.6;">
-								<li><b>F001 Financial Health:</b> Revenue, COGS, Gross Profit, Cash Balance, AR/AP metrics.</li>
-								<li><b>F002 Cash Flow Forecast:</b> 30-day daily cash runway and shortfall detection.</li>
-								<li><b>F003 Risk Signals:</b> Automated detection of AR overdue spikes and AP due clusters.</li>
-								<li><b>F004 What-If Stress Studio:</b> Multi-variable simulations on sales, delays, and overhead.</li>
-								<li><b>F005 Financing Copilot:</b> Real-time bank SME loan matching and eligibility screening.</li>
-								<li><b>F006 Debt Amortization:</b> Schedule principal & interest and simulate interest rate shocks (+bps).</li>
-							</ul>
-						</div>
+		const me = this;
+		const company = this.get_company();
+
+		if (reset) {
+			frappe.call({
+				method: "lotus_fin.api.ai_insights.reset_chat_session",
+				args: {
+					session_id: me.session_id,
+					company: company
+				},
+				callback() {
+					// Allocate fresh session ID
+					me.session_id = `sess_${(frappe.session && frappe.session.user) ? frappe.session.user.replace(/[^a-zA-Z0-9]/g, "_") : "admin"}_${Math.random().toString(36).substring(2, 10)}`;
+					localStorage.setItem(me.storage_key, me.session_id);
+					me.$thread.empty();
+					me.render_welcome();
+					frappe.show_alert({ message: __("Chat session reset successfully."), indicator: "green" });
+				}
+			});
+			return;
+		}
+
+		// Restore conversation from database / cache
+		frappe.call({
+			method: "lotus_fin.api.ai_insights.get_chat_history",
+			args: {
+				session_id: me.session_id,
+				company: company
+			},
+			callback(r) {
+				me.$thread.empty();
+				if (r.message && r.message.messages && r.message.messages.length > 0) {
+					r.message.messages.forEach(msg => {
+						if (msg.role === "user") {
+							me.append_user_msg(msg.content);
+						} else if (msg.role === "assistant") {
+							me.append_copilot_msg({
+								reply: msg.content,
+								tool_called: null
+							});
+						}
+					});
+					me.$thread.scrollTop(me.$thread[0].scrollHeight);
+				} else {
+					me.render_welcome();
+				}
+			},
+			error() {
+				me.$thread.empty();
+				me.render_welcome();
+			}
+		});
+	}
+
+	render_welcome() {
+		const welcome = `
+			<div class="lotus-chat-msg copilot">
+				<div class="lotus-msg-bubble">
+					<div class="d-flex align-items-center mb-1">
+						<span style="font-size: 16px; margin-right: 6px;">🤖</span>
+						<b style="color: #0369a1;">Lotus Fin AI Copilot</b>
+					</div>
+					<div>
+						Hello! I am your AI Financial Copilot. Powered by deterministic <b>Agentic Tool Calling</b>, I analyze natural language inquiries and dispatch verified accounting engines:
+						<ul class="mb-0 mt-2 pl-3" style="line-height: 1.6;">
+							<li><b>F001 Financial Health:</b> Revenue, COGS, Gross Profit, Cash Balance, AR/AP metrics.</li>
+							<li><b>F002 Cash Flow Forecast:</b> 30-day daily cash runway and shortfall detection.</li>
+							<li><b>F003 Risk Signals:</b> Automated detection of AR overdue spikes and AP due clusters.</li>
+							<li><b>F004 What-If Stress Studio:</b> Multi-variable simulations on sales, delays, and overhead.</li>
+							<li><b>F005 Financing Copilot:</b> Real-time bank SME loan matching and eligibility screening.</li>
+							<li><b>F006 Debt Amortization:</b> Schedule principal & interest and simulate interest rate shocks (+bps).</li>
+						</ul>
 					</div>
 				</div>
-			`;
-			this.$thread.append(welcome);
-		}
+			</div>
+		`;
+		this.$thread.append(welcome);
+	}
+
+	append_user_msg(query) {
+		const userMsgHtml = `
+			<div class="lotus-chat-msg user">
+				<div class="lotus-msg-bubble">${frappe.utils.escape_html(query)}</div>
+			</div>
+		`;
+		this.$thread.append(userMsgHtml);
 	}
 
 	send_message(query) {
@@ -133,12 +218,7 @@ lotus_fin.components.ChatCopilot = class ChatCopilot {
 		if (!query || !query.trim()) return;
 
 		const q = query.trim();
-		const userMsgHtml = `
-			<div class="lotus-chat-msg user">
-				<div class="lotus-msg-bubble">${frappe.utils.escape_html(q)}</div>
-			</div>
-		`;
-		this.$thread.append(userMsgHtml);
+		this.append_user_msg(q);
 		this.$input.val("");
 		this.$sendBtn.prop("disabled", true);
 
@@ -160,7 +240,8 @@ lotus_fin.components.ChatCopilot = class ChatCopilot {
 			args: {
 				query: q,
 				company: company,
-				as_of_date: frappe.datetime.get_today() || "2026-12-31"
+				as_of_date: (frappe.datetime && frappe.datetime.get_today) ? frappe.datetime.get_today() : "2026-12-31",
+				session_id: me.session_id
 			},
 			callback(r) {
 				me.$thread.find("#lotus-chat-loading").remove();
@@ -210,6 +291,16 @@ lotus_fin.components.ChatCopilot = class ChatCopilot {
 			widgetHtml = this.render_tool_output_widget(toolCalled, res.tool_output);
 		}
 
+		let traceFooterHtml = "";
+		if (res.trace_id || res.latency_ms) {
+			traceFooterHtml = `
+				<div class="text-muted mt-2 d-flex justify-content-between align-items-center" style="font-size: 11px; border-top: 1px dashed #e2e8f0; padding-top: 4px;">
+					<span>⚡ Latency: <b>${res.latency_ms || 0}ms</b></span>
+					${res.trace_id ? `<span>Trace: <code>${frappe.utils.escape_html(res.trace_id)}</code></span>` : ""}
+				</div>
+			`;
+		}
+
 		const formattedReply = this.format_markdown(replyText);
 
 		const msgHtml = `
@@ -218,6 +309,7 @@ lotus_fin.components.ChatCopilot = class ChatCopilot {
 					${toolBadgeHtml}
 					<div>${formattedReply}</div>
 					${widgetHtml}
+					${traceFooterHtml}
 				</div>
 			</div>
 		`;
@@ -225,13 +317,15 @@ lotus_fin.components.ChatCopilot = class ChatCopilot {
 	}
 
 	render_tool_output_widget(toolName, output) {
+		if (!output) return "";
+
 		// F006: Repayment Schedule Widget
 		if (toolName === "calculate_repayment_schedule" && output.monthly_payment) {
 			const pmtStr = lotus_fin.core.format_currency(output.monthly_payment, "VND");
 			const intStr = lotus_fin.core.format_currency(output.total_interest, "VND");
 			const shockHtml = output.shock_bps > 0 ? `
 				<div class="mt-1 text-danger font-weight-bold" style="font-size: 11px;">
-					⚠️ Rate Shock (+${output.shock_bps} bps bps): Additional interest cost +${lotus_fin.core.format_currency(output.shock_added_interest, "VND")}
+					⚠️ Rate Shock (+${output.shock_bps} bps): Additional interest cost +${lotus_fin.core.format_currency(output.shock_added_interest, "VND")}
 				</div>
 			` : "";
 
@@ -290,7 +384,7 @@ lotus_fin.components.ChatCopilot = class ChatCopilot {
 						<a href="/desk/risk-signal" class="badge badge-light" style="border: 1px solid #cbd5e1;">Open Risk Agent &rarr;</a>
 					</div>
 					<div class="mt-1" style="font-size: 12px;">
-						Signal: <code>${frappe.utils.escape_html(output.signal_id)}</code> &bull; Severity: <b class="text-warning">${output.severity}</b> &bull; Status: <b>${output.status}</b>
+						Signal: <code>${frappe.utils.escape_html(output.signal_id || "SIGNAL")}</code> &bull; Severity: <b class="text-warning">${output.severity || "NORMAL"}</b> &bull; Status: <b>${output.status || "COMPLETED"}</b>
 					</div>
 				</div>
 			`;
@@ -344,6 +438,124 @@ lotus_fin.components.ChatCopilot = class ChatCopilot {
 		}
 
 		return "";
+	}
+
+	show_audit_modal() {
+		const company = this.get_company();
+		const d = new frappe.ui.Dialog({
+			title: __("📋 AI Sandbox Operational Audit Log (FinTechathon Track E)"),
+			size: "large",
+			fields: [
+				{
+					fieldname: "log_table",
+					fieldtype: "HTML"
+				}
+			],
+			primary_action_label: __("Close"),
+			primary_action() {
+				d.hide();
+			}
+		});
+
+		d.fields_dict.log_table.$wrapper.html(`
+			<div class="text-center p-4 text-muted">
+				<i class="octicon octicon-sync"></i> Loading sandbox audit logs...
+			</div>
+		`);
+
+		d.show();
+
+		frappe.call({
+			method: "lotus_fin.api.ai_insights.get_operation_logs",
+			args: {
+				company: company,
+				limit: 25
+			},
+			callback(r) {
+				const logs = r.message || [];
+				if (!logs.length) {
+					d.fields_dict.log_table.$wrapper.html(`
+						<div class="alert alert-info mt-2">
+							No operations recorded yet in this environment session.
+						</div>
+					`);
+					return;
+				}
+
+				let rows = "";
+				logs.forEach(l => {
+					const timeStr = l.timestamp ? l.timestamp.substring(11, 19) : "";
+					const ledgers = (l.accounting_ledger_accessed || []).join(", ");
+					rows += `
+						<tr style="font-size: 11px;">
+							<td><b>${timeStr}</b></td>
+							<td><span class="badge badge-primary">${frappe.utils.escape_html(l.agent_intent || "QA")}</span></td>
+							<td><code>${frappe.utils.escape_html(l.tool_called || "NONE")}</code></td>
+							<td><span class="text-muted">${frappe.utils.escape_html(ledgers)}</span></td>
+							<td><span class="badge badge-${l.execution_status === 'SUCCESS' ? 'success' : 'danger'}">${l.execution_status}</span></td>
+							<td><b>${l.latency_ms}ms</b></td>
+							<td><small class="text-muted">${frappe.utils.escape_html(l.log_id || "")}</small></td>
+						</tr>
+					`;
+				});
+
+				const tableHtml = `
+					<div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+						<table class="table table-bordered table-hover mb-0">
+							<thead class="thead-light" style="font-size: 11px;">
+								<tr>
+									<th>Time</th>
+									<th>Intent</th>
+									<th>Tool Invoked</th>
+									<th>Ledgers Accessed</th>
+									<th>Status</th>
+									<th>Latency</th>
+									<th>Log ID</th>
+								</tr>
+							</thead>
+							<tbody>
+								${rows}
+							</tbody>
+						</table>
+					</div>
+					<div class="mt-2 text-right">
+						<small class="text-muted">Standards: OpenTelemetry GenAI Conventions &bull; FinTechathon 2026 Item 06 Execution Evidence</small>
+					</div>
+				`;
+
+				d.fields_dict.log_table.$wrapper.html(tableHtml);
+			}
+		});
+	}
+
+	export_evidence_jsonl() {
+		const company = this.get_company();
+		frappe.show_alert({ message: __("Preparing sandbox operation evidence..."), indicator: "blue" });
+
+		frappe.call({
+			method: "lotus_fin.api.ai_insights.export_operation_logs",
+			args: { company: company },
+			callback(r) {
+				const res = r.message || {};
+				const logs = res.logs || [];
+				if (!logs.length) {
+					frappe.msgprint(__("No operation logs recorded to export."));
+					return;
+				}
+
+				const jsonlLines = logs.map(e => JSON.stringify(e)).join("\n");
+				const blob = new Blob([jsonlLines], { type: "application/x-ndjson" });
+				const url = URL.createObjectURL(blob);
+				const a = document.createElement("a");
+				a.href = url;
+				a.download = `sandbox_operation_logs_${company || "lotus_fin"}_${frappe.datetime.get_today()}.jsonl`;
+				document.body.appendChild(a);
+				a.click();
+				document.body.removeChild(a);
+				URL.revokeObjectURL(url);
+				frappe.show_alert({ message: __("Downloaded operation audit logs (.jsonl)."), indicator: "green" });
+			}
+		});
 	}
 
 	format_markdown(text) {

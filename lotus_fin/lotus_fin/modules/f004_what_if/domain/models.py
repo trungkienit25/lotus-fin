@@ -146,12 +146,13 @@ class ScenarioResult:
     simulated_timeline: List[TimelinePoint]
     applied_modifier_descriptions: List[str]
     narrative_explanation: str = ""
+    error_message: Optional[str] = None
     data_mode: str = "simulation" # Invariant: Never changes from 'simulation'
     version: str = "1.0.0"
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to JSON-serializable dictionary for REST API."""
-        return {
+        res = {
             "scenario_id": self.scenario_id,
             "scenario_name": self.scenario_name,
             "company": self.company,
@@ -160,6 +161,10 @@ class ScenarioResult:
             "data_mode": self.data_mode,
             "status": self.status.value,
             "version": self.version,
+        }
+        if self.error_message:
+            res["error_message"] = self.error_message
+        res.update({
             "baseline_metrics": {
                 "opening_cash": str(self.baseline_metrics.opening_cash),
                 "closing_cash": str(self.baseline_metrics.closing_cash),
@@ -194,4 +199,5 @@ class ScenarioResult:
             "applied_modifiers": self.applied_modifier_descriptions,
             "narrative_explanation": self.narrative_explanation,
             "timeline_sample_count": len(self.simulated_timeline)
-        }
+        })
+        return res

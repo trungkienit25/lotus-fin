@@ -1,29 +1,23 @@
-"""
-LLM Provider Factory.
-Instantiates the configured ILLMProvider according to environment variables.
-"""
-
 import os
 from typing import Optional
-
 from lotus_fin.application.port.i_llm_provider import ILLMProvider
+from lotus_fin.infrastructure.llm.adapter.gemini_llm_adapter import GeminiLLMAdapter
 from lotus_fin.infrastructure.llm.adapter.mock_llm_adapter import MockLLMAdapter
 from lotus_fin.infrastructure.llm.adapter.openai_llm_adapter import OpenAILLMAdapter
-from lotus_fin.infrastructure.llm.adapter.gemini_llm_adapter import GeminiLLMAdapter
+
+_ENV_LOADED = False
 
 
 def _ensure_env_loaded():
-    """Finds and loads .env from known locations if not already present in os.environ."""
-    candidates = [
-        os.path.join(os.getcwd(), ".env"),
-        os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../.env")),
-        "/home/frappe/frappe-bench/apps/lotus_fin/.env",
-        "/home/frappe/frappe-bench/sites/.env",
-    ]
-    for c in candidates:
-        if os.path.isfile(c):
+    global _ENV_LOADED
+    if _ENV_LOADED:
+        return
+    _ENV_LOADED = True
+    # In sandbox or non-Frappe environments, attempt to load .env from project root
+    for candidate in [".env", "../.env", "../../.env"]:
+        if os.path.exists(candidate):
             try:
-                with open(c, "r", encoding="utf-8") as f:
+                with open(candidate, "r", encoding="utf-8") as f:
                     for line in f:
                         line = line.strip()
                         if line and not line.startswith("#") and "=" in line:
@@ -47,15 +41,9 @@ class LLMProviderFactory:
     ) -> ILLMProvider:
         _ensure_env_loaded()
 
-        """
-        Creates an ILLMProvider based on explicit parameters or environment variables.
+        if provider_name is not None and not str(provider_name).strip():
+            raise ValueError("Provider name cannot be empty. Supported providers: openai, gemini, mock.")
 
-        Environment Variables:
-        - LOTUS_AI_PROVIDER: 'openai' | 'gemini' | 'mock' | 'deepseek' | 'vllm' | 'ollama'
-        - LOTUS_AI_MODEL: model name (e.g. 'gpt-4o', 'gemini-1.5-flash', 'deepseek-chat')
-        - LOTUS_AI_API_KEY / OPENAI_API_KEY / GEMINI_API_KEY
-        - LOTUS_AI_BASE_URL / OPENAI_BASE_URL
-        """
         p_name = (
             provider_name
             or os.environ.get("LOTUS_AI_PROVIDER")
@@ -63,18 +51,24 @@ class LLMProviderFactory:
             or "mock"
         ).lower().strip()
 
-
         if p_name in ["openai", "chatgpt", "deepseek", "vllm", "ollama", "groq"]:
             return OpenAILLMAdapter(
                 model_name=model_name,
-                api_key=api_key,
+                api_key=api_key or os.environ.get("LOTUS_LLM_API_KEY") or os.environ.get("OPENAI_API_KEY") or os.environ.get("LOTUS_AI_API_KEY"),
                 base_url=base_url,
             )
         elif p_name in ["gemini", "google"]:
+            gemini_key = (
+                api_key
+                or os.environ.get("LOTUS_LLM_API_KEY")
+                or os.environ.get("GEMINI_API_KEY")
+                or os.environ.get("LOTUS_AI_API_KEY")
+            )
             return GeminiLLMAdapter(
                 model_name=model_name,
-                api_key=api_key,
+                api_key=gemini_key,
             )
-        else:
+        elif p_name in ["mock", "test"]:
             return MockLLMAdapter()
-
+        else:
+            raise ValueError(f"Unsupported LLM provider '{p_name}'. Supported providers: openai, gemini, mock.")

@@ -30,6 +30,8 @@ output/
 */output/
 temp/
 */temp/
+logs/
+*/logs/
 
 # OS & IDE
 .DS_Store

@@ -70,6 +70,7 @@ class CompanyFinancialProfile:
     projected_shortfall_days: int = 999
     has_audited_financials: bool = False
     as_of_date: str = "2026-09-30"
+    data_mode: str = "verified" # 'verified', 'manual', or 'demo'
 
 
 @dataclass
