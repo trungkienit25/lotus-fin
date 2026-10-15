@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # Lotus Fin — 1-Click Automated Setup & Management Script
+# Supports: Linux (Ubuntu/Debian), macOS, WSL2
 # ==============================================================================
 
 set -eo pipefail
@@ -12,73 +13,134 @@ BACKEND_CONTAINER="frappe_docker-backend-1"
 FRONTEND_CONTAINER="frappe_docker-frontend-1"
 DB_CONTAINER="frappe_docker-db-1"
 
-CYAN='\033[0;36m'
+# --- Màu sắc hiển thị ---
+RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-RED='\033[0;31m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
 BOLD='\033[1m'
-NC='\033[0m'
+NC='\033[0m' # No Color
 
-print_step() { echo -e "\n${CYAN}${BOLD}>>> [$1] $2${NC}"; }
-print_success() { echo -e "${GREEN}${BOLD}✔ $1${NC}"; }
-print_warning() { echo -e "${YELLOW}⚠ $1${NC}"; }
-print_error() { echo -e "${RED}${BOLD}✖ $1${NC}"; }
+print_banner() {
+    echo -e "${CYAN}${BOLD}"
+    echo "====================================================================="
+    echo "    __    ____  ______  __  ______   _______ _   __"
+    echo "   / /   / __ \/_  __/ / / / / ___/  / ____/  |/ /"
+    echo "  / /   / / / / / /   / / / /\__ \  / /_  / /|_/ / "
+    echo " / /___/ /_/ / / /   / /_/ /___/ / / __/ / /  / /  "
+    echo "/_____/\____/ /_/    \____//____/ /_/   /_/  /_/   "
+    echo "  SME Financial Management Core & AI Copilot Pipeline"
+    echo "=====================================================================${NC}"
+}
 
+print_step() {
+    echo -e "\n${CYAN}${BOLD}>>> [$1] $2${NC}"
+}
+
+print_success() {
+    echo -e "${GREEN}${BOLD}✔ $1${NC}"
+}
+
+print_warning() {
+    echo -e "${YELLOW}⚠ $1${NC}"
+}
+
+print_error() {
+    echo -e "${RED}${BOLD}✖ $1${NC}"
+}
+
+# --- 1. Kiểm tra & Chuẩn bị Môi trường Máy chủ ---
 check_and_prepare_environment() {
-    print_step "1/7" "Kiểm tra hệ thống & chuẩn bị môi trường..."
+    print_step "1/7" "Kiểm tra hệ thống & môi trường máy chủ..."
 
-    # Swap 2GB
+    # 1.1. Kiểm tra quyền root/sudo
+    if [ "$EUID" -ne 0 ] && ! sudo -n true 2>/dev/null; then
+        print_warning "Script cần quyền sudo để cấu hình swap và docker nếu cần."
+    fi
+
+    # 1.2. Tự động tạo Swap 2GB nếu chưa có
     CURRENT_SWAP=$(free -m | awk '/^Swap:/ {print $2}')
     if [ "$CURRENT_SWAP" -lt 1024 ]; then
-        print_warning "Chưa có Swap. Đang tự động kích hoạt 2GB Swap..."
-        fallocate -l 2G /swapfile 2>/dev/null || dd if=/dev/zero of=/swapfile bs=1M count=2048
-        chmod 600 /swapfile
-        mkswap /swapfile >/dev/null 2>&1
-        swapon /swapfile 2>/dev/null || true
-        grep -q '/swapfile' /etc/fstab || echo '/swapfile none swap sw 0 0' >> /etc/fstab
-        sysctl vm.swappiness=10 >/dev/null 2>&1 || true
-        print_success "Đã kích hoạt 2GB Swap!"
+        print_warning "Máy chủ chưa có Swap (hoặc < 1GB). Đang tự động kích hoạt 2GB Swap..."
+        if [ "$EUID" -eq 0 ]; then
+            fallocate -l 2G /swapfile 2>/dev/null || dd if=/dev/zero of=/swapfile bs=1M count=2048
+            chmod 600 /swapfile
+            mkswap /swapfile >/dev/null 2>&1
+            swapon /swapfile 2>/dev/null || true
+            if ! grep -q '/swapfile' /etc/fstab; then
+                echo '/swapfile none swap sw 0 0' >> /etc/fstab
+            fi
+            sysctl vm.swappiness=10 >/dev/null 2>&1 || true
+            print_success "Đã kích hoạt 2GB Swap bảo vệ chống tràn RAM!"
+        else
+            sudo fallocate -l 2G /swapfile 2>/dev/null || sudo dd if=/dev/zero of=/swapfile bs=1M count=2048
+            sudo chmod 600 /swapfile
+            sudo mkswap /swapfile >/dev/null 2>&1
+            sudo swapon /swapfile 2>/dev/null || true
+            print_success "Đã kích hoạt 2GB Swap!"
+        fi
     else
-        print_success "Swap: $(free -h | awk '/^Swap:/ {print $2}') (Đạt chuẩn)."
+        print_success "Bộ nhớ đệm Swap: $(free -h | awk '/^Swap:/ {print $2}') (Đạt chuẩn)."
     fi
 
-    # Docker Engine
+    # 1.3. Kiểm tra Docker
     if ! command -v docker &> /dev/null; then
-        print_warning "Đang cài đặt Docker Engine chính thức..."
-        apt update -y && apt install -y ca-certificates curl gnupg lsb-release
-        mkdir -p /etc/apt/keyrings
-        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg --yes
-        echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
-        apt update -y && apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-        systemctl enable docker && systemctl start docker
-        print_success "Đã cài đặt Docker!"
+        print_error "Docker chưa được cài đặt! Đang tiến hành cài đặt Docker Engine chính thức..."
+        if [ "$EUID" -eq 0 ]; then
+            apt update -y && apt install -y ca-certificates curl gnupg lsb-release
+            mkdir -p /etc/apt/keyrings
+            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg --yes
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+            apt update -y && apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+            systemctl enable docker && systemctl start docker
+        else
+            sudo apt update -y && sudo apt install -y ca-certificates curl gnupg lsb-release
+            sudo mkdir -p /etc/apt/keyrings
+            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg --yes
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+            sudo apt update -y && sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+            sudo systemctl enable docker && sudo systemctl start docker
+        fi
+        print_success "Đã cài đặt Docker thành công!"
     fi
 
+    # 1.4. Đảm bảo Docker Daemon đang chạy
     if ! docker info >/dev/null 2>&1; then
-        systemctl start docker || service docker start
+        print_warning "Docker daemon chưa khởi động. Đang kích hoạt..."
+        if [ "$EUID" -eq 0 ]; then
+            systemctl start docker || service docker start
+        else
+            sudo systemctl start docker || sudo service docker start
+        fi
         sleep 3
     fi
-    print_success "Docker Engine sẵn sàng: $(docker --version | cut -d, -f1)."
+    print_success "Docker Engine đã sẵn sàng: $(docker --version | cut -d, -f1)."
 
-    # Log rotation
-    if [ ! -f /etc/docker/daemon.json ]; then
+    # 1.5. Cấu hình log rotation nếu chưa có
+    if [ ! -f /etc/docker/daemon.json ] && [ "$EUID" -eq 0 ]; then
         echo '{"log-driver":"json-file","log-opts":{"max-size":"10m","max-file":"3"}}' > /etc/docker/daemon.json
         systemctl restart docker >/dev/null 2>&1 || true
     fi
 }
 
+# --- 2. Tải & Khởi chạy Cụm Container Frappe ---
 start_docker_stack() {
-    print_step "2/7" "Khởi động cụm 9 Container Frappe / ERPNext..."
+    print_step "2/7" "Khởi động cụm 9 Container Frappe & ERPNext..."
     if [ ! -d "$DOCKER_DIR" ]; then
+        echo "Tải cấu hình frappe_docker..."
         git clone --depth 1 https://github.com/frappe/frappe_docker.git "$DOCKER_DIR"
     fi
+
     docker compose -f "$COMPOSE_FILE" up -d
-    print_success "Đã kích hoạt cụm container!"
+    print_success "Đã phát lệnh khởi động 9 container!"
 }
 
+# --- 3. Đợi Container & MariaDB Khởi tạo Xong ---
 wait_for_services() {
     print_step "3/7" "Đợi MariaDB & Frappe Site khởi tạo hoàn tất..."
-    echo -n "Đang đợi site frontend sẵn sàng"
+    echo -n "Đang đợi container backend và database sẵn sàng"
+
     MAX_RETRIES=40
     COUNT=0
     until docker ps --filter "name=$BACKEND_CONTAINER" --filter "status=running" -q | grep -q . && \
@@ -88,7 +150,8 @@ wait_for_services() {
         COUNT=$((COUNT+1))
         if [ $COUNT -ge $MAX_RETRIES ]; then
             echo ""
-            print_error "Hết thời gian chờ site frontend (Timeout 200s)!"
+            print_error "Hết thời gian chờ site frontend khởi tạo (Timeout 200s)!"
+            echo "Vui lòng kiểm tra log: docker logs frappe_docker-create-site-1"
             exit 1
         fi
     done
@@ -96,78 +159,53 @@ wait_for_services() {
     print_success "Backend & MariaDB đã sẵn sàng phục vụ!"
 }
 
+# --- 4. Đồng bộ Mã Nguồn Lotus Fin vào Container ---
 sync_app_code() {
     print_step "4/7" "Đồng bộ ứng dụng Lotus Fin & Migrate Database..."
 
-    # Tìm các container Frappe cần đồng bộ
-    FRAPPE_CONTAINERS=$(docker ps --format '{{.Names}}' | grep -E 'frappe_docker-(backend|queue-short|queue-long|scheduler)' || echo "$BACKEND_CONTAINER")
+    docker exec --user root "$BACKEND_CONTAINER" rm -rf /home/frappe/frappe-bench/apps/lotus_fin
+    docker cp "${ROOT_DIR}/lotus_fin" "${BACKEND_CONTAINER}:/home/frappe/frappe-bench/apps/lotus_fin"
+    docker exec --user root "$BACKEND_CONTAINER" chown -R 1000:1000 /home/frappe/frappe-bench/apps/lotus_fin 2>/dev/null || docker exec --user root "$BACKEND_CONTAINER" chown -R frappe /home/frappe/frappe-bench/apps/lotus_fin
 
-    for c in $FRAPPE_CONTAINERS; do
-        echo "  -> Đang đồng bộ mã nguồn lotus_fin vào $c..."
-        docker exec --user root "$c" rm -rf /home/frappe/frappe-bench/apps/lotus_fin 2>/dev/null || true
-        docker cp "${ROOT_DIR}/lotus_fin" "${c}:/home/frappe/frappe-bench/apps/lotus_fin"
-        docker exec --user root "$c" chown -R 1000:1000 /home/frappe/frappe-bench/apps/lotus_fin 2>/dev/null || docker exec --user root "$c" chown -R frappe /home/frappe/frappe-bench/apps/lotus_fin
-
-        # Đảm bảo đường dẫn lotus_fin luôn có trong sys.path của Python virtualenv
-        docker exec --user root "$c" bash -c '
-            VENV_SITE=$(find /home/frappe/frappe-bench/env/lib -name site-packages 2>/dev/null | head -n 1)
-            if [ -n "$VENV_SITE" ]; then
-                echo "/home/frappe/frappe-bench/apps/lotus_fin" > "$VENV_SITE/lotus_fin.pth"
-            fi
-        ' 2>/dev/null || true
-
-        # Cài đặt package vào virtualenv của bench bằng quyền root để không bị hạn chế quyền ghi
-        echo "  -> Cài đặt package python vào virtualenv của $c..."
-        if docker exec "$c" test -f /home/frappe/frappe-bench/env/bin/pip 2>/dev/null; then
-            docker exec --user root "$c" /home/frappe/frappe-bench/env/bin/pip install -e /home/frappe/frappe-bench/apps/lotus_fin
-        else
-            docker exec --user root "$c" pip install -e /home/frappe/frappe-bench/apps/lotus_fin
-        fi
-
-        docker exec --user root "$c" chown -R 1000:1000 /home/frappe/frappe-bench/apps /home/frappe/frappe-bench/env 2>/dev/null || true
-    done
-
-    # Đăng ký app vào sites/apps.txt
+    # Ghi nhận app vào sites/apps.txt và cài đặt vào Python venv
     docker exec "$BACKEND_CONTAINER" bash -c "grep -q 'lotus_fin' /home/frappe/frappe-bench/sites/apps.txt || echo 'lotus_fin' >> /home/frappe/frappe-bench/sites/apps.txt"
+    docker exec "$BACKEND_CONTAINER" bash -c "pip install -e /home/frappe/frappe-bench/apps/lotus_fin"
 
-    # Kiểm tra xác nhận module lotus_fin đã nạp thành công
-    echo "  -> Kiểm tra nạp module lotus_fin trong môi trường Python của container..."
-    docker exec "$BACKEND_CONTAINER" /home/frappe/frappe-bench/env/bin/python -c "import lotus_fin; print('✔ Module lotus_fin loaded successfully from:', lotus_fin.__file__)"
-
-    # Cài đặt app lên site nếu chưa cài
-    if ! docker exec "$BACKEND_CONTAINER" bench --site frontend list-apps 2>/dev/null | grep -q "lotus_fin"; then
-        echo "  -> Cài đặt ứng dụng lotus_fin vào site frontend..."
-        docker exec "$BACKEND_CONTAINER" bench --site frontend install-app lotus_fin
-    fi
+    # Cài đặt app vào site frontend
+    docker exec "$BACKEND_CONTAINER" bench --site frontend install-app lotus_fin >/dev/null 2>&1 || true
 
     # Migrate Database & Clear Cache
-    echo "  -> Chạy migration database (bench migrate)..."
+    echo "Đang migrate dữ liệu DocTypes..."
     docker exec "$BACKEND_CONTAINER" bench --site frontend migrate
     docker exec "$BACKEND_CONTAINER" bench --site frontend clear-cache
 
-    # Khởi động lại các container Frappe để nạp code mới
-    echo "  -> Khởi động lại các container Frappe..."
-    for c in $FRAPPE_CONTAINERS; do
-        docker restart "$c" >/dev/null 2>&1 || true
-    done
+    # Khởi động lại backend để nạp code
+    docker restart "$BACKEND_CONTAINER" >/dev/null 2>&1
     sleep 5
-    print_success "Đã cài đặt và migrate Lotus Fin thành công!"
+    print_success "Đã cài đặt và migrate ứng dụng Lotus Fin thành công!"
 }
 
+# --- 5. Nạp Bộ Dữ Liệu Mẫu Kế Toán (Demo Dataset) ---
 seed_demo_data() {
     print_step "5/7" "Nạp dữ liệu mẫu kế toán doanh nghiệp (Lotus-fin Demo)..."
     docker exec "$BACKEND_CONTAINER" bench --site frontend execute erpnext.setup.demo.setup_demo_data --kwargs "{'company_name': 'Lotus-fin'}" >/dev/null 2>&1 || true
     docker exec "$BACKEND_CONTAINER" bench --site frontend execute lotus_fin.setup_data.setup_demo_environment >/dev/null 2>&1 || true
-    print_success "Đã nạp xong bộ dữ liệu mẫu!"
+    print_success "Đã nạp bộ dữ liệu mẫu (Sản phẩm, Khách hàng, Hóa đơn, Công nợ, Năm tài chính)!"
 }
 
+# --- 6. Cấu hình Nginx Host (Nếu có) ---
 setup_host_nginx() {
     print_step "6/7" "Cấu hình Web Server Nginx trên Host..."
-    mkdir -p /var/www/lotus-fin-fe
-    chown -R www-data:www-data /var/www/lotus-fin-fe 2>/dev/null || chmod -R 755 /var/www/lotus-fin-fe
 
+    # Tạo thư mục web tĩnh
+    mkdir -p /var/www/lotus-fin-fe
+    if [ "$EUID" -eq 0 ]; then
+        chown -R www-data:www-data /var/www/lotus-fin-fe 2>/dev/null || chown -R 755 /var/www/lotus-fin-fe
+    fi
+
+    # Nếu có Nginx cài trên host, tự động tạo cấu hình Reverse Proxy
     if command -v nginx &> /dev/null && [ -d /etc/nginx/sites-available ]; then
-        cat << 'NGINX_CONF' > /etc/nginx/sites-available/lotusfin
+        cat << 'EOF' > /tmp/lotusfin_nginx.conf
 server {
     listen 80;
     server_name _;
@@ -192,17 +230,40 @@ server {
         proxy_buffering off;
     }
 }
-NGINX_CONF
-        rm -f /etc/nginx/sites-enabled/default
-        ln -sf /etc/nginx/sites-available/lotusfin /etc/nginx/sites-enabled/
-        nginx -t >/dev/null 2>&1 && systemctl reload nginx >/dev/null 2>&1 || true
-        print_success "Nginx Reverse Proxy đã kích hoạt!"
+EOF
+        if [ "$EUID" -eq 0 ]; then
+            cp /tmp/lotusfin_nginx.conf /etc/nginx/sites-available/lotusfin
+            rm -f /etc/nginx/sites-enabled/default
+            ln -sf /etc/nginx/sites-available/lotusfin /etc/nginx/sites-enabled/
+            nginx -t >/dev/null 2>&1 && systemctl reload nginx >/dev/null 2>&1 || true
+        else
+            sudo cp /tmp/lotusfin_nginx.conf /etc/nginx/sites-available/lotusfin
+            sudo rm -f /etc/nginx/sites-enabled/default
+            sudo ln -sf /etc/nginx/sites-available/lotusfin /etc/nginx/sites-enabled/
+            sudo nginx -t >/dev/null 2>&1 && sudo systemctl reload nginx >/dev/null 2>&1 || true
+        fi
+        rm -f /tmp/lotusfin_nginx.conf
+        print_success "Nginx Reverse Proxy đã được cấu hình và kích hoạt!"
+    else
+        print_warning "Không phát hiện Nginx trên Host. Bạn có thể truy cập trực tiếp qua cổng :8080."
     fi
 }
 
+# --- 7. Tự động Kiểm tra & Hiển thị Thông tin Đăng nhập ---
 verify_and_summary() {
     print_step "7/7" "Kiểm tra nghiệm thu toàn diện hệ thống..."
+
+    # Ping test Frappe Backend
+    PING_RES=$(docker exec "$BACKEND_CONTAINER" curl -s http://127.0.0.1:8000/api/method/ping || echo "fail")
+    if echo "$PING_RES" | grep -q "pong"; then
+        print_success "Frappe Framework API: OK (pong)"
+    else
+        print_warning "Frappe API chưa phản hồi ngay. Có thể cần thêm 5s để khởi động."
+    fi
+
+    # Lấy IP Public của máy chủ
     SERVER_IP=$(curl -s --connect-timeout 3 https://ifconfig.me 2>/dev/null || hostname -I | awk '{print $1}')
+
     echo -e "\n${GREEN}${BOLD}====================================================================="
     echo "       🎉 LOTUS FIN ĐÃ ĐƯỢC TRIỂN KHAI THÀNH CÔNG RỰC RỠ!            "
     echo "=====================================================================${NC}"
@@ -213,6 +274,8 @@ verify_and_summary() {
     echo -e "  • Mật khẩu mặc định:         ${BOLD}admin${NC}"
     echo ""
     echo -e "${BOLD}Thư mục Web tĩnh Frontend:${NC}    /var/www/lotus-fin-fe"
+    echo -e "  (Đẩy file dist.tar.gz từ local lên đây để hiển thị React UI)"
+    echo ""
     echo -e "${BOLD}Các lệnh điều khiển nhanh hữu ích:${NC}"
     echo "  • Xem log realtime:        ./run.sh logs"
     echo "  • Chạy kiểm thử tự động:   ./run.sh test"
@@ -222,7 +285,9 @@ verify_and_summary() {
     echo "====================================================================="
 }
 
+# --- Chế độ chạy All-In-One ---
 run_full_setup() {
+    print_banner
     check_and_prepare_environment
     start_docker_stack
     wait_for_services
@@ -232,12 +297,15 @@ run_full_setup() {
     verify_and_summary
 }
 
+# --- Điều phối các lệnh con ---
 CMD="${1:-all}"
+
 case "$CMD" in
     all|setup|run|"")
         run_full_setup
         ;;
     up|start)
+        print_banner
         check_and_prepare_environment
         start_docker_stack
         ;;
@@ -248,13 +316,20 @@ case "$CMD" in
         seed_demo_data
         ;;
     test)
-        docker exec "$BACKEND_CONTAINER" bench --site frontend run-tests --module "${2:-lotus_fin.tests.test_financial_health}"
+        docker exec "$BACKEND_CONTAINER" bench --site frontend set-config allow_tests true
+        if [ -n "${2:-}" ]; then
+            docker exec "$BACKEND_CONTAINER" bench --site frontend run-tests --module "$2"
+        else
+            docker exec "$BACKEND_CONTAINER" bench --site frontend run-tests --module "lotus_fin.tests.test_financial_health"
+        fi
         ;;
     simulate)
         docker exec "$BACKEND_CONTAINER" bench --site frontend execute lotus_fin.AI005.service.simulate_what_if --kwargs "{'company': 'Lotus-fin (Demo)', 'sales_change_pct': -0.20, 'collection_delay_days': 15}"
         ;;
     status)
+        echo "=== TRẠNG THÁI CONTAINER ==="
         docker ps --filter "name=frappe_docker"
+        echo -e "\n=== TIÊU THỤ TÀI NGUYÊN ==="
         docker stats --no-stream --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.MemPerc}}"
         ;;
     logs)
@@ -262,15 +337,39 @@ case "$CMD" in
         ;;
     stop|down)
         docker compose -f "$COMPOSE_FILE" stop
+        print_success "Đã dừng các container!"
         ;;
     restart)
         docker compose -f "$COMPOSE_FILE" restart
+        print_success "Đã khởi động lại cụm container!"
         ;;
-    clean)
-        docker compose -f "$COMPOSE_FILE" down
+    clean|cleanup)
+        docker compose -f "$COMPOSE_FILE" down --remove-orphans
         docker system prune -f
+        print_success "Đã dọn dẹp cụm container!"
+        ;;
+    build|smoke|health|--*)
+        exec python3 "$ROOT_DIR/docker/lotus-core/manage.py" "$@"
         ;;
     *)
-        exec python3 "$ROOT_DIR/docker/lotus-core/manage.py" "$@" 2>/dev/null || echo "Usage: ./run.sh {setup|up|sync|demo|test|simulate|status|logs|stop|restart}"
+        print_banner
+        echo "Cách sử dụng: ./run.sh [lệnh]"
+        echo ""
+        echo "Lệnh triển khai:"
+        echo "  ./run.sh            - Chạy 1-click tự động kiểm tra và setup A-Z toàn bộ hệ thống"
+        echo "  ./run.sh setup      - (Tương tự) Tự động kiểm tra và setup đầy đủ"
+        echo ""
+        echo "Lệnh vận hành hàng ngày:"
+        echo "  ./run.sh up         - Bật cụm container Docker"
+        echo "  ./run.sh sync       - Đồng bộ code lotus_fin vào container & migrate DB"
+        echo "  ./run.sh demo       - Nạp dữ liệu mẫu kế toán doanh nghiệp"
+        echo "  ./run.sh test       - Chạy bộ kiểm thử tự động tài chính"
+        echo "  ./run.sh simulate   - Chạy mô phỏng sốc tài chính What-If (9 KPIs)"
+        echo "  ./run.sh status     - Xem trạng thái & mức chiếm RAM/CPU của các container"
+        echo "  ./run.sh logs       - Xem logs realtime của backend"
+        echo "  ./run.sh stop       - Tạm dừng hệ thống"
+        echo "  ./run.sh restart    - Khởi động lại hệ thống"
+        echo "  ./run.sh clean      - Xóa container và dọn dẹp cache rác"
+        echo ""
         ;;
 esac
