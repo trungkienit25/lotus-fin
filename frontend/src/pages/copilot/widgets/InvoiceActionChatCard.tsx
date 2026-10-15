@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import type { InvoiceRowVm, ResultsVm, EmptyVm, DocumentVm } from "../actions/invoiceActionTypes";
+import type { InvoiceRowVm, DocumentVm } from "../actions/invoiceActionTypes";
+import { ModuleBadge } from "../components/ModuleBadge";
 
 export interface InvoiceActionChatCardProps {
   company: string;
@@ -72,153 +73,136 @@ export const InvoiceActionChatCard: React.FC<InvoiceActionChatCardProps> = ({
         },
       });
       setLoading(false);
-    }, 250);
+    }, 200);
   };
 
   return (
-    <div className="w-full rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-5 shadow-2xs font-sans text-slate-800 space-y-3.5 my-2">
-      {/* Header bar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
-        <div className="flex items-center gap-2">
-          <div className="size-7 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs shadow-2xs">
-            📄
-          </div>
+    <div className="w-full mt-3 rounded-2xl border border-slate-200/80 bg-white overflow-hidden shadow-xs font-sans text-slate-800 transition-all">
+      {/* Top Brand Banner */}
+      <div className="p-4 sm:p-5 bg-gradient-to-r from-blue-900 via-indigo-950 to-slate-900 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <ModuleBadge moduleId="financial_health" size="sm" />
           <div>
-            <h4 className="text-xs sm:text-sm font-bold text-slate-900 leading-tight">
-              Tra cứu Hóa đơn Bán hàng (L1/L2)
-            </h4>
-            <div className="text-[11px] text-slate-400">
-              Công ty: <span className="font-semibold text-slate-700">{company}</span>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-bold tracking-tight text-white">
+                Tra cứu Hóa đơn Bán hàng (Sales Invoices)
+              </span>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-500/20 text-blue-300 border border-blue-400/30">
+                L1 / L2 Engine
+              </span>
             </div>
+            <p className="text-xs text-slate-300 mt-0.5">
+              Tra cứu theo đầu mã, kỳ phát sinh và trạng thái chứng từ
+            </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5">
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200/60">
-            <span className="size-1.5 rounded-full bg-amber-500 animate-pulse" />
-            MÔ PHỎNG DEMO
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-white/10 text-slate-200 border border-white/20 backdrop-blur font-mono">
+            {company}
           </span>
           {onOpenModalTab && (
             <button
               onClick={onOpenModalTab}
-              className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 hover:underline cursor-pointer ml-1"
+              className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-white text-slate-800 hover:bg-slate-100 transition-all cursor-pointer shadow-2xs"
             >
-              Mở bộ lọc đầy đủ ↗
+              Mở Tab Đầy Đủ ↗
             </button>
           )}
         </div>
       </div>
 
-      {/* Detail Read View Modal / In-place expand */}
-      {selectedDoc ? (
-        <div className="rounded-xl border border-blue-200 bg-blue-50/40 p-3.5 space-y-2.5 animate-fadeIn">
-          <div className="flex items-center justify-between border-b border-blue-100 pb-2">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-blue-900 font-mono">
-                {selectedDoc.document.invoice_id}
-              </span>
-              <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800">
-                CHỈ ĐỌC (READ-ONLY)
-              </span>
-            </div>
-            <button
-              onClick={() => setSelectedDoc(null)}
-              className="text-xs text-slate-400 hover:text-slate-700 px-1.5 py-0.5 rounded hover:bg-white cursor-pointer font-bold"
-            >
-              ✕ Đóng xem
-            </button>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
-            <div>
-              <span className="text-slate-400 block text-[10px]">Loại chứng từ:</span>
-              <span className="font-medium text-slate-800">Hóa đơn Bán hàng</span>
-            </div>
-            <div>
-              <span className="text-slate-400 block text-[10px]">Ngày ghi nhận:</span>
-              <span className="font-medium text-slate-800">{selectedDoc.document.posting_date}</span>
-            </div>
-            <div>
-              <span className="text-slate-400 block text-[10px]">Trạng thái:</span>
-              <span className={`font-semibold ${selectedDoc.document.docstatus === 1 ? "text-emerald-700" : "text-slate-600"}`}>
-                {selectedDoc.document.docstatus === 1 ? "Đã ghi nhận (Submitted)" : "Bản nháp (Draft)"}
-              </span>
-            </div>
-            <div>
-              <span className="text-slate-400 block text-[10px]">Phiên bản bản ghi:</span>
-              <span className="font-mono text-slate-700 text-[11px]">{selectedDoc.document.record_version}</span>
-            </div>
-            <div className="col-span-2">
-              <span className="text-slate-400 block text-[10px]">Mã phiên & nguồn:</span>
-              <span className="font-mono text-slate-500 text-[10px] truncate block">{selectedDoc.requestId} · {selectedDoc.sourceMode}</span>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <>
-          {/* Quick Filter Inputs */}
-          <div className="flex flex-wrap items-center gap-2 pt-1">
-            <div className="relative flex-1 min-w-[140px]">
-              <input
-                type="text"
-                placeholder="Tìm mã (VD: SINV-2026)..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full text-xs rounded-xl border border-slate-200 bg-slate-50/60 px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-800 placeholder-slate-400 transition-all"
-              />
-              {searchTerm && (
-                <button
-                  onClick={() => setSearchTerm("")}
-                  className="absolute right-2 top-1.5 text-xs text-slate-400 hover:text-slate-600"
-                >
-                  ✕
-                </button>
-              )}
-            </div>
-
-            <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-xl">
-              {(["ALL", "SUBMITTED", "DRAFT"] as const).map((st) => (
-                <button
-                  key={st}
-                  onClick={() => setStatusFilter(st)}
-                  className={`text-[10px] font-bold px-2 py-1 rounded-lg transition-all cursor-pointer ${
-                    statusFilter === st
-                      ? "bg-white text-blue-700 shadow-2xs"
-                      : "text-slate-500 hover:text-slate-800"
-                  }`}
-                >
-                  {st === "ALL" ? "Tất cả" : st === "SUBMITTED" ? "Đã ghi nhận" : "Nháp"}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Results list */}
-          <div className="space-y-1.5 pt-1">
-            {filteredInvoices.length === 0 ? (
-              <div className="text-center py-4 text-xs text-slate-400 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                Không tìm thấy hóa đơn phù hợp trong phạm vi kiểm tra.
+      <div className="p-4 sm:p-5 space-y-4">
+        {selectedDoc ? (
+          <div className="rounded-xl border border-blue-200 bg-[#F8FAFC] p-4 space-y-3 animate-fadeIn">
+            <div className="flex items-center justify-between border-b border-blue-100 pb-2.5">
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-sm font-bold text-blue-900">
+                  {selectedDoc.document.invoice_id}
+                </span>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">
+                  CHỈ ĐỌC (READ-ONLY)
+                </span>
               </div>
-            ) : (
-              filteredInvoices.map((inv) => (
+              <button
+                onClick={() => setSelectedDoc(null)}
+                className="text-xs text-slate-500 hover:text-slate-800 px-2 py-1 rounded-lg hover:bg-white cursor-pointer font-bold transition-all"
+              >
+                ✕ Thu gọn
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+              <div className="p-2.5 rounded-lg bg-white border border-slate-200/60">
+                <span className="text-slate-400 block text-[10px]">Loại chứng từ</span>
+                <span className="font-bold text-slate-800 mt-0.5 block">Hóa đơn Bán hàng</span>
+              </div>
+              <div className="p-2.5 rounded-lg bg-white border border-slate-200/60">
+                <span className="text-slate-400 block text-[10px]">Ngày ghi nhận</span>
+                <span className="font-bold text-slate-800 font-mono mt-0.5 block">{selectedDoc.document.posting_date}</span>
+              </div>
+              <div className="p-2.5 rounded-lg bg-white border border-slate-200/60">
+                <span className="text-slate-400 block text-[10px]">Trạng thái</span>
+                <span className={`font-bold mt-0.5 block ${selectedDoc.document.docstatus === 1 ? "text-emerald-700" : "text-amber-700"}`}>
+                  {selectedDoc.document.docstatus === 1 ? "Đã ghi nhận" : "Bản nháp"}
+                </span>
+              </div>
+              <div className="p-2.5 rounded-lg bg-white border border-slate-200/60">
+                <span className="text-slate-400 block text-[10px]">Phiên bản bản ghi</span>
+                <span className="font-mono text-slate-800 font-bold mt-0.5 block">{selectedDoc.document.record_version}</span>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Quick search & Filter bar */}
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="relative flex-1 min-w-[200px]">
+                <input
+                  type="text"
+                  placeholder="Nhập mã chứng từ (VD: SINV-2026)..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full text-xs rounded-xl border border-slate-200 bg-[#F9FBFC] px-3.5 py-2 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1E63B7]/20 focus:border-[#1E63B7] transition-all"
+                />
+              </div>
+
+              <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
+                {(["ALL", "SUBMITTED", "DRAFT"] as const).map((st) => (
+                  <button
+                    key={st}
+                    onClick={() => setStatusFilter(st)}
+                    className={`text-[11px] font-bold px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
+                      statusFilter === st
+                        ? "bg-white text-blue-700 shadow-2xs"
+                        : "text-slate-500 hover:text-slate-800"
+                    }`}
+                  >
+                    {st === "ALL" ? "Tất cả" : st === "SUBMITTED" ? "Đã ghi nhận" : "Bản nháp"}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Invoices List */}
+            <div className="space-y-2">
+              {filteredInvoices.map((inv) => (
                 <div
                   key={inv.invoiceId}
-                  className="flex items-center justify-between p-2.5 rounded-xl border border-slate-200/80 hover:border-blue-300 hover:bg-blue-50/30 bg-slate-50/40 transition-all group"
+                  className="p-3 rounded-xl border border-slate-200/80 bg-[#F9FBFC] hover:bg-white hover:border-blue-300 transition-all flex items-center justify-between gap-3 shadow-2xs"
                 >
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-slate-400 group-hover:text-blue-500 text-xs">🧾</span>
+                  <div className="flex items-center gap-3">
+                    <div className="size-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-500 font-mono text-xs">
+                      🧾
+                    </div>
                     <div>
-                      <div className="font-mono text-xs font-bold text-slate-900 group-hover:text-blue-700">
+                      <span className="font-mono text-xs font-bold text-slate-900 block">
                         {inv.invoiceId}
-                      </div>
-                      <div className="text-[10px] text-slate-400 flex items-center gap-1.5 mt-0.5">
-                        <span>{inv.postingDate}</span>
+                      </span>
+                      <div className="flex items-center gap-2 text-[11px] text-slate-400 mt-0.5">
+                        <span>Ngày: {inv.postingDate}</span>
                         <span>•</span>
-                        <span
-                          className={`font-semibold ${
-                            inv.docstatus === 1 ? "text-emerald-600" : "text-amber-600"
-                          }`}
-                        >
+                        <span className={inv.docstatus === 1 ? "text-emerald-600 font-semibold" : "text-amber-600 font-semibold"}>
                           {inv.docstatus === 1 ? "Submitted" : "Draft"}
                         </span>
                       </div>
@@ -228,21 +212,21 @@ export const InvoiceActionChatCard: React.FC<InvoiceActionChatCardProps> = ({
                   <button
                     disabled={loading}
                     onClick={() => handleOpenDoc(inv)}
-                    className="px-2.5 py-1 rounded-lg border border-slate-200 bg-white hover:border-blue-500 hover:text-blue-600 text-slate-700 text-xs font-semibold shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+                    className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:border-[#1E63B7] text-[#1E63B7] text-xs font-bold shadow-2xs transition-all cursor-pointer hover:bg-blue-50/50"
                   >
-                    Mở xem
+                    Mở xem ↗
                   </button>
                 </div>
-              ))
-            )}
-          </div>
-        </>
-      )}
+              ))}
+            </div>
+          </>
+        )}
 
-      {/* Footer grounded note */}
-      <div className="text-[10px] text-slate-400 border-t border-slate-100 pt-2 flex items-center justify-between">
-        <span>Phạm vi hiển thị: 3 hóa đơn mẫu · Không phụ thuộc ERPNext</span>
-        <span className="font-mono text-slate-400">P2-B Read Only</span>
+        {/* Footer */}
+        <div className="pt-2 flex items-center justify-between text-[11px] text-slate-400 border-t border-slate-100">
+          <span>Phạm vi tra cứu: 3 chứng từ mẫu được phê duyệt</span>
+          <span className="font-mono text-slate-400">P2-B Read Only Contract</span>
+        </div>
       </div>
     </div>
   );
