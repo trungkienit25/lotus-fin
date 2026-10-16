@@ -164,15 +164,26 @@ export const LotusCopilotPage: React.FC = () => {
       .catch(() => {});
   }, []);
 
-  const featureTools: Array<{ id: CopilotTab; label: string; shortLabel: string; desc: string }> = [
+  // Category 1: Auxiliary Financial Analysis & Planning Tools (AI001 - AI006)
+  const financialAnalysisTools: Array<{ id: CopilotTab; label: string; shortLabel: string; desc: string }> = [
     { id: "financial_health", label: "Financial Health (AI001)", shortLabel: "Health (AI001)", desc: "8 key ratios & P&L metrics" },
     { id: "cash_forecast", label: "30-Day Cash Forecast (AI002)", shortLabel: "Cash (AI002)", desc: "Balance trajectory & AR/AP" },
     { id: "risk_signals", label: "Risk Signals (AI003)", shortLabel: "Risk (AI003)", desc: "Overdue debt & AP schedule" },
     { id: "what_if", label: "Stress-Testing Studio (AI004)", shortLabel: "What-If (AI004)", desc: "9-KPI stress simulations" },
     { id: "financing_copilot", label: "Loan Matchmaker (AI005)", shortLabel: "Financing (AI005)", desc: "Bank credit products" },
     { id: "repayment_schedule", label: "Repayment Schedule (AI006)", shortLabel: "Repayment (AI006)", desc: "PMT amortization table" },
-    { id: "invoice_actions", label: "Chứng từ & Tác vụ (P2-B)", shortLabel: "Chứng từ", desc: "Tra cứu hóa đơn & việc theo dõi" },
   ];
+
+  // Category 2: ERP Ledger, Database & Operational Audit Tools
+  const erpLedgerTools: Array<{ id: CopilotTab; label: string; shortLabel: string; desc: string }> = [
+    { id: "invoice_actions", label: "Tra cứu Chứng từ (P2-B)", shortLabel: "Chứng từ ERP", desc: "Tra cứu hóa đơn & việc theo dõi ERPNext" },
+  ];
+
+  const allFeatureTools = [...financialAnalysisTools, ...erpLedgerTools];
+
+  // Accordion open/close states
+  const [isFinToolsExpanded, setIsFinToolsExpanded] = useState<boolean>(false);
+  const [isErpToolsExpanded, setIsErpToolsExpanded] = useState<boolean>(false);
 
   return (
     <div className="flex h-[calc(100vh-64px)] overflow-hidden bg-[#F8FAFC] relative">
@@ -222,29 +233,29 @@ export const LotusCopilotPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Collapsible Auxiliary Tools Accordion (DEFAULT COLLAPSED) */}
+            {/* Accordion 1: Auxiliary Financial Tools (AI001 - AI006) */}
             <div className="pt-2 border-t border-slate-100">
               <button
-                onClick={() => setIsToolsExpanded(!isToolsExpanded)}
+                onClick={() => setIsFinToolsExpanded(!isFinToolsExpanded)}
                 className="w-full flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-slate-50 text-slate-600 transition-all cursor-pointer group"
               >
                 <div className="flex items-center gap-1.5">
                   <span className="text-xs text-slate-400 group-hover:text-blue-600 transition-transform duration-200">
-                    {isToolsExpanded ? "▼" : "▶"}
+                    {isFinToolsExpanded ? "▼" : "▶"}
                   </span>
                   <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">
                     Auxiliary Financial Tools
                   </span>
                 </div>
                 <span className="text-[10px] font-semibold bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded">
-                  {featureTools.length}
+                  {financialAnalysisTools.length}
                 </span>
               </button>
 
-              {/* Sub-tools list when expanded */}
-              {isToolsExpanded && (
+              {/* Financial tools list when expanded */}
+              {isFinToolsExpanded && (
                 <div className="mt-1.5 space-y-1 pl-1 pr-0.5 animate-fadeIn">
-                  {featureTools.map((t) => (
+                  {financialAnalysisTools.map((t) => (
                     <button
                       key={t.id}
                       onClick={() => handleOpenReportModal(t.id)}
@@ -260,6 +271,52 @@ export const LotusCopilotPage: React.FC = () => {
                         </div>
                       </div>
                       <span className="text-[10px] text-blue-500 font-bold opacity-0 group-hover:opacity-100 shrink-0 transition-opacity">
+                        ↗
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Accordion 2: ERP Ledger & Database Audit Tools (Tra cứu DB, Sổ cái & Chứng từ) */}
+            <div className="pt-2 border-t border-slate-100">
+              <button
+                onClick={() => setIsErpToolsExpanded(!isErpToolsExpanded)}
+                className="w-full flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-slate-50 text-slate-600 transition-all cursor-pointer group"
+              >
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs text-slate-400 group-hover:text-indigo-600 transition-transform duration-200">
+                    {isErpToolsExpanded ? "▼" : "▶"}
+                  </span>
+                  <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">
+                    ERP Ledger & Audit Tools
+                  </span>
+                </div>
+                <span className="text-[10px] font-semibold bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded">
+                  {erpLedgerTools.length}
+                </span>
+              </button>
+
+              {/* ERP Ledger tools list when expanded */}
+              {isErpToolsExpanded && (
+                <div className="mt-1.5 space-y-1 pl-1 pr-0.5 animate-fadeIn">
+                  {erpLedgerTools.map((t) => (
+                    <button
+                      key={t.id}
+                      onClick={() => handleOpenReportModal(t.id)}
+                      className="w-full text-left p-2 rounded-xl hover:bg-indigo-50/70 hover:border-indigo-200 border border-transparent text-slate-700 transition-all flex items-center justify-between cursor-pointer group"
+                    >
+                      <div className="flex items-center gap-2.5 overflow-hidden">
+                        <ModuleBadge moduleId={t.id} size="sm" />
+                        <div className="overflow-hidden">
+                          <div className="text-xs truncate font-medium text-slate-800 group-hover:text-indigo-700">
+                            {t.label}
+                          </div>
+                          <div className="text-[10px] text-slate-400 truncate">{t.desc}</div>
+                        </div>
+                      </div>
+                      <span className="text-[10px] text-indigo-500 font-bold opacity-0 group-hover:opacity-100 shrink-0 transition-opacity">
                         ↗
                       </span>
                     </button>
@@ -346,16 +403,37 @@ export const LotusCopilotPage: React.FC = () => {
 
               {/* Tabs Switcher Inside Modal */}
               <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 max-w-full">
-                {featureTools.map((tab) => {
+                {financialAnalysisTools.map((tab) => {
                   const isActive = activeReportTab === tab.id;
                   return (
                     <button
                       key={tab.id}
                       onClick={() => setActiveReportTab(tab.id)}
-                      className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center gap-2 ${
+                      className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
                         isActive
-                          ? "bg-blue-600 text-white shadow-xs"
+                          ? "bg-blue-600 text-white shadow-2xs"
                           : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                      }`}
+                    >
+                      <ModuleBadge moduleId={tab.id} size="xs" />
+                      <span>{tab.shortLabel}</span>
+                    </button>
+                  );
+                })}
+
+                {/* Visual Category Divider */}
+                <div className="h-4 w-px bg-slate-200 mx-1 shrink-0" />
+
+                {erpLedgerTools.map((tab) => {
+                  const isActive = activeReportTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveReportTab(tab.id)}
+                      className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
+                        isActive
+                          ? "bg-slate-900 text-white shadow-2xs"
+                          : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200/60"
                       }`}
                     >
                       <ModuleBadge moduleId={tab.id} size="xs" />
