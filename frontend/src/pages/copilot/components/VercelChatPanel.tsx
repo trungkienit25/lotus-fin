@@ -574,34 +574,9 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
                   </div>
                 )}
 
-                {/* Formatted Content */}
-                <div className="space-y-2.5 whitespace-pre-wrap break-words text-gray-800">
-                  {msg.content.split("\n\n").map((para, idx) => {
-                    if (para.startsWith("- ") || para.startsWith("* ")) {
-                      const items = para.split("\n");
-                      return (
-                        <ul key={idx} className="list-disc list-inside space-y-1 my-1 pl-1">
-                          {items.map((it, iIdx) => (
-                            <li key={iIdx} dangerouslySetInnerHTML={{ __html: renderFormattedText(it.replace(/^[-*]\s*/, "")) }} />
-                          ))}
-                        </ul>
-                      );
-                    }
-                    if (para.startsWith("### ")) {
-                      return (
-                        <h3 key={idx} className="text-sm font-bold text-gray-900 mt-2 mb-1">
-                          {para.replace(/^###\s*/, "")}
-                        </h3>
-                      );
-                    }
-                    return (
-                      <p
-                        key={idx}
-                        dangerouslySetInnerHTML={{ __html: renderFormattedText(para) }}
-                        className="text-gray-700"
-                      />
-                    );
-                  })}
+                {/* Formatted Content with True Markdown Block & Inline Parsing */}
+                <div className="space-y-3 break-words text-gray-800 leading-relaxed font-sans text-xs sm:text-sm">
+                  {renderMarkdownBlocks(msg.content)}
                 </div>
 
                 {/* Action Widgets Directly in Chat Feed */}
@@ -899,13 +874,113 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
   );
 };
 
-// Helper for bold and simple markup rendering
-function renderFormattedText(text: string): string {
+// Helper for bold, italics, code, bullet, and simple markup rendering without leaking markdown stars
+function renderFormattedInline(text: string): string {
   if (!text) return "";
   return text
-    .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-gray-900">$1</strong>')
-    .replace(/\*(.*?)\*/g, '<em class="italic">$1</em>')
-    .replace(/`(.*?)`/g, '<code class="px-1.5 py-0.5 rounded bg-gray-100 text-[#1E63B7] font-mono text-xs">$1</code>');
+    // Replace markdown bold: **bold text**
+    .replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold text-gray-900">$1</strong>')
+    // Replace markdown italics: *italic text* or _italic text_
+    .replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em class="italic">$1</em>')
+    // Replace inline code: `code`
+    .replace(/`([^`]+)`/g, '<code class="px-1.5 py-0.5 rounded bg-slate-100 text-[#1E63B7] font-mono text-xs border border-slate-200/60">$1</code>')
+    // Replace inline links if any: [label](url)
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline font-medium">$1</a>');
+}
+
+// Block-level markdown renderer for paragraphs, ordered lists, unordered lists, headings, and quotes
+function renderMarkdownBlocks(content: string): React.ReactNode[] {
+  if (!content) return [];
+  const rawParagraphs = content.split(/\n\s*\n/);
+  
+  return rawParagraphs.map((block, bIdx) => {
+    const trimmed = block.trim();
+    if (!trimmed) return null;
+
+    // Check heading level 3 or 4
+    if (trimmed.startsWith("### ")) {
+      return (
+        <h3 key={bIdx} className="text-sm font-bold text-gray-900 mt-2.5 mb-1 flex items-center gap-1.5">
+          <span className="size-1.5 rounded-full bg-[#1E63B7]"></span>
+          <span dangerouslySetInnerHTML={{ __html: renderFormattedInline(trimmed.replace(/^###\s*/, "")) }} />
+        </h3>
+      );
+    }
+    if (trimmed.startsWith("## ")) {
+      return (
+        <h2 key={bIdx} className="text-base font-bold text-gray-900 mt-3 mb-1.5">
+          <span dangerouslySetInnerHTML={{ __html: renderFormattedInline(trimmed.replace(/^##\s*/, "")) }} />
+        </h2>
+      );
+    }
+
+    const lines = trimmed.split("\n");
+
+    // Check if block is an ordered list (e.g. "1. **Doanh thu...")
+    const isOrderedList = lines.every((l) => /^\d+\.\s+/.test(l.trim()));
+    if (isOrderedList) {
+      return (
+        <ol key={bIdx} className="space-y-1.5 my-1.5 list-decimal list-outside pl-5 text-gray-800">
+          {lines.map((l, lIdx) => {
+            const itemContent = l.trim().replace(/^\d+\.\s+/, "");
+            return (
+              <li key={lIdx} className="pl-0.5">
+                <span dangerouslySetInnerHTML={{ __html: renderFormattedInline(itemContent) }} />
+              </li>
+            );
+          })}
+        </ol>
+      );
+    }
+
+    // Check if block is an unordered list (e.g. "- item" or "* item")
+    const isUnorderedList = lines.every((l) => /^[-*•]\s+/.test(l.trim()));
+    if (isUnorderedList) {
+      return (
+        <ul key={bIdx} className="space-y-1.5 my-1.5 list-disc list-outside pl-5 text-gray-800">
+          {lines.map((l, lIdx) => {
+            const itemContent = l.trim().replace(/^[-*•]\s+/, "");
+            return (
+              <li key={lIdx} className="pl-0.5">
+                <span dangerouslySetInnerHTML={{ __html: renderFormattedInline(itemContent) }} />
+              </li>
+            );
+          })}
+        </ul>
+      );
+    }
+
+    // Mixed lines within paragraph (some lines might start with numbers or bullets)
+    return (
+      <div key={bIdx} className="space-y-1">
+        {lines.map((line, lIdx) => {
+          const lTrim = line.trim();
+          if (/^\d+\.\s+/.test(lTrim)) {
+            const num = lTrim.match(/^(\d+)\.\s+/)?.[1] || `${lIdx + 1}`;
+            const rest = lTrim.replace(/^\d+\.\s+/, "");
+            return (
+              <div key={lIdx} className="flex items-start gap-2 pl-1 py-0.5">
+                <span className="font-bold text-slate-500 font-mono text-xs shrink-0 mt-0.5">{num}.</span>
+                <span className="flex-1" dangerouslySetInnerHTML={{ __html: renderFormattedInline(rest) }} />
+              </div>
+            );
+          }
+          if (/^[-*•]\s+/.test(lTrim)) {
+            const rest = lTrim.replace(/^[-*•]\s+/, "");
+            return (
+              <div key={lIdx} className="flex items-start gap-2 pl-2 py-0.5">
+                <span className="text-blue-500 font-bold shrink-0 mt-0.5">•</span>
+                <span className="flex-1" dangerouslySetInnerHTML={{ __html: renderFormattedInline(rest) }} />
+              </div>
+            );
+          }
+          return (
+            <p key={lIdx} className="leading-relaxed" dangerouslySetInnerHTML={{ __html: renderFormattedInline(line) }} />
+          );
+        })}
+      </div>
+    );
+  });
 }
 
 export default VercelChatPanel;

@@ -263,15 +263,15 @@ export const LotusCopilotPage: React.FC = () => {
                 onClick={() => setIsFinToolsExpanded(!isFinToolsExpanded)}
                 className="w-full flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-slate-50 text-slate-600 transition-all cursor-pointer group"
               >
-                <div className="flex items-center gap-1.5">
-                  <span className="text-xs text-slate-400 group-hover:text-blue-600 transition-transform duration-200">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span className="text-xs text-slate-400 group-hover:text-blue-600 transition-transform duration-200 shrink-0">
                     {isFinToolsExpanded ? "▼" : "▶"}
                   </span>
-                  <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">
-                    Auxiliary Financial Tools
+                  <span className="text-[11px] font-bold text-slate-600 uppercase tracking-tight truncate whitespace-nowrap">
+                    Financial Tools
                   </span>
                 </div>
-                <span className="text-[10px] font-semibold bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded">
+                <span className="text-[10px] font-semibold bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded shrink-0 ml-1">
                   {financialAnalysisTools.length}
                 </span>
               </button>
@@ -309,15 +309,15 @@ export const LotusCopilotPage: React.FC = () => {
                 onClick={() => setIsErpToolsExpanded(!isErpToolsExpanded)}
                 className="w-full flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-slate-50 text-slate-600 transition-all cursor-pointer group"
               >
-                <div className="flex items-center gap-1.5">
-                  <span className="text-xs text-slate-400 group-hover:text-indigo-600 transition-transform duration-200">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span className="text-xs text-slate-400 group-hover:text-indigo-600 transition-transform duration-200 shrink-0">
                     {isErpToolsExpanded ? "▼" : "▶"}
                   </span>
-                  <span className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">
-                    ERP Ledger & Audit Tools
+                  <span className="text-[11px] font-bold text-slate-600 uppercase tracking-tight truncate whitespace-nowrap">
+                    ERP Ledger Tools
                   </span>
                 </div>
-                <span className="text-[10px] font-semibold bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded">
+                <span className="text-[10px] font-semibold bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded shrink-0 ml-1">
                   {erpLedgerTools.length}
                 </span>
               </button>
