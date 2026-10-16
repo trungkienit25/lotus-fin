@@ -75,15 +75,13 @@ export const LotusCopilotPage: React.FC = () => {
   const [companies, setCompanies] = useState<string[]>([]);
   const [selectedCompany, setSelectedCompany] = useState<string>("Lotus-fin (Demo)");
 
-  // Invoice Actions P2-B Profile & Transport
-  const [demoProfile, setDemoProfile] = useState<"CORE" | "DEMO">("DEMO");
+  // Invoice Actions P2-B Profile & Transport (DEFAULT REAL ERP PRODUCTION)
+  const [demoProfile, setDemoProfile] = useState<"CORE" | "DEMO">("CORE");
   const [demoScenario, setDemoScenario] = useState<DemoScenario>("NORMAL");
 
   const activeInvoiceTransport: InvoiceActionTransport = React.useMemo(() => {
-    return demoProfile === "DEMO"
-      ? createDemoInvoiceTransport(demoScenario)
-      : createHttpTransport();
-  }, [demoProfile, demoScenario]);
+    return createHttpTransport();
+  }, []);
 
   // Recent chat history items
   const [recentChats, setRecentChats] = useState<Array<{ id: string; title: string; time: string; query: string }>>([
