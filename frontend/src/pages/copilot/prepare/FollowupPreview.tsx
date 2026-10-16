@@ -62,21 +62,30 @@ export const FollowupPreview: React.FC<FollowupPreviewProps> = ({ controllerOpti
   const isCopyDisabled = !state.isReviewed || state.lifecycle !== "REVIEWED" || state.isCopying;
 
   return (
-    <div className="p-4 border border-gray-300 rounded-lg bg-white shadow-sm max-w-2xl mx-auto space-y-4" data-testid="followup-preview-container">
-      <div className="border-b pb-2">
-        <h3 className="text-base font-semibold text-gray-900" id="preview-heading">Bản nháp cục bộ — chưa lưu, chưa gửi</h3>
-        <p className="text-xs text-amber-700 bg-amber-50 p-1.5 rounded mt-1" role="note">Nội dung gợi ý; chưa xác minh thông tin tài chính</p>
+    <div className="p-5 border border-slate-200/80 rounded-2xl bg-white shadow-xs max-w-2xl mx-auto space-y-4 font-sans text-slate-800" data-testid="followup-preview-container">
+      <div className="border-b border-slate-100 pb-3">
+        <h3 className="text-base font-bold text-slate-900 tracking-tight" id="preview-heading">
+          Soạn thảo Thư nhắc nợ & Đối soát công nợ
+        </h3>
+        <p className="text-xs text-amber-800 bg-amber-50/80 border border-amber-200/60 p-2 rounded-xl mt-1.5 flex items-center gap-1.5" role="note">
+          <span>ℹ️</span>
+          <span>Bản nháp được lưu giữ cục bộ trên trình duyệt. Hệ thống không tự động gửi hoặc can thiệp dữ liệu hạch toán.</span>
+        </p>
       </div>
 
       {state.lifecycle === "EMPTY" && (
-        <div className="py-6 text-center space-y-3">
-          <p className="text-sm text-gray-500">Chưa có bản xem trước nào được khởi tạo.</p>
-          <button type="button" onClick={() => controller.prepare(DEFAULT_REQ)} data-testid="btn-prepare"
-            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            Tạo bản xem trước nhắc nhở
+        <div className="py-8 text-center space-y-3">
+          <p className="text-xs text-slate-500">Chưa có nội dung nhắc nợ nào được tạo.</p>
+          <button
+            type="button"
+            onClick={() => controller.prepare(DEFAULT_REQ)}
+            data-testid="btn-prepare"
+            className="px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-xl hover:bg-blue-700 shadow-2xs transition-all cursor-pointer"
+          >
+            ✦ Tạo bản nháp thư nhắc nợ
           </button>
           {state.errorMessage && (
-            <div className="text-xs text-red-600 bg-red-50 p-2 rounded" role="alert" data-testid="error-message">
+            <div className="text-xs text-rose-700 bg-rose-50 p-2.5 rounded-xl border border-rose-200" role="alert" data-testid="error-message">
               {state.errorMessage}
             </div>
           )}
@@ -85,68 +94,132 @@ export const FollowupPreview: React.FC<FollowupPreviewProps> = ({ controllerOpti
 
       {state.lifecycle === "EXPIRED" && (
         <div className="space-y-3">
-          <div className="p-3 bg-red-50 text-red-700 text-sm rounded" role="alert" data-testid="alert-expired">
-            {state.errorMessage || "Bản xem trước đã hết hạn (10 phút)."}
+          <div className="p-3 bg-rose-50 text-rose-700 text-xs rounded-xl border border-rose-200" role="alert" data-testid="alert-expired">
+            {state.errorMessage || "Bản nháp đã hết hạn hiệu lực (10 phút). Vui lòng tạo lại."}
           </div>
           <div className="text-center">
-            <button type="button" onClick={() => controller.prepare(DEFAULT_REQ)} data-testid="btn-prepare"
-              className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-              Tạo bản xem trước nhắc nhở
+            <button
+              type="button"
+              onClick={() => controller.prepare(DEFAULT_REQ)}
+              data-testid="btn-prepare"
+              className="px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-xl hover:bg-blue-700 shadow-2xs transition-all cursor-pointer"
+            >
+              ✦ Tạo lại bản nháp
             </button>
           </div>
         </div>
       )}
 
       {(state.lifecycle === "EDITABLE" || state.lifecycle === "REVIEWED") && (
-        <div className="space-y-3">
+        <div className="space-y-3.5">
           <div className="flex items-center justify-between text-xs">
-            <span className={`font-mono px-2 py-0.5 rounded ${state.provenance === "SUGGESTED" ? "bg-blue-100 text-blue-800" : "bg-purple-100 text-purple-800"}`} data-testid="provenance-badge">
-              Nguồn: {state.provenance === "SUGGESTED" ? "Gợi ý (SUGGESTED)" : "Người dùng nhập (USER_ENTERED)"}
+            <span
+              className={`font-semibold text-[10px] px-2.5 py-1 rounded-full border ${
+                state.provenance === "SUGGESTED"
+                  ? "bg-blue-50 text-blue-700 border-blue-200"
+                  : "bg-purple-50 text-purple-700 border-purple-200"
+              }`}
+              data-testid="provenance-badge"
+            >
+              Nguồn: {state.provenance === "SUGGESTED" ? "Gợi ý tự động" : "Người dùng chỉnh sửa"}
             </span>
-            <button type="button" onClick={() => controller.resetTemplate()} data-testid="btn-reset-template" className="text-xs text-gray-600 hover:text-gray-900 underline">
-              Đặt lại mẫu gợi ý
+            <button
+              type="button"
+              onClick={() => controller.resetTemplate()}
+              data-testid="btn-reset-template"
+              className="text-[11px] text-blue-600 hover:text-blue-700 font-medium cursor-pointer"
+            >
+              ↺ Đặt lại mẫu mặc định
             </button>
           </div>
 
           <div>
-            <label htmlFor="followup-preview-textarea" className="block text-xs font-medium text-gray-700 mb-1">Nội dung thông điệp:</label>
-            <textarea id="followup-preview-textarea" value={localText}
-              onChange={(e) => { setLocalText(e.target.value); controller.updateBody(e.target.value); }}
-              rows={6} data-testid="preview-textarea" aria-labelledby="preview-heading"
-              className="w-full p-2.5 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-y font-sans"
-              placeholder="Nhập nội dung nhắc nhở..." />
+            <label htmlFor="followup-preview-textarea" className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+              Nội dung thông báo đối soát:
+            </label>
+            <textarea
+              id="followup-preview-textarea"
+              value={localText}
+              onChange={(e) => {
+                setLocalText(e.target.value);
+                controller.updateBody(e.target.value);
+              }}
+              rows={6}
+              data-testid="preview-textarea"
+              aria-labelledby="preview-heading"
+              className="w-full p-3.5 text-xs border border-slate-200 rounded-xl bg-[#F9FBFC] focus:ring-2 focus:ring-[#1E63B7]/20 focus:border-[#1E63B7] outline-none resize-none font-sans leading-relaxed text-slate-800 transition-all"
+              placeholder="Nhập nội dung nhắc nợ..."
+            />
           </div>
 
-          <div className="flex items-center gap-2">
-            <input type="checkbox" id="review-checkbox" checked={state.isReviewed} onChange={(e) => controller.setReviewed(e.target.checked)} data-testid="checkbox-review" className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
-            <label htmlFor="review-checkbox" className="text-sm font-medium text-gray-800">Tôi đã xem xét nội dung (Xác nhận xem xét)</label>
+          <div className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200/60">
+            <input
+              type="checkbox"
+              id="review-checkbox"
+              checked={state.isReviewed}
+              onChange={(e) => controller.setReviewed(e.target.checked)}
+              data-testid="checkbox-review"
+              className="h-4 w-4 text-blue-600 focus:ring-[#1E63B7] border-slate-300 rounded cursor-pointer"
+            />
+            <label htmlFor="review-checkbox" className="text-xs font-semibold text-slate-700 cursor-pointer select-none">
+              Tôi đã kiểm tra kỹ lưỡng nội dung trước khi sử dụng
+            </label>
           </div>
 
           {state.errorMessage && (
-            <div className="text-xs text-red-600 bg-red-50 p-2 rounded" role="alert" data-testid="error-message">
+            <div className="text-xs text-rose-700 bg-rose-50 p-2.5 rounded-xl border border-rose-200" role="alert" data-testid="error-message">
               {state.errorMessage}
             </div>
           )}
           {state.lastActionStatus === "COPIED" && (
-            <div className="text-xs text-green-700 bg-green-50 p-2 rounded" role="status" data-testid="notice-copied">
-              Đã sao chép vào bộ nhớ tạm (Plain text).
+            <div className="text-xs text-emerald-800 bg-emerald-50 p-2.5 rounded-xl border border-emerald-200" role="status" data-testid="notice-copied">
+              ✓ Đã sao chép nội dung vào bộ nhớ tạm thành công.
             </div>
           )}
           {state.lastActionStatus === "COPY_FAILED" && (
-            <div className="text-xs text-red-700 bg-red-50 p-2 rounded" role="alert" data-testid="notice-copy-failed">
-              Sao chép thất bại. Vui lòng cấp quyền clipboard hoặc sao chép thủ công.
+            <div className="text-xs text-rose-700 bg-rose-50 p-2.5 rounded-xl border border-rose-200" role="alert" data-testid="notice-copy-failed">
+              Sao chép thất bại. Vui lòng cấp quyền clipboard hoặc bôi đen văn bản để sao chép.
             </div>
           )}
 
-          <div className="flex items-center justify-end gap-2 pt-2 border-t">
-            {onPrepareTask && <button type="button" disabled={isCopyDisabled} onClick={() => { if (!controller.checkExpiry() && controller.getState().isReviewed) onPrepareTask(controller.getState().body); }} className="border rounded p-2 text-sm">Chuẩn bị đề xuất Task (L4)</button>}
-            <button type="button" onClick={() => { controller.discard(); setLocalText(""); }} data-testid="btn-discard"
-              className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-gray-400">
-              Hủy bỏ (Discard)
+          <div className="flex flex-wrap items-center justify-end gap-2 pt-3 border-t border-slate-100">
+            {onPrepareTask && (
+              <button
+                type="button"
+                disabled={isCopyDisabled}
+                onClick={() => {
+                  if (!controller.checkExpiry() && controller.getState().isReviewed) {
+                    onPrepareTask(controller.getState().body);
+                  }
+                }}
+                className="px-3.5 py-2 rounded-xl text-xs font-bold border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 transition-all cursor-pointer disabled:opacity-50"
+              >
+                ✦ Tạo đề xuất Task (L4)
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => {
+                controller.discard();
+                setLocalText("");
+              }}
+              data-testid="btn-discard"
+              className="px-3.5 py-2 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all cursor-pointer"
+            >
+              Hủy bỏ
             </button>
-            <button type="button" onClick={() => controller.copy()} disabled={isCopyDisabled} data-testid="btn-copy"
-              className={`px-3 py-1.5 text-sm font-medium text-white rounded focus:outline-none focus:ring-2 ${isCopyDisabled ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700 focus:ring-blue-500"}`}>
-              {state.isCopying ? "Đang sao chép..." : "Sao chép (Copy text)"}
+            <button
+              type="button"
+              onClick={() => controller.copy()}
+              disabled={isCopyDisabled}
+              data-testid="btn-copy"
+              className={`px-4 py-2 text-xs font-bold text-white rounded-xl shadow-2xs transition-all ${
+                isCopyDisabled
+                  ? "bg-slate-300 text-slate-500 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700 cursor-pointer"
+              }`}
+            >
+              {state.isCopying ? "Đang sao chép..." : "Sao chép thư 📋"}
             </button>
           </div>
         </div>
