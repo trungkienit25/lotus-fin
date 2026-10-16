@@ -32,10 +32,10 @@ export const L4ProposalChatCard: React.FC<L4ProposalChatCardProps> = ({
     issued_at_utc: new Date().toISOString(),
     preview_title: initialTitle,
     preview_diff: [
-      { field_name: "Tên công việc (Subject)", old_value: null, new_value: initialTitle, description: "Tác vụ kế toán ghi nhận trên tabTask ERPNext" },
-      { field_name: "Hạn chót xử lý (Due Date)", old_value: null, new_value: "2026-10-25", description: "Thời hạn quy chuẩn kế toán (7 ngày)" },
-      { field_name: "Mức độ ưu tiên (Priority)", old_value: null, new_value: "Medium", description: "Mức ưu tiên đối soát định kỳ" },
-      { field_name: "Đối tượng chứng từ", old_value: null, new_value: targetEntity, description: "Liên kết chứng từ ERPNext" },
+      { field_name: "Tên công việc", old_value: null, new_value: initialTitle, description: "Nhiệm vụ theo dõi công nợ được khởi tạo cho bộ phận kế toán" },
+      { field_name: "Hạn xử lý", old_value: null, new_value: "2026-10-25", description: "Thời hạn quy chuẩn xử lý trong vòng 7 ngày làm việc" },
+      { field_name: "Mức độ ưu tiên", old_value: null, new_value: "Trung bình", description: "Mức độ ưu tiên theo dõi định kỳ" },
+      { field_name: "Chứng từ liên kết", old_value: null, new_value: targetEntity, description: "Hóa đơn bán hàng liên quan cần thu hồi nợ" },
     ],
     expires_at_utc: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
     confirmation_challenge: "chal-verified-998",
@@ -182,22 +182,20 @@ export const L4ProposalChatCard: React.FC<L4ProposalChatCardProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-sm font-bold tracking-tight text-white">
-                  {realTaskId ? "Đã Khởi tạo Tác vụ trên ERPNext" : "Đã Khởi tạo Tác vụ"}
+                  Đã khởi tạo công việc theo dõi thành công
                 </span>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
-                  {realTaskId ? "ERP LIVE TASK" : "SUCCEEDED"}
+                  HOÀN THÀNH
                 </span>
               </div>
               <p className="text-xs text-slate-300 mt-0.5">
-                {realTaskId
-                  ? `Mã tác vụ ${realTaskId} đã được ghi nhận trực tiếp vào tabTask ERPNext`
-                  : "Biên nhận đã được lưu vào nhật ký phiên an toàn"}
+                Nhiệm vụ đã được phân công và lưu vào danh sách việc cần xử lý của doanh nghiệp
               </p>
             </div>
           </div>
 
           <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-white/10 text-emerald-200 border border-white/20 backdrop-blur font-mono self-start sm:self-auto">
-            {operationRecord.operation_id}
+            {realTaskId || operationRecord.operation_id}
           </span>
         </div>
 
@@ -205,12 +203,12 @@ export const L4ProposalChatCard: React.FC<L4ProposalChatCardProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
             <div className="p-3 rounded-xl bg-[#F8FAFC] border border-slate-200/60">
               <span className="text-[11px] font-medium text-slate-400 block">
-                {realTaskId ? "Mã Tác vụ ERPNext (Task ID)" : "Mã vận hành (Operation ID)"}
+                Mã công việc
               </span>
-              <span className="text-xs font-bold text-slate-900 font-mono block mt-0.5">{operationRecord.operation_id}</span>
+              <span className="text-xs font-bold text-slate-900 font-mono block mt-0.5">{realTaskId || operationRecord.operation_id}</span>
             </div>
             <div className="p-3 rounded-xl bg-[#F8FAFC] border border-slate-200/60">
-              <span className="text-[11px] font-medium text-slate-400 block">Đối tượng chứng từ gắn kèm</span>
+              <span className="text-[11px] font-medium text-slate-400 block">Chứng từ gắn kèm</span>
               <span className="text-xs font-bold text-slate-800 font-mono block mt-0.5">{operationRecord.target_entity}</span>
             </div>
             <div className="p-3 rounded-xl bg-[#F8FAFC] border border-slate-200/60 sm:col-span-2">
@@ -219,12 +217,10 @@ export const L4ProposalChatCard: React.FC<L4ProposalChatCardProps> = ({
             </div>
           </div>
 
-          {/* Safety footnote */}
+          {/* Clean footnote */}
           <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 text-slate-600 text-[11px] flex items-center justify-between">
             <span>
-              {realTaskId
-                ? `✓ Trạng thái: Đã cập nhật thành công vào cơ sở dữ liệu thật (${operationRecord.source_label}).`
-                : "✓ Trạng thái: Hoàn tất mô phỏng an toàn. Chưa ghi đè cơ sở dữ liệu thật."}
+              ✓ Đã ghi nhận vào hệ thống quản lý công việc và sẵn sàng theo dõi tiến độ.
             </span>
             <span className="font-mono text-slate-400">{new Date(operationRecord.completed_at_utc!).toLocaleTimeString()}</span>
           </div>

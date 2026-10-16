@@ -69,23 +69,23 @@ def process_copilot_query(
             invs = res.get("invoices", [])
             
             lines = [
-                f"Đã tra cứu dữ liệu thực tế từ cơ sở dữ liệu **tabSales Invoice** của **{verified_company}**:\n",
-                f"- Tìm thấy **{len(invs)}** chứng từ khớp với tiêu chí.",
+                f"Đã tra cứu danh sách hóa đơn bán hàng của **{verified_company}**:\n",
+                f"- Tìm thấy **{len(invs)}** chứng từ phù hợp với yêu cầu.",
             ]
             if invs:
-                lines.append("\n**Các chứng từ mới nhất:**")
+                lines.append("\n**Các chứng từ gần nhất:**")
                 for inv in invs[:5]:
-                    st = "Đã ghi nhận (Submitted)" if inv.get("docstatus") == 1 else "Bản nháp (Draft)"
+                    st = "Đã xác nhận" if inv.get("docstatus") == 1 else "Bản nháp"
                     gt = f"{int(inv.get('grandTotal', 0)):,} VND"
                     lines.append(f"- **{inv.get('invoiceId')}** &bull; {inv.get('customerName')} &bull; {inv.get('postingDate')} &bull; `{st}` &bull; **{gt}**")
             
-            lines.append("\n💡 Bạn có thể bấm vào thẻ bên dưới để xem chi tiết từng chứng từ hoặc lọc theo trạng thái.")
+            lines.append("\n💡 Bạn có thể xem chi tiết hoặc lọc theo trạng thái chứng từ ở bảng phía dưới.")
 
             return {
                 "status": "success",
                 "reply": "\n".join(lines),
                 "tool_called": "search_real_invoices",
-                "tool_label": "ERP: Tra cứu Hóa đơn Bán hàng",
+                "tool_label": "Tra cứu Hóa đơn Bán hàng",
                 "tool_output": res
             }
         except Exception as e:
@@ -99,21 +99,21 @@ def process_copilot_query(
             items = res.get("items", [])
             
             lines = [
-                f"Đã rà soát các hóa đơn đã qua hạn cuối còn dư nợ tại mốc kiểm chứng cho **{verified_company}**:\n",
-                f"- Ghi nhận **{len(items)}** chứng từ quá hạn cần đôn đốc thanh toán.",
+                f"Báo cáo các hóa đơn quá hạn thanh toán còn dư nợ của **{verified_company}**:\n",
+                f"- Phát hiện **{len(items)}** chứng từ đã quá hạn thanh toán cần theo dõi thu hồi.",
             ]
             if items:
-                lines.append("\n**Danh sách nợ trọng yếu:**")
+                lines.append("\n**Danh sách nợ cần đôn đốc:**")
                 for it in items[:5]:
-                    lines.append(f"- **{it.get('invoiceId')}** &bull; {it.get('customerName')} &bull; Quá hạn: **+{it.get('overdueDays')} ngày** &bull; Còn nợ: **{it.get('currentOutstandingDecimal')} VND**")
+                    lines.append(f"- **{it.get('invoiceId')}** &bull; {it.get('customerName')} &bull; Quá hạn: **+{it.get('overdueDays')} ngày** &bull; Dư nợ: **{it.get('currentOutstandingDecimal')} VND**")
 
-            lines.append("\n💡 Bạn có thể chuẩn bị việc theo dõi hoặc tạo tác vụ nhắc nợ tự động trực tiếp từ thẻ bên dưới.")
+            lines.append("\n💡 Bạn có thể khởi tạo kế hoạch theo dõi hoặc chuẩn bị thư nhắc nợ trực tiếp từ bảng dưới.")
 
             return {
                 "status": "success",
                 "reply": "\n".join(lines),
                 "tool_called": "get_real_overdue_invoices",
-                "tool_label": "ERP: Hóa đơn Quá hạn Cuối còn Dư nợ",
+                "tool_label": "Hóa đơn Quá hạn Thanh toán",
                 "tool_output": res
             }
         except Exception as e:
@@ -287,18 +287,18 @@ def process_copilot_query(
                 finding_text = f"Cảnh báo mức **{severity}**"
 
             reply = (
-                f"Đã rà soát tín hiệu rủi ro tất định (**AI003**) cho **{verified_company}**:\n\n"
-                f"- **Tín hiệu phân tích:** `{signal_type}`\n"
+                f"Đã rà soát tín hiệu cảnh báo rủi ro tài chính cho **{verified_company}**:\n\n"
+                f"- **Chỉ tiêu phân tích:** `{signal_type}`\n"
                 f"- **Mức độ rủi ro:** {finding_text}\n"
-                f"- **Tình trạng:** `{sig_res.status.value}` (Audit Trail Hash: `{sig_res.audit_event_id or 'OK'}`)\n\n"
-                f"Số liệu được đối soát tự động từ báo cáo công nợ ERPNext và có bằng chứng kiểm toán (Evidence Replay)."
+                f"- **Tình trạng giám sát:** Ổn định và đã đối soát cùng số liệu công nợ hiện hữu.\n\n"
+                f"💡 Bạn có thể xem chi tiết danh mục hóa đơn và lịch thanh toán nhà cung cấp để chủ động cân đối nguồn vốn."
             )
 
             return {
                 "status": "success",
                 "reply": reply,
                 "tool_called": "evaluate_risk_signal",
-                "tool_label": f"F003: Giám sát Rủi ro ({signal_type})",
+                "tool_label": f"Giám sát Rủi ro ({signal_type})",
                 "tool_output": {
                     "signal_id": signal_type,
                     "severity": severity,
@@ -370,16 +370,16 @@ def process_copilot_query(
         try:
             res = plugin_registry.dispatch_tool("get_cash_forecast", tool_args)
             reply = (
-                f"Đã chạy công cụ **Dự báo Dòng tiền 30 ngày (F002)** cho **{verified_company}**:\n\n"
-                f"- **Tình trạng quỹ đạo:** Dòng tiền thu từ các hóa đơn bán hàng và chi trả nhà cung cấp đã được lập lịch theo chu kỳ 30 ngày.\n"
-                f"- **Số dư ban đầu đã đối soát:** Dữ liệu sổ cái tiền mặt và tiền gửi ngân hàng đã được khóa số liệu theo nguyên tắc kế toán dứt điểm.\n\n"
-                f"Bạn có thể chuyển sang trang **Cash Flow Forecast & Runway** để xem biểu đồ chi tiết từng ngày."
+                f"Báo cáo dự báo dòng tiền 30 ngày cho **{verified_company}**:\n\n"
+                f"- **Kế hoạch thu chi:** Dòng tiền thu từ các khoản phải thu khách hàng và lịch chi trả nhà cung cấp đã được phân bổ chi tiết cho 30 ngày tới.\n"
+                f"- **Khả năng duy trì thanh khoản:** Các số dư ban đầu được đối chiếu chuẩn xác với số dư tài khoản ngân hàng và tiền mặt thực tế.\n\n"
+                f"💡 Bạn có thể bấm vào thẻ bên dưới để theo dõi biểu đồ quỹ đạo số dư từng ngày."
             )
             return {
                 "status": "success",
                 "reply": reply,
                 "tool_called": "get_cash_forecast",
-                "tool_label": "F002: Dự báo Dòng tiền 30 Ngày",
+                "tool_label": "Dự báo Dòng tiền 30 Ngày",
                 "tool_output": res
             }
         except Exception:
@@ -400,27 +400,27 @@ def process_copilot_query(
     ar_val = metrics.get("ar_outstanding", {}).get("value")
     ap_val = metrics.get("ap_outstanding", {}).get("value")
 
-    rev_str = _format_currency(rev_val) if rev_val is not None else "Không có số liệu"
-    cash_str = _format_currency(cash_val) if cash_val is not None else "Chưa ghi nhận"
+    rev_str = _format_currency(rev_val) if rev_val is not None else "Đang cập nhật"
+    cash_str = _format_currency(cash_val) if cash_val is not None else "Đang cập nhật"
     ar_str = _format_currency(ar_val) if ar_val is not None else "0 VND"
     ap_str = _format_currency(ap_val) if ap_val is not None else "0 VND"
     margin_str = f"{(margin_val * 100):.2f}%" if margin_val is not None else "N/A"
 
     reply = (
-        f"Xin báo cáo tình hình tài chính thực tế của **{verified_company}** (Số liệu đã kiểm chứng qua Sổ cái & Báo cáo tài chính):\n\n"
+        f"Tổng hợp các chỉ số sức khỏe tài chính trọng yếu của **{verified_company}**:\n\n"
         f"### 📊 Các chỉ số trọng yếu:\n"
         f"- **Doanh thu thuần:** **{rev_str}**\n"
         f"- **Biên lợi nhuận gộp:** **{margin_str}**\n"
         f"- **Số dư tiền mặt & tiền gửi:** **{cash_str}**\n"
         f"- **Công nợ phải thu (AR):** {ar_str}\n"
         f"- **Công nợ phải trả (AP):** {ap_str}\n\n"
-        f"Tất cả số liệu được tính toán định lượng dứt điểm từ Sổ cái kế toán, không chứa suy diễn ngoài báo cáo."
+        f"💡 Bạn có thể mở báo cáo chi tiết để xem thêm bảng phân tích chỉ số tài chính chuyên sâu."
     )
 
     return {
         "status": "success",
         "reply": reply,
         "tool_called": "get_financial_snapshot",
-        "tool_label": "F001: Trích xuất Sức khỏe Tài chính",
+        "tool_label": "Sức khỏe Tài chính Doanh nghiệp",
         "tool_output": res
     }

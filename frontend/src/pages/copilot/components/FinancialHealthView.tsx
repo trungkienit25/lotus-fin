@@ -542,7 +542,7 @@ export const FinancialHealthView: React.FC<FinancialHealthViewProps> = ({
               ))
             ) : (
               <div className="p-3 rounded-lg bg-slate-50 text-slate-500">
-                Dữ liệu được truy xuất trực tiếp từ các bảng Sổ cái `tabGL Entry` và `tabSales Invoice`.
+                Dữ liệu được truy xuất trực tiếp và đối soát từ Sổ cái kế toán và Hệ thống chứng từ bán hàng thời gian thực.
               </div>
             )}
           </div>

@@ -86,10 +86,10 @@ export const V1PastDueChatCard: React.FC<V1PastDueChatCardProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold tracking-tight text-white">
-                Hóa đơn Quá hạn Cuối còn Dư nợ (Past-Final-Due)
+                Danh sách Hóa đơn Quá hạn Cần Thu hồi
               </span>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-400/30">
-                V1 Audit
+                Kiểm toán Nợ
               </span>
             </div>
             <p className="text-xs text-slate-300 mt-0.5">
