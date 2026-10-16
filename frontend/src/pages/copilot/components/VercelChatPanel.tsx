@@ -167,85 +167,8 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
 
     const assistantMsgId = `asst-${Date.now()}`;
 
-    // 1. Check bounded action intents (Invoice search L1, Followup L3, Proposal L4, Policy L5, Overdue V1)
-    const actionIntent = routeCopilotIntent(text);
-    if (actionIntent.kind === "L1" || actionIntent.kind === "L2") {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: assistantMsgId,
-          sender: "assistant",
-          content: "Tôi đã mở bảng tra cứu hóa đơn bán hàng trực tiếp theo phạm vi được cấp quyền:",
-          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-          widgetType: "invoice_search",
-        },
-      ]);
-      setLoading(false);
-      return;
-    }
-
-    if (actionIntent.kind === "L4") {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: assistantMsgId,
-          sender: "assistant",
-          content: "Dưới đây là bản đề xuất tác vụ cần kiểm tra và xác nhận bằng nút bấm tường minh trước khi thực thi:",
-          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-          widgetType: "l4_proposal",
-        },
-      ]);
-      setLoading(false);
-      return;
-    }
-
-    if (actionIntent.kind === "L3") {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: assistantMsgId,
-          sender: "assistant",
-          content: "Tôi đã soạn thảo bản nháp nhắc nợ cục bộ trong trình duyệt. Bạn có thể kiểm tra, chỉnh sửa hoặc sao chép:",
-          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-          widgetType: "l3_followup",
-        },
-      ]);
-      setLoading(false);
-      return;
-    }
-
-    if (actionIntent.kind === "L5") {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: assistantMsgId,
-          sender: "assistant",
-          content: "Yêu cầu của bạn thuộc nhóm hành động tác động lớn và đã được đánh giá qua cổng chính sách bảo mật (L5 Safety Gate):",
-          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-          widgetType: "l5_policy",
-        },
-      ]);
-      setLoading(false);
-      return;
-    }
-
-    if (actionIntent.kind === "V1") {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: assistantMsgId,
-          sender: "assistant",
-          content: "Bảng tổng hợp các hóa đơn đã qua hạn cuối còn dư nợ tại mốc quan sát được kiểm chứng:",
-          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-          widgetType: "v1_past_due",
-        },
-      ]);
-      setLoading(false);
-      return;
-    }
-
     try {
-      // Direct call to Copilot backend engine with CSRF protection
+      // 1. Direct call to Copilot backend engine with CSRF protection and real ERP execution
       const session = await bootstrapSession().catch(() => null);
       const headers: Record<string, string> = { "Content-Type": "application/json" };
       if (session?.csrfToken) {
@@ -272,7 +195,8 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
       const toolLabel = msgData?.tool_label || toolCalled;
       const toolOutput = msgData?.tool_output;
 
-      // Determine widget type from tool called
+      // Determine widget type from tool called or bounded intent
+      const actionIntent = routeCopilotIntent(text);
       let wType: any = undefined;
       if (toolCalled === "get_financial_snapshot") wType = "health";
       else if (toolCalled === "get_cash_forecast" || toolCalled === "get_ai002_cash_forecast") wType = "cash_forecast";
@@ -280,6 +204,11 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
       else if (toolCalled === "simulate_what_if_scenario" || toolCalled === "simulate_what_if") wType = "what_if";
       else if (toolCalled === "match_financing_products" || toolCalled === "match_financing") wType = "financing";
       else if (toolCalled === "calculate_repayment_schedule") wType = "repayment";
+      else if (toolCalled === "search_real_invoices" || actionIntent.kind === "L1" || actionIntent.kind === "L2") wType = "invoice_search";
+      else if (toolCalled === "get_real_overdue_invoices" || actionIntent.kind === "V1") wType = "v1_past_due";
+      else if (actionIntent.kind === "L4") wType = "l4_proposal";
+      else if (actionIntent.kind === "L3") wType = "l3_followup";
+      else if (actionIntent.kind === "L5") wType = "l5_policy";
 
       if (replyContent) {
         setMessages((prev) => [

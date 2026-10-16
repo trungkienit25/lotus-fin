@@ -59,6 +59,66 @@ def process_copilot_query(
     verified_company = get_verified_company(company)
     q_lower = query.lower()
 
+    # Tool Route 0A: Sales Invoice Search (Real Database Exploration)
+    if any(k in q_lower for k in ["tìm hóa đơn", "tra cứu hóa đơn", "hóa đơn có mã", "tra cứu chứng từ", "sales invoice", "sinv"]):
+        try:
+            from lotus_fin.api.copilot_api import search_real_invoices
+            prefix_match = re.search(r"(sinv[-\w]*|acc[-\w]*)", q_lower)
+            prefix_val = prefix_match.group(1).upper() if prefix_match else None
+            res = search_real_invoices(company=verified_company, prefix=prefix_val, limit=20)
+            invs = res.get("invoices", [])
+            
+            lines = [
+                f"Đã tra cứu dữ liệu thực tế từ cơ sở dữ liệu **tabSales Invoice** của **{verified_company}**:\n",
+                f"- Tìm thấy **{len(invs)}** chứng từ khớp với tiêu chí.",
+            ]
+            if invs:
+                lines.append("\n**Các chứng từ mới nhất:**")
+                for inv in invs[:5]:
+                    st = "Đã ghi nhận (Submitted)" if inv.get("docstatus") == 1 else "Bản nháp (Draft)"
+                    gt = f"{int(inv.get('grandTotal', 0)):,} VND"
+                    lines.append(f"- **{inv.get('invoiceId')}** &bull; {inv.get('customerName')} &bull; {inv.get('postingDate')} &bull; `{st}` &bull; **{gt}**")
+            
+            lines.append("\n💡 Bạn có thể bấm vào thẻ bên dưới để xem chi tiết từng chứng từ hoặc lọc theo trạng thái.")
+
+            return {
+                "status": "success",
+                "reply": "\n".join(lines),
+                "tool_called": "search_real_invoices",
+                "tool_label": "ERP: Tra cứu Hóa đơn Bán hàng",
+                "tool_output": res
+            }
+        except Exception as e:
+            _logger.warning("Invoice search routing error: %s", str(e))
+
+    # Tool Route 0B: Past Final Due / Overdue Invoices
+    if any(k in q_lower for k in ["quá hạn cuối", "quá hạn", "past final due", "past_final_due"]):
+        try:
+            from lotus_fin.api.copilot_api import get_real_overdue_invoices
+            res = get_real_overdue_invoices(company=verified_company, as_of_date=as_of_date)
+            items = res.get("items", [])
+            
+            lines = [
+                f"Đã rà soát các hóa đơn đã qua hạn cuối còn dư nợ tại mốc kiểm chứng cho **{verified_company}**:\n",
+                f"- Ghi nhận **{len(items)}** chứng từ quá hạn cần đôn đốc thanh toán.",
+            ]
+            if items:
+                lines.append("\n**Danh sách nợ trọng yếu:**")
+                for it in items[:5]:
+                    lines.append(f"- **{it.get('invoiceId')}** &bull; {it.get('customerName')} &bull; Quá hạn: **+{it.get('overdueDays')} ngày** &bull; Còn nợ: **{it.get('currentOutstandingDecimal')} VND**")
+
+            lines.append("\n💡 Bạn có thể chuẩn bị việc theo dõi hoặc tạo tác vụ nhắc nợ tự động trực tiếp từ thẻ bên dưới.")
+
+            return {
+                "status": "success",
+                "reply": "\n".join(lines),
+                "tool_called": "get_real_overdue_invoices",
+                "tool_label": "ERP: Hóa đơn Quá hạn Cuối còn Dư nợ",
+                "tool_output": res
+            }
+        except Exception as e:
+            _logger.warning("Overdue query routing error: %s", str(e))
+
     # Tool Route 1: Repayment Schedule & Interest Rate Shock (F006)
     if any(k in q_lower for k in ["trả nợ", "lịch trả", "gốc lãi", "lãi suất tăng", "sốc lãi", "shock lãi", "pmt"]):
         principal = 1000000000.0

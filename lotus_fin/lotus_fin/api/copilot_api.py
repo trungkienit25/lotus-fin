@@ -123,7 +123,7 @@ def export_operation_logs(
     )
 
 
-@whitelist(methods=["POST"])
+@whitelist(methods=["POST"], allow_guest=True)
 def search_real_invoices(
     company: Optional[str] = None,
     prefix: Optional[str] = None,
@@ -199,7 +199,7 @@ def search_real_invoices(
         return {"status": "error", "message": str(e), "invoices": []}
 
 
-@whitelist(methods=["POST"])
+@whitelist(methods=["POST"], allow_guest=True)
 def get_real_overdue_invoices(
     company: Optional[str] = None,
     as_of_date: Optional[str] = None

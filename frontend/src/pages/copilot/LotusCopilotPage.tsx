@@ -402,46 +402,57 @@ export const LotusCopilotPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Center: Tabs Switcher Inside Modal */}
-              <div className="hidden lg:flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 max-w-full">
-                {financialAnalysisTools.map((tab) => {
-                  const isActive = activeReportTab === tab.id;
-                  return (
-                    <button
-                      key={tab.id}
-                      onClick={() => setActiveReportTab(tab.id)}
-                      className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
-                        isActive
-                          ? "bg-blue-600 text-white shadow-2xs"
-                          : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                      }`}
-                    >
-                      <ModuleBadge moduleId={tab.id} size="xs" />
-                      <span>{tab.shortLabel}</span>
-                    </button>
-                  );
-                })}
+              {/* Center: Clean 2-Category Segmented Tabs Switcher Inside Modal */}
+              <div className="flex items-center gap-2 max-w-full">
+                {/* Category 1: Auxiliary Financial Tools */}
+                <div className="flex items-center gap-1 bg-slate-100/90 p-1 rounded-xl border border-slate-200/80">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1.5 hidden xl:inline">
+                    Auxiliary
+                  </span>
+                  {financialAnalysisTools.map((tab) => {
+                    const isActive = activeReportTab === tab.id;
+                    return (
+                      <button
+                        key={tab.id}
+                        onClick={() => setActiveReportTab(tab.id)}
+                        className={`px-2 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1 ${
+                          isActive
+                            ? "bg-white text-blue-700 shadow-2xs font-bold"
+                            : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
+                        }`}
+                        title={tab.label}
+                      >
+                        <ModuleBadge moduleId={tab.id} size="xs" />
+                        <span>{tab.shortLabel.split(" ")[0]}</span>
+                      </button>
+                    );
+                  })}
+                </div>
 
-                {/* Visual Category Divider */}
-                <div className="h-4 w-px bg-slate-200 mx-1 shrink-0" />
-
-                {erpLedgerTools.map((tab) => {
-                  const isActive = activeReportTab === tab.id;
-                  return (
-                    <button
-                      key={tab.id}
-                      onClick={() => setActiveReportTab(tab.id)}
-                      className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
-                        isActive
-                          ? "bg-slate-900 text-white shadow-2xs"
-                          : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200/60"
-                      }`}
-                    >
-                      <ModuleBadge moduleId={tab.id} size="xs" />
-                      <span>{tab.shortLabel}</span>
-                    </button>
-                  );
-                })}
+                {/* Category 2: ERP Ledger Tools */}
+                <div className="flex items-center gap-1 bg-slate-100/90 p-1 rounded-xl border border-slate-200/80">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1.5 hidden xl:inline">
+                    ERP Ledger
+                  </span>
+                  {erpLedgerTools.map((tab) => {
+                    const isActive = activeReportTab === tab.id;
+                    return (
+                      <button
+                        key={tab.id}
+                        onClick={() => setActiveReportTab(tab.id)}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1 ${
+                          isActive
+                            ? "bg-slate-900 text-white shadow-2xs font-bold"
+                            : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
+                        }`}
+                        title={tab.label}
+                      >
+                        <ModuleBadge moduleId={tab.id} size="xs" />
+                        <span>{tab.shortLabel}</span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
               {/* Right: Window Controls (Maximize & Close) */}
