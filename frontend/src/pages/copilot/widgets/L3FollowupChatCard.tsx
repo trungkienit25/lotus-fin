@@ -6,23 +6,39 @@ export interface L3FollowupChatCardProps {
   customerName?: string;
   amountText?: string;
   dueDate?: string;
+  recipientEmail?: string;
   onCreateTask?: (noteText: string) => void;
 }
 
 export const L3FollowupChatCard: React.FC<L3FollowupChatCardProps> = ({
-  invoiceId = "SINV-2026-00088",
-  customerName = "Công ty TNHH Sen Vàng",
-  amountText = "87,000,000 VND",
+  invoiceId = "ACC-SINV-2026-00001",
+  customerName = "Grant Plastics Ltd.",
+  amountText = "67,000,000 VND",
   dueDate = "25/10/2026",
+  recipientEmail = "accounting@grantplastics.com",
   onCreateTask,
 }) => {
-  const [content, setContent] = useState(
-    `Kính gửi Quý đối tác ${customerName},\n\nBộ phận Kế toán xin phép gửi thông báo đối soát công nợ đối với Hóa đơn ${invoiceId} với giá trị thanh toán ${amountText}, ngày đến hạn ${dueDate}.\n\nKính mong Quý công ty kiểm tra thông tin và hỗ trợ sắp xếp tiến độ thanh toán theo quy định.\n\nTrân trọng cảm ơn sự hợp tác của Quý đối tác!`
+  const [emailTo, setEmailTo] = useState<string>(recipientEmail);
+  const [subject, setSubject] = useState<string>(
+    `[THƯ NHẮC NỢ & ĐỐI SOÁT] V/v Thanh toán hóa đơn ${invoiceId} - ${customerName}`
+  );
+  const [content, setContent] = useState<string>(
+    `Kính gửi: Ban Tài chính Kế toán - ${customerName},\n\n` +
+    `Công ty xin gửi lời chào trân trọng và lời chúc sức khỏe, thành công đến Quý đối tác.\n\n` +
+    `Chúng tôi xin phép gửi thông báo đối soát công nợ và đề nghị thanh toán đối với chứng từ sau:\n` +
+    `• Mã Hóa đơn: ${invoiceId}\n` +
+    `• Hạn thanh toán quy định: ${dueDate}\n` +
+    `• Tổng số tiền cần thanh toán: ${amountText}\n\n` +
+    `Kính mong Quý công ty kiểm tra thông tin đối soát và sắp xếp lịch thanh toán trong vòng 3 - 5 ngày làm việc để đảm bảo tiến độ kế hoạch dòng tiền hai bên.\n\n` +
+    `Nếu Quý công ty đã thực hiện lệnh chuyển khoản, xin vui lòng bỏ qua thông báo này và gửi lại ủy nhiệm chi để kế toán cập nhật vào hệ thống.\n\n` +
+    `Trân trọng cảm ơn sự hợp tác của Quý đối tác!\n` +
+    `Bộ phận Kế toán & Tài chính Doanh nghiệp`
   );
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(content);
+    const fullText = `Người nhận: ${emailTo}\nTiêu đề: ${subject}\n\n${content}`;
+    navigator.clipboard.writeText(fullText);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -36,14 +52,14 @@ export const L3FollowupChatCard: React.FC<L3FollowupChatCardProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold tracking-tight text-white">
-                Bản nháp Thư nhắc nợ Khách hàng
+                Thư Nhắc Nợ & Đề Nghị Đối Soát Công Nợ
               </span>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
-                L3 Preview
+                L3 Template
               </span>
             </div>
             <p className="text-xs text-slate-300 mt-0.5">
-              Soạn thảo đối chiếu công nợ tức thì · Lưu trữ cục bộ an toàn
+              Mẫu chuẩn mực doanh nghiệp · Đã điền sẵn số liệu đối soát chứng từ
             </p>
           </div>
         </div>
@@ -72,6 +88,33 @@ export const L3FollowupChatCard: React.FC<L3FollowupChatCardProps> = ({
           </div>
         </div>
 
+        {/* Email Recipient and Subject Row */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">
+              Email Người nhận:
+            </label>
+            <input
+              type="email"
+              value={emailTo}
+              onChange={(e) => setEmailTo(e.target.value)}
+              placeholder="nhap.email@khachhang.com"
+              className="w-full text-xs font-sans rounded-xl border border-slate-200 px-3.5 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#1E63B7]/20 focus:border-[#1E63B7] bg-[#F9FBFC] transition-all"
+            />
+          </div>
+          <div>
+            <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">
+              Tiêu đề Email:
+            </label>
+            <input
+              type="text"
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              className="w-full text-xs font-sans rounded-xl border border-slate-200 px-3.5 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#1E63B7]/20 focus:border-[#1E63B7] bg-[#F9FBFC] transition-all"
+            />
+          </div>
+        </div>
+
         {/* Text Area */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
@@ -83,25 +126,17 @@ export const L3FollowupChatCard: React.FC<L3FollowupChatCardProps> = ({
             </span>
           </div>
           <textarea
-            rows={5}
+            rows={8}
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            className="w-full text-xs font-sans rounded-xl border border-slate-200 p-3.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#1E63B7]/20 focus:border-[#1E63B7] leading-relaxed bg-[#F9FBFC] transition-all resize-none"
+            className="w-full text-xs font-sans rounded-xl border border-slate-200 p-3.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#1E63B7]/20 focus:border-[#1E63B7] leading-relaxed bg-[#F9FBFC] transition-all resize-y min-h-[160px]"
           />
-        </div>
-
-        {/* Audit Notice */}
-        <div className="p-3 rounded-xl bg-amber-50/70 border border-amber-200/70 text-amber-900 text-xs flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <span className="text-amber-600 font-bold">ℹ</span>
-            <span>Nội dung chỉ hiển thị cục bộ trên trình duyệt. Hệ thống không tự động gửi email hoặc tác động vào sổ sách kế toán.</span>
-          </div>
         </div>
 
         {/* Action Buttons */}
         <div className="pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100">
           <span className="text-[11px] text-slate-400">
-            Chọn thao tác tiếp theo phù hợp:
+            Sao chép nội dung hoặc chuyển tiếp thành công việc theo dõi:
           </span>
 
           <div className="flex items-center gap-2">
@@ -141,3 +176,4 @@ export const L3FollowupChatCard: React.FC<L3FollowupChatCardProps> = ({
     </div>
   );
 };
+

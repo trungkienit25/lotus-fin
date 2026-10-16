@@ -207,7 +207,7 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
       else if (toolCalled === "search_real_invoices" || actionIntent.kind === "L1" || actionIntent.kind === "L2") wType = "invoice_search";
       else if (toolCalled === "get_real_overdue_invoices" || actionIntent.kind === "V1") wType = "v1_past_due";
       else if (actionIntent.kind === "L4") wType = "l4_proposal";
-      else if (actionIntent.kind === "L3") wType = "l3_followup";
+      else if (toolCalled === "prepare_debt_reminder" || actionIntent.kind === "L3") wType = "l3_followup";
       else if (actionIntent.kind === "L5") wType = "l5_policy";
 
       if (replyContent) {
@@ -599,6 +599,9 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
                   <L3FollowupChatCard
                     invoiceId={msg.widgetData?.invoiceId || "ACC-SINV-2026-00001"}
                     customerName={msg.widgetData?.customerName || "Grant Plastics Ltd."}
+                    amountText={msg.widgetData?.amountText || "67,000,000 VND"}
+                    dueDate={msg.widgetData?.dueDate || "25/10/2026"}
+                    recipientEmail={msg.widgetData?.recipientEmail}
                     onCreateTask={(text) => {
                       setMessages((prev) => [
                         ...prev,
