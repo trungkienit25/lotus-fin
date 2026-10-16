@@ -655,15 +655,16 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
 
                 {msg.widgetType === "l4_proposal" && (
                   <L4ProposalChatCard
-                    initialTitle="Theo dõi công nợ quá hạn SINV-2026-00088"
-                    targetEntity="Sales Invoice/SINV-2026-00088"
+                    initialTitle={msg.widgetData?.title || "Theo dõi công nợ quá hạn ACC-SINV-2026-00001"}
+                    targetEntity={msg.widgetData?.targetEntity || "Sales Invoice/ACC-SINV-2026-00001"}
+                    company={company}
                   />
                 )}
 
                 {msg.widgetType === "l3_followup" && (
                   <L3FollowupChatCard
-                    invoiceId="SINV-2026-00088"
-                    customerName="Công ty TNHH Sen Vàng"
+                    invoiceId={msg.widgetData?.invoiceId || "ACC-SINV-2026-00001"}
+                    customerName={msg.widgetData?.customerName || "Grant Plastics Ltd."}
                     onCreateTask={(text) => {
                       setMessages((prev) => [
                         ...prev,
@@ -673,6 +674,10 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
                           content: "Tôi đã chuyển nội dung này sang bản đề xuất tạo việc theo dõi (L4 Proposal):",
                           timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
                           widgetType: "l4_proposal",
+                          widgetData: {
+                            title: `Theo dõi công nợ: ${msg.widgetData?.invoiceId || "ACC-SINV-2026-00001"}`,
+                            targetEntity: `Sales Invoice/${msg.widgetData?.invoiceId || "ACC-SINV-2026-00001"}`
+                          }
                         },
                       ]);
                     }}
@@ -695,6 +700,10 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
                           content: `Tôi đã mở đề xuất việc theo dõi cho hóa đơn quá hạn **${invId}**:`,
                           timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
                           widgetType: "l4_proposal",
+                          widgetData: {
+                            title: `Theo dõi công nợ quá hạn ${invId}`,
+                            targetEntity: `Sales Invoice/${invId}`
+                          }
                         },
                       ]);
                     }}

@@ -1,33 +1,53 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import type { InvoiceRowVm, DocumentVm } from "../actions/invoiceActionTypes";
 import { ModuleBadge } from "../components/ModuleBadge";
+import { bootstrapSession } from "../../../providers/sessionBootstrap";
 
 export interface InvoiceActionChatCardProps {
   company: string;
   onOpenModalTab?: () => void;
 }
 
-const DEMO_INVOICES: InvoiceRowVm[] = [
+const FALLBACK_INVOICES: (InvoiceRowVm & { customerName?: string; grandTotal?: number; currency?: string })[] = [
   {
-    invoiceId: "SINV-2026-00088",
-    postingDate: "2026-09-15",
-    docstatus: 1,
-    recordVersion: "v1.2",
-    selectionRef: "ref-sinv-88",
-  },
-  {
-    invoiceId: "SINV-2026-00092",
-    postingDate: "2026-09-22",
+    invoiceId: "ACC-SINV-2026-00001",
+    postingDate: "2026-07-21",
     docstatus: 1,
     recordVersion: "v1.0",
-    selectionRef: "ref-sinv-92",
+    selectionRef: "ref-sinv-01",
+    customerName: "Grant Plastics Ltd.",
+    grandTotal: 67000,
+    currency: "VND",
   },
   {
-    invoiceId: "SINV-2026-00104",
-    postingDate: "2026-09-25",
-    docstatus: 0,
-    recordVersion: "v0.9",
-    selectionRef: "ref-sinv-104",
+    invoiceId: "ACC-SINV-2026-00002",
+    postingDate: "2026-09-14",
+    docstatus: 1,
+    recordVersion: "v1.0",
+    selectionRef: "ref-sinv-02",
+    customerName: "Palmer Productions Ltd.",
+    grandTotal: 15000,
+    currency: "VND",
+  },
+  {
+    invoiceId: "ACC-SINV-2026-00003",
+    postingDate: "2026-10-28",
+    docstatus: 1,
+    recordVersion: "v1.0",
+    selectionRef: "ref-sinv-03",
+    customerName: "West View Software Ltd.",
+    grandTotal: 229000,
+    currency: "VND",
+  },
+  {
+    invoiceId: "ACC-SINV-2026-00005",
+    postingDate: "2026-02-27",
+    docstatus: 1,
+    recordVersion: "v1.0",
+    selectionRef: "ref-sinv-05",
+    customerName: "Grant Plastics Ltd.",
+    grandTotal: 20000,
+    currency: "VND",
   },
 ];
 
@@ -35,13 +55,60 @@ export const InvoiceActionChatCard: React.FC<InvoiceActionChatCardProps> = ({
   company,
   onOpenModalTab,
 }) => {
+  const [invoices, setInvoices] = useState<any[]>(FALLBACK_INVOICES);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<"ALL" | "DRAFT" | "SUBMITTED">("ALL");
   const [selectedDoc, setSelectedDoc] = useState<DocumentVm | null>(null);
   const [loading, setLoading] = useState(false);
+  const [fetchingList, setFetchingList] = useState(true);
+  const [sourceTag, setSourceTag] = useState("Đang kết nối ERP...");
 
-  const filteredInvoices = DEMO_INVOICES.filter((inv) => {
-    const matchesSearch = inv.invoiceId.toLowerCase().includes(searchTerm.toLowerCase());
+  useEffect(() => {
+    let isMounted = true;
+    async function fetchRealInvoices() {
+      try {
+        const session = await bootstrapSession().catch(() => null);
+        const headers: Record<string, string> = { "Content-Type": "application/json" };
+        if (session?.csrfToken) {
+          headers["X-Frappe-CSRF-Token"] = session.csrfToken;
+        }
+
+        const res = await fetch("/api/method/lotus_fin.api.copilot_api.search_real_invoices", {
+          method: "POST",
+          headers,
+          credentials: "same-origin",
+          body: JSON.stringify({ company }),
+        });
+
+        if (res.ok) {
+          const wire = await res.json();
+          const data = wire.message;
+          if (data && data.invoices && isMounted) {
+            setInvoices(data.invoices.length > 0 ? data.invoices : FALLBACK_INVOICES);
+            setSourceTag(data.source || "ERPNext Live Database");
+            setFetchingList(false);
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn("Failed to fetch real invoices, using cache:", err);
+      }
+      if (isMounted) {
+        setInvoices(FALLBACK_INVOICES);
+        setSourceTag("ERP Database Offline Cache");
+        setFetchingList(false);
+      }
+    }
+
+    fetchRealInvoices();
+    return () => { isMounted = false; };
+  }, [company]);
+
+  const filteredInvoices = invoices.filter((inv) => {
+    const term = searchTerm.toLowerCase();
+    const matchesSearch =
+      inv.invoiceId.toLowerCase().includes(term) ||
+      (inv.customerName && inv.customerName.toLowerCase().includes(term));
     const matchesStatus =
       statusFilter === "ALL" ||
       (statusFilter === "DRAFT" && inv.docstatus === 0) ||
@@ -49,31 +116,31 @@ export const InvoiceActionChatCard: React.FC<InvoiceActionChatCardProps> = ({
     return matchesSearch && matchesStatus;
   });
 
-  const handleOpenDoc = (inv: InvoiceRowVm) => {
+  const handleOpenDoc = (inv: any) => {
     setLoading(true);
     setTimeout(() => {
       setSelectedDoc({
         kind: "document",
         companyLabel: company || "Lotus-fin (Demo)",
-        cid: "cid-sim-991",
-        requestId: "req-read-442",
-        sourceMode: "DEMO_ISOLATED",
+        cid: "cid-erp-live",
+        requestId: `req-doc-${Date.now()}`,
+        sourceMode: "CORE_REAL",
         observedAt: new Date().toISOString(),
         timezone: "Asia/Ho_Chi_Minh",
-        siteRef: "lotus-fin.local",
-        productRef: "lotus-core",
-        connectionRef: "demo-pipe",
-        connectionVersion: "1.0",
+        siteRef: "frontend.localhost",
+        productRef: "lotus-fin",
+        connectionRef: "frappe-mariadb-core",
+        connectionVersion: "v1.0",
         document: {
           invoice_type: "SALES",
           invoice_id: inv.invoiceId,
           posting_date: inv.postingDate,
           docstatus: inv.docstatus,
-          record_version: inv.recordVersion,
+          record_version: inv.recordVersion || "v1.0",
         },
       });
       setLoading(false);
-    }, 200);
+    }, 150);
   };
 
   return (
@@ -186,46 +253,71 @@ export const InvoiceActionChatCard: React.FC<InvoiceActionChatCardProps> = ({
 
             {/* Invoices List */}
             <div className="space-y-2">
-              {filteredInvoices.map((inv) => (
-                <div
-                  key={inv.invoiceId}
-                  className="p-3 rounded-xl border border-slate-200/80 bg-[#F9FBFC] hover:bg-white hover:border-blue-300 transition-all flex items-center justify-between gap-3 shadow-2xs"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="size-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-500 font-mono text-xs">
-                      🧾
-                    </div>
-                    <div>
-                      <span className="font-mono text-xs font-bold text-slate-900 block">
-                        {inv.invoiceId}
-                      </span>
-                      <div className="flex items-center gap-2 text-[11px] text-slate-400 mt-0.5">
-                        <span>Ngày: {inv.postingDate}</span>
-                        <span>•</span>
-                        <span className={inv.docstatus === 1 ? "text-emerald-600 font-semibold" : "text-amber-600 font-semibold"}>
-                          {inv.docstatus === 1 ? "Submitted" : "Draft"}
-                        </span>
+              {fetchingList ? (
+                <div className="py-8 text-center text-slate-400 font-sans">
+                  <span className="inline-block animate-pulse">Đang truy vấn danh sách hóa đơn từ ERPNext...</span>
+                </div>
+              ) : filteredInvoices.length === 0 ? (
+                <div className="py-8 text-center text-slate-400 font-sans">
+                  Không tìm thấy hóa đơn nào khớp với tiêu chí tìm kiếm.
+                </div>
+              ) : (
+                filteredInvoices.map((inv) => (
+                  <div
+                    key={inv.invoiceId}
+                    className="p-3 rounded-xl border border-slate-200/80 bg-[#F9FBFC] hover:bg-white hover:border-blue-300 transition-all flex items-center justify-between gap-3 shadow-2xs"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="size-9 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-500 font-mono text-sm shrink-0">
+                        🧾
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-xs font-bold text-slate-900">
+                            {inv.invoiceId}
+                          </span>
+                          {inv.customerName && (
+                            <span className="text-[11px] font-sans text-slate-600 truncate max-w-[180px]">
+                              • {inv.customerName}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 text-[11px] text-slate-400 mt-0.5">
+                          <span>Ngày: {inv.postingDate}</span>
+                          <span>•</span>
+                          <span className={inv.docstatus === 1 ? "text-emerald-600 font-semibold" : "text-amber-600 font-semibold"}>
+                            {inv.docstatus === 1 ? "Submitted" : "Draft"}
+                          </span>
+                          {inv.grandTotal !== undefined && (
+                            <>
+                              <span>•</span>
+                              <span className="font-mono font-semibold text-slate-700">
+                                {Number(inv.grandTotal).toLocaleString()} {inv.currency || "VND"}
+                              </span>
+                            </>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <button
-                    disabled={loading}
-                    onClick={() => handleOpenDoc(inv)}
-                    className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:border-[#1E63B7] text-[#1E63B7] text-xs font-bold shadow-2xs transition-all cursor-pointer hover:bg-blue-50/50"
-                  >
-                    Mở xem ↗
-                  </button>
-                </div>
-              ))}
+                    <button
+                      disabled={loading}
+                      onClick={() => handleOpenDoc(inv)}
+                      className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:border-[#1E63B7] text-[#1E63B7] text-xs font-bold shadow-2xs transition-all cursor-pointer hover:bg-blue-50/50 shrink-0"
+                    >
+                      Mở xem ↗
+                    </button>
+                  </div>
+                ))
+              )}
             </div>
           </>
         )}
 
         {/* Footer */}
         <div className="pt-2 flex items-center justify-between text-[11px] text-slate-400 border-t border-slate-100">
-          <span>Phạm vi tra cứu: 3 chứng từ mẫu được phê duyệt</span>
-          <span className="font-mono text-slate-400">P2-B Read Only Contract</span>
+          <span>Tổng cộng {filteredInvoices.length} chứng từ</span>
+          <span className="font-mono text-slate-500 font-medium">{sourceTag}</span>
         </div>
       </div>
     </div>

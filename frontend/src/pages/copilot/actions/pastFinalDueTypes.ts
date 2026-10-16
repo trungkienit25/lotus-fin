@@ -15,8 +15,10 @@ export interface PastFinalDueScanCoverage {
 
 export interface PastFinalDueItemVm {
   invoiceId: string;
+  customerName?: string;
   finalDueDate: string;
   currentOutstandingDecimal: string;
+  outstandingAmount?: number;
   partyAccountCurrency: string;
   sourceModified: string;
   selectionRef: string | null;

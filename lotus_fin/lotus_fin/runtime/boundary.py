@@ -15,6 +15,9 @@ CORE_METHODS = frozenset({
     "lotus_fin.api.copilot_api.reset_chat_session",
     "lotus_fin.api.copilot_api.get_operation_logs",
     "lotus_fin.api.copilot_api.export_operation_logs",
+    "lotus_fin.api.copilot_api.search_real_invoices",
+    "lotus_fin.api.copilot_api.get_real_overdue_invoices",
+    "lotus_fin.api.copilot_api.create_real_task",
     "lotus_fin.api.ai_insights.get_financial_snapshot",
     "lotus_fin.api.ai_insights.get_ai002_cash_forecast",
     "lotus_fin.api.ai_insights.get_risk_signal",
@@ -27,6 +30,9 @@ POST_ONLY_CORE_METHODS = frozenset({
     "lotus_fin.api.invoice_actions_api.search_invoices",
     "lotus_fin.api.invoice_actions_api.open_invoice",
     "lotus_fin.api.copilot_api.chat_copilot",
+    "lotus_fin.api.copilot_api.search_real_invoices",
+    "lotus_fin.api.copilot_api.get_real_overdue_invoices",
+    "lotus_fin.api.copilot_api.create_real_task",
 })
 
 
