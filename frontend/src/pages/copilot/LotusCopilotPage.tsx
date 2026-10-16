@@ -15,6 +15,10 @@ import {
   ModuleBadge,
   InvoiceActionsTabView,
 } from "./components";
+import { IntegratedCapabilities } from "./components/IntegratedCapabilities";
+import { FollowupPreview } from "./prepare/FollowupPreview.tsx";
+import { V1PastDueChatCard } from "./widgets/V1PastDueChatCard";
+import { L4ProposalChatCard } from "./widgets/L4ProposalChatCard";
 import { createHttpTransport } from "./actions/invoiceActionClient";
 import { createDemoInvoiceTransport, type DemoScenario } from "./demo/demoInvoiceProvider";
 import type { InvoiceActionTransport } from "./actions/invoiceActionController";
@@ -26,7 +30,11 @@ export type CopilotTab =
   | "what_if"
   | "financing_copilot"
   | "repayment_schedule"
-  | "invoice_actions";
+  | "invoice_actions"
+  | "past_final_due"
+  | "task_followup"
+  | "debt_reminder"
+  | "policy_gate";
 
 export const LotusCopilotPage: React.FC = () => {
   const { t } = useTranslation();
@@ -185,7 +193,11 @@ export const LotusCopilotPage: React.FC = () => {
 
   // Category 2: ERP Ledger, Database & Operational Audit Tools
   const erpLedgerTools: Array<{ id: CopilotTab; label: string; shortLabel: string; desc: string; query: string }> = [
-    { id: "invoice_actions", label: "Tra cứu Chứng từ (P2-B)", shortLabel: "Chứng từ ERP", desc: "Tra cứu hóa đơn & việc theo dõi ERPNext", query: "Tìm hóa đơn có mã SINV" },
+    { id: "invoice_actions", label: "Tra cứu Chứng từ (L1/L2)", shortLabel: "Chứng từ (L1/L2)", desc: "Tìm kiếm & đối soát Sales Invoices", query: "Tìm hóa đơn có mã SINV" },
+    { id: "past_final_due", label: "Hóa đơn Quá hạn Cuối (V1)", shortLabel: "Quá hạn (V1)", desc: "Hóa đơn quá hạn cuối còn dư nợ", query: "Cho tôi xem danh sách hóa đơn quá hạn cuối còn dư nợ" },
+    { id: "task_followup", label: "Tạo Việc Theo dõi ERP (L4)", shortLabel: "Tạo việc (L4)", desc: "Khởi tạo tác vụ theo dõi trên tabTask", query: "Tạo task theo dõi công nợ cho hóa đơn ACC-SINV-2026-00001" },
+    { id: "debt_reminder", label: "Soạn Thư Nhắc Nợ (L3)", shortLabel: "Nhắc nợ (L3)", desc: "Bản nháp gửi khách hàng kiểm toán", query: "Soạn thư nhắc nợ đối soát công nợ cho khách hàng" },
+    { id: "policy_gate", label: "Cổng Chính sách Tác động (L5)", shortLabel: "Chính sách (L5)", desc: "Kiểm soát an toàn dual-control", query: "Đánh giá chính sách hủy bỏ chứng từ hoặc gửi thanh toán tự động" },
   ];
 
   const allFeatureTools = [...financialAnalysisTools, ...erpLedgerTools];
@@ -529,7 +541,47 @@ export const LotusCopilotPage: React.FC = () => {
                   onSetDemoProfile={setDemoProfile}
                   onSetDemoScenario={setDemoScenario}
                   activeInvoiceTransport={activeInvoiceTransport}
+                  onPrepareFollowup={(invId) => {
+                    handleTriggerChatPrompt(`Soạn thư nhắc nợ đối soát công nợ cho hóa đơn ${invId}`);
+                  }}
                 />
+              )}
+              {activeReportTab === "past_final_due" && (
+                <div className="max-w-4xl mx-auto space-y-4">
+                  <V1PastDueChatCard
+                    company={selectedCompany}
+                    onSelectInvoice={(invId) => {
+                      handleTriggerChatPrompt(`Tạo task theo dõi công nợ cho hóa đơn ${invId}`);
+                    }}
+                  />
+                </div>
+              )}
+              {activeReportTab === "task_followup" && (
+                <div className="max-w-3xl mx-auto space-y-4">
+                  <L4ProposalChatCard
+                    initialTitle="Theo dõi công nợ quá hạn ACC-SINV-2026-00001"
+                    targetEntity="Sales Invoice/ACC-SINV-2026-00001"
+                    company={selectedCompany}
+                  />
+                </div>
+              )}
+              {activeReportTab === "debt_reminder" && (
+                <div className="max-w-2xl mx-auto py-4">
+                  <FollowupPreview
+                    scopeEpoch="epoch-erp-active"
+                    onPrepareTask={(body: string) => {
+                      handleTriggerChatPrompt(`Tạo task theo dõi công nợ: ${body.slice(0, 50)}...`);
+                    }}
+                  />
+                </div>
+              )}
+              {activeReportTab === "policy_gate" && (
+                <div className="max-w-3xl mx-auto">
+                  <IntegratedCapabilities
+                    profile={demoProfile}
+                    feature="L5"
+                  />
+                </div>
               )}
             </div>
           </div>

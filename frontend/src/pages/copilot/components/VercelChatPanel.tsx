@@ -697,21 +697,21 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
                           </div>
                         </div>
                         <button
-                          onClick={() =>
-                            onOpenInspector(
-                              msg.widgetType === "health"
-                                ? "financial_health"
-                                : msg.widgetType === "cash_forecast"
-                                ? "cash_forecast"
-                                : msg.widgetType === "risk_signal"
-                                ? "risk_signals"
-                                : msg.widgetType === "what_if"
-                                ? "what_if"
-                                : msg.widgetType === "financing"
-                                ? "financing_copilot"
-                                : "repayment_schedule"
-                            )
-                          }
+                          onClick={() => {
+                            if (!onOpenInspector) return;
+                            if (msg.widgetType === "health") onOpenInspector("financial_health");
+                            else if (msg.widgetType === "cash_forecast") onOpenInspector("cash_forecast");
+                            else if (msg.widgetType === "risk_signal") onOpenInspector("risk_signals");
+                            else if (msg.widgetType === "what_if") onOpenInspector("what_if");
+                            else if (msg.widgetType === "financing") onOpenInspector("financing_copilot");
+                            else if (msg.widgetType === "repayment") onOpenInspector("repayment_schedule");
+                            else if (msg.widgetType === "invoice_search") onOpenInspector("invoice_actions");
+                            else if (msg.widgetType === "v1_past_due") onOpenInspector("past_final_due");
+                            else if (msg.widgetType === "l4_proposal") onOpenInspector("task_followup");
+                            else if (msg.widgetType === "l3_followup") onOpenInspector("debt_reminder");
+                            else if (msg.widgetType === "l5_policy") onOpenInspector("policy_gate");
+                            else onOpenInspector("financial_health");
+                          }}
                           className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-gray-50 border border-gray-200 text-xs font-bold text-[#1E63B7] shadow-2xs transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 hover:border-[#1E63B7]"
                         >
                           <span>Open Report</span>

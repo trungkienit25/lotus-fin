@@ -118,11 +118,11 @@ export const getAIModuleBadgeConfig = (id: string): ModuleBadgeConfig => {
   }
 
   // 7. P2-B — Chứng từ & Tác vụ Kế toán / ERP Live Actions (Dark Slate -> Blue Gradient)
-  if (normalized.includes("invoice") || normalized.includes("action") || normalized.includes("chungtu") || normalized.includes("p2b") || normalized.includes("task")) {
+  if (normalized.includes("invoice") || normalized.includes("action") || normalized.includes("chungtu") || normalized.includes("p2b")) {
     return {
       bg: "bg-gradient-to-br from-slate-800 via-indigo-900 to-blue-700",
-      code: "ERP",
-      label: "Chứng từ & Tác vụ",
+      code: "L1/L2",
+      label: "Tra cứu Chứng từ",
       icon: (
         <svg className="w-full h-full block shrink-0 text-white drop-shadow-2xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -130,6 +130,65 @@ export const getAIModuleBadgeConfig = (id: string): ModuleBadgeConfig => {
           <line x1="16" y1="13" x2="8" y2="13" />
           <line x1="16" y1="17" x2="8" y2="17" />
           <polyline points="10 9 9 9 8 9" />
+        </svg>
+      ),
+    };
+  }
+
+  // 8. V1 — Hóa đơn Quá hạn Cuối còn Dư nợ (Amber / Red Gradient)
+  if (normalized.includes("pastfinaldue") || normalized.includes("overdue") || normalized.includes("v1")) {
+    return {
+      bg: "bg-gradient-to-br from-amber-700 via-rose-800 to-red-900",
+      code: "V1",
+      label: "Quá hạn Cuối",
+      icon: (
+        <svg className="w-full h-full block shrink-0 text-white drop-shadow-2xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="12 6 12 12 16 14" />
+        </svg>
+      ),
+    };
+  }
+
+  // 9. L4 — Tạo Tác vụ Theo dõi Kế toán (Indigo / Blue Gradient)
+  if (normalized.includes("task") || normalized.includes("followup") || normalized.includes("l4")) {
+    return {
+      bg: "bg-gradient-to-br from-indigo-700 to-blue-600",
+      code: "L4",
+      label: "Tạo Việc Theo dõi",
+      icon: (
+        <svg className="w-full h-full block shrink-0 text-white drop-shadow-2xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M9 11l3 3L22 4" />
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+        </svg>
+      ),
+    };
+  }
+
+  // 10. L3 — Soạn Thảo Thư Nhắc Nợ (Emerald / Teal Gradient)
+  if (normalized.includes("debt") || normalized.includes("reminder") || normalized.includes("nhacno") || normalized.includes("l3")) {
+    return {
+      bg: "bg-gradient-to-br from-emerald-700 to-teal-600",
+      code: "L3",
+      label: "Thư Nhắc Nợ",
+      icon: (
+        <svg className="w-full h-full block shrink-0 text-white drop-shadow-2xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+          <polyline points="22,6 12,13 2,6" />
+        </svg>
+      ),
+    };
+  }
+
+  // 11. L5 — Cổng Chính sách Tác động Lớn (Rose / Purple Gradient)
+  if (normalized.includes("policy") || normalized.includes("gate") || normalized.includes("l5")) {
+    return {
+      bg: "bg-gradient-to-br from-rose-800 via-pink-900 to-purple-950",
+      code: "L5",
+      label: "Cổng Chính sách",
+      icon: (
+        <svg className="w-full h-full block shrink-0 text-white drop-shadow-2xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
         </svg>
       ),
     };

@@ -169,8 +169,11 @@ def process_copilot_query(
                 params = StressScenarioParams(stress_type=StressType.RATE_SHOCK, rate_shock_bps=shock_bps)
                 st_res = stress_engine.run_stress_test(terms, params)
                 int_kpi = next((k for k in st_res.comparison_kpis if k.kpi_name == "Total Interest"), None)
+                int_kpi = next((k for k in st_res.comparison_kpis if (k.get("kpi_name") if isinstance(k, dict) else getattr(k, "kpi_name", None)) == "Total Interest"), None)
                 if int_kpi:
                     added_interest = float(int_kpi.absolute_change)
+                    added_val = int_kpi.get("absolute_change", 0) if isinstance(int_kpi, dict) else getattr(int_kpi, "absolute_change", 0)
+                    added_interest = float(added_val or 0.0)
                     shock_info = f"\n- **Tác động sốc lãi suất (+{shock_bps} bps):** Chi phí lãi tăng thêm **+{_format_currency(added_interest)}**."
 
             avg_monthly = float(sched_res.summary.get("average_monthly_payment", 0.0))
