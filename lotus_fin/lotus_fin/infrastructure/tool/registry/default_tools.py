@@ -5,6 +5,7 @@ from lotus_fin.infrastructure.tool.impl.f003_risk_tool import EvaluateRiskSignal
 from lotus_fin.infrastructure.tool.impl.f004_whatif_tool import SimulateWhatIfTool
 from lotus_fin.infrastructure.tool.impl.f005_financing_tool import MatchFinancingProductsTool
 from lotus_fin.infrastructure.tool.impl.f006_repayment_tool import CalculateRepaymentScheduleTool
+from lotus_fin.infrastructure.tool.impl.f007_debt_reminder_tool import PrepareDebtReminderTool
 
 
 def create_default_tool_registry() -> ToolRegistry:
@@ -15,5 +16,6 @@ def create_default_tool_registry() -> ToolRegistry:
     registry.register(SimulateWhatIfTool())
     registry.register(MatchFinancingProductsTool())
     registry.register(CalculateRepaymentScheduleTool())
+    registry.register(PrepareDebtReminderTool())
     return registry
 

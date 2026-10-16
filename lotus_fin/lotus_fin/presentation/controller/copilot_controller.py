@@ -87,6 +87,28 @@ class CopilotController:
         )
 
         session_id = dto.session_id or f"{user_id}_{verified_company}"
+
+        # 1. Direct deterministic fast-path for operational accounting intents (invoice search, debt reminder, overdue debt)
+        q_norm = dto.message.lower()
+        if any(k in q_norm for k in ["soạn thư", "nhắc nợ", "thư nhắc nợ", "thư đòi nợ", "debt reminder", "tìm hóa đơn", "tra cứu hóa đơn", "tra cứu chứng từ", "quá hạn", "past final due"]):
+            from lotus_fin.core.ai.agent_copilot import process_copilot_query
+            fast_res = process_copilot_query(
+                query=dto.message,
+                company=verified_company,
+                as_of_date=dto.as_of_date
+            )
+            return {
+                "session_id": session_id,
+                "reply": fast_res.get("reply"),
+                "tool_called": fast_res.get("tool_called"),
+                "tool_label": fast_res.get("tool_label"),
+                "tool_output": fast_res.get("tool_output"),
+                "ui_widget": fast_res.get("ui_widget"),
+                "executed_tools": [fast_res.get("tool_called")] if fast_res.get("tool_called") else [],
+                "trace_id": None,
+                "latency_ms": 10
+            }
+
         copilot_svc = service or get_copilot_service()
 
         try:
