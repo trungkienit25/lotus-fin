@@ -117,6 +117,15 @@ export const LotusCopilotPage: React.FC = () => {
     },
   ]);
 
+  // Trigger prompt in chat stream
+  const [activePrompt, setActivePrompt] = useState<string | null>(null);
+
+  const handleTriggerChatPrompt = (query: string) => {
+    setActivePrompt(query);
+    // Ensure modal is closed when triggering in chat
+    setIsReportModalOpen(false);
+  };
+
   // Sync tab with URL
   useEffect(() => {
     const currentTab = getInitialTab();
@@ -165,18 +174,18 @@ export const LotusCopilotPage: React.FC = () => {
   }, []);
 
   // Category 1: Auxiliary Financial Analysis & Planning Tools (AI001 - AI006)
-  const financialAnalysisTools: Array<{ id: CopilotTab; label: string; shortLabel: string; desc: string }> = [
-    { id: "financial_health", label: "Financial Health (AI001)", shortLabel: "Health (AI001)", desc: "8 key ratios & P&L metrics" },
-    { id: "cash_forecast", label: "30-Day Cash Forecast (AI002)", shortLabel: "Cash (AI002)", desc: "Balance trajectory & AR/AP" },
-    { id: "risk_signals", label: "Risk Signals (AI003)", shortLabel: "Risk (AI003)", desc: "Overdue debt & AP schedule" },
-    { id: "what_if", label: "Stress-Testing Studio (AI004)", shortLabel: "What-If (AI004)", desc: "9-KPI stress simulations" },
-    { id: "financing_copilot", label: "Loan Matchmaker (AI005)", shortLabel: "Financing (AI005)", desc: "Bank credit products" },
-    { id: "repayment_schedule", label: "Repayment Schedule (AI006)", shortLabel: "Repayment (AI006)", desc: "PMT amortization table" },
+  const financialAnalysisTools: Array<{ id: CopilotTab; label: string; shortLabel: string; desc: string; query: string }> = [
+    { id: "financial_health", label: "Financial Health (AI001)", shortLabel: "Health (AI001)", desc: "8 key ratios & P&L metrics", query: "Phân tích sức khỏe tài chính & các chỉ số kế toán trọng yếu năm 2026" },
+    { id: "cash_forecast", label: "30-Day Cash Forecast (AI002)", shortLabel: "Cash (AI002)", desc: "Balance trajectory & AR/AP", query: "Dự báo dòng tiền 30 ngày tới và đánh giá rủi ro thanh khoản" },
+    { id: "risk_signals", label: "Risk Signals (AI003)", shortLabel: "Risk (AI003)", desc: "Overdue debt & AP schedule", query: "Kiểm tra tín hiệu rủi ro nợ quá hạn và lịch trả nợ nhà cung cấp" },
+    { id: "what_if", label: "Stress-Testing Studio (AI004)", shortLabel: "What-If (AI004)", desc: "9-KPI stress simulations", query: "Chạy mô phỏng Stress-Test What-If 9 chỉ số nếu doanh thu biến động" },
+    { id: "financing_copilot", label: "Loan Matchmaker (AI005)", shortLabel: "Financing (AI005)", desc: "Bank credit products", query: "Gợi ý các gói vay tín dụng ngân hàng phù hợp với hồ sơ tài chính" },
+    { id: "repayment_schedule", label: "Repayment Schedule (AI006)", shortLabel: "Repayment (AI006)", desc: "PMT amortization table", query: "Lập bảng phân bổ lịch trả nợ PMT gốc và lãi chi tiết" },
   ];
 
   // Category 2: ERP Ledger, Database & Operational Audit Tools
-  const erpLedgerTools: Array<{ id: CopilotTab; label: string; shortLabel: string; desc: string }> = [
-    { id: "invoice_actions", label: "Tra cứu Chứng từ (P2-B)", shortLabel: "Chứng từ ERP", desc: "Tra cứu hóa đơn & việc theo dõi ERPNext" },
+  const erpLedgerTools: Array<{ id: CopilotTab; label: string; shortLabel: string; desc: string; query: string }> = [
+    { id: "invoice_actions", label: "Tra cứu Chứng từ (P2-B)", shortLabel: "Chứng từ ERP", desc: "Tra cứu hóa đơn & việc theo dõi ERPNext", query: "Tìm hóa đơn có mã SINV" },
   ];
 
   const allFeatureTools = [...financialAnalysisTools, ...erpLedgerTools];
@@ -198,6 +207,7 @@ export const LotusCopilotPage: React.FC = () => {
           <button
             onClick={() => {
               setIsReportModalOpen(false);
+              setActivePrompt(null);
             }}
             className="w-full py-2.5 px-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs shrink-0 mb-3"
           >
@@ -216,9 +226,7 @@ export const LotusCopilotPage: React.FC = () => {
                 {recentChats.map((chat) => (
                   <div
                     key={chat.id}
-                    onClick={() => {
-                      // Trigger chat or focus
-                    }}
+                    onClick={() => handleTriggerChatPrompt(chat.query)}
                     className="p-2 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-200 cursor-pointer transition-all group"
                   >
                     <div className="flex items-center gap-2 text-xs font-medium text-slate-700 group-hover:text-blue-700 truncate">
@@ -252,13 +260,13 @@ export const LotusCopilotPage: React.FC = () => {
                 </span>
               </button>
 
-              {/* Financial tools list when expanded */}
+              {/* Financial tools list when expanded: triggers in chat directly */}
               {isFinToolsExpanded && (
                 <div className="mt-1.5 space-y-1 pl-1 pr-0.5 animate-fadeIn">
                   {financialAnalysisTools.map((t) => (
                     <button
                       key={t.id}
-                      onClick={() => handleOpenReportModal(t.id)}
+                      onClick={() => handleTriggerChatPrompt(t.query)}
                       className="w-full text-left p-2 rounded-xl hover:bg-blue-50/70 hover:border-blue-200 border border-transparent text-slate-700 transition-all flex items-center justify-between cursor-pointer group"
                     >
                       <div className="flex items-center gap-2.5 overflow-hidden">
@@ -271,7 +279,7 @@ export const LotusCopilotPage: React.FC = () => {
                         </div>
                       </div>
                       <span className="text-[10px] text-blue-500 font-bold opacity-0 group-hover:opacity-100 shrink-0 transition-opacity">
-                        ↗
+                        💬
                       </span>
                     </button>
                   ))}
@@ -298,13 +306,13 @@ export const LotusCopilotPage: React.FC = () => {
                 </span>
               </button>
 
-              {/* ERP Ledger tools list when expanded */}
+              {/* ERP Ledger tools list when expanded: triggers in chat directly */}
               {isErpToolsExpanded && (
                 <div className="mt-1.5 space-y-1 pl-1 pr-0.5 animate-fadeIn">
                   {erpLedgerTools.map((t) => (
                     <button
                       key={t.id}
-                      onClick={() => handleOpenReportModal(t.id)}
+                      onClick={() => handleTriggerChatPrompt(t.query)}
                       className="w-full text-left p-2 rounded-xl hover:bg-indigo-50/70 hover:border-indigo-200 border border-transparent text-slate-700 transition-all flex items-center justify-between cursor-pointer group"
                     >
                       <div className="flex items-center gap-2.5 overflow-hidden">
@@ -317,7 +325,7 @@ export const LotusCopilotPage: React.FC = () => {
                         </div>
                       </div>
                       <span className="text-[10px] text-indigo-500 font-bold opacity-0 group-hover:opacity-100 shrink-0 transition-opacity">
-                        ↗
+                        💬
                       </span>
                     </button>
                   ))}
@@ -352,23 +360,14 @@ export const LotusCopilotPage: React.FC = () => {
 
       {/* 2. Main Center Workspace: Full Vercel AI Chatbot Feed (Spacious & 100% Focused) */}
       <div className="flex-1 flex flex-col h-full relative overflow-hidden">
-        {/* Toggle Left Sidebar Button Bar */}
-        <div className="absolute top-3 left-3 z-30">
-          <button
-            onClick={() => setIsLeftSidebarOpen(!isLeftSidebarOpen)}
-            className="p-2 rounded-xl bg-white/90 backdrop-blur border border-slate-200 text-slate-600 hover:text-slate-900 shadow-2xs hover:bg-slate-50 transition-all cursor-pointer"
-            title={isLeftSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h7" />
-            </svg>
-          </button>
-        </div>
-
         <VercelChatPanel
           company={selectedCompany}
           activeInspectorTab={activeReportTab}
           onOpenInspector={handleOpenReportModal}
+          onToggleSidebar={() => setIsLeftSidebarOpen(!isLeftSidebarOpen)}
+          isSidebarOpen={isLeftSidebarOpen}
+          externalTriggerPrompt={activePrompt}
+          onClearExternalTrigger={() => setActivePrompt(null)}
           className="h-full"
         />
       </div>
@@ -384,25 +383,27 @@ export const LotusCopilotPage: React.FC = () => {
             }`}
           >
             {/* Modal Header Bar */}
-            <div className="px-5 py-3 border-b border-slate-200 bg-white flex flex-col md:flex-row md:items-center justify-between gap-3 shrink-0">
-              {/* Header Title & Company Badge */}
-              <div className="flex items-center gap-3">
+            <div className="px-5 py-3.5 border-b border-slate-200 bg-white flex items-center justify-between gap-4 shrink-0">
+              {/* Left: Title & Company Badge */}
+              <div className="flex items-center gap-3 min-w-0 shrink-0">
                 <ModuleBadge moduleId={activeReportTab} size="md" />
-                <div>
+                <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-slate-900 text-sm">Financial Analytics & AI Audit</span>
-                    <span className="text-[10px] font-semibold bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full border border-blue-200">
+                    <span className="font-bold text-slate-900 text-sm tracking-tight truncate">
+                      Financial Analytics & AI Audit
+                    </span>
+                    <span className="text-[10px] font-semibold bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full border border-blue-200 shrink-0">
                       {selectedCompany}
                     </span>
                   </div>
-                  <div className="text-[11px] text-slate-400">
+                  <div className="text-[11px] text-slate-400 truncate">
                     Real-time ERPNext General Ledger reconciliation
                   </div>
                 </div>
               </div>
 
-              {/* Tabs Switcher Inside Modal */}
-              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 max-w-full">
+              {/* Center: Tabs Switcher Inside Modal */}
+              <div className="hidden lg:flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 max-w-full">
                 {financialAnalysisTools.map((tab) => {
                   const isActive = activeReportTab === tab.id;
                   return (
@@ -443,8 +444,8 @@ export const LotusCopilotPage: React.FC = () => {
                 })}
               </div>
 
-              {/* Window Controls: Maximize & Close */}
-              <div className="flex items-center gap-1 self-end md:self-auto">
+              {/* Right: Window Controls (Maximize & Close) */}
+              <div className="flex items-center gap-1.5 shrink-0">
                 <button
                   onClick={() => setIsModalMaximized(!isModalMaximized)}
                   className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"

@@ -11,7 +11,7 @@ export function routeCopilotIntent(text: string): IntegratedIntent {
   if (/tao task|create task|task theo doi/.test(normalized)) return { kind: "L4" };
   if (/soan.*nhac|soan thu|nhac no|reminder|follow.?up|draft email/.test(normalized)) return { kind: "L3" };
   if (/mo hoa don|open invoice/.test(normalized)) return { kind: "L2", message: "Chọn đúng một hóa đơn trong kết quả rồi bấm Open; không đoán mục tiêu từ lời nhắn." };
-  if (/tim hoa don|find invoice|search invoice/.test(normalized)) return { kind: "L1" };
+  if (/tim hoa don|find invoice|search invoice|tra cuu hoa don|tra cuu chung tu|chung tu erp|co so du lieu erp/.test(normalized)) return { kind: "L1" };
   const invoice = parseInvoiceIntent(text);
   if (invoice.kind === "clarify") return { kind: "CLARIFY", message: invoice.questions.join("\n\n") };
   if (invoice.kind === "search") return { kind: "L1" };

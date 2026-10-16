@@ -48,13 +48,17 @@ export interface ChatMessage {
   suggestedActions?: string[];
 }
 
-interface VercelChatPanelProps {
+export interface VercelChatPanelProps {
   company: string;
   activeInspectorTab?: string;
   onOpenInspector?: (tab: string) => void;
   onClose?: () => void;
   onExpand?: () => void;
+  onToggleSidebar?: () => void;
+  isSidebarOpen?: boolean;
   className?: string;
+  externalTriggerPrompt?: string | null;
+  onClearExternalTrigger?: () => void;
 }
 
 export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
@@ -63,7 +67,11 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
   onOpenInspector,
   onClose,
   onExpand,
+  onToggleSidebar,
+  isSidebarOpen = true,
   className = "",
+  externalTriggerPrompt,
+  onClearExternalTrigger,
 }) => {
   const { t } = useTranslation();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -86,6 +94,16 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
       scrollToBottom();
     }
   }, [messages, loading]);
+
+  // Handle external trigger prompt (from sidebar or quick actions)
+  useEffect(() => {
+    if (externalTriggerPrompt && externalTriggerPrompt.trim()) {
+      handleSendMessage(externalTriggerPrompt);
+      if (onClearExternalTrigger) {
+        onClearExternalTrigger();
+      }
+    }
+  }, [externalTriggerPrompt]);
 
   // Auto-resize textarea
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -426,6 +444,18 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
       {/* 1. Chat Header Bar - Compact & Clean */}
       <div className="flex items-center justify-between px-3.5 sm:px-5 py-2.5 border-b border-gray-200 bg-white/95 backdrop-blur sticky top-0 z-10 shrink-0">
         <div className="flex items-center gap-2.5 min-w-0">
+          {onToggleSidebar && (
+            <button
+              onClick={onToggleSidebar}
+              className="p-1.5 -ml-1 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer shrink-0"
+              title={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+            >
+              <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h7" />
+              </svg>
+            </button>
+          )}
+
           <div
             className="size-7 rounded-lg flex items-center justify-center text-white font-bold text-xs shadow-xs shrink-0"
             style={{ background: "linear-gradient(135deg, #1E63B7 0%, #2FB29A 100%)" }}
