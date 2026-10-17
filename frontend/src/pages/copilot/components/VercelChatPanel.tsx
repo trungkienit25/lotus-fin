@@ -5,6 +5,7 @@ import DOMPurify from "dompurify";
 import { useTranslation } from "../../../i18n";
 import { formatBrandText } from "../../../utils/brand";
 import { ModuleBadge } from "./ModuleBadge";
+import { CopilotMessageBody } from "./CopilotMessageBody";
 import { bootstrapSession } from "../../../providers/sessionBootstrap";
 import { routeCopilotIntent } from "../actions/copilotIntentRouter";
 import {
@@ -672,8 +673,8 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
                   </div>
                 )}
 
-                {/* Executive Markdown Content with Industry-Standard Typography */}
-                <ExecutiveMarkdownView content={msg.content} />
+                {/* KaTeX Math & Markdown Content with Industry-Standard Typography */}
+                <CopilotMessageBody content={msg.content} />
 
                 {/* Action Widgets Directly in Chat Feed */}
                 {msg.widgetType === "invoice_search" && (
