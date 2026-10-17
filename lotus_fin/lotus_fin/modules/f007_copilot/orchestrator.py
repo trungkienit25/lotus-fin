@@ -187,8 +187,11 @@ class CopilotOrchestrator:
                 }
                 
                 # Trích xuất logic so sánh
-                interest_kpi = next((k for k in result.comparison_kpis if k.kpi_name == "Total Interest"), None)
-                added_cost = interest_kpi.absolute_change if interest_kpi else 0
+                interest_kpi = next((k for k in result.comparison_kpis if (k.get("kpi_name") if isinstance(k, dict) else getattr(k, "kpi_name", None)) == "Total Interest"), None)
+                if interest_kpi:
+                    added_cost = float(interest_kpi.get("absolute_change", 0) if isinstance(interest_kpi, dict) else getattr(interest_kpi, "absolute_change", 0))
+                else:
+                    added_cost = 0.0
                 
                 reply = f"Tôi đã chạy kịch bản Stress Test (Tăng {stress_bps} bps lãi suất). Tổng lãi phải trả của bạn sẽ tăng thêm **{added_cost:,.0f} VND** so với kịch bản gốc."
                 

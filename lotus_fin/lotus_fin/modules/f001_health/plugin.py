@@ -52,10 +52,14 @@ class HealthPlugin(BaseLotusPlugin):
 
     def execute_tool(self, tool_name: str, arguments: Dict[str, Any]) -> Any:
         if tool_name == "get_financial_snapshot":
+            company = arguments.get("company", "Lotus-fin (Demo)")
+            as_of = arguments.get("as_of_date")
+            p_end = arguments.get("period_end") or as_of or "2026-12-31"
+            p_start = arguments.get("period_start") or (p_end[:4] + "-01-01")
             return self._service.get_financial_snapshot(
-                company=arguments["company"],
-                period_start=arguments["period_start"],
-                period_end=arguments["period_end"]
+                company=company,
+                period_start=p_start,
+                period_end=p_end
             )
         raise KeyError(f"Unknown tool '{tool_name}' for plugin {self.plugin_id}")
 

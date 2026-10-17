@@ -6,12 +6,7 @@
 
 set -eo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DOCKER_DIR="${ROOT_DIR}/frappe_docker"
-COMPOSE_FILE="${DOCKER_DIR}/pwd.yml"
-BACKEND_CONTAINER="frappe_docker-backend-1"
-FRONTEND_CONTAINER="frappe_docker-frontend-1"
-DB_CONTAINER="frappe_docker-db-1"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # --- Màu sắc hiển thị ---
 RED='\033[0;31m'
@@ -309,11 +304,13 @@ case "$CMD" in
         check_and_prepare_environment
         start_docker_stack
         ;;
-    sync)
-        sync_app_code
+    dev|start|local)
+        shift
+        exec "${SCRIPT_DIR}/scripts/dev/run-dev.sh" "$@"
         ;;
-    demo)
-        seed_demo_data
+    package|packaging|build)
+        shift
+        exec "${SCRIPT_DIR}/scripts/packaging/run-packaging.sh" "$@"
         ;;
     test)
         docker exec "$BACKEND_CONTAINER" bench --site frontend set-config allow_tests true
@@ -333,7 +330,12 @@ case "$CMD" in
         docker stats --no-stream --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.MemPerc}}"
         ;;
     logs)
-        docker logs "$BACKEND_CONTAINER" --tail 100 -f
+        shift
+        if docker compose -f "${SCRIPT_DIR}/docker/production/compose.prod.yml" ps -q 2>/dev/null | grep -q .; then
+            exec "${SCRIPT_DIR}/scripts/container/run-container.sh" logs "$@"
+        else
+            docker logs "frappe_docker-backend-1" --tail 100 -f
+        fi
         ;;
     stop|down)
         docker compose -f "$COMPOSE_FILE" stop

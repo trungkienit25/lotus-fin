@@ -70,7 +70,7 @@ export function App() {
           <Route
             element={
               <Authenticated key="authenticated-outer" fallback={<Outlet />}>
-                <NavigateToResource />
+                <Navigate to="/copilot" replace />
               </Authenticated>
             }
           >

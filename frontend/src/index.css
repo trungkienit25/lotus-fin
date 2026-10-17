@@ -53,3 +53,165 @@
   border: none !important;
   min-height: 100vh;
 }
+
+/* Executive Chat Typography Styles */
+.prose-chat {
+  font-family: inherit;
+  color: #1e293b;
+  line-height: 1.68;
+  font-size: 0.845rem;
+}
+
+.prose-chat > *:first-child {
+  margin-top: 0 !important;
+}
+
+.prose-chat > *:last-child {
+  margin-bottom: 0 !important;
+}
+
+.prose-chat h1, .prose-chat h2, .prose-chat h3, .prose-chat h4 {
+  color: #0f172a;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  margin-top: 1rem;
+  margin-bottom: 0.35rem;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.prose-chat h1 { font-size: 1.05rem; }
+.prose-chat h2 { font-size: 0.98rem; }
+.prose-chat h3 { font-size: 0.92rem; }
+.prose-chat h4 { font-size: 0.85rem; }
+
+.prose-chat p {
+  margin-top: 0.45rem;
+  margin-bottom: 0.45rem;
+  color: #334155;
+}
+
+.prose-chat ul {
+  list-style-type: none;
+  padding-left: 0.25rem;
+  margin-top: 0.4rem;
+  margin-bottom: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.prose-chat ul > li {
+  position: relative;
+  padding-left: 1.25rem;
+  color: #334155;
+}
+
+.prose-chat ul > li::before {
+  content: "•";
+  position: absolute;
+  left: 0.25rem;
+  color: #1E63B7;
+  font-weight: bold;
+  font-size: 1.1em;
+  line-height: 1.2;
+}
+
+.prose-chat ol {
+  list-style-type: decimal;
+  padding-left: 1.25rem;
+  margin-top: 0.4rem;
+  margin-bottom: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  color: #334155;
+}
+
+.prose-chat ol > li::marker {
+  font-weight: 700;
+  color: #64748b;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.prose-chat hr {
+  border: 0;
+  border-top: 1px solid #e2e8f0;
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.prose-chat strong, .prose-chat b {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.prose-chat code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.78rem;
+  background-color: #f1f5f9;
+  color: #1E63B7;
+  padding: 0.15rem 0.4rem;
+  border-radius: 0.375rem;
+  border: 1px solid #e2e8f0;
+}
+
+.prose-chat pre {
+  background-color: #0f172a;
+  color: #f8fafc;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  font-size: 0.78rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.prose-chat blockquote {
+  border-left: 3px solid #1E63B7;
+  padding-left: 0.75rem;
+  color: #475569;
+  background-color: #f8fafc;
+  border-radius: 0 0.375rem 0.375rem 0;
+  padding-top: 0.35rem;
+  padding-bottom: 0.35rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-style: italic;
+}
+
+.prose-chat a {
+  color: #1E63B7;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  font-weight: 500;
+}
+
+.prose-chat a:hover {
+  color: #164e8e;
+}
+
+.prose-chat table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.prose-chat th {
+  background-color: #f8fafc;
+  font-weight: 600;
+  text-align: left;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #e2e8f0;
+  color: #1e293b;
+}
+
+.prose-chat td {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+}
+

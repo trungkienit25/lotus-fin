@@ -5,7 +5,7 @@ Coordinates matching, 9-KPI scenario simulation, and grounded AI advisory.
 
 from decimal import Decimal
 import logging
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 from .models import (
     CompanyFinancialProfile,
     FundingRequest,
@@ -160,6 +160,10 @@ class FinancingService:
         }
 
     def _build_profile(self, company: str, data: Dict[str, Any]) -> CompanyFinancialProfile:
+        data_mode = data.get("data_mode", "manual")
+        # Invariant F03 / N08: Client cannot self-claim verified or audited
+        if data_mode in ["verified", "audited"]:
+            data_mode = "manual"
         return CompanyFinancialProfile(
             company_name=company,
             operating_months=int(data.get("operating_months", 24)),
@@ -169,24 +173,138 @@ class FinancingService:
             has_collateral=bool(data.get("has_collateral", False)),
             collateral_types=data.get("collateral_types", []),
             projected_shortfall_days=int(data.get("projected_shortfall_days", 999)),
-            has_audited_financials=bool(data.get("has_audited_financials", False))
+            has_audited_financials=bool(data.get("has_audited_financials", False)),
+            data_mode=data_mode
         )
 
-    def _extract_company_profile_from_core(self, company: str) -> CompanyFinancialProfile:
-        return CompanyFinancialProfile(
-            company_name=company, operating_months=24,
-            annual_revenue=Decimal("2400000000"), current_cash_balance=Decimal("350000000"),
-            current_dscr=Decimal("1.40"), has_collateral=False, collateral_types=[],
-            projected_shortfall_days=20, has_audited_financials=False
-        )
+    def _extract_company_profile_from_core(self, company: str, allow_demo: bool = True) -> CompanyFinancialProfile:
+        # Check if ERPNext snapshot is available via get_financial_snapshot
+        try:
+            import frappe
+            if frappe is not None and hasattr(frappe, "db") and frappe.db is not None:
+                from lotus_fin.api.ai_insights import get_financial_snapshot
+                snapshot_res = get_financial_snapshot(company=company)
+                if snapshot_res and isinstance(snapshot_res, dict):
+                    data = snapshot_res.get("data") or snapshot_res
+                    metrics = data.get("metrics")
+                    if isinstance(metrics, list):
+                        avail = [m for m in metrics if m.get("status") == "AVAILABLE"]
+                        # N07: Profile with only 2 metrics is marked partial/manual, not verified
+                        data_mode = "verified" if len(avail) >= 3 else "manual"
+                        m_map = {m.get("metric_id"): Decimal(str(m.get("value", 0))) for m in avail}
+                        return CompanyFinancialProfile(
+                            company_name=company,
+                            operating_months=24,
+                            annual_revenue=m_map.get("revenue", Decimal("0")),
+                            current_cash_balance=m_map.get("cash_balance", Decimal("0")),
+                            current_dscr=Decimal("1.35"),
+                            has_collateral=False,
+                            collateral_types=[],
+                            projected_shortfall_days=999,
+                            has_audited_financials=False,
+                            data_mode=data_mode
+                        )
+                    elif isinstance(metrics, dict):
+                        revenue = Decimal(str(metrics.get("total_revenue", {}).get("value", 0)))
+                        cash = Decimal(str(metrics.get("cash_balance", {}).get("value", 0)))
+                        if revenue > 0 or cash > 0:
+                            return CompanyFinancialProfile(
+                                company_name=company,
+                                operating_months=24,
+                                annual_revenue=revenue,
+                                current_cash_balance=cash,
+                                current_dscr=Decimal("1.35"),
+                                has_collateral=False,
+                                collateral_types=[],
+                                projected_shortfall_days=999,
+                                has_audited_financials=False,
+                                data_mode="verified"
+                            )
+        except Exception:
+            pass
 
-    def _extract_default_base_snapshot(self, company: str) -> Dict[str, Any]:
+        # If company explicitly designated as Demo/Mock or fallback allowed
+        is_demo = "demo" in company.lower() or company in ["Lotus-fin", "Wind Power LLC", "Lotus-fin (Demo)"]
+        if is_demo or allow_demo:
+            return CompanyFinancialProfile(
+                company_name=company,
+                operating_months=24,
+                annual_revenue=Decimal("2400000000"),
+                current_cash_balance=Decimal("350000000"),
+                current_dscr=Decimal("1.40"),
+                has_collateral=False,
+                collateral_types=[],
+                projected_shortfall_days=20,
+                has_audited_financials=False,
+                data_mode="demo"
+            )
+
+        raise ValueError(f"INSUFFICIENT_DATA: Unable to extract financial profile for company '{company}' from ERPNext core.")
+
+    def _extract_default_base_snapshot(self, company: str, raw_metrics: Optional[List[Dict[str, Any]]] = None) -> Dict[str, Any]:
+        if raw_metrics is not None:
+            if not raw_metrics:
+                return {
+                    "snapshot_id": f"snap_{company}_empty",
+                    "revenue": 0.0,
+                    "cogs": 0.0,
+                    "ar_outstanding": 0.0,
+                    "ap_outstanding": 0.0,
+                    "inventory_value": 0.0,
+                    "opening_cash": 0.0,
+                    "payroll_expense": 0.0,
+                    "opex_expense": 0.0,
+                    "data_mode": "insufficient"
+                }
+            m_map = {m.get("metric_id"): m.get("value") for m in raw_metrics if isinstance(m, dict)}
+            return {
+                "snapshot_id": f"snap_{company}_custom",
+                "revenue": float(m_map.get("revenue", 0.0)),
+                "cogs": float(m_map.get("cogs", 0.0)),
+                "ar_outstanding": float(m_map.get("ar_balance", 0.0)),
+                "ap_outstanding": float(m_map.get("ap_balance", 0.0)),
+                "inventory_value": float(m_map.get("inventory_value", 0.0)),
+                "opening_cash": float(m_map.get("cash_balance", 0.0)),
+                "payroll_expense": float(m_map.get("payroll_expense", 0.0)),
+                "opex_expense": float(m_map.get("opex_expense", 0.0)),
+                "data_mode": "verified"
+            }
+
+        # Try ERPNext snapshot first
+        try:
+            import frappe
+            if frappe is not None and hasattr(frappe, "db") and frappe.db is not None:
+                from lotus_fin.api.ai_insights import get_financial_snapshot
+                snapshot_res = get_financial_snapshot(company=company)
+                if snapshot_res and isinstance(snapshot_res, dict):
+                    data = snapshot_res.get("data") or snapshot_res
+                    metrics = data.get("metrics") or {}
+                    return {
+                        "snapshot_id": f"snap_{company}_live",
+                        "revenue": float(metrics.get("total_revenue", {}).get("value", 1000000000.0)),
+                        "cogs": float(metrics.get("cost_of_goods_sold", {}).get("value", 600000000.0)),
+                        "ar_outstanding": float(metrics.get("accounts_receivable", {}).get("value", 250000000.0)),
+                        "ap_outstanding": float(metrics.get("accounts_payable", {}).get("value", 150000000.0)),
+                        "inventory_value": float(metrics.get("inventory_value", {}).get("value", 200000000.0)),
+                        "opening_cash": float(metrics.get("cash_balance", {}).get("value", 300000000.0)),
+                        "payroll_expense": float(metrics.get("payroll_expense", {}).get("value", 120000000.0)),
+                        "opex_expense": float(metrics.get("operating_expense", {}).get("value", 80000000.0)),
+                        "data_mode": "verified"
+                    }
+        except Exception:
+            pass
+
         return {
-            "snapshot_id": f"snap_{company}_latest",
-            "revenue": 1000000000.0, "cogs": 600000000.0,
-            "ar_outstanding": 250000000.0, "ap_outstanding": 150000000.0,
-            "inventory_value": 200000000.0, "opening_cash": 300000000.0,
-            "payroll_expense": 120000000.0, "opex_expense": 80000000.0
+            "snapshot_id": f"snap_{company}_demo",
+            "revenue": 1000000000.0,
+            "cogs": 600000000.0,
+            "ar_outstanding": 250000000.0,
+            "ap_outstanding": 150000000.0,
+            "inventory_value": 200000000.0,
+            "opening_cash": 300000000.0,
+            "payroll_expense": 120000000.0,
+            "opex_expense": 80000000.0,
+            "data_mode": "demo"
         }
 
 
@@ -203,7 +321,7 @@ except ImportError:
 _service_instance = FinancingService()
 
 
-@whitelist(allow_guest=True)
+@whitelist()
 def simulate_what_if(
     company: str,
     sales_change_pct: float = 0.0,
@@ -240,7 +358,7 @@ def simulate_what_if(
     )
 
 
-@whitelist(allow_guest=True)
+@whitelist()
 def match_financing(
     company: str,
     amount: float,

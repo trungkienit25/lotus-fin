@@ -33,14 +33,16 @@ def simulate_what_if(
     Whitelisted REST API endpoint for executing What-If Financial Scenarios.
     Strictly marked data_mode = 'simulation' (Zero DB Mutation).
     """
-    default_company = company
-    if not default_company and frappe is not None:
-        default_company = (
-            frappe.defaults.get_user_default("Company")
-            or frappe.db.get_single_value("Global Defaults", "default_company")
-        )
-    if not default_company:
-        default_company = "Lotus-fin"
+    checked_user = None
+    if frappe is not None:
+        from lotus_fin.security.access import get_verified_company, check_report_permission
+        checked_user = frappe.session.user if hasattr(frappe, "session") and frappe.session else None
+        default_company = get_verified_company(company, user=checked_user)
+        check_report_permission("General Ledger", user=checked_user, module_id="f004")
+        check_report_permission("Accounts Receivable", user=checked_user, module_id="f004")
+        check_report_permission("Accounts Payable", user=checked_user, module_id="f004")
+    else:
+        default_company = company or "Lotus-fin"
 
     as_of_date = date.fromisoformat(as_of) if as_of else date.today()
     exp_date = date.fromisoformat(one_off_expense_date) if one_off_expense_date else None
@@ -63,11 +65,13 @@ def simulate_what_if(
         financing_date=fin_date
     )
 
-    service = ScenarioService()
+    from lotus_fin.modules.f004_what_if.adapters.baseline_adapter import BaselineSourceAdapter
+    baseline_adapter = BaselineSourceAdapter(checked_user=checked_user)
+    service = ScenarioService(baseline_adapter=baseline_adapter)
     result = service.run_scenario(params)
 
     return {
-        "status": "success",
+        "status": "success" if result.status.value in ["SUCCESS", "INSUFFICIENT_DATA"] else "error",
         "data": result.to_dict()
     }
 

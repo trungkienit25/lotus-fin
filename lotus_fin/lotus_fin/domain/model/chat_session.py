@@ -13,17 +13,23 @@ class ChatSession(BaseModel):
     id: str = Field(..., description="Session identifier")
     user_id: str = Field(..., description="Owner user ID")
     company: str = Field(..., description="Company boundary")
+    title: Optional[str] = Field(default=None, description="Chat session title")
+    version: int = Field(default=1, description="Optimistic locking version")
     messages: List[ChatMessage] = Field(default_factory=list, description="Ordered conversation history")
     tool_traces: List[ToolExecutionResult] = Field(default_factory=list, description="Executed tools traces in session")
     created_at: datetime = Field(default_factory=utc_now)
     updated_at: datetime = Field(default_factory=utc_now)
 
-    def add_message(self, message: ChatMessage) -> None:
+    def add_message(self, message: ChatMessage, max_history: int = 50) -> None:
         self.messages.append(message)
+        if max_history is not None and len(self.messages) > max_history:
+            self.messages = self.messages[-max_history:]
         self.updated_at = utc_now()
 
-    def add_tool_trace(self, trace: ToolExecutionResult) -> None:
+    def add_tool_trace(self, trace: ToolExecutionResult, max_traces: int = 50) -> None:
         self.tool_traces.append(trace)
+        if max_traces is not None and len(self.tool_traces) > max_traces:
+            self.tool_traces = self.tool_traces[-max_traces:]
         self.updated_at = utc_now()
 
     def get_context_window(self, max_messages: int = 10) -> List[ChatMessage]:

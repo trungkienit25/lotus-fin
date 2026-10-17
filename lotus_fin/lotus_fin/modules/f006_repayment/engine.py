@@ -53,8 +53,24 @@ class RepaymentEngine:
         grace = loan_terms.grace_period_months
         start_date = datetime.strptime(loan_terms.start_date, "%Y-%m-%d")
 
+        # Validate invariants
+        if principal <= Decimal("0"):
+            raise ValueError(f"Principal must be strictly positive (> 0), got {principal}")
+        if annual_rate < Decimal("0"):
+            raise ValueError(f"Annual rate cannot be negative, got {annual_rate}")
+        if term <= 0:
+            raise ValueError(f"Term months must be strictly positive (> 0), got {term}")
+        if grace < 0:
+            raise ValueError(f"Grace period cannot be negative, got {grace}")
+        if grace >= term:
+            raise ValueError(f"Grace period ({grace} months) must be strictly less than loan term ({term} months)")
+
         # Tính lãi suất theo kỳ thanh toán
         if loan_terms.payment_frequency == PaymentFrequency.QUARTERLY:
+            if term % 3 != 0:
+                raise ValueError(f"Quarterly payment frequency requires term_months divisible by 3, got {term}")
+            if grace % 3 != 0:
+                raise ValueError(f"Quarterly payment frequency requires grace_period_months divisible by 3, got {grace}")
             periods_per_year = 4
             period_rate = (annual_rate / Decimal("4")).quantize(RATE_PREC, rounding=ROUND_HALF_UP)
             total_periods = term // 3
@@ -345,13 +361,16 @@ class RepaymentEngine:
         """Tổng hợp chỉ số tổng quan từ lịch trả nợ."""
         if not schedule:
             return {}
-        total_interest = Decimal(str(schedule[-1].cumulative_interest))
-        total_principal = Decimal(str(lt.principal))
-        total_fees_dec = Decimal(str(fees["total_fees"]))
-        total_repayment = (total_principal + total_interest + total_fees_dec).quantize(MONEY, rounding=ROUND_HALF_UP)
-
         payments = [Decimal(str(r.total_payment)) for r in schedule]
-        avg_payment = (sum(payments) / Decimal(str(len(payments)))).quantize(MONEY, rounding=ROUND_HALF_UP)
+        total_payments_sum = sum(payments).quantize(MONEY, rounding=ROUND_HALF_UP)
+        total_interest = Decimal(str(schedule[-1].cumulative_interest)).quantize(MONEY, rounding=ROUND_HALF_UP)
+        total_principal = Decimal(str(lt.principal)).quantize(MONEY, rounding=ROUND_HALF_UP)
+        total_fees_dec = Decimal(str(fees["total_fees"])).quantize(MONEY, rounding=ROUND_HALF_UP)
+
+        # Invariant: total_repayment = sum of schedule payments + upfront/total fees
+        total_repayment = (total_payments_sum + total_fees_dec).quantize(MONEY, rounding=ROUND_HALF_UP)
+
+        avg_payment = (total_payments_sum / Decimal(str(len(payments)))).quantize(MONEY, rounding=ROUND_HALF_UP)
         interest_to_principal = (total_interest / total_principal).quantize(Decimal("0.0001"), rounding=ROUND_HALF_UP) if total_principal > 0 else Decimal("0")
 
         return {

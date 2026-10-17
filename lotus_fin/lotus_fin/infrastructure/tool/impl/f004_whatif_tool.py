@@ -36,6 +36,19 @@ class SimulateWhatIfTool(IToolCommand):
         args["company"] = company
         res = plugin_registry.dispatch_tool("simulate_what_if_scenario", args)
 
+        status = res.get("status") if isinstance(res, dict) else None
+        is_success = status not in ["SOURCE_ERROR", "FORBIDDEN", "ERROR"]
+        if not is_success:
+            redacted_data = {k: v for k, v in res.items() if k != "error_message"} if isinstance(res, dict) else {}
+            return ToolExecutionResult(
+                tool_call_id="",
+                tool_name="simulate_what_if_scenario",
+                is_success=False,
+                data=redacted_data,
+                error_message="Simulation data source error.",
+                ui_widget=None
+            )
+
         return ToolExecutionResult(
             tool_call_id="",
             tool_name="simulate_what_if_scenario",
@@ -43,4 +56,3 @@ class SimulateWhatIfTool(IToolCommand):
             data=res,
             ui_widget={"type": "what_if_simulation", "data": res}
         )
-

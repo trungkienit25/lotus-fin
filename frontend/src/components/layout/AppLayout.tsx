@@ -177,7 +177,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
 
   // 2. Tải danh mục Sidebar chuẩn từ Workspace Sidebar (với SWR In-Memory Cache)
   useEffect(() => {
-    if (isHomePage || !activeWorkspace) return;
+    if (isHomePage || isAIPage || !activeWorkspace) return;
 
     if (sidebarCache.has(activeWorkspace)) {
       setSidebarItems(sidebarCache.get(activeWorkspace)!);

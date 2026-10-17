@@ -1,0 +1,135 @@
+{
+ "actions": [],
+ "creation": "2026-10-15 08:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "session_id",
+  "title",
+  "company",
+  "user",
+  "status",
+  "column_break_meta",
+  "total_messages",
+  "last_tool_called",
+  "last_message_at",
+  "first_prompt"
+ ],
+ "fields": [
+  {
+   "fieldname": "session_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Session ID",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Title"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "User",
+   "options": "User"
+  },
+  {
+   "default": "Active",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Active\nArchived\nClosed"
+  },
+  {
+   "fieldname": "column_break_meta",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "total_messages",
+   "fieldtype": "Int",
+   "label": "Total Messages"
+  },
+  {
+   "fieldname": "last_tool_called",
+   "fieldtype": "Data",
+   "label": "Last Tool Called"
+  },
+  {
+   "fieldname": "last_message_at",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Last Message At"
+  },
+  {
+   "fieldname": "first_prompt",
+   "fieldtype": "Small Text",
+   "label": "First Prompt"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-10-15 08:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Lotus Fin AI",
+ "name": "Lotus Chat Session",
+ "naming_rule": "By fieldname",
+ "autoname": "field:session_id",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 0,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 0,
+   "email": 0,
+   "export": 0,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts User",
+   "share": 0,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}
+

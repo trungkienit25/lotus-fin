@@ -12,6 +12,11 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
+      '/copilot/session': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        secure: false,
+      },
       '/assets': {
         target: 'http://localhost:8080',
         changeOrigin: true,
