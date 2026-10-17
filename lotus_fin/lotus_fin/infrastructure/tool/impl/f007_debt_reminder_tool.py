@@ -18,7 +18,7 @@ class PrepareDebtReminderTool(IToolCommand):
     def definition(self) -> ToolDefinition:
         return ToolDefinition(
             name="prepare_debt_reminder",
-            description="Prepare an executive, structured debt reminder letter and lookup actual customer invoice data. Use whenever the user asks to draft, prepare, or send a reminder for overdue receivables/invoices ('soạn thư nhắc nợ', 'thư đòi nợ', 'nhắc nợ khách hàng').",
+            description="Prepare an executive, structured debt reminder letter and lookup actual customer invoice data. Use whenever the user asks to draft, prepare, or send a reminder for overdue receivables/invoices, payment reminder, or customer debt statement.",
             parameters_schema=DebtReminderArgs.model_json_schema()
         )
 
