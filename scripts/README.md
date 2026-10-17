@@ -1,106 +1,124 @@
 # 🌿 Lotus Fin — Operations & Deployment Manual (Run Scripts Guide)
 
-Hướng dẫn toàn diện về cấu trúc kịch bản vận hành, kiểm thử môi trường, đóng gói container và triển khai ứng dụng 1-click lên Cloud Server.
+Comprehensive operational guide covering local environment setup, dependency verification, Docker container packaging, and 1-click cloud server deployment on HTTP Port 80.
 
 ---
 
-## 📁 Cấu trúc Thư mục Kịch bản (`/scripts`)
+## 📁 Operational Scripts Directory Structure (`/scripts`)
 
 ```
 scripts/
-├── deploy/                 # Kịch bản triển khai tự động lên Cloud / Web Server
-│   └── run-deploy.sh       # 🚀 Pipeline 1-click: kiểm tra môi trường, nạp DB seed, deploy port 80
-├── dev/                    # Kịch bản dành cho Developer khi phát triển cục bộ
-│   ├── run-dev.sh          # Linux / macOS / WSL: Tự động cài đặt & mở Vite dev server (port 5173)
-│   └── run-dev.ps1         # Windows PowerShell: Tự động khởi động dev stack
-├── packaging/              # Kịch bản đóng gói container images chuẩn production
-│   └── run-packaging.sh    # Build multi-stage image lotus-fin/gateway (React SPA + Nginx)
-├── container/              # Quản lý vòng đời container production
-│   └── run-container.sh    # Start, stop, restart, logs, status trên port 80
-└── data/                   # Dữ liệu dự phòng & snapshot phục vụ di chuyển máy chủ
+├── deploy/                 # Automated deployment pipeline for Cloud / Web servers
+│   └── run-deploy.sh       # 🚀 1-Click Pipeline: audits env, restores DB seed, exposes Port 80
+├── dev/                    # Developer scripts for local setup and rapid iteration
+│   ├── run-dev.sh          # Linux / macOS / WSL: Auto-detects OS, starts backend & Vite (port 5173)
+│   ├── run-dev.ps1         # Windows PowerShell: Automated local dev stack launcher
+│   ├── run-fe.sh           # Linux / macOS: Dedicated frontend operations (dev, build, preview)
+│   └── run-fe.ps1          # Windows PowerShell: Dedicated frontend operations
+├── packaging/              # Production container packaging
+│   └── run-packaging.sh    # Builds multi-stage lotus-fin/gateway image (React SPA + Nginx)
+├── container/              # Production container lifecycle management
+│   └── run-container.sh    # Start, stop, restart, logs, and status on Port 80
+└── data/                   # Server migration backups & ledger snapshots
     └── database/           
-        └── initial_db_seed.sql.gz  # Snapshot toàn bộ CSDL và sổ cái kế toán để mang lên server
+        └── initial_db_seed.sql.gz  # Full General Ledger database snapshot for instant hydration
 ```
 
 ---
 
-## 🚀 1. Triển khai 1-Click lên Cloud Server (`run-deploy.sh`)
+## 🚀 1. 1-Click Cloud Server Deployment (`run-deploy.sh`)
 
-Khi bạn mua VPS mới (Ubuntu 22.04 / 24.04, Debian, AWS EC2, DigitalOcean) và clone dự án về, bạn chỉ cần chạy **duy nhất 1 script**:
+When provisioning a fresh VPS (Ubuntu 22.04 / 24.04, Debian, AWS EC2, DigitalOcean, Aliyun, Tencent Cloud), run the unified entrypoint:
 
 ```bash
 chmod +x run.sh scripts/*/*.sh
 ./run.sh deploy
-# hoặc chạy trực tiếp:
+# Or run directly:
 ./scripts/deploy/run-deploy.sh
 ```
 
-### Quy trình tự động 7 bước của `run-deploy.sh`:
-1. **Kiểm tra tài nguyên:** Kiểm tra RAM, CPU; tự động tạo **2GB Swapfile** nếu máy chủ là VPS cấu hình thấp để Frappe không bị OOM (Out Of Memory).
-2. **Kiểm tra & Cài đặt Docker:** Tự động cài Docker Engine và Docker Compose plugin chính thức nếu server chưa có.
-3. **Cấu hình môi trường:** Tự động tạo và kiểm tra `docker/production/.env.production`.
-4. **Đóng gói Gateway:** Tự động build image `lotus-fin/gateway:latest` tích hợp Nginx Reverse Proxy và mã nguồn Frontend React SPA.
-5. **Khởi chạy container:** Chạy cụm multi-container production xuất trực tiếp ra **Port 80**.
-6. **Tự động Hydrate Database:**
-   - Tự động nạp file snapshot CSDL [`scripts/data/database/initial_db_seed.sql.gz`](file:///d:/Coding/lotus-fin/scripts/data/database/initial_db_seed.sql.gz) lên site `frontend`.
-   - Chạy `bench migrate` để đồng bộ cấu trúc DocType.
-   - Nạp cấu hình SMTP Email Account mặc định và dữ liệu kế toán mẫu (`Lotus-fin Demo`).
-7. **Kiểm tra nghiệm thu (Readiness Audit):** Kiểm tra HTTP ping; in ra địa chỉ IP công khai của server để truy cập ngay.
+### Automated 7-Step Deployment Pipeline:
+1. **Host Resource Audit:** Inspects CPU, RAM, and Swap. Automatically configures a **2GB Swapfile** if host memory is low, preventing Frappe backend Out-Of-Memory (OOM) crashes.
+2. **Docker Engine Verification:** Automatically verifies or installs official Docker Engine and Compose plugin if missing on Linux.
+3. **Configuration Verification:** Inspects and initializes production variables in `docker/production/.env.production`.
+4. **Gateway Packaging:** Builds the `lotus-fin/gateway:latest` container image packaging the React SPA with optimized Nginx reverse-proxy configuration.
+5. **Container Orchestration:** Launches the production multi-container stack exposed on **Port 80**.
+6. **Automated Database Hydration:**
+   - Automatically unpacks and restores the database snapshot [`scripts/data/database/initial_db_seed.sql.gz`](data/database/initial_db_seed.sql.gz) onto site `frontend`.
+   - Runs `bench migrate` to synchronize DocType schemas.
+   - Configures default SMTP outgoing email settings and loads the corporate demo accounting ledger (`Lotus-fin Demo`).
+7. **Readiness & Health Verification:** Conducts end-to-end HTTP health checks and outputs the public server IP for immediate browser access.
 
 ---
 
-## 💻 2. Dành cho Developer (`run-dev.sh` / `run-dev.ps1`)
+## 💻 2. Local Developer Workflows (`run-dev.sh` / `run-dev.ps1`)
 
-Khi bạn hoặc đồng đội clone repo về máy local để code:
+For local development and feature work:
 
-### Trên Linux / macOS / WSL / Git Bash:
+### Linux / macOS / WSL / Git Bash:
 ```bash
 ./run.sh dev
-# hoặc:
+# Or directly:
 ./scripts/dev/run-dev.sh
 ```
 
-### Trên Windows PowerShell:
+### Windows PowerShell:
 ```powershell
+.\run.ps1 dev
+# Or directly:
 .\scripts\dev\run-dev.ps1
 ```
 
-- Hệ thống sẽ tự nhận diện OS, nạp các container nền (MariaDB, Redis, Frappe Backend), đồng bộ module `lotus_fin` và khởi chạy Vite Dev Server tại `http://localhost:5173`.
+- Automatically detects the host OS, boots backend support containers (MariaDB 11.8, Redis 6.2, Frappe Backend), synchronizes the `lotus_fin` app, and launches the Vite Dev Server at `http://localhost:5173`.
 
 ---
 
-## 📦 3. Đóng gói Container Production (`run-packaging.sh`)
+## 🎨 3. Dedicated Frontend Management (`run-fe.sh` / `run-fe.ps1`)
 
-Để đóng gói lại container trước khi release hoặc khi có cập nhật giao diện frontend mới:
+When working exclusively on frontend React 19 / TailAdmin code:
+
+```bash
+# POSIX (Linux / macOS / WSL)
+./scripts/dev/run-fe.sh [dev|build|install|check|preview|clean]
+
+# Windows (PowerShell)
+.\scripts\dev\run-fe.ps1 -Action [dev|build|install|check|preview|clean]
+```
+
+---
+
+## 📦 4. Production Container Packaging (`run-packaging.sh`)
+
+To rebuild container images prior to a release or after frontend updates:
 
 ```bash
 ./run.sh packaging
-# hoặc:
+# Or directly:
 ./scripts/packaging/run-packaging.sh
 ```
 
-- Image `lotus-fin/gateway:latest` sẽ được build với Multi-stage Dockerfile:
-  - Stage 1: Build React/TypeScript bằng `node:20-alpine`.
-  - Stage 2: Copy file tĩnh vào `nginx:alpine` kèm file cấu hình reverse-proxy tối ưu.
+- Packages `lotus-fin/gateway:latest` via a multi-stage Dockerfile:
+  - **Stage 1:** Compiles React/TypeScript SPA using `node:20-alpine`.
+  - **Stage 2:** Copies compiled static assets into `nginx:alpine` alongside optimized reverse-proxy rules.
 
 ---
 
-## 🐳 4. Điều khiển Container Production (`run-container.sh`)
+## 🐳 5. Production Container Management (`run-container.sh`)
 
 ```bash
-./scripts/container/run-container.sh start    # Bật toàn bộ cụm container (Port 80)
-./scripts/container/run-container.sh status   # Xem trạng thái các container
-./scripts/container/run-container.sh logs     # Xem log realtime
-./scripts/container/run-container.sh restart  # Khởi động lại
-./scripts/container/run-container.sh stop     # Tắt cụm container
+./scripts/container/run-container.sh start    # Launch production stack on Port 80
+./scripts/container/run-container.sh status   # Check health and resource usage
+./scripts/container/run-container.sh logs     # Stream aggregated container logs
+./scripts/container/run-container.sh restart  # Gracefully restart services
+./scripts/container/run-container.sh stop     # Gracefully stop containers
+./scripts/container/run-container.sh clean    # Tear down containers and networks
 ```
 
 ---
 
-## 🌐 5. Cấu hình Nginx & Cổng Port 80
+## 🌐 6. Single Port 80 Entrypoint (Nginx Gateway)
 
-Dự án sử dụng Nginx Gateway làm cổng vào duy nhất tại `Port 80`:
-- **Đường dẫn `/`:** Phục vụ ứng dụng React SPA (TailAdmin/Lotus Copilot).
-- **Đường dẫn `/api`, `/desk`, `/assets`, `/socket.io`:** Proxy trực tiếp tới backend Frappe/ERPNext (`frappe-frontend:8080`).
-- Người dùng cuối và nhân viên tài chính chỉ cần truy cập vào `http://<IP-SERVER>/` mà không cần nhập thêm cổng `:8080` hay cấu hình domain phức tạp.
-
+Lotus Fin exposes all services through a single unified HTTP **Port 80**:
+- **Route `/`:** Serves the compiled React 19 SPA (TailAdmin & Lotus Copilot).
+- **Routes `/api`, `/desk`, `/assets`, `/socket.io`:** Reverse-proxies directly to the Frappe/ERPNext backend (`frappe-frontend:8080`).
+- End-users and finance executives access the application directly at `http://<SERVER-IP>/` without needing to remember custom port numbers like `:8080`.
