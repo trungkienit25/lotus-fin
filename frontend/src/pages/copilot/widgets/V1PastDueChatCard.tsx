@@ -35,7 +35,7 @@ export const V1PastDueChatCard: React.FC<V1PastDueChatCardProps> = ({
 }) => {
   const [items, setItems] = useState<PastFinalDueItemVm[]>(FALLBACK_OVERDUE_ITEMS);
   const [loading, setLoading] = useState<boolean>(true);
-  const [sourceLabel, setSourceLabel] = useState<string>("Đang kết nối ERP...");
+  const [sourceLabel, setSourceLabel] = useState<string>("Connecting to ERP...");
 
   useEffect(() => {
     let isMounted = true;
@@ -86,20 +86,20 @@ export const V1PastDueChatCard: React.FC<V1PastDueChatCardProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold tracking-tight text-white">
-                Danh sách Hóa đơn Quá hạn Cần Thu hồi
+                Past Final Due Invoices Requiring Follow-Up
               </span>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-400/30">
-                Kiểm toán Nợ
+                Receivables Audit
               </span>
             </div>
             <p className="text-xs text-slate-300 mt-0.5">
-              Phát hiện nợ quá hạn chót theo nguyên tắc thận trọng kế toán
+              Identified overdue debts per accounting prudence principles
             </p>
           </div>
         </div>
 
         <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-white/10 text-amber-200 border border-white/20 backdrop-blur font-mono self-start sm:self-auto">
-          Mốc chốt: 13/10/2026
+          As of: 2026-10-13
         </span>
       </div>
 
@@ -109,24 +109,24 @@ export const V1PastDueChatCard: React.FC<V1PastDueChatCardProps> = ({
           <table className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="bg-[#F8FAFC] border-b border-slate-200/80 text-[11px] font-bold text-slate-600">
-                <th className="py-3 px-3.5">Mã Hóa đơn</th>
-                <th className="py-3 px-3.5">Hạn chót thanh toán</th>
-                <th className="py-3 px-3.5">Số ngày quá hạn</th>
-                <th className="py-3 px-3.5 text-right">Dư nợ còn lại</th>
-                <th className="py-3 px-3.5 text-center">Thao tác</th>
+                <th className="py-3 px-3.5">Invoice ID</th>
+                <th className="py-3 px-3.5">Due Date</th>
+                <th className="py-3 px-3.5">Days Overdue</th>
+                <th className="py-3 px-3.5 text-right">Outstanding Balance</th>
+                <th className="py-3 px-3.5 text-center">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {loading ? (
                 <tr>
                   <td colSpan={5} className="py-6 text-center text-slate-400 font-sans">
-                    <span className="inline-block animate-pulse">Đang tải dữ liệu hóa đơn thực tế từ ERPNext...</span>
+                    <span className="inline-block animate-pulse">Loading verified invoice data from ERPNext...</span>
                   </td>
                 </tr>
               ) : items.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="py-6 text-center text-slate-400 font-sans">
-                    Không có hóa đơn nào quá hạn tại thời điểm này.
+                    No overdue invoices found at this time.
                   </td>
                 </tr>
               ) : (
@@ -145,7 +145,7 @@ export const V1PastDueChatCard: React.FC<V1PastDueChatCardProps> = ({
                             : "bg-amber-50 text-amber-800 border border-amber-200"
                         }`}
                       >
-                        +{item.overdueDays} ngày
+                        +{item.overdueDays} days
                       </span>
                     </td>
                     <td className="py-2.5 px-3.5 text-right font-mono font-bold text-slate-900">
@@ -156,7 +156,7 @@ export const V1PastDueChatCard: React.FC<V1PastDueChatCardProps> = ({
                         onClick={() => onSelectInvoice?.(item.invoiceId)}
                         className="px-2.5 py-1 rounded-lg border border-slate-200 bg-white hover:border-[#1E63B7] text-[#1E63B7] text-xs font-bold shadow-2xs transition-all cursor-pointer hover:bg-blue-50/50"
                       >
-                        Tạo việc ↗
+                        Create Task ↗
                       </button>
                     </td>
                   </tr>
@@ -168,7 +168,7 @@ export const V1PastDueChatCard: React.FC<V1PastDueChatCardProps> = ({
 
         {/* Audit info */}
         <div className="pt-1 flex items-center justify-between text-[11px] text-slate-400 border-t border-slate-100">
-          <span>Ghi nhận {items.length} hóa đơn quá hạn</span>
+          <span>Found {items.length} overdue invoices</span>
           <span className="font-mono text-slate-500 font-medium">{sourceLabel}</span>
         </div>
       </div>

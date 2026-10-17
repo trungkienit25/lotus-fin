@@ -375,43 +375,43 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
 
   const starterCards = [
     {
-      title: "Tra cứu Hóa đơn Bán hàng",
-      description: "Tìm kiếm hóa đơn L1/L2, lọc theo trạng thái Draft / Submitted",
-      query: "Tìm hóa đơn có mã SINV",
+      title: "Search Sales Invoices",
+      description: "Find L1/L2 invoices, filter by Draft or Submitted status",
+      query: "Search sales invoices with prefix SINV",
       inspectorTab: "invoice_actions",
       tag: "L1 / L2",
     },
     {
-      title: "Tạo Việc Theo dõi Công nợ",
-      description: "Khởi tạo đề xuất L4 có đếm ngược hết hạn và xác nhận",
-      query: "Tạo task theo dõi công nợ quá hạn",
+      title: "Create Receivables Task",
+      description: "Initialize L4 proposal with expiration countdown and dual confirmation",
+      query: "Create receivables follow-up task for overdue invoices",
       inspectorTab: "invoice_actions",
       tag: "L4 Task",
     },
     {
-      title: "Soạn Thảo Nhắc Nợ Khách hàng",
-      description: "Tiện ích soạn thảo L3 cục bộ, sao chép hoặc chuyển sang task",
-      query: "Soạn thư nhắc nợ khách hàng",
+      title: "Draft Customer Reminder",
+      description: "Local L3 drafting utility to review, copy or elevate to task",
+      query: "Draft customer payment reminder",
       inspectorTab: "invoice_actions",
-      tag: "L3 Nháp",
+      tag: "L3 Draft",
     },
     {
-      title: "Hóa đơn Quá hạn Cuối còn Dư nợ",
-      description: "Kiểm tra danh sách nợ quá hạn V1 có rủi ro",
-      query: "Cho tôi xem hóa đơn qua hạn cuối còn dư nợ",
+      title: "Past-Final-Due Invoices",
+      description: "Inspect high-risk overdue invoices with remaining balance",
+      query: "Show me past final due invoices with outstanding balance",
       inspectorTab: "invoice_actions",
-      tag: "V1 Quá hạn",
+      tag: "V1 Overdue",
     },
     {
       title: "Financial Health Snapshot",
-      description: "Doanh thu, Giá vốn, Biên lợi nhuận & Số dư tiền thực tế",
+      description: "Revenue, COGS, Gross Margin & Ledger Cash Balance",
       query: "Summary of financial health snapshot and key accounting indicators",
       inspectorTab: "financial_health",
       tag: "AI001",
     },
     {
       title: "30-Day Cash Forecast",
-      description: "Quỹ đạo số dư cuối ngày & Khả năng thanh khoản",
+      description: "Daily EOD cash trajectory & Liquidity runway assessment",
       query: "Project 30-day cash forecast and evaluate liquidity risk",
       inspectorTab: "cash_forecast",
       tag: "AI002",
@@ -616,49 +616,49 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
                           {isExp && t.output && (
                             <div className="p-3 bg-white/95 border-t border-indigo-100 text-[11px] text-slate-700 max-h-48 overflow-y-auto space-y-1.5 font-sans">
                               <div className="flex items-center justify-between pb-1.5 border-b border-slate-100">
-                                <span className="text-slate-400 font-semibold uppercase text-[9px] tracking-wider">Trạng thái đối soát</span>
+                                <span className="text-slate-400 font-semibold uppercase text-[9px] tracking-wider">Audit Status</span>
                                 <span className={`px-2 py-0.2 rounded-full font-bold text-[9px] ${
                                   t.output.status === "VALIDATION_ERROR" || t.output.status === "ERROR"
                                     ? "bg-rose-50 text-rose-700 border border-rose-200"
                                     : "bg-emerald-50 text-emerald-700 border border-emerald-200"
                                 }`}>
                                   {t.output.status === "VALIDATION_ERROR"
-                                    ? "Cần xác thực dữ liệu"
+                                    ? "Validation Required"
                                     : t.output.status === "FORECAST_UNAVAILABLE"
-                                    ? "Bảo toàn số dư (chưa có lịch phát sinh)"
+                                    ? "Baseline Conserved (No Projected Events)"
                                     : t.output.status === "INCONSISTENT_DATA"
-                                    ? "Đang đối soát sổ cái"
-                                    : "Đã xác thực dữ liệu"}
+                                    ? "Reconciling Ledger"
+                                    : "Ledger Verified"}
                                 </span>
                               </div>
                               {t.output.verified_company && (
                                 <div className="flex items-center justify-between text-slate-600">
-                                  <span className="text-slate-400">Đơn vị hạch toán:</span>
+                                  <span className="text-slate-400">Company:</span>
                                   <span className="font-semibold text-slate-800">{t.output.verified_company}</span>
                                 </div>
                               )}
                               {t.output.opening_cash?.aggregate_amount !== undefined && (
                                 <div className="flex items-center justify-between text-slate-600">
-                                  <span className="text-slate-400">Số dư khả dụng đầu kỳ:</span>
+                                  <span className="text-slate-400">Opening Available Cash:</span>
                                   <span className="font-mono font-bold text-blue-700">{Number(t.output.opening_cash.aggregate_amount).toLocaleString("vi-VN")} VND</span>
                                 </div>
                               )}
                               {t.output.count !== undefined && (
                                 <div className="flex items-center justify-between text-slate-600">
-                                  <span className="text-slate-400">Số lượng bản ghi:</span>
+                                  <span className="text-slate-400">Record Count:</span>
                                   <span className="font-mono font-bold text-slate-800">{t.output.count}</span>
                                 </div>
                               )}
                               {Array.isArray(t.output.limitations) && t.output.limitations.length > 0 && (
                                 <div className="pt-1 text-[10px] text-amber-800 bg-amber-50/70 p-2 rounded-lg border border-amber-200/60 leading-relaxed">
-                                  <span className="font-bold">Lưu ý nghiệp vụ: </span>
+                                  <span className="font-bold">Operational Note: </span>
                                   <span>
                                     {t.output.limitations
                                       .map((l: string) =>
                                         l === "Explicit cash_account_scope is required."
-                                          ? "Cần chọn phạm vi tài khoản tiền mặt trong thiết lập"
-                                          : l.replace(/STRICT_BASELINE_V1/g, "Nguyên tắc thận trọng")
-                                             .replace(/TRADE_ONLY/g, "Phạm vi thương mại")
+                                          ? "Explicit cash_account_scope is required in configuration"
+                                          : l.replace(/STRICT_BASELINE_V1/g, "Strict Baseline Rule")
+                                             .replace(/TRADE_ONLY/g, "Trade Only Scope")
                                       )
                                       .join("; ")}
                                   </span>
@@ -704,11 +704,11 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
                         {
                           id: `asst-${Date.now()}`,
                           sender: "assistant",
-                          content: "Tôi đã chuyển nội dung này sang bản đề xuất tạo việc theo dõi (L4 Proposal):",
+                          content: "Elevated draft content into an L4 Task Proposal:",
                           timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
                           widgetType: "l4_proposal",
                           widgetData: {
-                            title: `Theo dõi công nợ: ${msg.widgetData?.invoiceId || "ACC-SINV-2026-00001"}`,
+                            title: `Follow-up Receivables: ${msg.widgetData?.invoiceId || "ACC-SINV-2026-00001"}`,
                             targetEntity: `Sales Invoice/${msg.widgetData?.invoiceId || "ACC-SINV-2026-00001"}`
                           }
                         },

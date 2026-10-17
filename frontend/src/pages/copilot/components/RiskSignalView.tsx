@@ -78,10 +78,10 @@ export const RiskSignalView: React.FC<RiskSignalViewProps> = ({
             </div>
             <div className="flex items-center gap-3">
               <ModuleBadge moduleId="risk_signals" size="md" />
-              <h1 className="text-2xl font-bold tracking-tight">Đánh giá Tín hiệu Rủi ro & Bất thường Thực tế</h1>
+              <h1 className="text-2xl font-bold tracking-tight">Actual Risk Signals & Anomaly Detection</h1>
             </div>
             <p className="text-sm text-slate-300 mt-1">
-              Phát hiện tự động rủi ro nợ quá hạn đột biến (AR Overdue Spike) và áp lực dồn tích hạn nợ nhà cung cấp (AP Due Cluster) từ dữ liệu kế toán {company}.
+              Automated detection of receivables overdue spikes (AR Overdue Spike) and supplier payable clustering (AP Due Cluster) from accounting records of {company}.
             </p>
           </div>
 
@@ -93,30 +93,30 @@ export const RiskSignalView: React.FC<RiskSignalViewProps> = ({
             <svg className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
-            <span>{loading ? "Đang đánh giá..." : "Đánh giá Tín hiệu"}</span>
+            <span>{loading ? "Evaluating..." : "Evaluate Signal"}</span>
           </button>
         </div>
 
         {/* Filter Controls */}
         <div className="mt-5 pt-4 border-t border-white/10 flex flex-wrap items-center gap-4 text-xs">
           <div className="flex items-center gap-2">
-            <span className="text-slate-300 font-medium">Tín hiệu kiểm tra:</span>
+            <span className="text-slate-300 font-medium">Evaluation Signal:</span>
             <select
               value={signalId}
               onChange={(e) => setSignalId(e.target.value)}
               className="bg-white/10 border border-white/20 text-white rounded-lg px-2.5 py-1 text-xs focus:outline-hidden"
             >
               <option value="AR_OVERDUE_SPIKE" className="text-slate-800">
-                AR Overdue Spike (Nợ phải thu quá hạn tăng cao)
+                AR Overdue Spike (Receivables Past Due Surge)
               </option>
               <option value="AP_DUE_CLUSTER" className="text-slate-800">
-                AP Due Cluster (Áp lực đáo hạn chi trả dồn tích)
+                AP Due Cluster (Supplier Obligation Clustering)
               </option>
             </select>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-slate-300 font-medium">Ngày chốt sổ:</span>
+            <span className="text-slate-300 font-medium">As-of Date:</span>
             <input
               type="date"
               value={asOfDate}
@@ -130,16 +130,16 @@ export const RiskSignalView: React.FC<RiskSignalViewProps> = ({
       {/* 2. Verdict Glossary Bar */}
       <div className="p-4 rounded-xl bg-white border border-slate-200/80 shadow-2xs flex flex-wrap items-center gap-3 text-xs">
         <span className="font-semibold text-slate-700 flex items-center gap-1">
-          <span>📖</span> Thang đo mức độ nghiêm trọng:
+          <span>📖</span> Severity Scale:
         </span>
         <span className="px-2.5 py-1 rounded-full font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
-          BENIGN: An toàn (Dưới ngưỡng cảnh báo)
+          BENIGN: Safe (Below Threshold)
         </span>
         <span className="px-2.5 py-1 rounded-full font-medium bg-amber-50 text-amber-700 border border-amber-200">
-          WATCH: Cần theo dõi sát
+          WATCH: Elevated (Monitoring Advised)
         </span>
         <span className="px-2.5 py-1 rounded-full font-medium bg-rose-50 text-rose-700 border border-rose-200">
-          HIGH: Rủi ro cao cần xử lý ngay
+          HIGH: Critical Risk (Action Required)
         </span>
       </div>
 
@@ -159,10 +159,10 @@ export const RiskSignalView: React.FC<RiskSignalViewProps> = ({
                 }`}
               >
                 {result.severity === "HIGH"
-                  ? "🚨 SEVERITY: HIGH (RỦI RO CAO)"
+                  ? "🚨 SEVERITY: HIGH"
                   : result.severity === "WATCH" || result.finding === "TRIGGERED"
-                  ? "⚠️ SEVERITY: WATCH (THEO DÕI)"
-                  : "🛡️ BENIGN: AN TOÀN TRONG NGƯỠNG"}
+                  ? "⚠️ SEVERITY: WATCH"
+                  : "🛡️ BENIGN: NORMAL RANGE"}
               </span>
               <span className="text-xs text-slate-500 font-mono">
                 Signal: {result.signal_id || signalId}
@@ -174,40 +174,40 @@ export const RiskSignalView: React.FC<RiskSignalViewProps> = ({
           {/* Root Cause & Finding Rationale */}
           <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80">
             <div className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-1 flex items-center gap-1.5">
-              <span>🔍</span> Kết luận Đánh giá Thực tế:
+              <span>🔍</span> Actual Audit Verdict:
             </div>
             <p className="text-sm text-slate-800 font-medium">
-              {formatBrandText(result.explanation?.text || result.reason_text || "Đánh giá định lượng hoàn tất theo quy chuẩn chính sách.")}
+              {formatBrandText(result.explanation?.text || result.reason_text || "Quantitative assessment completed per standard policies.")}
             </p>
           </div>
 
           {/* Observed Metric Details */}
           <div>
             <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3">
-              📊 Chi tiết Chỉ số Đo lường Thực tế từ Sổ cái:
+              📊 Actual Ledger Metrics Breakdown:
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="p-3.5 rounded-xl border border-slate-100 bg-[#F9FBFC]">
-                <div className="text-xs text-slate-500">Tỷ lệ quan sát hiện tại</div>
+                <div className="text-xs text-slate-500">Current Observed Ratio</div>
                 <div className="text-lg font-bold text-slate-900 mt-1 font-mono">{observedVal}</div>
                 <div className="text-[11px] text-slate-400 mt-0.5">
-                  Tổng AR: {formatVND(result?.observed?.supporting_amount)}
+                  Total AR: {formatVND(result?.observed?.supporting_amount)}
                 </div>
               </div>
               <div className="p-3.5 rounded-xl border border-slate-100 bg-[#F9FBFC]">
-                <div className="text-xs text-slate-500">Tỷ lệ cơ sở (Baseline {result.baseline?.cutoff || ""})</div>
+                <div className="text-xs text-slate-500">Baseline Ratio ({result.baseline?.cutoff || ""})</div>
                 <div className="text-lg font-bold text-slate-700 mt-1 font-mono">{baselineVal}</div>
                 <div className="text-[11px] text-slate-400 mt-0.5">
-                  Tổng AR cơ sở: {formatVND(result?.baseline?.denominator)}
+                  Baseline AR Denominator: {formatVND(result?.baseline?.denominator)}
                 </div>
               </div>
               <div className="p-3.5 rounded-xl border border-slate-100 bg-[#F9FBFC]">
-                <div className="text-xs text-slate-500">Độ lệch (Δ pp)</div>
+                <div className="text-xs text-slate-500">Delta Variance (Δ pp)</div>
                 <div className={`text-lg font-bold mt-1 font-mono ${deltaVal.startsWith("+") && deltaVal !== "+0.00 pp" ? "text-rose-600" : "text-emerald-600"}`}>
                   {deltaVal}
                 </div>
                 <div className="text-[11px] text-slate-400 mt-0.5">
-                  Ngưỡng cảnh báo: {result?.rule?.threshold || "5.0"} pp
+                  Trigger Threshold: {result?.rule?.threshold || "5.0"} pp
                 </div>
               </div>
             </div>
@@ -217,7 +217,7 @@ export const RiskSignalView: React.FC<RiskSignalViewProps> = ({
           {result.next_check_actions && result.next_check_actions.length > 0 && (
             <div className="p-4 rounded-xl bg-indigo-50/60 border border-indigo-100 space-y-2 text-xs">
               <div className="font-bold text-indigo-950 flex items-center gap-1.5">
-                <span>🎯</span> Khuyến nghị Hành động Tiếp theo (Actionable Review):
+                <span>🎯</span> Next Actionable Steps:
               </div>
               <ul className="list-disc list-inside space-y-1 text-slate-700 pt-1">
                 {result.next_check_actions.map((act: string, i: number) => (

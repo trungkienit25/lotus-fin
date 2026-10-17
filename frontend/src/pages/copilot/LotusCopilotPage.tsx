@@ -465,7 +465,7 @@ export const LotusCopilotPage: React.FC = () => {
                     </span>
                   </div>
                   <div className="text-[11px] text-slate-400 truncate">
-                    {allFeatureTools.find((t) => t.id === activeReportTab)?.desc || "Đối soát sổ cái kế toán thời gian thực"}
+                    {allFeatureTools.find((t) => t.id === activeReportTab)?.desc || "Real-time general ledger reconciliation"}
                   </div>
                 </div>
               </div>
@@ -475,7 +475,7 @@ export const LotusCopilotPage: React.FC = () => {
                 <button
                   onClick={() => setIsModalMaximized(!isModalMaximized)}
                   className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
-                  title={isModalMaximized ? "Thu nhỏ cửa sổ" : "Phóng to toàn màn hình"}
+                  title={isModalMaximized ? "Restore window" : "Maximize fullscreen"}
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     {isModalMaximized ? (
@@ -489,7 +489,7 @@ export const LotusCopilotPage: React.FC = () => {
                 <button
                   onClick={handleCloseReportModal}
                   className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer"
-                  title="Đóng cửa sổ (Esc)"
+                  title="Close window (Esc)"
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -648,7 +648,7 @@ export const LotusCopilotPage: React.FC = () => {
                   onSetDemoScenario={setDemoScenario}
                   activeInvoiceTransport={activeInvoiceTransport}
                   onPrepareFollowup={(invId) => {
-                    handleTriggerChatPrompt(`Soạn thư nhắc nợ đối soát công nợ cho hóa đơn ${invId}`);
+                    handleTriggerChatPrompt(`Draft debt reminder and reconciliation follow-up for invoice ${invId}`);
                   }}
                 />
               )}
@@ -657,7 +657,7 @@ export const LotusCopilotPage: React.FC = () => {
                   <V1PastDueChatCard
                     company={selectedCompany}
                     onSelectInvoice={(invId) => {
-                      handleTriggerChatPrompt(`Tạo task theo dõi công nợ cho hóa đơn ${invId}`);
+                      handleTriggerChatPrompt(`Create receivables follow-up task for invoice ${invId}`);
                     }}
                   />
                 </div>
@@ -665,7 +665,7 @@ export const LotusCopilotPage: React.FC = () => {
               {activeReportTab === "task_followup" && (
                 <div className="max-w-3xl mx-auto space-y-4">
                   <L4ProposalChatCard
-                    initialTitle="Theo dõi công nợ quá hạn ACC-SINV-2026-00001"
+                    initialTitle="Follow up overdue receivables ACC-SINV-2026-00001"
                     targetEntity="Sales Invoice/ACC-SINV-2026-00001"
                     company={selectedCompany}
                   />
@@ -676,7 +676,7 @@ export const LotusCopilotPage: React.FC = () => {
                   <DebtReminderManagementView
                     company={selectedCompany}
                     onPrepareTask={(taskTitle: string) => {
-                      handleTriggerChatPrompt(`Tạo task theo dõi công nợ: ${taskTitle}`);
+                      handleTriggerChatPrompt(`Create receivables follow-up task: ${taskTitle}`);
                     }}
                   />
                 </div>

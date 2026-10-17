@@ -2,7 +2,7 @@ import React from "react";
 import type { DocumentVm } from "./invoiceActionPresentation.ts";
 import { safeText } from "./invoiceActionPresentation.ts";
 
-const STATUS_LABEL: Record<number, string> = { 0: "Draft (Bản nháp)", 1: "Submitted (Đã ghi nhận)" };
+const STATUS_LABEL: Record<number, string> = { 0: "Draft", 1: "Submitted" };
 
 /** Fixed read-only Lotus viewer (sales-invoice-minimal-v1): five contract fields + server company label. */
 export const InvoiceReadView: React.FC<{ doc: DocumentVm }> = ({ doc }) => {
@@ -20,7 +20,7 @@ export const InvoiceReadView: React.FC<{ doc: DocumentVm }> = ({ doc }) => {
           <span className="text-base">📄</span>
           <div>
             <h3 className="font-bold text-xs tracking-tight text-white">
-              Chi tiết Hóa đơn Bán hàng (ERP Sales Invoice)
+              Sales Invoice Details (ERP Ledger Record)
             </h3>
             <span className="text-[10px] text-slate-300 font-mono">
               {safeText(d.invoice_id)}
@@ -32,7 +32,7 @@ export const InvoiceReadView: React.FC<{ doc: DocumentVm }> = ({ doc }) => {
             data-testid="readonly-badge"
             className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30"
           >
-            Chỉ đọc (Read-only)
+            Read-only
           </span>
           <span
             className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
@@ -53,7 +53,7 @@ export const InvoiceReadView: React.FC<{ doc: DocumentVm }> = ({ doc }) => {
           className="mx-4 p-2.5 rounded-xl bg-purple-50 border border-purple-200 text-purple-900 text-xs flex items-center gap-2"
         >
           <span>ℹ️</span>
-          <span>Dữ liệu nguồn kiểm thử riêng biệt.</span>
+          <span>Isolated test data source.</span>
         </div>
       )}
 
