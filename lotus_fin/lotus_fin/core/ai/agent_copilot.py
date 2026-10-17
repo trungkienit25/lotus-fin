@@ -30,18 +30,17 @@ from lotus_fin.security.access import get_verified_company
 _logger = logging.getLogger("lotus_fin.api.copilot")
 
 
-def _format_currency(val) -> str:
+def _format_currency(val, currency: Optional[str] = None) -> str:
+    cur = currency or "USD"
     if val is None:
-        return "0 VND"
+        return f"$0.00" if cur == "USD" else f"0 {cur}"
     try:
-        if frappe and hasattr(frappe, "format"):
-            return frappe.format(val, {'fieldtype': 'Currency', 'currency': 'VND'})
+        num = float(val)
+        if cur == "USD":
+            return f"${num:,.2f}"
+        return f"{int(num):,} {cur}"
     except Exception:
-        pass
-    try:
-        return f"{int(float(val)):,} VND"
-    except Exception:
-        return f"{val} VND"
+        return f"{val} {cur}"
 
 
 def process_copilot_query(
@@ -76,7 +75,8 @@ def process_copilot_query(
                 lines.append("\n**Recent Invoices:**")
                 for inv in invs[:5]:
                     st = "Submitted" if inv.get("docstatus") == 1 else "Draft"
-                    gt = f"{int(inv.get('grandTotal', 0)):,} VND"
+                    cur = inv.get("currency") or "USD"
+                    gt = _format_currency(inv.get('grandTotal', 0), cur)
                     lines.append(f"- **{inv.get('invoiceId')}** &bull; {inv.get('customerName')} &bull; {inv.get('postingDate')} &bull; `{st}` &bull; **{gt}**")
             
             lines.append("\n💡 You can view full details or filter by document status in the table below.")
@@ -498,10 +498,11 @@ def process_copilot_query(
     ar_val = metrics.get("ar_outstanding", {}).get("value")
     ap_val = metrics.get("ap_outstanding", {}).get("value")
 
-    rev_str = _format_currency(rev_val) if rev_val is not None else "Updating..."
-    cash_str = _format_currency(cash_val) if cash_val is not None else "Updating..."
-    ar_str = _format_currency(ar_val) if ar_val is not None else "0 VND"
-    ap_str = _format_currency(ap_val) if ap_val is not None else "0 VND"
+    snap_curr = res.get("currency") or "USD"
+    rev_str = _format_currency(rev_val, snap_curr) if rev_val is not None else "Updating..."
+    cash_str = _format_currency(cash_val, snap_curr) if cash_val is not None else "Updating..."
+    ar_str = _format_currency(ar_val, snap_curr) if ar_val is not None else _format_currency(0, snap_curr)
+    ap_str = _format_currency(ap_val, snap_curr) if ap_val is not None else _format_currency(0, snap_curr)
     margin_str = f"{(margin_val * 100):.2f}%" if margin_val is not None else "N/A"
 
     reply = (
