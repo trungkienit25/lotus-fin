@@ -1,5 +1,7 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import axios from "axios";
+import { marked } from "marked";
+import DOMPurify from "dompurify";
 import { useTranslation } from "../../../i18n";
 import { formatBrandText } from "../../../utils/brand";
 import { ModuleBadge } from "./ModuleBadge";
@@ -50,6 +52,8 @@ export interface ChatMessage {
 
 export interface VercelChatPanelProps {
   company: string;
+  activeSessionId?: string | null;
+  onSessionChange?: (sessionId: string) => void;
   activeInspectorTab?: string;
   onOpenInspector?: (tab: string) => void;
   onClose?: () => void;
@@ -63,6 +67,8 @@ export interface VercelChatPanelProps {
 
 export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
   company,
+  activeSessionId,
+  onSessionChange,
   activeInspectorTab,
   onOpenInspector,
   onClose,
@@ -74,6 +80,7 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
   onClearExternalTrigger,
 }) => {
   const { t } = useTranslation();
+  const [currentSessionId, setCurrentSessionId] = useState<string>(activeSessionId || "");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -94,6 +101,39 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
       scrollToBottom();
     }
   }, [messages, loading]);
+
+  // Load chat history when activeSessionId changes
+  useEffect(() => {
+    if (activeSessionId) {
+      setCurrentSessionId(activeSessionId);
+      // Fetch history from database
+      axios
+        .get(`/api/method/lotus_fin.api.copilot_api.get_chat_history?session_id=${encodeURIComponent(activeSessionId)}&company=${encodeURIComponent(company)}`)
+        .then((res) => {
+          const rawMsgs = res.data?.message?.messages || [];
+          if (Array.isArray(rawMsgs) && rawMsgs.length > 0) {
+            const parsed: ChatMessage[] = rawMsgs.map((m: any, idx: number) => ({
+              id: m.message_id || `hist-${idx}`,
+              sender: m.role === "user" ? "user" : "assistant",
+              content: formatBrandText(m.content),
+              timestamp: m.timestamp ? new Date(m.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "",
+            }));
+            setMessages(parsed);
+          } else {
+            // Brand new session without saved messages
+            setMessages([]);
+          }
+        })
+        .catch((err) => {
+          console.warn("Failed to load session history:", err);
+          setMessages([]);
+        });
+    } else {
+      // New chat session
+      setCurrentSessionId(`session_${Date.now()}`);
+      setMessages([]);
+    }
+  }, [activeSessionId, company]);
 
   // Handle external trigger prompt (from sidebar or quick actions)
   useEffect(() => {
@@ -175,15 +215,25 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
         headers["X-Frappe-CSRF-Token"] = session.csrfToken;
       }
 
+      const effectiveSessionId = currentSessionId || `session_${Date.now()}`;
+      if (!currentSessionId) {
+        setCurrentSessionId(effectiveSessionId);
+      }
+
       const res = await axios.post(
         "/api/method/lotus_fin.api.copilot_api.chat_copilot",
         {
           query: text + (currentFiles.length > 0 ? ` (Attached files: ${currentFiles.map((f) => f.name).join(", ")})` : ""),
           company,
           as_of_date: "2026-09-26",
+          session_id: effectiveSessionId,
         },
         { headers }
       );
+
+      if (onSessionChange && effectiveSessionId) {
+        onSessionChange(effectiveSessionId);
+      }
 
       const msgData = res.data?.message;
       const replyContent =
@@ -564,8 +614,56 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
                             </span>
                           </div>
                           {isExp && t.output && (
-                            <div className="p-3 bg-white/90 border-t border-indigo-100 font-mono text-[10px] text-slate-700 max-h-48 overflow-y-auto">
-                              <pre>{JSON.stringify(t.output, null, 2)}</pre>
+                            <div className="p-3 bg-white/95 border-t border-indigo-100 text-[11px] text-slate-700 max-h-48 overflow-y-auto space-y-1.5 font-sans">
+                              <div className="flex items-center justify-between pb-1.5 border-b border-slate-100">
+                                <span className="text-slate-400 font-semibold uppercase text-[9px] tracking-wider">Trạng thái đối soát</span>
+                                <span className={`px-2 py-0.2 rounded-full font-bold text-[9px] ${
+                                  t.output.status === "VALIDATION_ERROR" || t.output.status === "ERROR"
+                                    ? "bg-rose-50 text-rose-700 border border-rose-200"
+                                    : "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                }`}>
+                                  {t.output.status === "VALIDATION_ERROR"
+                                    ? "Cần xác thực dữ liệu"
+                                    : t.output.status === "FORECAST_UNAVAILABLE"
+                                    ? "Bảo toàn số dư (chưa có lịch phát sinh)"
+                                    : t.output.status === "INCONSISTENT_DATA"
+                                    ? "Đang đối soát sổ cái"
+                                    : "Đã xác thực dữ liệu"}
+                                </span>
+                              </div>
+                              {t.output.verified_company && (
+                                <div className="flex items-center justify-between text-slate-600">
+                                  <span className="text-slate-400">Đơn vị hạch toán:</span>
+                                  <span className="font-semibold text-slate-800">{t.output.verified_company}</span>
+                                </div>
+                              )}
+                              {t.output.opening_cash?.aggregate_amount !== undefined && (
+                                <div className="flex items-center justify-between text-slate-600">
+                                  <span className="text-slate-400">Số dư khả dụng đầu kỳ:</span>
+                                  <span className="font-mono font-bold text-blue-700">{Number(t.output.opening_cash.aggregate_amount).toLocaleString("vi-VN")} VND</span>
+                                </div>
+                              )}
+                              {t.output.count !== undefined && (
+                                <div className="flex items-center justify-between text-slate-600">
+                                  <span className="text-slate-400">Số lượng bản ghi:</span>
+                                  <span className="font-mono font-bold text-slate-800">{t.output.count}</span>
+                                </div>
+                              )}
+                              {Array.isArray(t.output.limitations) && t.output.limitations.length > 0 && (
+                                <div className="pt-1 text-[10px] text-amber-800 bg-amber-50/70 p-2 rounded-lg border border-amber-200/60 leading-relaxed">
+                                  <span className="font-bold">Lưu ý nghiệp vụ: </span>
+                                  <span>
+                                    {t.output.limitations
+                                      .map((l: string) =>
+                                        l === "Explicit cash_account_scope is required."
+                                          ? "Cần chọn phạm vi tài khoản tiền mặt trong thiết lập"
+                                          : l.replace(/STRICT_BASELINE_V1/g, "Nguyên tắc thận trọng")
+                                             .replace(/TRADE_ONLY/g, "Phạm vi thương mại")
+                                      )
+                                      .join("; ")}
+                                  </span>
+                                </div>
+                              )}
                             </div>
                           )}
                         </div>
@@ -574,10 +672,8 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
                   </div>
                 )}
 
-                {/* Formatted Content with True Markdown Block & Inline Parsing */}
-                <div className="space-y-3 break-words text-gray-800 leading-relaxed font-sans text-xs sm:text-sm">
-                  {renderMarkdownBlocks(msg.content)}
-                </div>
+                {/* Executive Markdown Content with Industry-Standard Typography */}
+                <ExecutiveMarkdownView content={msg.content} />
 
                 {/* Action Widgets Directly in Chat Feed */}
                 {msg.widgetType === "invoice_search" && (
@@ -789,10 +885,16 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
           </div>
 
           {/* Vercel Input Box Card with Attachments & Controls */}
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-md shadow-gray-200/50 p-2 focus-within:border-[#1E63B7] focus-within:ring-2 focus-within:ring-[#1E63B7]/10 transition-all">
+          <div
+            onClick={() => textareaRef.current?.focus()}
+            className="bg-white rounded-2xl border border-gray-200 shadow-md shadow-gray-200/50 p-2.5 focus-within:border-[#1E63B7] focus-within:ring-2 focus-within:ring-[#1E63B7]/15 transition-all cursor-text"
+          >
             {/* Attached file chips */}
             {attachedFiles.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mb-1.5 pb-1.5 border-b border-gray-100 px-1">
+              <div
+                onClick={(e) => e.stopPropagation()}
+                className="flex flex-wrap gap-1.5 mb-1.5 pb-1.5 border-b border-gray-100 px-1 cursor-default"
+              >
                 {attachedFiles.map((file, idx) => (
                   <div key={idx} className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-blue-50 border border-blue-200 text-blue-800 text-[10px] font-medium shadow-2xs">
                     <span>📄</span>
@@ -815,12 +917,28 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
               value={inputMessage}
               onChange={handleInputChange}
               onKeyDown={handleKeyDown}
+              onPaste={(e) => {
+                // If text is pasted, ensure state updates properly and resize triggers
+                const pastedText = e.clipboardData.getData("text");
+                if (pastedText) {
+                  // Allow native paste behavior while ensuring height recalculates on next tick
+                  setTimeout(() => {
+                    if (textareaRef.current) {
+                      textareaRef.current.style.height = "auto";
+                      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 160)}px`;
+                    }
+                  }, 0);
+                }
+              }}
               placeholder="Ask anything about financial metrics, cash forecast..."
-              className="w-full resize-none border-0 bg-transparent text-xs text-gray-800 placeholder-gray-400 focus:outline-hidden focus:ring-0 px-1 py-0.5 min-h-[32px] max-h-[120px]"
+              className="w-full resize-none border-0 bg-transparent text-xs text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 outline-none ring-0 shadow-none px-1 py-0.5 min-h-[32px] max-h-[120px]"
             />
 
             {/* Input Toolbar */}
-            <div className="flex items-center justify-between pt-1.5 border-t border-gray-100 px-1">
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="flex items-center justify-between pt-1.5 border-t border-gray-100 px-1 cursor-default"
+            >
               <div className="flex items-center gap-1.5 min-w-0">
                 {/* File Attachment Hidden Input & Button */}
                 <input
@@ -877,113 +995,36 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
   );
 };
 
-// Helper for bold, italics, code, bullet, and simple markup rendering without leaking markdown stars
-function renderFormattedInline(text: string): string {
-  if (!text) return "";
-  return text
-    // Replace markdown bold: **bold text**
-    .replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold text-gray-900">$1</strong>')
-    // Replace markdown italics: *italic text* or _italic text_
-    .replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em class="italic">$1</em>')
-    // Replace inline code: `code`
-    .replace(/`([^`]+)`/g, '<code class="px-1.5 py-0.5 rounded bg-slate-100 text-[#1E63B7] font-mono text-xs border border-slate-200/60">$1</code>')
-    // Replace inline links if any: [label](url)
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline font-medium">$1</a>');
-}
+// Configure marked with GitHub-Flavored Markdown & standard soft line breaks
+marked.setOptions({
+  gfm: true,
+  breaks: true,
+});
 
-// Block-level markdown renderer for paragraphs, ordered lists, unordered lists, headings, and quotes
-function renderMarkdownBlocks(content: string): React.ReactNode[] {
-  if (!content) return [];
-  const rawParagraphs = content.split(/\n\s*\n/);
-  
-  return rawParagraphs.map((block, bIdx) => {
-    const trimmed = block.trim();
-    if (!trimmed) return null;
-
-    // Check heading level 3 or 4
-    if (trimmed.startsWith("### ")) {
-      return (
-        <h3 key={bIdx} className="text-sm font-bold text-gray-900 mt-2.5 mb-1 flex items-center gap-1.5">
-          <span className="size-1.5 rounded-full bg-[#1E63B7]"></span>
-          <span dangerouslySetInnerHTML={{ __html: renderFormattedInline(trimmed.replace(/^###\s*/, "")) }} />
-        </h3>
-      );
+// High-end Executive Markdown Renderer
+export const ExecutiveMarkdownView: React.FC<{ content: string; className?: string }> = ({
+  content,
+  className = "",
+}) => {
+  const sanitizedHtml = useMemo(() => {
+    if (!content) return "";
+    try {
+      const rawHtml = marked.parse(content) as string;
+      return DOMPurify.sanitize(rawHtml, {
+        ADD_ATTR: ["target", "rel"],
+      });
+    } catch (e) {
+      console.error("Markdown parse error:", e);
+      return content;
     }
-    if (trimmed.startsWith("## ")) {
-      return (
-        <h2 key={bIdx} className="text-base font-bold text-gray-900 mt-3 mb-1.5">
-          <span dangerouslySetInnerHTML={{ __html: renderFormattedInline(trimmed.replace(/^##\s*/, "")) }} />
-        </h2>
-      );
-    }
+  }, [content]);
 
-    const lines = trimmed.split("\n");
-
-    // Check if block is an ordered list (e.g. "1. **Doanh thu...")
-    const isOrderedList = lines.every((l) => /^\d+\.\s+/.test(l.trim()));
-    if (isOrderedList) {
-      return (
-        <ol key={bIdx} className="space-y-1.5 my-1.5 list-decimal list-outside pl-5 text-gray-800">
-          {lines.map((l, lIdx) => {
-            const itemContent = l.trim().replace(/^\d+\.\s+/, "");
-            return (
-              <li key={lIdx} className="pl-0.5">
-                <span dangerouslySetInnerHTML={{ __html: renderFormattedInline(itemContent) }} />
-              </li>
-            );
-          })}
-        </ol>
-      );
-    }
-
-    // Check if block is an unordered list (e.g. "- item" or "* item")
-    const isUnorderedList = lines.every((l) => /^[-*•]\s+/.test(l.trim()));
-    if (isUnorderedList) {
-      return (
-        <ul key={bIdx} className="space-y-1.5 my-1.5 list-disc list-outside pl-5 text-gray-800">
-          {lines.map((l, lIdx) => {
-            const itemContent = l.trim().replace(/^[-*•]\s+/, "");
-            return (
-              <li key={lIdx} className="pl-0.5">
-                <span dangerouslySetInnerHTML={{ __html: renderFormattedInline(itemContent) }} />
-              </li>
-            );
-          })}
-        </ul>
-      );
-    }
-
-    // Mixed lines within paragraph (some lines might start with numbers or bullets)
-    return (
-      <div key={bIdx} className="space-y-1">
-        {lines.map((line, lIdx) => {
-          const lTrim = line.trim();
-          if (/^\d+\.\s+/.test(lTrim)) {
-            const num = lTrim.match(/^(\d+)\.\s+/)?.[1] || `${lIdx + 1}`;
-            const rest = lTrim.replace(/^\d+\.\s+/, "");
-            return (
-              <div key={lIdx} className="flex items-start gap-2 pl-1 py-0.5">
-                <span className="font-bold text-slate-500 font-mono text-xs shrink-0 mt-0.5">{num}.</span>
-                <span className="flex-1" dangerouslySetInnerHTML={{ __html: renderFormattedInline(rest) }} />
-              </div>
-            );
-          }
-          if (/^[-*•]\s+/.test(lTrim)) {
-            const rest = lTrim.replace(/^[-*•]\s+/, "");
-            return (
-              <div key={lIdx} className="flex items-start gap-2 pl-2 py-0.5">
-                <span className="text-blue-500 font-bold shrink-0 mt-0.5">•</span>
-                <span className="flex-1" dangerouslySetInnerHTML={{ __html: renderFormattedInline(rest) }} />
-              </div>
-            );
-          }
-          return (
-            <p key={lIdx} className="leading-relaxed" dangerouslySetInnerHTML={{ __html: renderFormattedInline(line) }} />
-          );
-        })}
-      </div>
-    );
-  });
-}
+  return (
+    <div
+      className={`prose-chat break-words ${className}`}
+      dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
+    />
+  );
+};
 
 export default VercelChatPanel;

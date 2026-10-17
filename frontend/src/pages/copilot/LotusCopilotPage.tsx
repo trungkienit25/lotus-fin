@@ -17,6 +17,8 @@ import {
 } from "./components";
 import { IntegratedCapabilities } from "./components/IntegratedCapabilities";
 import { FollowupPreview } from "./prepare/FollowupPreview.tsx";
+import { DebtReminderManagementView } from "./prepare/DebtReminderManagementView.tsx";
+import { PolicyGateAuditView } from "./l5/PolicyGateAuditView.tsx";
 import { V1PastDueChatCard } from "./widgets/V1PastDueChatCard";
 import { L4ProposalChatCard } from "./widgets/L4ProposalChatCard";
 import { createHttpTransport } from "./actions/invoiceActionClient";
@@ -91,39 +93,48 @@ export const LotusCopilotPage: React.FC = () => {
     return createHttpTransport();
   }, []);
 
-  // Recent chat history items
-  const [recentChats, setRecentChats] = useState<Array<{ id: string; title: string; time: string; query: string }>>([
-    {
-      id: "chat-1",
-      title: "Phân tích sức khỏe tài chính 2026",
-      time: "Hôm nay",
-      query: "Tổng hợp sức khỏe tài chính & các chỉ số trọng yếu năm 2026",
-    },
-    {
-      id: "chat-2",
-      title: "Dự báo dòng tiền 30 ngày tới",
-      time: "Hôm nay",
-      query: "Dự báo dòng tiền 30 ngày tới và kiểm tra quỹ đạo số dư cuối ngày",
-    },
-    {
-      id: "chat-3",
-      title: "Mô phỏng Stress-Test What-If",
-      time: "Hôm qua",
-      query: "Chạy mô phỏng Stress-Test What-If nếu doanh thu giảm 20% và khách trả chậm 15 ngày",
-    },
-    {
-      id: "chat-4",
-      title: "Kiểm tra nợ quá hạn và NCC",
-      time: "2 ngày trước",
-      query: "Kiểm tra tín hiệu rủi ro nợ quá hạn và lịch thanh toán nhà cung cấp",
-    },
-    {
-      id: "chat-5",
-      title: "Khớp nối gói vay & Lịch trả nợ",
-      time: "Tuần này",
-      query: "Tìm gói vay phù hợp và tính bảng phân bổ lịch trả nợ PMT",
-    },
-  ]);
+  // Real chat history loaded from database
+  const [chatSessions, setChatSessions] = useState<Array<{ id: string; title: string; time: string; query?: string }>>([]);
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+
+  // Load chat sessions from database
+  const fetchChatSessions = () => {
+    axios
+      .get(`/api/method/lotus_fin.api.copilot_api.list_chat_sessions?company=${encodeURIComponent(selectedCompany)}&limit=50`)
+      .then((res) => {
+        const list = res.data?.message || [];
+        if (Array.isArray(list) && list.length > 0) {
+          const mapped = list.map((s: any) => {
+            const rawTime = s.last_message_at || s.creation || "";
+            let timeLabel = "Today";
+            if (rawTime) {
+              const d = new Date(rawTime);
+              const diffHours = (Date.now() - d.getTime()) / (1000 * 60 * 60);
+              if (diffHours < 24) timeLabel = "Today";
+              else if (diffHours < 48) timeLabel = "Yesterday";
+              else if (diffHours < 168) timeLabel = `${Math.floor(diffHours / 24)} days ago`;
+              else timeLabel = d.toLocaleDateString("en-US");
+            }
+            return {
+              id: s.session_id || s.id,
+              title: s.title || "Conversation",
+              time: timeLabel,
+            };
+          });
+          setChatSessions(mapped);
+          if (!activeSessionId) {
+            setActiveSessionId(mapped[0].id);
+          }
+        }
+      })
+      .catch((err) => {
+        console.warn("Failed to load chat sessions:", err);
+      });
+  };
+
+  useEffect(() => {
+    fetchChatSessions();
+  }, [selectedCompany]);
 
   // Trigger prompt in chat stream
   const [activePrompt, setActivePrompt] = useState<string | null>(null);
@@ -131,6 +142,19 @@ export const LotusCopilotPage: React.FC = () => {
   const handleTriggerChatPrompt = (query: string) => {
     setActivePrompt(query);
     // Ensure modal is closed when triggering in chat
+    setIsReportModalOpen(false);
+  };
+
+  const handleSelectSession = (sessionId: string) => {
+    setActiveSessionId(sessionId);
+    setActivePrompt(null);
+    setIsReportModalOpen(false);
+  };
+
+  const handleStartNewChat = () => {
+    const newId = `session_${Date.now()}`;
+    setActiveSessionId(newId);
+    setActivePrompt(null);
     setIsReportModalOpen(false);
   };
 
@@ -181,23 +205,23 @@ export const LotusCopilotPage: React.FC = () => {
       .catch(() => {});
   }, []);
 
-  // Category 1: Auxiliary Financial Analysis & Planning Tools (AI001 - AI006)
+  // Category 1: Auxiliary Financial Analysis & Planning Tools (Clean Executive Labels)
   const financialAnalysisTools: Array<{ id: CopilotTab; label: string; shortLabel: string; desc: string; query: string }> = [
-    { id: "financial_health", label: "Financial Health (AI001)", shortLabel: "Health (AI001)", desc: "8 key ratios & P&L metrics", query: "Phân tích sức khỏe tài chính & các chỉ số kế toán trọng yếu năm 2026" },
-    { id: "cash_forecast", label: "30-Day Cash Forecast (AI002)", shortLabel: "Cash (AI002)", desc: "Balance trajectory & AR/AP", query: "Dự báo dòng tiền 30 ngày tới và đánh giá rủi ro thanh khoản" },
-    { id: "risk_signals", label: "Risk Signals (AI003)", shortLabel: "Risk (AI003)", desc: "Overdue debt & AP schedule", query: "Kiểm tra tín hiệu rủi ro nợ quá hạn và lịch trả nợ nhà cung cấp" },
-    { id: "what_if", label: "Stress-Testing Studio (AI004)", shortLabel: "What-If (AI004)", desc: "9-KPI stress simulations", query: "Chạy mô phỏng Stress-Test What-If 9 chỉ số nếu doanh thu biến động" },
-    { id: "financing_copilot", label: "Loan Matchmaker (AI005)", shortLabel: "Financing (AI005)", desc: "Bank credit products", query: "Gợi ý các gói vay tín dụng ngân hàng phù hợp với hồ sơ tài chính" },
-    { id: "repayment_schedule", label: "Repayment Schedule (AI006)", shortLabel: "Repayment (AI006)", desc: "PMT amortization table", query: "Lập bảng phân bổ lịch trả nợ PMT gốc và lãi chi tiết" },
+    { id: "financial_health", label: "Corporate Financial Health", shortLabel: "Financial Health", desc: "8 Key Accounting Ratios & P&L", query: "Analyze corporate financial health and key accounting metrics for 2026" },
+    { id: "cash_forecast", label: "30-Day Cash Flow Forecast", shortLabel: "Cash Forecast", desc: "Balance Trajectory & AR/AP", query: "Generate 30-day cash flow forecast and evaluate liquidity risk" },
+    { id: "risk_signals", label: "Risk Signals Monitoring", shortLabel: "Risk Signals", desc: "Overdue AR & AP Due Dates", query: "Check risk signals for overdue receivables and supplier payment schedules" },
+    { id: "what_if", label: "Cash Stress Simulation (What-If)", shortLabel: "What-If Studio", desc: "Stress-Test Scenarios", query: "Run What-If stress test across 9 indicators under revenue fluctuation" },
+    { id: "financing_copilot", label: "Credit & Financing Matcher", shortLabel: "Financing Copilot", desc: "Bank Loan Products", query: "Match suitable banking credit and loan facilities based on financial profile" },
+    { id: "repayment_schedule", label: "Loan Amortization & Schedule", shortLabel: "Repayment Schedule", desc: "PMT Principal & Interest", query: "Calculate detailed PMT amortization schedule for principal and interest" },
   ];
 
   // Category 2: ERP Ledger, Database & Operational Audit Tools
   const erpLedgerTools: Array<{ id: CopilotTab; label: string; shortLabel: string; desc: string; query: string }> = [
-    { id: "invoice_actions", label: "Tra cứu Chứng từ (L1/L2)", shortLabel: "Chứng từ (L1/L2)", desc: "Tìm kiếm & đối soát Sales Invoices", query: "Tìm hóa đơn có mã SINV" },
-    { id: "past_final_due", label: "Hóa đơn Quá hạn Cuối (V1)", shortLabel: "Quá hạn (V1)", desc: "Hóa đơn quá hạn cuối còn dư nợ", query: "Cho tôi xem danh sách hóa đơn quá hạn cuối còn dư nợ" },
-    { id: "task_followup", label: "Tạo Việc Theo dõi ERP (L4)", shortLabel: "Tạo việc (L4)", desc: "Khởi tạo tác vụ theo dõi trên tabTask", query: "Tạo task theo dõi công nợ cho hóa đơn ACC-SINV-2026-00001" },
-    { id: "debt_reminder", label: "Soạn Thư Nhắc Nợ (L3)", shortLabel: "Nhắc nợ (L3)", desc: "Bản nháp gửi khách hàng kiểm toán", query: "Soạn thư nhắc nợ đối soát công nợ cho khách hàng" },
-    { id: "policy_gate", label: "Cổng Chính sách Tác động (L5)", shortLabel: "Chính sách (L5)", desc: "Kiểm soát an toàn dual-control", query: "Đánh giá chính sách hủy bỏ chứng từ hoặc gửi thanh toán tự động" },
+    { id: "invoice_actions", label: "Sales Invoices Explorer", shortLabel: "Sales Invoices", desc: "Search & Reconcile Invoices", query: "Find invoices with prefix SINV" },
+    { id: "past_final_due", label: "Past Final Due Invoices", shortLabel: "Past Due Invoices", desc: "Overdue Receivables List", query: "Show list of past final due sales invoices with outstanding balance" },
+    { id: "task_followup", label: "Create Follow-up Task", shortLabel: "Follow-up Tasks", desc: "Initiate Task in ERP Ledger", query: "Create follow-up task for invoice ACC-SINV-2026-00001" },
+    { id: "debt_reminder", label: "Customer Debt Reminder", shortLabel: "Debt Reminder", desc: "Draft Customer Notice", query: "Prepare payment reminder and statement for customer" },
+    { id: "policy_gate", label: "Accounting Policy Gate", shortLabel: "Policy Gate", desc: "Dual-Control Safety Checks", query: "Verify policy gate for document cancellation and automated payments" },
   ];
 
   const allFeatureTools = [...financialAnalysisTools, ...erpLedgerTools];
@@ -221,71 +245,44 @@ export const LotusCopilotPage: React.FC = () => {
         <div className="p-3.5 flex flex-col h-full overflow-hidden">
           {/* New Chat Button */}
           <button
-            onClick={() => {
-              setIsReportModalOpen(false);
-              setActivePrompt(null);
-            }}
+            onClick={handleStartNewChat}
             className="w-full py-2.5 px-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs shrink-0 mb-3"
           >
             <span className="text-base font-bold text-blue-600">+</span>
             <span>New Chat</span>
           </button>
 
-          {/* Primary Section: Chat History (Always visible & prominent) */}
-          <div className="flex-1 overflow-y-auto pr-1 space-y-3 min-h-0">
-            <div>
-              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-2 mb-1.5 flex items-center justify-between">
-                <span>Chat History</span>
-                <span className="text-[10px] text-slate-400 font-normal">{recentChats.length}</span>
-              </div>
-              <div className="space-y-1">
-                {recentChats.map((chat) => (
-                  <div
-                    key={chat.id}
-                    onClick={() => handleTriggerChatPrompt(chat.query)}
-                    className="p-2 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-200 cursor-pointer transition-all group"
-                  >
-                    <div className="flex items-center gap-2 text-xs font-medium text-slate-700 group-hover:text-blue-700 truncate">
-                      <svg className="size-3.5 text-slate-400 group-hover:text-blue-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                      </svg>
-                      <span className="truncate">{chat.title}</span>
-                    </div>
-                    <div className="text-[10px] text-slate-400 pl-5.5 mt-0.5">{chat.time}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Accordion 1: Auxiliary Financial Tools (AI001 - AI006) */}
-            <div className="pt-2 border-t border-slate-100">
+          {/* Top Section: Quick Capabilities & Tools (Auto-collapsed accordions) */}
+          <div className="space-y-1.5 shrink-0 pb-3 border-b border-slate-100">
+            {/* Accordion 1: Financial Tools */}
+            <div className="rounded-xl border border-slate-100 overflow-hidden bg-slate-50/50">
               <button
                 onClick={() => setIsFinToolsExpanded(!isFinToolsExpanded)}
-                className="w-full flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-slate-50 text-slate-600 transition-all cursor-pointer group"
+                className="w-full flex items-center justify-between px-2.5 py-2 hover:bg-slate-100/80 text-slate-700 transition-all cursor-pointer group"
               >
-                <div className="flex items-center gap-1.5 min-w-0">
-                  <span className="text-xs text-slate-400 group-hover:text-blue-600 transition-transform duration-200 shrink-0">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="text-[10px] text-slate-400 group-hover:text-blue-600 transition-transform duration-200 shrink-0">
                     {isFinToolsExpanded ? "▼" : "▶"}
                   </span>
-                  <span className="text-[11px] font-bold text-slate-600 uppercase tracking-tight truncate whitespace-nowrap">
+                  <span className="text-xs font-bold text-slate-700 truncate">
                     Financial Tools
                   </span>
                 </div>
-                <span className="text-[10px] font-semibold bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded shrink-0 ml-1">
+                <span className="text-[10px] font-semibold bg-blue-50 text-blue-600 px-1.5 py-0.2 rounded-full shrink-0">
                   {financialAnalysisTools.length}
                 </span>
               </button>
 
-              {/* Financial tools list when expanded: triggers in chat directly */}
+              {/* Financial tools list when expanded */}
               {isFinToolsExpanded && (
-                <div className="mt-1.5 space-y-1 pl-1 pr-0.5 animate-fadeIn">
+                <div className="p-1 space-y-0.5 bg-white border-t border-slate-100 max-h-52 overflow-y-auto animate-fadeIn">
                   {financialAnalysisTools.map((t) => (
                     <button
                       key={t.id}
                       onClick={() => handleTriggerChatPrompt(t.query)}
-                      className="w-full text-left p-2 rounded-xl hover:bg-blue-50/70 hover:border-blue-200 border border-transparent text-slate-700 transition-all flex items-center justify-between cursor-pointer group"
+                      className="w-full text-left p-1.5 rounded-lg hover:bg-blue-50/70 border border-transparent text-slate-700 transition-all flex items-center justify-between cursor-pointer group"
                     >
-                      <div className="flex items-center gap-2.5 overflow-hidden">
+                      <div className="flex items-center gap-2 overflow-hidden">
                         <ModuleBadge moduleId={t.id} size="sm" />
                         <div className="overflow-hidden">
                           <div className="text-xs truncate font-medium text-slate-800 group-hover:text-blue-700">
@@ -303,35 +300,35 @@ export const LotusCopilotPage: React.FC = () => {
               )}
             </div>
 
-            {/* Accordion 2: ERP Ledger & Database Audit Tools (Tra cứu DB, Sổ cái & Chứng từ) */}
-            <div className="pt-2 border-t border-slate-100">
+            {/* Accordion 2: ERP Ledger Tools */}
+            <div className="rounded-xl border border-slate-100 overflow-hidden bg-slate-50/50">
               <button
                 onClick={() => setIsErpToolsExpanded(!isErpToolsExpanded)}
-                className="w-full flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-slate-50 text-slate-600 transition-all cursor-pointer group"
+                className="w-full flex items-center justify-between px-2.5 py-2 hover:bg-slate-100/80 text-slate-700 transition-all cursor-pointer group"
               >
-                <div className="flex items-center gap-1.5 min-w-0">
-                  <span className="text-xs text-slate-400 group-hover:text-indigo-600 transition-transform duration-200 shrink-0">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="text-[10px] text-slate-400 group-hover:text-indigo-600 transition-transform duration-200 shrink-0">
                     {isErpToolsExpanded ? "▼" : "▶"}
                   </span>
-                  <span className="text-[11px] font-bold text-slate-600 uppercase tracking-tight truncate whitespace-nowrap">
+                  <span className="text-xs font-bold text-slate-700 truncate">
                     ERP Ledger Tools
                   </span>
                 </div>
-                <span className="text-[10px] font-semibold bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded shrink-0 ml-1">
+                <span className="text-[10px] font-semibold bg-indigo-50 text-indigo-600 px-1.5 py-0.2 rounded-full shrink-0">
                   {erpLedgerTools.length}
                 </span>
               </button>
 
-              {/* ERP Ledger tools list when expanded: triggers in chat directly */}
+              {/* ERP Ledger tools list when expanded */}
               {isErpToolsExpanded && (
-                <div className="mt-1.5 space-y-1 pl-1 pr-0.5 animate-fadeIn">
+                <div className="p-1 space-y-0.5 bg-white border-t border-slate-100 max-h-52 overflow-y-auto animate-fadeIn">
                   {erpLedgerTools.map((t) => (
                     <button
                       key={t.id}
                       onClick={() => handleTriggerChatPrompt(t.query)}
-                      className="w-full text-left p-2 rounded-xl hover:bg-indigo-50/70 hover:border-indigo-200 border border-transparent text-slate-700 transition-all flex items-center justify-between cursor-pointer group"
+                      className="w-full text-left p-1.5 rounded-lg hover:bg-indigo-50/70 border border-transparent text-slate-700 transition-all flex items-center justify-between cursor-pointer group"
                     >
-                      <div className="flex items-center gap-2.5 overflow-hidden">
+                      <div className="flex items-center gap-2 overflow-hidden">
                         <ModuleBadge moduleId={t.id} size="sm" />
                         <div className="overflow-hidden">
                           <div className="text-xs truncate font-medium text-slate-800 group-hover:text-indigo-700">
@@ -348,6 +345,55 @@ export const LotusCopilotPage: React.FC = () => {
                 </div>
               )}
             </div>
+          </div>
+
+          {/* Primary Section: Chat History (Placed below for extensive scrollability, like Gemini) */}
+          <div className="flex-1 overflow-y-auto pr-1 pt-3 space-y-1 min-h-0">
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-2 mb-2 flex items-center justify-between">
+              <span>Chat History</span>
+              <span className="text-[10px] text-slate-400 font-normal">{chatSessions.length}</span>
+            </div>
+
+            {chatSessions.length === 0 ? (
+              <div className="px-3 py-6 text-center text-xs text-slate-400">
+                No conversations yet
+              </div>
+            ) : (
+              chatSessions.map((session) => {
+                const isActive = activeSessionId === session.id;
+                return (
+                  <div
+                    key={session.id}
+                    onClick={() => handleSelectSession(session.id)}
+                    className={`p-2 rounded-xl border cursor-pointer transition-all group ${
+                      isActive
+                        ? "bg-blue-50/80 border-blue-200 text-blue-900 shadow-2xs font-semibold"
+                        : "hover:bg-slate-50 border-transparent hover:border-slate-200 text-slate-700"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 text-xs truncate">
+                      <svg
+                        className={`size-3.5 shrink-0 ${
+                          isActive ? "text-blue-600" : "text-slate-400 group-hover:text-blue-500"
+                        }`}
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                        />
+                      </svg>
+                      <span className="truncate">{session.title}</span>
+                    </div>
+                    <div className="text-[10px] text-slate-400 pl-5.5 mt-0.5">{session.time}</div>
+                  </div>
+                );
+              })
+            )}
           </div>
 
           {/* Bottom Company Info Card */}
@@ -377,7 +423,13 @@ export const LotusCopilotPage: React.FC = () => {
       {/* 2. Main Center Workspace: Full Vercel AI Chatbot Feed (Spacious & 100% Focused) */}
       <div className="flex-1 flex flex-col h-full relative overflow-hidden">
         <VercelChatPanel
+          key={activeSessionId || "new_session"}
           company={selectedCompany}
+          activeSessionId={activeSessionId}
+          onSessionChange={(sId) => {
+            setActiveSessionId(sId);
+            fetchChatSessions();
+          }}
           activeInspectorTab={activeReportTab}
           onOpenInspector={handleOpenReportModal}
           onToggleSidebar={() => setIsLeftSidebarOpen(!isLeftSidebarOpen)}
@@ -620,20 +672,19 @@ export const LotusCopilotPage: React.FC = () => {
                 </div>
               )}
               {activeReportTab === "debt_reminder" && (
-                <div className="max-w-2xl mx-auto py-4">
-                  <FollowupPreview
-                    scopeEpoch="epoch-erp-active"
-                    onPrepareTask={(body: string) => {
-                      handleTriggerChatPrompt(`Tạo task theo dõi công nợ: ${body.slice(0, 50)}...`);
+                <div className="py-2">
+                  <DebtReminderManagementView
+                    company={selectedCompany}
+                    onPrepareTask={(taskTitle: string) => {
+                      handleTriggerChatPrompt(`Tạo task theo dõi công nợ: ${taskTitle}`);
                     }}
                   />
                 </div>
               )}
               {activeReportTab === "policy_gate" && (
-                <div className="max-w-3xl mx-auto">
-                  <IntegratedCapabilities
-                    profile={demoProfile}
-                    feature="L5"
+                <div className="py-2">
+                  <PolicyGateAuditView
+                    company={selectedCompany}
                   />
                 </div>
               )}

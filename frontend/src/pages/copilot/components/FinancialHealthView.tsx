@@ -130,29 +130,29 @@ export const FinancialHealthView: React.FC<FinancialHealthViewProps> = ({
   return (
     <div className="space-y-6 font-sans">
       {/* 1. Executive Header Banner */}
-      <div className="rounded-2xl border border-slate-200/80 bg-gradient-to-r from-slate-900 via-indigo-950 to-blue-950 text-white p-5 sm:p-6 shadow-xs">
+      <div className="rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-xs">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex flex-wrap items-center gap-2 mb-2.5">
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-400/30 font-mono">
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-[#1E63B7] border border-blue-200/80 font-mono">
                 AI001 • Financial Health
               </span>
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 flex items-center gap-1">
-                <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/80 flex items-center gap-1.5">
+                <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 <span>Chế độ: {data?.data_mode || "Actual ERP"}</span>
               </span>
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/10 text-slate-200 border border-white/20 font-mono">
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200 font-mono">
                 {company}
               </span>
             </div>
 
             <div className="flex items-center gap-3">
               <ModuleBadge moduleId="financial_health" size="md" />
-              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
                 Báo cáo Sức khỏe Tài chính Doanh nghiệp
               </h1>
             </div>
-            <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl">
+            <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl leading-relaxed">
               Trích xuất trực tiếp từ Sổ cái General Ledger, Bảng cân đối thử và Báo cáo Kết quả Kinh doanh thực tế của {company}.
             </p>
           </div>
@@ -161,9 +161,9 @@ export const FinancialHealthView: React.FC<FinancialHealthViewProps> = ({
             <button
               onClick={() => fetchHealthData()}
               disabled={loading}
-              className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold border border-white/20 transition-all flex items-center gap-2 backdrop-blur cursor-pointer shadow-2xs"
+              className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold border border-slate-200 transition-all flex items-center gap-2 cursor-pointer shadow-2xs hover:text-[#1E63B7] hover:border-blue-300"
             >
-              <svg className={`size-3.5 ${loading ? "animate-spin" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className={`size-3.5 ${loading ? "animate-spin text-[#1E63B7]" : "text-slate-400"}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
               <span>{loading ? "Đang truy vấn sổ cái..." : "Cập nhật từ ERP"}</span>
@@ -172,29 +172,29 @@ export const FinancialHealthView: React.FC<FinancialHealthViewProps> = ({
         </div>
 
         {/* Filter Controls Bar */}
-        <div className="mt-5 pt-4 border-t border-white/10 flex flex-wrap items-center gap-4 text-xs">
+        <div className="mt-4 pt-4 border-t border-slate-100 flex flex-wrap items-center gap-4 text-xs">
           <div className="flex items-center gap-2">
-            <span className="text-slate-300 font-medium">Kỳ kế toán:</span>
+            <span className="text-slate-500 font-medium">Kỳ kế toán:</span>
             <select
               value={periodPreset}
               onChange={(e) => setPeriodPreset(e.target.value)}
-              className="bg-slate-800/80 border border-white/20 text-white rounded-xl px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 font-medium cursor-pointer"
+              className="bg-slate-50 border border-slate-200 text-slate-800 rounded-xl px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-[#1E63B7]/20 focus:border-[#1E63B7] font-medium cursor-pointer"
             >
-              <option value="CURRENT_YEAR" className="bg-slate-900 text-white">Năm hiện tại (2026 - Actual)</option>
-              <option value="FY2025" className="bg-slate-900 text-white">Năm tài chính 2025</option>
-              <option value="FY2020" className="bg-slate-900 text-white">Năm tài chính 2020</option>
+              <option value="CURRENT_YEAR">Năm hiện tại (2026 - Actual)</option>
+              <option value="FY2025">Năm tài chính 2025</option>
+              <option value="FY2020">Năm tài chính 2020</option>
             </select>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-slate-300 font-medium">So sánh:</span>
+            <span className="text-slate-500 font-medium">So sánh:</span>
             <select
               value={comparisonMode}
               onChange={(e) => setComparisonMode(e.target.value)}
-              className="bg-slate-800/80 border border-white/20 text-white rounded-xl px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-400 font-medium cursor-pointer"
+              className="bg-slate-50 border border-slate-200 text-slate-800 rounded-xl px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-[#1E63B7]/20 focus:border-[#1E63B7] font-medium cursor-pointer"
             >
-              <option value="NONE" className="bg-slate-900 text-white">Không so sánh</option>
-              <option value="PREVIOUS_PERIOD" className="bg-slate-900 text-white">Kỳ liền trước (Previous Period)</option>
+              <option value="NONE">Không so sánh</option>
+              <option value="PREVIOUS_PERIOD">Kỳ liền trước (Previous Period)</option>
             </select>
           </div>
         </div>
@@ -243,7 +243,7 @@ export const FinancialHealthView: React.FC<FinancialHealthViewProps> = ({
                 className={`p-4 rounded-2xl border transition-all ${
                   isNegative
                     ? "bg-rose-50/40 border-rose-200 hover:border-rose-300"
-                    : "bg-[#F9FBFC] border-slate-200/70 hover:bg-white hover:border-blue-300 hover:shadow-2xs"
+                    : "bg-[#F9FBFC] border-slate-200/70 hover:bg-white hover:border-[#1E63B7]/40 hover:shadow-2xs"
                 }`}
               >
                 <div className="flex items-center justify-between text-xs text-slate-500 mb-1.5">
@@ -267,11 +267,17 @@ export const FinancialHealthView: React.FC<FinancialHealthViewProps> = ({
                 >
                   {displayVal}
                 </div>
-                <div className="text-[10px] font-medium text-slate-400 mt-1.5 flex items-center gap-1 truncate" title={statusBadge}>
-                  <span className={m?.status === "AVAILABLE" ? "text-emerald-600 font-bold" : "text-slate-400"}>
-                    {m?.status === "AVAILABLE" ? "✓" : "•"}
+                <div className="mt-2 pt-2 border-t border-slate-200/50 flex items-center justify-between text-[10px]">
+                  <span className="text-slate-400 font-medium truncate max-w-[150px]" title={statusBadge}>
+                    {statusBadge}
                   </span>
-                  <span>{statusBadge}</span>
+                  <span className={`px-1.5 py-0.2 rounded-md font-bold uppercase text-[9px] shrink-0 ${
+                    m?.status === "AVAILABLE"
+                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200/60"
+                      : "bg-slate-100 text-slate-500 border border-slate-200/60"
+                  }`}>
+                    {m?.status === "AVAILABLE" ? "Verified" : "Unverified"}
+                  </span>
                 </div>
               </div>
             );
@@ -341,44 +347,58 @@ export const FinancialHealthView: React.FC<FinancialHealthViewProps> = ({
         </div>
       )}
 
-      {/* 4. Grounded AI Financial Analysis Narrative from Real Ledger */}
+      {/* 3. Grounded AI Financial Analysis Narrative from Real Ledger */}
       {data?.explanation && (
-        <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs">
-          <div className="flex items-center gap-2 mb-4">
-            <span className="text-lg">🤖</span>
+        <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/80 shadow-xs">
+          <div className="flex items-center gap-2.5 mb-4">
+            <div className="size-7 rounded-xl bg-blue-50 text-[#1E63B7] flex items-center justify-center font-bold text-xs shrink-0 border border-blue-100">
+              ✦
+            </div>
             <div>
-              <h2 className="text-base font-bold text-slate-900">3. Diễn giải & Khuyến nghị Kế toán Thực tế</h2>
-              <p className="text-xs text-slate-500">Diễn giải có căn cứ trực tiếp từ các sự kiện đã hạch toán</p>
+              <h2 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
+                3. Diễn giải & Khuyến nghị Kế toán Thực tế
+              </h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Căn cứ trực tiếp từ các sự kiện và chứng từ đã hạch toán trên Sổ cái ERP
+              </p>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 rounded-xl bg-blue-50/60 border border-blue-100">
-              <div className="font-semibold text-blue-900 text-xs mb-2 flex items-center gap-1.5">
-                <span>📊</span> Sự thật Sổ cái (Verified Facts)
+            <div className="p-4 rounded-xl bg-slate-50/80 border border-slate-200/70">
+              <div className="font-bold uppercase tracking-wider text-slate-700 text-[11px] mb-2.5 flex items-center gap-1.5">
+                <span className="size-1.5 rounded-full bg-[#1E63B7]"></span>
+                <span>Sự thật Sổ cái (Verified Facts)</span>
               </div>
-              <ul className="space-y-1.5 text-xs text-slate-700 list-disc list-inside">
+              <ul className="space-y-2 text-xs text-slate-700">
                 {data.explanation.facts && data.explanation.facts.length > 0 ? (
                   data.explanation.facts.map((f: string, i: number) => (
-                    <li key={i}>{formatBrandText(f)}</li>
+                    <li key={i} className="flex items-start gap-2">
+                      <span className="text-slate-400 mt-0.5 font-bold">•</span>
+                      <span className="flex-1 leading-relaxed">{formatBrandText(f)}</span>
+                    </li>
                   ))
                 ) : (
-                  <li>Chưa có số liệu phát sinh trong kỳ được chọn.</li>
+                  <li className="text-slate-400 italic">Chưa có số liệu phát sinh trong kỳ được chọn.</li>
                 )}
               </ul>
             </div>
 
-            <div className="p-4 rounded-xl bg-emerald-50/60 border border-emerald-100">
-              <div className="font-semibold text-emerald-900 text-xs mb-2 flex items-center gap-1.5">
-                <span>💡</span> Phân tích Hành động Tiếp theo (Actionable Checks)
+            <div className="p-4 rounded-xl bg-slate-50/80 border border-slate-200/70">
+              <div className="font-bold uppercase tracking-wider text-slate-700 text-[11px] mb-2.5 flex items-center gap-1.5">
+                <span className="size-1.5 rounded-full bg-[#2FB29A]"></span>
+                <span>Khuyến nghị Hành động (Actionable Checks)</span>
               </div>
-              <ul className="space-y-1.5 text-xs text-slate-700 list-disc list-inside">
+              <ul className="space-y-2 text-xs text-slate-700">
                 {data.explanation.next_checks && data.explanation.next_checks.length > 0 ? (
                   data.explanation.next_checks.map((nc: string, i: number) => (
-                    <li key={i}>{formatBrandText(nc)}</li>
+                    <li key={i} className="flex items-start gap-2">
+                      <span className="text-emerald-500 mt-0.5 font-bold">✓</span>
+                      <span className="flex-1 leading-relaxed">{formatBrandText(nc)}</span>
+                    </li>
                   ))
                 ) : (
-                  <li>Kiểm tra chi tiết sổ phụ ngân hàng và công nợ quá hạn.</li>
+                  <li className="text-slate-400 italic">Kiểm tra chi tiết sổ phụ ngân hàng và công nợ quá hạn.</li>
                 )}
               </ul>
             </div>
@@ -390,9 +410,13 @@ export const FinancialHealthView: React.FC<FinancialHealthViewProps> = ({
       <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/80 shadow-xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
           <div className="flex items-center gap-2.5">
-            <span className="text-xl">🔮</span>
+            <div className="size-7 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xs shrink-0 border border-indigo-100">
+              <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
             <div>
-              <h2 className="text-sm sm:text-base font-bold text-slate-900">
+              <h2 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
                 4. Thử nghiệm Nhanh Kịch bản Nhạy cảm (What-If 9-KPIs)
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
@@ -403,10 +427,10 @@ export const FinancialHealthView: React.FC<FinancialHealthViewProps> = ({
           {onNavigateTab && (
             <button
               onClick={() => onNavigateTab("what_if")}
-              className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1.5 cursor-pointer self-start sm:self-auto px-3 py-1.5 rounded-xl hover:bg-blue-50 transition-colors"
+              className="text-xs font-semibold text-[#1E63B7] hover:text-[#174f96] flex items-center gap-1.5 cursor-pointer self-start sm:self-auto px-3 py-1.5 rounded-xl hover:bg-blue-50 transition-colors"
             >
               <span>Mở Studio Chuyên sâu</span>
-              <span>➔</span>
+              <span className="text-[11px]">➔</span>
             </button>
           )}
         </div>
@@ -424,7 +448,7 @@ export const FinancialHealthView: React.FC<FinancialHealthViewProps> = ({
               step="5"
               value={simSales}
               onChange={(e) => setSimSales(Number(e.target.value))}
-              className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+              className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#1E63B7]"
             />
           </div>
 
@@ -456,7 +480,7 @@ export const FinancialHealthView: React.FC<FinancialHealthViewProps> = ({
               step="5"
               value={simSupplier}
               onChange={(e) => setSimSupplier(Number(e.target.value))}
-              className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+              className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#2FB29A]"
             />
           </div>
 
@@ -465,7 +489,7 @@ export const FinancialHealthView: React.FC<FinancialHealthViewProps> = ({
             <select
               value={simFinancing}
               onChange={(e) => setSimFinancing(Number(e.target.value))}
-              className="w-full text-xs p-2 rounded-xl border border-slate-200 bg-white font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+              className="w-full text-xs p-2 rounded-xl border border-slate-200 bg-white font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#1E63B7]/20 focus:border-[#1E63B7]"
             >
               <option value={0}>Không vay thêm</option>
               <option value={300000000}>300M (Vốn LĐ 12T)</option>
@@ -479,36 +503,39 @@ export const FinancialHealthView: React.FC<FinancialHealthViewProps> = ({
           <button
             onClick={runQuickSimulation}
             disabled={simLoading}
-            className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-2xs hover:opacity-95 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+            className="px-4 py-2 rounded-xl bg-[#1E63B7] hover:bg-[#174f96] text-white text-xs font-bold shadow-xs hover:opacity-95 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
           >
-            <span>🚀 {simLoading ? "Đang tính toán..." : "Chạy Thử nghiệm Stress Test"}</span>
+            <svg className={`size-3.5 ${simLoading ? "animate-spin" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            <span>{simLoading ? "Đang tính toán..." : "Chạy Thử nghiệm Stress Test"}</span>
           </button>
         </div>
 
         {/* Simulation Output Card */}
         {simResult && (
-          <div className="mt-4 p-4 rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs shadow-xs animate-fadeIn">
-            <div className="p-2.5 rounded-xl bg-white/5 border border-white/10">
+          <div className="mt-4 p-4 rounded-2xl bg-slate-900 text-white grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs shadow-xs border border-slate-800 animate-fadeIn">
+            <div className="p-3 rounded-xl bg-white/5 border border-white/10">
               <div className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Tiền mặt cuối kỳ</div>
               <div className="text-base font-bold text-emerald-400 font-mono mt-0.5">
                 {formatVND(simResult.kpis_9_layer?.ending_cash?.simulation)}
               </div>
             </div>
-            <div className="p-2.5 rounded-xl bg-white/5 border border-white/10">
+            <div className="p-3 rounded-xl bg-white/5 border border-white/10">
               <div className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Dòng tiền thuần (NCF)</div>
               <div className="text-base font-bold text-amber-300 font-mono mt-0.5">
                 {formatVND(simResult.kpis_9_layer?.net_cash_flow?.simulation)}
               </div>
             </div>
-            <div className="p-2.5 rounded-xl bg-white/5 border border-white/10">
+            <div className="p-3 rounded-xl bg-white/5 border border-white/10">
               <div className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Doanh thu sau sốc</div>
               <div className="text-base font-bold text-blue-300 font-mono mt-0.5">
                 {formatVND(simResult.kpis_9_layer?.revenue?.simulation)}
               </div>
             </div>
-            <div className="p-2.5 rounded-xl bg-white/5 border border-white/10">
+            <div className="p-3 rounded-xl bg-white/5 border border-white/10">
               <div className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Chu kỳ tiền mặt (CCC)</div>
-              <div className="text-base font-bold text-purple-300 font-mono mt-0.5">
+              <div className="text-base font-bold text-teal-300 font-mono mt-0.5">
                 {simResult.kpis_9_layer?.ccc?.simulation} ngày
               </div>
             </div>
@@ -516,16 +543,18 @@ export const FinancialHealthView: React.FC<FinancialHealthViewProps> = ({
         )}
       </div>
 
-      {/* 6. Evidence & Audit Provenance */}
-      <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs">
+      {/* 5. Evidence & Audit Provenance */}
+      <div className="bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/80 shadow-xs">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-base font-bold text-slate-900">5. Truy vết Bằng chứng Kế toán Thực tế (Evidence Provenance)</h2>
-            <p className="text-xs text-slate-500">Các nguồn báo cáo ERP được truy xuất để trích xuất số liệu</p>
+            <h2 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
+              5. Truy vết Bằng chứng Kế toán Thực tế (Evidence Provenance)
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">Các nguồn báo cáo ERP được truy xuất để trích xuất số liệu</p>
           </div>
           <button
             onClick={() => setShowEvidence(!showEvidence)}
-            className="text-xs font-medium px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors text-slate-700 cursor-pointer"
+            className="text-xs font-semibold px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors text-slate-700 cursor-pointer shadow-2xs"
           >
             {showEvidence ? "Ẩn chi tiết" : "Xem nguồn báo cáo"}
           </button>
@@ -535,13 +564,13 @@ export const FinancialHealthView: React.FC<FinancialHealthViewProps> = ({
           <div className="mt-4 space-y-2 text-xs">
             {data?.evidence_refs && data.evidence_refs.length > 0 ? (
               data.evidence_refs.map((ev: any, idx: number) => (
-                <div key={idx} className="p-3 rounded-lg bg-slate-50 border border-slate-100 font-mono text-slate-700 flex justify-between">
+                <div key={idx} className="p-3 rounded-xl bg-slate-50 border border-slate-200/70 font-mono text-slate-700 flex justify-between items-center">
                   <span>{ev.source_name} ({ev.source_type})</span>
-                  <span className="font-bold text-blue-600 font-mono">v:{ev.checksum_or_version || "2026.1"}</span>
+                  <span className="font-bold text-[#1E63B7] font-mono">v:{ev.checksum_or_version || "2026.1"}</span>
                 </div>
               ))
             ) : (
-              <div className="p-3 rounded-lg bg-slate-50 text-slate-500">
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/70 text-slate-500">
                 Dữ liệu được truy xuất trực tiếp và đối soát từ Sổ cái kế toán và Hệ thống chứng từ bán hàng thời gian thực.
               </div>
             )}
