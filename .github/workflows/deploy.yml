@@ -144,6 +144,7 @@ jobs:
             unset "$k" || true
           done
           docker compose --env-file "$ENV_PATH" -f "$APP_DIR/docker/production/compose.prod.yml" up -d --remove-orphans --force-recreate backend frappe-frontend queue-long queue-short scheduler
+          docker compose --env-file "$ENV_PATH" -f "$APP_DIR/docker/production/compose.prod.yml" restart web
 
           echo ">>> [5/5] Running automated verification & health checks..."
           sleep 5
