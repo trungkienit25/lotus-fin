@@ -146,21 +146,24 @@ launch_stack() {
     print_step "5/7" "Starting Production Multi-Container Stack on Port 80..."
     docker compose --env-file "$ENV_FILE" -f "$PROD_COMPOSE" up -d
 
-    echo -n "Waiting for core backend container to become healthy"
-    MAX_RETRIES=40
+    echo -n "Waiting for core backend container and site frontend initialization"
+    MAX_RETRIES=60
     COUNT=0
-    until docker ps --filter "name=backend" --filter "status=running" -q | grep -q . ; do
+    until docker ps --filter "name=backend" --filter "status=running" -q | grep -q . && \
+          ACTUAL_BACKEND=$(docker ps --format '{{.Names}}' | grep -E 'backend' | head -n 1) && \
+          [ -n "$ACTUAL_BACKEND" ] && \
+          docker exec "$ACTUAL_BACKEND" test -d /home/frappe/frappe-bench/sites/frontend 2>/dev/null; do
         echo -n "."
-        sleep 4
+        sleep 5
         COUNT=$((COUNT+1))
         if [ $COUNT -ge $MAX_RETRIES ]; then
             echo ""
-            print_error "Timeout waiting for backend service!"
+            print_error "Timeout waiting for backend service & site initialization!"
             exit 1
         fi
     done
     echo ""
-    print_success "Production containers are running."
+    print_success "Production containers and site frontend are running."
 }
 
 # ------------------------------------------------------------------------------
@@ -171,26 +174,56 @@ hydrate_database() {
     ACTUAL_BACKEND=$(docker ps --format '{{.Names}}' | grep -E 'backend' | head -n 1)
 
     if [ -n "$ACTUAL_BACKEND" ]; then
-        # 1. Restore database snapshot if initial seed exists
+        # 1. Ensure lotus_fin is in sites/apps.txt and Python venv
+        echo "  -> Linking lotus_fin into Python environment and apps registry..."
+        FRAPPE_CONTAINERS=$(docker ps --format '{{.Names}}' | grep -E '(backend|queue-short|queue-long|scheduler)' || echo "$ACTUAL_BACKEND")
+        for c in $FRAPPE_CONTAINERS; do
+            docker exec --user root "$c" bash -c '
+                VENV_SITE=$(find /home/frappe/frappe-bench/env/lib -name site-packages 2>/dev/null | head -n 1)
+                if [ -n "$VENV_SITE" ]; then
+                    echo "/home/frappe/frappe-bench/apps/lotus_fin" > "$VENV_SITE/lotus_fin.pth"
+                fi
+            ' 2>/dev/null || true
+            if docker exec "$c" test -f /home/frappe/frappe-bench/env/bin/pip 2>/dev/null; then
+                docker exec --user root "$c" /home/frappe/frappe-bench/env/bin/pip install -e /home/frappe/frappe-bench/apps/lotus_fin >/dev/null 2>&1 || true
+            fi
+        done
+
+        docker exec "$ACTUAL_BACKEND" bash -c "grep -q 'lotus_fin' /home/frappe/frappe-bench/sites/apps.txt || echo 'lotus_fin' >> /home/frappe/frappe-bench/sites/apps.txt"
+
+        # 2. Restore database snapshot if initial seed exists
         if [ -f "$BACKUP_FILE" ]; then
             echo "  -> Found database snapshot: ${BACKUP_FILE}"
             echo "  -> Uploading and restoring database into site frontend..."
             docker exec "$ACTUAL_BACKEND" mkdir -p /home/frappe/frappe-bench/sites/frontend/private/backups
             docker cp "$BACKUP_FILE" "${ACTUAL_BACKEND}:/home/frappe/frappe-bench/sites/frontend/private/backups/seed.sql.gz"
             docker exec --workdir /home/frappe/frappe-bench/sites "$ACTUAL_BACKEND" \
-                /home/frappe/frappe-bench/env/bin/python -m frappe.utils.bench_helper frappe --site frontend --force restore /home/frappe/frappe-bench/sites/frontend/private/backups/seed.sql.gz >/dev/null 2>&1 || true
+                /home/frappe/frappe-bench/env/bin/python -m frappe.utils.bench_helper frappe --site frontend --force restore --db-root-password "${DB_PASSWORD:-admin}" /home/frappe/frappe-bench/sites/frontend/private/backups/seed.sql.gz || true
             print_success "Database seed restored successfully!"
         fi
 
-        # 2. Run Database Migration & Cache Invalidation
+        # 3. Ensure lotus_fin is installed in site frontend
+        if ! docker exec "$ACTUAL_BACKEND" /home/frappe/frappe-bench/env/bin/python -m frappe.utils.bench_helper frappe --site frontend list-apps 2>/dev/null | grep -q "lotus_fin"; then
+            docker exec "$ACTUAL_BACKEND" /home/frappe/frappe-bench/env/bin/python -m frappe.utils.bench_helper frappe --site frontend install-app lotus_fin || true
+        fi
+
+        # 4. Run Database Migration & Cache Invalidation
         echo "  -> Running database schema migration (bench migrate)..."
         docker exec --workdir /home/frappe/frappe-bench/sites "$ACTUAL_BACKEND" \
-            /home/frappe/frappe-bench/env/bin/python -m frappe.utils.bench_helper frappe --site frontend migrate >/dev/null 2>&1 || true
+            /home/frappe/frappe-bench/env/bin/python -m frappe.utils.bench_helper frappe --site frontend migrate
         
-        # 3. Synchronize SMTP Email and Demo Config
+        docker exec --workdir /home/frappe/frappe-bench/sites "$ACTUAL_BACKEND" \
+            /home/frappe/frappe-bench/env/bin/python -m frappe.utils.bench_helper frappe --site frontend clear-cache
+
+        # 5. Synchronize SMTP Email and Demo Config
         echo "  -> Verifying SMTP outgoing gateway & Demo configuration..."
         docker exec --workdir /home/frappe/frappe-bench/sites "$ACTUAL_BACKEND" \
-            /home/frappe/frappe-bench/env/bin/python -m frappe.utils.bench_helper frappe --site frontend execute lotus_fin.setup_data.setup_demo_environment >/dev/null 2>&1 || true
+            /home/frappe/frappe-bench/env/bin/python -m frappe.utils.bench_helper frappe --site frontend execute lotus_fin.setup_data.setup_demo_environment || true
+
+        # 6. Restart backend so gunicorn loads all changes
+        echo "  -> Restarting backend service..."
+        docker restart "$ACTUAL_BACKEND" >/dev/null 2>&1
+        sleep 5
 
         print_success "Database migrations and configuration synchronization completed."
     fi

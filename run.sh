@@ -299,6 +299,10 @@ case "$CMD" in
     all|setup|run|"")
         run_full_setup
         ;;
+    deploy)
+        shift
+        exec "${SCRIPT_DIR}/scripts/deploy/run-deploy.sh" "$@"
+        ;;
     up|start)
         print_banner
         check_and_prepare_environment

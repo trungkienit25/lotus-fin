@@ -1,0 +1,143 @@
+name: Production CD (Self-Hosted VPS)
+
+on:
+  push:
+    branches:
+      - release/beta-1.0
+      - main
+  workflow_dispatch:
+    inputs:
+      rebuild_frontend:
+        description: 'Rebuild Frontend Gateway Image? (true/false)'
+        required: true
+        type: boolean
+        default: false
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to Lotus Fin VPS
+    runs-on: [self-hosted, production]
+    steps:
+      - name: Deploy Lotus Fin Stack & Inject Secrets
+        env:
+          SECRET_ENV_FILE: ${{ secrets.ENV_PRODUCTION }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+          LOTUS_SMTP_PASSWORD: ${{ secrets.LOTUS_SMTP_PASSWORD }}
+          LOTUS_AI_PROVIDER: ${{ secrets.LOTUS_AI_PROVIDER }}
+          LOTUS_LLM_PROVIDER: ${{ secrets.LOTUS_LLM_PROVIDER }}
+          LOTUS_LLM_MODEL: ${{ secrets.LOTUS_LLM_MODEL }}
+          SERVER_NAME: ${{ secrets.SERVER_NAME }}
+          PROD_PORT: ${{ secrets.PROD_PORT }}
+          LOTUS_SITE: ${{ secrets.LOTUS_SITE }}
+          REBUILD_FRONTEND: ${{ inputs.rebuild_frontend || 'false' }}
+        run: |
+          set -eo pipefail
+          APP_DIR="/root/lotus-fin"
+          cd "$APP_DIR"
+
+          echo "=========================================================="
+          echo "   🚀 LOTUS FIN PRODUCTION DEPLOYMENT PIPELINE            "
+          echo "=========================================================="
+
+          echo ">>> [1/5] Syncing latest Git repository state..."
+          TARGET_BRANCH="${GITHUB_REF_NAME:-release/beta-1.0}"
+          git fetch origin "$TARGET_BRANCH"
+          git checkout "$TARGET_BRANCH"
+          git pull origin "$TARGET_BRANCH"
+
+          echo ">>> [2/5] Injecting production configuration and secrets..."
+          ENV_PATH="$APP_DIR/docker/production/.env.production"
+
+          python3 - << 'PYEOF'
+          import os
+
+          env_path = "/root/lotus-fin/docker/production/.env.production"
+          secret_file = os.environ.get("SECRET_ENV_FILE", "").strip()
+
+          if secret_file:
+              print("    → Writing full ENV_PRODUCTION secret file...")
+              with open(env_path, "w", encoding="utf-8") as f:
+                  f.write(secret_file + "\n")
+          else:
+              print("    → Merging individual secrets with existing configuration...")
+              existing = {}
+              if os.path.exists(env_path):
+                  with open(env_path, "r", encoding="utf-8") as f:
+                      for line in f:
+                          line = line.strip()
+                          if line and not line.startswith("#") and "=" in line:
+                              k, v = line.split("=", 1)
+                              existing[k.strip()] = v.strip()
+
+              # Defaults
+              defaults = {
+                  "SERVER_NAME": "lotusfin.asia www.lotusfin.asia 113.192.7.68",
+                  "PROD_PORT": "80",
+                  "LOTUS_SITE": "frontend",
+                  "DB_PASSWORD": "admin",
+                  "ADMIN_PASSWORD": "admin",
+                  "LOTUS_AI_PROVIDER": "gemini",
+                  "LOTUS_LLM_PROVIDER": "gemini",
+                  "LOTUS_LLM_MODEL": "gemini-flash-latest",
+                  "LOTUS_AI_MODEL": "gemini-flash-latest",
+                  "LOTUS_AI_TIMEOUT_SECONDS": "45",
+                  "LOTUS_AI_MAX_REACT_ITERATIONS": "4",
+                  "LOTUS_SMTP_SERVER": "smtp.gmail.com",
+                  "LOTUS_SMTP_PORT": "587",
+                  "LOTUS_SMTP_EMAIL": "lotusfin.notifications@gmail.com",
+                  "LOTUS_SMTP_PASSWORD": "btcyjmbjnykrrpol",
+                  "LOTUS_SMTP_USE_TLS": "1",
+              }
+              for k, v in defaults.items():
+                  if k not in existing:
+                      existing[k] = v
+
+              # Environment overrides from GitHub Secrets
+              secret_keys = [
+                  "SERVER_NAME", "PROD_PORT", "LOTUS_SITE", "DB_PASSWORD", "ADMIN_PASSWORD",
+                  "LOTUS_AI_PROVIDER", "LOTUS_LLM_PROVIDER", "LOTUS_LLM_MODEL",
+                  "GEMINI_API_KEY", "OPENAI_API_KEY", "LOTUS_SMTP_PASSWORD"
+              ]
+              for k in secret_keys:
+                  val = os.environ.get(k, "").strip()
+                  if val:
+                      existing[k] = val
+                      if k == "LOTUS_LLM_MODEL":
+                          existing["LOTUS_AI_MODEL"] = val
+
+              with open(env_path, "w", encoding="utf-8") as f:
+                  for k, v in existing.items():
+                      f.write(f"{k}={v}\n")
+
+          print("    ✔ Successfully wrote production environment file.")
+          PYEOF
+
+          chmod 600 "$ENV_PATH"
+          cp "$ENV_PATH" "$APP_DIR/.env"
+          chmod 600 "$APP_DIR/.env"
+
+          if [ "$REBUILD_FRONTEND" = "true" ]; then
+            echo ">>> [3/5] Rebuilding frontend gateway image..."
+            "$APP_DIR/scripts/packaging/run-packaging.sh"
+          else
+            echo ">>> [3/5] Skipping frontend packaging (not requested)."
+          fi
+
+          echo ">>> [4/5] Applying container stack updates via Docker Compose..."
+          docker compose --env-file "$ENV_PATH" -f "$APP_DIR/docker/production/compose.prod.yml" up -d --remove-orphans
+
+          echo ">>> [5/5] Running automated verification & health checks..."
+          sleep 5
+          curl -s -f http://127.0.0.1/ >/dev/null && echo "    ✔ Web Gateway HTTP 200 OK"
+          curl -s -f http://127.0.0.1/api/method/frappe.ping >/dev/null && echo "    ✔ Frappe Backend API ping OK"
+
+          echo "=========================================================="
+          echo "   🎉 LOTUS FIN PRODUCTION DEPLOYMENT COMPLETED!          "
+          echo "=========================================================="
