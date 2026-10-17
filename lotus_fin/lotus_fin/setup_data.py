@@ -72,5 +72,84 @@ def setup_demo_environment():
 				fy.flags.ignore_permissions = True
 				fy.save()
 
+	# 4. Ensure test item exists for non-stock service billing
+	service_item = "SRV-CONSULTING"
+	if not frappe.db.exists("Item", service_item):
+		it = frappe.new_doc("Item")
+		it.item_code = service_item
+		it.item_name = "Dịch vụ Tư vấn Quản trị Tài chính"
+		it.item_group = "All Item Groups"
+		it.is_stock_item = 0
+		it.flags.ignore_permissions = True
+		it.flags.ignore_mandatory = True
+		it.insert()
+
+	# 5. Seed accounting records for Lotus-fin if empty
+	if frappe.db.count("GL Entry", {"company": "Lotus-fin"}) == 0:
+		# Approved cash accounts config
+		frappe.db.set_value("Company", "Lotus-fin", "ai002_approved_cash_accounts", '["Cash - L"]')
+
+		# Sales Invoice 1
+		si = frappe.new_doc("Sales Invoice")
+		si.company = "Lotus-fin"
+		si.customer = "Grant Plastics Ltd."
+		si.set_posting_time = 1
+		si.posting_date = "2026-02-15"
+		si.due_date = "2026-03-15"
+		si.debit_to = "Debtors - L"
+		si.append("items", {
+			"item_code": service_item,
+			"qty": 1,
+			"rate": 50000000,
+			"income_account": "Sales - L",
+			"cost_center": "Main - L"
+		})
+		si.flags.ignore_permissions = True
+		si.insert()
+		si.submit()
+
+		# Payment Entry (partial payment)
+		pe = frappe.new_doc("Payment Entry")
+		pe.company = "Lotus-fin"
+		pe.payment_type = "Receive"
+		pe.party_type = "Customer"
+		pe.party = "Grant Plastics Ltd."
+		pe.set_posting_time = 1
+		pe.posting_date = "2026-03-01"
+		pe.paid_from = "Debtors - L"
+		pe.paid_to = "Cash - L"
+		pe.paid_amount = 30000000
+		pe.received_amount = 30000000
+		pe.target_exchange_rate = 1.0
+		pe.append("references", {
+			"reference_doctype": "Sales Invoice",
+			"reference_name": si.name,
+			"total_amount": 50000000,
+			"outstanding_amount": 50000000,
+			"allocated_amount": 30000000
+		})
+		pe.flags.ignore_permissions = True
+		pe.insert()
+		pe.submit()
+
+		# Purchase Invoice (AP obligation)
+		pi = frappe.new_doc("Purchase Invoice")
+		pi.company = "Lotus-fin"
+		pi.supplier = "Summit Traders Ltd."
+		pi.set_posting_time = 1
+		pi.posting_date = "2026-03-01"
+		pi.due_date = "2026-03-25"
+		pi.credit_to = "Creditors - L"
+		pi.append("items", {
+			"item_code": service_item,
+			"qty": 1,
+			"rate": 15000000,
+			"expense_account": "Administrative Expenses - L",
+			"cost_center": "Main - L"
+		})
+		pi.flags.ignore_permissions = True
+		pi.insert()
+		pi.submit()
+
 	frappe.db.commit()
 	return {"status": "success", "message": "Demo environment fully configured"}
