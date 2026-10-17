@@ -245,12 +245,12 @@ export const LotusCopilotPage: React.FC = () => {
   const [isModalErpOpen, setIsModalErpOpen] = useState<boolean>(true);
 
   return (
-    <div className="flex h-[calc(100vh-64px)] overflow-hidden bg-[#F8FAFC] relative">
-      {/* Mobile Backdrop Overlay: covers the screen on mobile and blurs background when sidebar is open */}
+    <div className="flex h-[calc(100vh-3.5rem)] overflow-hidden bg-[#F8FAFC] relative">
+      {/* Mobile Backdrop Overlay: covers below the header and blurs background when sidebar is open */}
       {isLeftSidebarOpen && (
         <div
           onClick={() => setIsLeftSidebarOpen(false)}
-          className="fixed inset-0 z-30 bg-slate-900/40 backdrop-blur-xs md:hidden transition-opacity duration-300"
+          className="fixed top-14 inset-x-0 bottom-0 z-30 bg-slate-900/40 backdrop-blur-xs md:hidden transition-opacity duration-300"
           aria-hidden="true"
         />
       )}
@@ -259,8 +259,8 @@ export const LotusCopilotPage: React.FC = () => {
       <div
         className={`bg-white border-r border-slate-200 transition-all duration-300 flex flex-col justify-between shrink-0 z-40 ${
           isLeftSidebarOpen
-            ? "fixed inset-y-0 left-0 w-72 md:relative md:w-64 shadow-2xl md:shadow-none"
-            : "hidden md:flex md:w-16 md:relative overflow-hidden"
+            ? "fixed top-14 bottom-0 left-0 w-72 h-[calc(100vh-3.5rem)] md:relative md:top-auto md:bottom-auto md:h-full md:w-64 shadow-2xl md:shadow-none"
+            : "hidden md:flex md:w-16 md:relative md:h-full overflow-hidden"
         }`}
       >
         {isLeftSidebarOpen ? (
