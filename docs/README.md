@@ -1,48 +1,42 @@
-# Lotus Fin — Competition Documentation
+# Lotus Fin — Technical & Architecture Documentation Index
 
-ERPNext/Frappe SME Finance Copilot (Topic E in the supplied International Track rules).
+Welcome to the **Lotus Fin** technical documentation repository. This directory houses architectural specifications, feature implementation details, operational guidelines, and security single-source-of-truth (SSOT) documents.
 
-Scope: AI003 **DEMO_ONLY / COMPETITION**, Contract V2.2,
-`AI003_DEMO_POLICY_V1`, `production_calibrated=false`.
+For Chinese readers, a complete translation of all project guides is available in the [`docs-zh/`](../docs-zh/README.md) directory.
 
-## Technical and security documentation
+---
 
-| Feature | Architecture, algorithms and technical assessment | Security design, permission tiers and known risks |
-|---|---|---|
-| AI001 | [Technical documentation](features/AI001/AI001_TECHNICAL_DOCUMENTATION.md) | [Security self-assessment](features/AI001/AI001_SECURITY_SELF_ASSESSMENT.md) |
-| AI002 | [Technical documentation](features/AI002/AI002_TECHNICAL_DOCUMENTATION.md) | [Security self-assessment](features/AI002/AI002_SECURITY_SELF_ASSESSMENT.md) |
-| AI003 | [Technical documentation](features/AI003/AI003_TECHNICAL_DOCUMENTATION.md) | [Security self-assessment](features/AI003/AI003_SECURITY_SELF_ASSESSMENT.md) |
+## 📚 Documentation Catalog
 
-AI001 documentation is retrospective, not a fresh penetration-test result.
-ISO references describe alignment only, not certification. AI004 and AI005
-have not been assessed in this submission-readiness check.
+### 1. 🏛️ Core Architecture & Specifications
+- [**System Technical Specification**](TECHNICAL_SPECIFICATION.md): Comprehensive system architecture, ReAct flow, F001-F007 details, and L5 policy gates.
+- [**Developer & AI Agent Onboarding Guide**](SETUP_AND_AI_ONBOARDING_GUIDE.md): Multi-tier architecture overview and automated setup workflows.
+- [**Git Workflow & Branch Governance**](GIT_WORKFLOW.md): Branch topology, protection policies, and Conventional Commits.
+- [**AI Module Architecture Proposal**](AI_MODULE_ARCHITECTURE_PROPOSAL.md): Modular design for core AI components.
+- [**API Design Conventions**](API_DESIGN_CONVENTIONS.md): Response envelopes, status codes, and DTO contracts.
+- [**ADR-001: Clean Architecture Standards**](adr/001-clean-architecture-core-first-adr.md): <200 lines/file limit and strict ban on ad-hoc scripts.
+- [**Architecture Deep-Dive Suite**](architecture/README.md): Detailed layer breakdown, directory implementation, and OOP design patterns.
 
+### 2. 🚀 Deployment & Operations
+- [**Operations & Automation Scripts Guide**](../scripts/README.md): Step-by-step instructions for 1-click cloud deployment (`run-deploy.sh`), container lifecycle management, and local developer startup.
+- [**Database Hydration & Seed Management**](../scripts/README.md#1-triển-khai-1-click-lên-cloud-server-run-deploysh): Procedures for exporting and restoring MariaDB General Ledger states across instances.
 
+### 3. 🤖 Core Financial AI Copilot (F001 — F007)
+- **F001 — Corporate Financial Health (AI001):** [Technical Specification](features/AI001/AI001_TECHNICAL_DOCUMENTATION.md) | [Security Self-Assessment](features/AI001/AI001_SECURITY_SELF_ASSESSMENT.md)
+- **F002 — 30-Day Cash Flow Forecast (AI002):** [Technical Specification](features/AI002/AI002_TECHNICAL_DOCUMENTATION.md) | [Security Self-Assessment](features/AI002/AI002_SECURITY_SELF_ASSESSMENT.md)
+- **F003 — Risk Signal & Debt Cluster Detection (AI003):** [Technical Specification](features/AI003/AI003_TECHNICAL_DOCUMENTATION.md) | [Security Self-Assessment](features/AI003/AI003_SECURITY_SELF_ASSESSMENT.md)
+- **F004 / F005 — What-If Stress Testing Engine:** Deterministic simulation of cash runway under revenue variance and payment delay shocks.
+- **F006 — Loan Amortization & Interest Rate Shock:** Equal monthly payment calculations and variable rate shock impact analysis.
+- **F007 — Debt Reminder & Statement Reconciliation:** Interactive L3 template generation, real ERP invoice linkage, and automated SMTP dispatch.
 
-## Source, deployment and evidence
+### 4. 🛡️ Enterprise Security & Governance
+- [**Security Single Source of Truth (SSOT)**](security/README.md): System architecture, STRIDE threat models, identity access control, and cryptographic standards.
+- [**ISO 27001 & PCI-DSS Compliance Alignment](security/12-compliance-iso27001-pcidss.md): Compliance frameworks and regulatory safeguards for corporate financial data.
+- [**Dual-Control Policy Gate Architecture**](security/04-identity-access-control.md): Role-based multi-sign-off verification for ledger-impacting transactions.
 
-- [App installation README](../lotus_fin/README.md).
-- [AI003 reproduction guide](features/AI003/AI003_REPRODUCTION_GUIDE.md).
-- [Execution evidence index](features/AI003/evidence/AI003_EVIDENCE_INDEX.md).
-- [Final independent AI003 verification](reviews/AI003_FINAL_INDEPENDENT_REVERIFY_3eb8207_2026-10-03.md).
-- [Demo test recording](../tests_e2e/videos/ai003_risk_signal_e2e.webm); screenshots in `tests_e2e/screenshots/`.
-- Controlled method/policy gold manifests and independent oracles under
-  `features/AI003/` prove arithmetic and boundaries, not business calibration.
-- Source, automated tests and deployment configuration remain in the repository.
+---
 
-## Remaining submission checks
+## 🌐 Language Navigation
+- **English Documentation:** [docs/README.md](README.md)
+- **中文文档 (Chinese Translation):** [docs-zh/README.md](../docs-zh/README.md)
 
-No tracked presentation deck was found. Prepare English submission material
-and a presentation of at most 10 minutes. The rules label the demo video
-optional in one item but request it with non-on-chain execution evidence;
-prepare a submission video of at most 5 minutes or obtain organizer clarification.
-The existing test recording has not been assessed as a final submission video.
-
-Team eligibility, third-party/data licenses and clean-machine deployment
-remain unverified. Reproduction describes an existing local sandbox stack,
-not a proven one-command fresh deployment. The full submission package and
-production readiness are not approved by this document.
-
-Historical authority and verification records are retained for traceability.
-Unreferenced agent prompts and empty design placeholders are excluded from
-the shared submission tree. See also [system security documentation](security/README.md).

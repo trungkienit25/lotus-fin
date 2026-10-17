@@ -51,11 +51,30 @@ class LLMProviderFactory:
             or "mock"
         ).lower().strip()
 
-        if p_name in ["openai", "chatgpt", "deepseek", "vllm", "ollama", "groq"]:
+        if p_name in ["openai", "chatgpt", "deepseek", "vllm", "ollama", "groq", "nvidia", "openrouter", "mistral", "together"]:
+            # If provider is nvidia, default base_url to NVIDIA NIM build endpoint if not specified
+            resolved_base_url = base_url or os.environ.get("OPENAI_BASE_URL") or os.environ.get("LOTUS_AI_BASE_URL")
+            if p_name == "nvidia" and not resolved_base_url:
+                resolved_base_url = "https://integrate.api.nvidia.com/v1"
+            
+            resolved_api_key = (
+                api_key
+                or os.environ.get("LOTUS_LLM_API_KEY")
+                or os.environ.get("OPENAI_API_KEY")
+                or (os.environ.get("NVIDIA_API_KEY") if p_name == "nvidia" else None)
+                or os.environ.get("LOTUS_AI_API_KEY")
+            )
+            resolved_model = (
+                model_name
+                or (os.environ.get("NVIDIA_MODEL_NAME") if p_name == "nvidia" else None)
+                or os.environ.get("OPENAI_MODEL")
+                or os.environ.get("LOTUS_AI_MODEL")
+                or os.environ.get("LOTUS_LLM_MODEL")
+            )
             return OpenAILLMAdapter(
-                model_name=model_name,
-                api_key=api_key or os.environ.get("LOTUS_LLM_API_KEY") or os.environ.get("OPENAI_API_KEY") or os.environ.get("LOTUS_AI_API_KEY"),
-                base_url=base_url,
+                model_name=resolved_model,
+                api_key=resolved_api_key,
+                base_url=resolved_base_url,
             )
         elif p_name in ["gemini", "google"]:
             gemini_key = (

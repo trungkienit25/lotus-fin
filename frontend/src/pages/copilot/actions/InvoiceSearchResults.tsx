@@ -9,52 +9,89 @@ export interface InvoiceSearchResultsProps {
   onOpen: (invoiceId: string) => void;
 }
 
-const STATUS_LABEL: Record<number, string> = { 0: "Draft", 1: "Submitted" };
+const STATUS_LABEL: Record<number, string> = { 0: "Draft (Bản nháp)", 1: "Submitted (Đã ghi nhận)" };
 
 /** Identity-only rows (no amounts). Even a single match requires an explicit click. */
 export const InvoiceSearchResults: React.FC<InvoiceSearchResultsProps> = ({ results, selectedId, busy, onOpen }) => {
   if (results.kind === "empty") {
     return (
-      <div data-testid="results-empty" className="text-sm text-gray-600 p-3 border rounded-lg bg-gray-50">
-        No invoices matched these criteria in the checked range. This does not mean none exist outside it.
+      <div data-testid="results-empty" className="text-xs text-slate-600 p-4 border border-slate-200/80 rounded-xl bg-[#F9FBFC] text-center font-sans">
+        Không tìm thấy hóa đơn nào khớp với tiêu chí trong phạm vi kiểm tra. Điều này không có nghĩa là không có hóa đơn ngoài khoảng này.
       </div>
     );
   }
   const selectable = results.complete;
   return (
-    <div data-testid="results" className="space-y-2">
+    <div data-testid="results" className="space-y-3 font-sans">
       {!selectable && (
-        <div data-testid="results-partial" role="status" className="text-sm p-3 border border-amber-300 bg-amber-50 rounded-lg">
-          Results are incomplete, so selection is disabled. Narrow your criteria and search again.
+        <div data-testid="results-partial" role="status" className="text-xs p-3.5 border border-amber-200 bg-amber-50 rounded-xl text-amber-900 flex items-center gap-2">
+          <span>⚠️</span>
+          <span>Kết quả tìm kiếm chưa hoàn tất toàn bộ phạm vi, tính năng chọn xem bị tạm khóa. Hãy thu hẹp tiêu chí và tìm kiếm lại.</span>
         </div>
       )}
-      <ul className="divide-y border rounded-lg bg-white">
-        {results.items.map((item) => (
-          <li key={item.invoiceId} data-testid="result-row" data-invoice-id={safeText(item.invoiceId)}
-            className="flex items-center justify-between gap-3 p-3 text-sm">
-            <div>
-              <div className="font-medium text-gray-900">{safeText(item.invoiceId)}</div>
-              <div className="text-xs text-gray-500">
-                {safeText(item.postingDate, 10)} · {STATUS_LABEL[item.docstatus]}
+      <ul className="divide-y divide-slate-100 border border-slate-200/80 rounded-2xl bg-white overflow-hidden shadow-2xs">
+        {results.items.map((item) => {
+          const isSelected = selectedId === item.invoiceId;
+          const isSubmitted = item.docstatus === 1;
+          return (
+            <li
+              key={item.invoiceId}
+              data-testid="result-row"
+              data-invoice-id={safeText(item.invoiceId)}
+              className={`flex items-center justify-between gap-3 p-3.5 text-xs transition-colors ${
+                isSelected ? "bg-blue-50/50" : "hover:bg-slate-50/70"
+              }`}
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="size-8 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 text-xs shrink-0 font-mono">
+                  🧾
+                </div>
+                <div className="min-w-0">
+                  <div className="font-mono font-bold text-slate-900 tracking-tight">
+                    {safeText(item.invoiceId)}
+                  </div>
+                  <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5">
+                    <span>Ngày: {safeText(item.postingDate, 10)}</span>
+                    <span>•</span>
+                    <span className={`font-semibold ${isSubmitted ? "text-emerald-700" : "text-amber-700"}`}>
+                      {STATUS_LABEL[item.docstatus]}
+                    </span>
+                  </div>
+                </div>
               </div>
-            </div>
-            {selectable && item.selectionRef !== null ? (
-              <button type="button" data-testid="open-btn" disabled={busy}
-                aria-pressed={selectedId === item.invoiceId}
-                onClick={() => onOpen(item.invoiceId)}
-                className="px-3 py-1 rounded border border-blue-600 text-blue-700 disabled:opacity-50">
-                {selectedId === item.invoiceId ? "Selected" : "Open read-only"}
-              </button>
-            ) : (
-              <span className="text-xs text-gray-400">Not selectable</span>
-            )}
-          </li>
-        ))}
+
+              <div>
+                {selectable && item.selectionRef !== null ? (
+                  <button
+                    type="button"
+                    data-testid="open-btn"
+                    disabled={busy}
+                    aria-pressed={isSelected}
+                    onClick={() => onOpen(item.invoiceId)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs flex items-center gap-1 ${
+                      isSelected
+                        ? "bg-blue-600 text-white hover:bg-blue-700"
+                        : "border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:border-blue-300"
+                    } disabled:opacity-50`}
+                  >
+                    <span>{isSelected ? "Đang chọn" : "Mở xem"}</span>
+                    <span>↗</span>
+                  </button>
+                ) : (
+                  <span className="text-[11px] text-slate-400 font-medium">Không thể chọn</span>
+                )}
+              </div>
+            </li>
+          );
+        })}
       </ul>
-      <div className="text-xs text-gray-500" data-testid="results-meta">
-        Showing {results.items.length} {results.items.length === 1 ? "invoice" : "invoices"} from this page only.
-        {results.complete && results.hasMore ? " More results exist; refine your criteria to narrow them." : ""}
+      <div className="text-[11px] text-slate-400 flex items-center justify-between px-1" data-testid="results-meta">
+        <span>Hiển thị {results.items.length} {results.items.length === 1 ? "hóa đơn" : "hóa đơn"} trong trang này.</span>
+        {results.complete && results.hasMore && (
+          <span className="text-blue-600">Còn kết quả khác; hãy lọc chi tiết hơn để thu hẹp.</span>
+        )}
       </div>
     </div>
   );
 };
+

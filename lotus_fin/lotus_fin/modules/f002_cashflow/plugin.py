@@ -72,14 +72,36 @@ class CashflowPlugin(BaseLotusPlugin):
 
         if tool_name == "get_cash_forecast":
             company = arguments["company"]
-            as_of_str = arguments.get("financial_as_of")
+            as_of_str = arguments.get("financial_as_of") or arguments.get("as_of_date")
             start_str = arguments.get("forecast_start")
             end_str = arguments.get("forecast_end")
             currency = arguments.get("currency", "VND")
+            scope_arg = arguments.get("cash_account_scope")
 
             as_of_date = datetime.strptime(as_of_str, "%Y-%m-%d").date() if as_of_str else (date.today() - timedelta(days=1))
             start_date = datetime.strptime(start_str, "%Y-%m-%d").date() if start_str else (as_of_date + timedelta(days=1))
             end_date = datetime.strptime(end_str, "%Y-%m-%d").date() if end_str else (start_date + timedelta(days=29))
+
+            scope_list: List[str] = []
+            if isinstance(scope_arg, list):
+                scope_list = [str(a).strip() for a in scope_arg if str(a).strip()]
+            elif isinstance(scope_arg, str) and scope_arg.strip():
+                try:
+                    import json
+                    parsed = json.loads(scope_arg)
+                    scope_list = [str(a).strip() for a in parsed if str(a).strip()] if isinstance(parsed, list) else [scope_arg.strip()]
+                except Exception:
+                    scope_list = [scope_arg.strip()]
+
+            # Auto-resolve server-approved cash account scope if not explicitly passed
+            if not scope_list and company:
+                try:
+                    from lotus_fin.modules.f002_cashflow.service import resolve_request_scope
+                    scope_res = resolve_request_scope(str(company).strip())
+                    if scope_res.get("status") == "RESOLVED" and scope_res.get("scope"):
+                        scope_list = list(scope_res["scope"])
+                except Exception:
+                    pass
 
             req = ForecastRequest(
                 company=company,
@@ -87,10 +109,12 @@ class CashflowPlugin(BaseLotusPlugin):
                 forecast_start=start_date,
                 forecast_end=end_date,
                 reporting_currency=currency,
+                cash_account_scope=scope_list,
                 coverage_scope=CoverageScope.TRADE_ONLY,
                 include_explanation=False,
             )
-            resp = get_cash_forecast(request=req)
+            from lotus_fin.modules.f002_cashflow.source_interface import ErpScheduleEventSource
+            resp = get_cash_forecast(request=req, future_event_source=ErpScheduleEventSource(), skip_cache=True)
             return response_to_dict(resp)
 
         raise KeyError(f"Unknown tool '{tool_name}' for plugin {self.plugin_id}")

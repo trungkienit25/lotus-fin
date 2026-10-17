@@ -8,6 +8,8 @@
  * It NEVER modifies underlying database DocTypes, API routes, or schema keys.
  */
 
+import { SANITIZATION_PATTERNS } from "../constants/executiveDictionary";
+
 export function formatBrandText(text: string | null | undefined): string {
   if (!text) return "";
 
@@ -25,6 +27,14 @@ export function formatBrandText(text: string | null | undefined): string {
   }
 
   // 2. Substring Brand Replacement for user-facing headers & labels
-  return text.replace(/\bERPNext\b/gi, "Lotus Fin");
+  let cleaned = text.replace(/\bERPNext\b/gi, "Lotus Fin");
+
+  // 3. Automated Executive Sanitization Gate (Client-side safety)
+  for (const { pattern, replacement } of SANITIZATION_PATTERNS) {
+    cleaned = cleaned.replace(pattern, replacement);
+  }
+
+  return cleaned.trim();
 }
+
 

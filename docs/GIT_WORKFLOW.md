@@ -1,67 +1,63 @@
-# 🔀 Git Workflow & Governance — Lotus-Fin
+# 🔀 Git Workflow & Branch Governance — Lotus Fin
 
-> **Nhánh chính:** `main` (Production) · `staging` (Pre-production) · `develop` (Integration Testing)  
-> **Áp dụng cho:** Hệ sinh thái FinTech Lotus-Fin  
+This policy outlines repository branch structures, protection rules, and Conventional Commit requirements for the Lotus Fin project.
 
 ---
 
-## 1. SƠ ĐỒ TỔNG QUAN LUỒNG NHÁNH
+## 1. Branch Topology
 
 ```
-  main (Production — Code ổn định nhất)
+  main (Production — Certified stable releases)
     │
-    ├──────────────────── staging (Pre-production / UAT Test lần cuối)
+    ├──────────────────── staging (Pre-production / Final UAT)
     │                       ▲
-    │                       │ merge khi test done
+    │                       │ Merge upon test pass
     │                       │
     └──────────────────── develop (Integration Testing)
                             ▲
-                            │ merge để test tích hợp
+                            │ Merge for integration check
                             │
                     ┌───────┴───────┐
                     │               │
-                feature/         fix/
-              vietqr-webhook    paypal-calc
+                 feat/            fix/
+               cashflow-engine   rate-shock-calc
 ```
 
-**Luồng code đi theo 1 chiều duy nhất:**
+The code promotion lifecycle moves in a single forward direction:
 ```
-feature branch → develop (test tích hợp) → feature branch → staging (UAT) → main (Production)
+feature/fix branch -> develop (integration test) -> staging (UAT) -> main (Production)
 ```
 
 ---
 
-## 2. MÔ TẢ CÁC NHÁNH & NGUYÊN TẮC BẢO VỆ
+## 2. Branch Roles & Protection Rules
 
-| Nhánh | Mục đích | Checkout từ | Merge vào | Deploy tới |
+| Branch | Lifecycle / Purpose | Base | Target Merge | Deployment Target |
 | :--- | :--- | :--- | :--- | :--- |
-| **`main`** | Production — Code ổn định nhất | — | Chỉ từ `staging` | Production Server |
-| **`staging`** | Pre-production — Kiểm thử UAT | `main` | Từ feature/fix (đã test pass) | Staging Environment |
-| **`develop`** | Testing — Tích hợp tính năng mới | `main` | Từ feature branches | Dev / Local Server |
-| **`feature/*`** | Phát triển tính năng mới | `staging` | `develop` $\rightarrow$ test done $\rightarrow$ `staging` | Local |
-| **`fix/*`** | Sửa lỗi | `staging` | `develop` $\rightarrow$ test done $\rightarrow$ `staging` | Local |
-| **`hotfix/*`** | Sửa lỗi khẩn cấp production | `main` | Trực tiếp vào `staging` $\rightarrow$ `main` | Hotfix Deploy |
+| **`main`** | Certified production-ready code | — | `staging` only | Production Server (Port 80) |
+| **`staging`** | Pre-production & UAT verification | `main` | Verified `feature/*` / `fix/*` | Staging Cluster |
+| **`develop`** | Active integration test branch | `main` | Feature branches | Local / CI Test Server |
+| **`feat/*`** | Feature development | `develop` | `develop` -> `staging` | Local Dev |
+| **`fix/*`** | Bug remediation | `develop` | `develop` -> `staging` | Local Dev |
+| **`hotfix/*`** | Production critical emergency fixes | `main` | Directly to `staging` & `main` | Hotfix Deployment |
 
-### ⚠️ Quy tắc bảo vệ nhánh:
-1. **CẤM PUSH TRỰC TIẾP** vào `main`, `staging`, `develop`.
-2. **PULL CODE MỚI NHẤT DUY NHẤT TỪ `staging`**.
+### Protection Enforcements:
+1. **Direct pushes are strictly prohibited** to `main`, `staging`, and `develop`.
+2. All pull requests require a clean test pass (`npm run build` & Python test suites) before merging.
 
 ---
 
-## 3. QUY CHUẨN ĐẶT TÊN NHÁNH & COMMIT
+## 3. Commit Message Standard (Conventional Commits)
 
-### Đặt tên nhánh:
+Format:
 ```
-feature/<tên-dev>/<tên-task>    # Ví dụ: feature/kien/vietqr-webhook-handler
-fix/<tên-dev>/<tên-bug>         # Ví dụ: fix/kien/paypal-ipn-signature
-refactor/<tên-dev>/<mô-tả>      # Ví dụ: refactor/kien/clean-arch-payment-usecase
+<type>(<scope>): <concise description in lowercase>
 ```
 
-### Commit Message chuẩn Conventional Commits:
-```
-feat(payment): add dynamic VietQR generation with CRC checksum
-fix(paypal): resolve IPN webhook signature verification mismatch
-refactor(ledger): split balance mutation into modular usecases (<200 lines)
-test(harness): add E2E payment settlement test suite
-```
-
+Types:
+- `feat`: A new user-facing feature or domain capability.
+- `fix`: A bug fix in existing modules.
+- `docs`: Documentation updates only.
+- `refactor`: Code changes that neither fix a bug nor add a feature.
+- `test`: Adding missing tests or correcting existing tests.
+- `chore`: Build process, package updates, or tool configurations.

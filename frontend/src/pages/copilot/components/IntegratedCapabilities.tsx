@@ -40,30 +40,214 @@ export function IntegratedCapabilities({ profile, feature, draft = "" }: {
     } catch { if (alive.current) { setProposal(null); setNotice("UNAVAILABLE — xác minh phiên, kết nối hoặc nguồn thất bại. Không xác nhận thành công."); } }
     finally { lock.current = false; if (alive.current) setBusy(false); }
   }
-  return <div className="flex-1 overflow-y-auto min-w-0 p-3 space-y-3" data-testid="integrated-capabilities">
-    <p className="text-sm font-semibold">{feature} · {profile === "DEMO" ? "DEMO_ONLY — dữ liệu giả, thao tác mô phỏng" : "AWAITING_DATA — N0 BLOCKED"}</p>
-    {feature === "L4" && <>
-      <p className="text-xs">Chuẩn bị → xem đề xuất → xác nhận riêng → theo dõi biên nhận mô phỏng. Không tạo Task thật.</p>
-      <label className="block text-sm">Tiêu đề Task<input aria-label="Task title" value={title} onChange={e => setTitle(e.target.value)} maxLength={140} className="w-full border p-2" /></label>
-      <label className="block text-sm">Nội dung<textarea aria-label="Task description" value={description} onChange={e => setDescription(e.target.value)} maxLength={2000} className="w-full border p-2" /></label>
-      <label className="block text-sm">Ngày theo dõi<input aria-label="Task due date" type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} className="w-full border p-2" /></label>
-      <button disabled={busy || !description || !dueDate} onClick={() => void run("l4_propose", { action_id: "lotus.task.create", arguments: { title, description, due_date: dueDate, priority: "MEDIUM" } })} className="border rounded p-2">Xem đề xuất Task</button>
-      {proposal && <L4ProposalReviewCard proposal={proposal} isSubmitting={busy} onConfirm={p => void run("l4_confirm", { proposal_id: p.proposal_id, confirmation_challenge: p.confirmation_challenge })} onCancel={p => void run("l4_cancel", { proposal_id: p.proposal_id })} />}
-      {operation && <L4ExecutionStatusPanel operation={operation} state={operation.state} onReconcile={id => void run("l4_reconcile", { operation_id: id })} />}
-      {operation && <button disabled={busy} onClick={() => void run("l4_status", { operation_id: operation.operation_id })}>Làm mới trạng thái mô phỏng</button>}
-    </>}
-    {feature === "L5" && <>
-      <p className="text-xs">Đánh giá tác động và trạng thái phê duyệt. Email, submit, cancel, payment và scheduler đều không thực thi.</p>
-      <select aria-label="High impact action" value={actionName} onChange={e => { setActionName(e.target.value); setPolicy(null); }} className="w-full border p-2">
-        <option value="l5.doc.submit_sales_invoice.v1">Submit hóa đơn</option><option value="l5.doc.cancel_sales_invoice.v1">Cancel hóa đơn</option>
-        <option value="l5.comm.send_statement_email.v1">Gửi email</option><option value="l5.pay.execute_wire_transfer.v1">Thanh toán</option>
-        <option value="l5.sched.autonomous_reconciliation.v1">Scheduler</option>
-      </select>
-      <button disabled={busy} onClick={() => void run("l5_review")} className="border rounded p-2">Xem chính sách L5</button>
-      {policy && <L5ActionPreviewPanel proposal={policy} executionResult={null} isExecuting={false} onConfirm={() => {}} onCancel={() => setPolicy(null)} />}
-    </>}
-    {feature === "V1" && <><button disabled={busy} onClick={() => void run("past_final_due")} className="border rounded p-2">Tìm hóa đơn đã quá hạn cuối</button>
-      {overdue && <PastFinalDueView data={overdue} onRefresh={() => void run("past_final_due")} />}</>}
-    {busy && <p role="status">Đang xác minh…</p>}{notice && <p role="status" className="text-sm break-words">{notice}</p>}
-  </div>;
+  return (
+    <div className="flex-1 overflow-y-auto min-w-0 p-4 sm:p-6 space-y-5 font-sans" data-testid="integrated-capabilities">
+      {/* Banner */}
+      <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 className="text-base font-bold text-slate-900 tracking-tight flex items-center gap-2">
+            <span>Kiểm toán Tác động & An toàn Chính sách</span>
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+              {feature} Engine
+            </span>
+          </h2>
+          <p className="text-xs text-slate-500 mt-0.5">
+            {profile === "DEMO"
+              ? "Chế độ mô phỏng kiểm thử an toàn — không gây ảnh hưởng đến sổ cái sản xuất"
+              : "Hệ thống kiểm soát kép — tuân thủ quy chuẩn kế toán doanh nghiệp"}
+          </p>
+        </div>
+        <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 font-mono self-start sm:self-auto">
+          {profile === "DEMO" ? "Mô phỏng" : "ERP Live"}
+        </span>
+      </div>
+
+      {feature === "L4" && (
+        <div className="space-y-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs">
+          <div>
+            <h3 className="text-sm font-bold text-slate-800">Khởi tạo Tác vụ Theo dõi Công nợ</h3>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Quy trình chuẩn hóa: Chuẩn bị nội dung → Xem trước thay đổi → Phê duyệt tác vụ.
+            </p>
+          </div>
+
+          <div className="space-y-3">
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">
+                Tiêu đề công việc
+              </label>
+              <input
+                aria-label="Task title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                maxLength={140}
+                className="w-full text-xs rounded-xl border border-slate-200 bg-[#F9FBFC] px-3.5 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#1E63B7]/20 focus:border-[#1E63B7] transition-all"
+                placeholder="VD: Theo dõi công nợ quá hạn..."
+              />
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">
+                Nội dung chi tiết
+              </label>
+              <textarea
+                aria-label="Task description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                maxLength={2000}
+                rows={3}
+                className="w-full text-xs rounded-xl border border-slate-200 bg-[#F9FBFC] px-3.5 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#1E63B7]/20 focus:border-[#1E63B7] transition-all resize-none"
+                placeholder="Mô tả công việc cần xử lý..."
+              />
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">
+                Hạn hoàn thành
+              </label>
+              <input
+                aria-label="Task due date"
+                type="date"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+                className="w-full text-xs rounded-xl border border-slate-200 bg-[#F9FBFC] px-3.5 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#1E63B7]/20 focus:border-[#1E63B7] transition-all"
+              />
+            </div>
+
+            <div className="pt-2 flex items-center justify-end">
+              <button
+                disabled={busy || !description || !dueDate}
+                onClick={() =>
+                  void run("l4_propose", {
+                    action_id: "lotus.task.create",
+                    arguments: { title, description, due_date: dueDate, priority: "MEDIUM" },
+                  })
+                }
+                className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all disabled:opacity-50 cursor-pointer shadow-2xs"
+              >
+                {busy ? "Đang xử lý..." : "Xem đề xuất Tác vụ"}
+              </button>
+            </div>
+          </div>
+
+          {proposal && (
+            <div className="pt-3 border-t border-slate-100">
+              <L4ProposalReviewCard
+                proposal={proposal}
+                isSubmitting={busy}
+                onConfirm={(p) =>
+                  void run("l4_confirm", {
+                    proposal_id: p.proposal_id,
+                    confirmation_challenge: p.confirmation_challenge,
+                  })
+                }
+                onCancel={(p) => void run("l4_cancel", { proposal_id: p.proposal_id })}
+              />
+            </div>
+          )}
+
+          {operation && (
+            <div className="space-y-3 pt-3 border-t border-slate-100">
+              <L4ExecutionStatusPanel
+                operation={operation}
+                state={operation.state}
+                onReconcile={(id) => void run("l4_reconcile", { operation_id: id })}
+              />
+              <button
+                disabled={busy}
+                onClick={() => void run("l4_status", { operation_id: operation.operation_id })}
+                className="px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all cursor-pointer"
+              >
+                Làm mới trạng thái
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {feature === "L5" && (
+        <div className="space-y-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs">
+          <div>
+            <h3 className="text-sm font-bold text-slate-800">Cổng Kiểm soát Tác động Cao (L5 Dual-Control Gate)</h3>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Đánh giá rủi ro và xác thực chính sách. Mọi hành động có tác động vĩnh viễn (gửi tiền, hủy chứng từ) đều yêu cầu phê duyệt đa tầng.
+            </p>
+          </div>
+
+          <div className="space-y-3">
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">
+                Hành động cần đánh giá
+              </label>
+              <select
+                aria-label="High impact action"
+                value={actionName}
+                onChange={(e) => {
+                  setActionName(e.target.value);
+                  setPolicy(null);
+                }}
+                className="w-full text-xs rounded-xl border border-slate-200 bg-[#F9FBFC] px-3.5 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#1E63B7]/20 focus:border-[#1E63B7] transition-all cursor-pointer"
+              >
+                <option value="l5.doc.submit_sales_invoice.v1">Ghi nhận Hóa đơn Bán hàng (Submit Sales Invoice)</option>
+                <option value="l5.doc.cancel_sales_invoice.v1">Hủy bỏ Hóa đơn Bán hàng (Cancel Sales Invoice)</option>
+                <option value="l5.comm.send_statement_email.v1">Gửi Bảng đối chiếu Công nợ qua Email</option>
+                <option value="l5.pay.execute_wire_transfer.v1">Thực hiện Chuyển tiền Thanh toán (Wire Transfer)</option>
+                <option value="l5.sched.autonomous_reconciliation.v1">Kích hoạt Tự động Đối soát Sổ cái</option>
+              </select>
+            </div>
+
+            <div className="pt-2 flex items-center justify-end">
+              <button
+                disabled={busy}
+                onClick={() => void run("l5_review")}
+                className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all disabled:opacity-50 cursor-pointer shadow-2xs"
+              >
+                {busy ? "Đang đánh giá..." : "Xem chính sách kiểm soát"}
+              </button>
+            </div>
+          </div>
+
+          {policy && (
+            <div className="pt-3 border-t border-slate-100">
+              <L5ActionPreviewPanel
+                proposal={policy}
+                executionResult={null}
+                isExecuting={false}
+                onConfirm={() => {}}
+                onCancel={() => setPolicy(null)}
+              />
+            </div>
+          )}
+        </div>
+      )}
+
+      {feature === "V1" && (
+        <div className="space-y-4">
+          <div className="flex justify-end">
+            <button
+              disabled={busy}
+              onClick={() => void run("past_final_due")}
+              className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all disabled:opacity-50 cursor-pointer shadow-2xs"
+            >
+              {busy ? "Đang tìm kiếm..." : "Tìm hóa đơn đã quá hạn cuối"}
+            </button>
+          </div>
+          {overdue && <PastFinalDueView data={overdue} onRefresh={() => void run("past_final_due")} />}
+        </div>
+      )}
+
+      {busy && (
+        <div className="p-3 rounded-xl bg-blue-50 border border-blue-200 text-blue-700 text-xs flex items-center gap-2">
+          <div className="size-2 rounded-full bg-blue-600 animate-ping"></div>
+          <span>Đang xác minh chính sách và đối soát hệ thống...</span>
+        </div>
+      )}
+
+      {notice && (
+        <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs break-words">
+          {notice}
+        </div>
+      )}
+    </div>
+  );
 }

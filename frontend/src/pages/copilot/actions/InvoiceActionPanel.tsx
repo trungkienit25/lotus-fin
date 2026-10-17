@@ -108,66 +108,146 @@ export const InvoiceActionPanel: React.FC<InvoiceActionPanelProps> = ({
   const questions = state.clarification ?? intentNote;
 
   return (
-    <div data-testid="invoice-panel" className="space-y-3 text-sm" aria-busy={busy}>
-      <div data-testid="context-line" className="text-xs text-gray-600">
-        {ctx ? <>Company (set by server): <strong data-testid="company-label">{ctx.companyLabel}</strong></> : "No active invoice search context."}
+    <div data-testid="invoice-panel" className="space-y-4 text-sm font-sans" aria-busy={busy}>
+      <div data-testid="context-line" className="text-xs text-slate-500 flex items-center justify-between pb-2 border-b border-slate-100">
+        <div>
+          {ctx ? (
+            <>
+              Phạm vi xác thực: <strong data-testid="company-label" className="text-slate-800">{ctx.companyLabel}</strong>
+            </>
+          ) : (
+            "Chưa có ngữ cảnh tra cứu hóa đơn."
+          )}
+        </div>
+        <span className="text-[10px] font-mono text-slate-400">P2-B Contract Enforced</span>
       </div>
 
       {!isVerified && (
-        <div data-testid="scope-revoked-banner" className="p-3 border border-amber-300 bg-amber-50 rounded-lg text-amber-900 text-xs">
-          Session unverified or revoked. Protected invoice actions are disabled.
+        <div data-testid="scope-revoked-banner" className="p-3 border border-amber-300 bg-amber-50 rounded-xl text-amber-900 text-xs flex items-center gap-2">
+          <span>⚠️</span>
+          <span>Phiên đăng nhập chưa được xác thực hoặc bị thu hồi. Thao tác bảo vệ đã tạm dừng.</span>
         </div>
       )}
 
+      {/* Quick Search Bar */}
       <form onSubmit={onAsk} className="flex gap-2" aria-label="Ask about invoices">
-        <input data-testid="ask-input" value={ask} onChange={(e) => setAsk(e.target.value)} maxLength={300}
-          placeholder="e.g. find submitted invoices SINV-2026" className="flex-1 border rounded px-2 py-1" />
-        <button type="submit" data-testid="ask-btn" disabled={busy || !ctx || !isVerified} className="px-3 py-1 rounded border">Ask</button>
+        <input
+          data-testid="ask-input"
+          value={ask}
+          onChange={(e) => setAsk(e.target.value)}
+          maxLength={300}
+          placeholder="Nhập yêu cầu (VD: tìm hóa đơn ACC-SINV-2026 đã ghi nhận)..."
+          className="flex-1 text-xs rounded-xl border border-slate-200 bg-[#F9FBFC] px-3.5 py-2.5 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1E63B7]/20 focus:border-[#1E63B7] transition-all"
+        />
+        <button
+          type="submit"
+          data-testid="ask-btn"
+          disabled={busy || !ctx || !isVerified}
+          className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all disabled:opacity-50 cursor-pointer shadow-2xs"
+        >
+          Hỏi
+        </button>
       </form>
 
-      <form onSubmit={(e) => { e.preventDefault(); if (!isVerified) return; setIntentNote(null); void controller.search(criteria()); }}
-        className="grid grid-cols-2 gap-2" aria-label="Invoice search criteria">
-        <label className="col-span-2">Invoice number prefix
-          <input data-testid="f-prefix" value={prefix} maxLength={128} onChange={(e) => setPrefix(e.target.value)}
-            className="mt-1 w-full border rounded px-2 py-1" />
-        </label>
-        <label>From date
-          <input data-testid="f-from" type="date" value={from} onChange={(e) => setFrom(e.target.value)}
-            className="mt-1 w-full border rounded px-2 py-1" />
-        </label>
-        <label>To date
-          <input data-testid="f-to" type="date" value={to} onChange={(e) => setTo(e.target.value)}
-            className="mt-1 w-full border rounded px-2 py-1" />
-        </label>
-        <label className="col-span-2">Status
-          <select data-testid="f-docstatus" value={status} onChange={(e) => setStatus(e.target.value as "" | DocStatusFilter)}
-            className="mt-1 w-full border rounded px-2 py-1">
-            <option value="">Choose…</option>
-            <option value="DRAFT">Draft</option>
-            <option value="SUBMITTED">Submitted</option>
-            <option value="BOTH">Both</option>
+      {/* Structured Criteria Form */}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (!isVerified) return;
+          setIntentNote(null);
+          void controller.search(criteria());
+        }}
+        className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 p-4 rounded-2xl border border-slate-200/80 bg-[#F9FBFC]"
+        aria-label="Invoice search criteria"
+      >
+        <div className="col-span-1 sm:col-span-2">
+          <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">
+            Đầu mã hóa đơn (Prefix)
+          </label>
+          <input
+            data-testid="f-prefix"
+            value={prefix}
+            maxLength={128}
+            onChange={(e) => setPrefix(e.target.value)}
+            placeholder="VD: ACC-SINV-2026"
+            className="w-full text-xs rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1E63B7]/20 focus:border-[#1E63B7] transition-all"
+          />
+        </div>
+
+        <div>
+          <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">
+            Từ ngày ghi nhận
+          </label>
+          <input
+            data-testid="f-from"
+            type="date"
+            value={from}
+            onChange={(e) => setFrom(e.target.value)}
+            className="w-full text-xs rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#1E63B7]/20 focus:border-[#1E63B7] transition-all"
+          />
+        </div>
+
+        <div>
+          <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">
+            Đến ngày ghi nhận
+          </label>
+          <input
+            data-testid="f-to"
+            type="date"
+            value={to}
+            onChange={(e) => setTo(e.target.value)}
+            className="w-full text-xs rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#1E63B7]/20 focus:border-[#1E63B7] transition-all"
+          />
+        </div>
+
+        <div className="col-span-1 sm:col-span-2">
+          <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">
+            Trạng thái chứng từ
+          </label>
+          <select
+            data-testid="f-docstatus"
+            value={status}
+            onChange={(e) => setStatus(e.target.value as "" | DocStatusFilter)}
+            className="w-full text-xs rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#1E63B7]/20 focus:border-[#1E63B7] transition-all"
+          >
+            <option value="">Tất cả trạng thái (Bản nháp & Đã ghi nhận)</option>
+            <option value="DRAFT">Bản nháp (Draft)</option>
+            <option value="SUBMITTED">Đã ghi nhận (Submitted)</option>
+            <option value="BOTH">Cả hai</option>
           </select>
-        </label>
-        <button type="submit" data-testid="search-btn" disabled={busy || !ctx || !isVerified}
-          className="col-span-2 px-3 py-1 rounded bg-blue-600 text-white disabled:opacity-50">Find invoices</button>
+        </div>
+
+        <button
+          type="submit"
+          data-testid="search-btn"
+          disabled={busy || !ctx || !isVerified}
+          className="col-span-1 sm:col-span-2 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-2xs transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
+        >
+          <span>🔍 Tìm kiếm Hóa đơn ERP</span>
+        </button>
       </form>
 
       {questions && questions.length > 0 && (
-        <ul data-testid="clarify" role="status" className="p-3 border border-blue-300 bg-blue-50 rounded-lg list-disc list-inside">
+        <ul data-testid="clarify" role="status" className="p-3.5 border border-blue-200 bg-blue-50/70 rounded-2xl list-disc list-inside text-xs text-blue-900 space-y-1">
           {questions.map((q) => <li key={q}>{q}</li>)}
         </ul>
       )}
 
-      {state.busy && <div data-testid="loading" role="status">Working… ({state.busy})</div>}
+      {state.busy && (
+        <div data-testid="loading" role="status" className="text-xs text-slate-500 flex items-center gap-2 py-1">
+          <span className="size-3.5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+          <span>Đang xử lý ({state.busy})...</span>
+        </div>
+      )}
 
       {state.notice && (
         <div data-testid="notice" data-kind={state.notice.kind} data-reason={state.notice.reason} role="alert"
-          className="p-3 border border-red-300 bg-red-50 rounded-lg">
-          <div>{state.notice.message}</div>
-          {state.notice.cid && <div className="text-xs text-gray-500">Correlation ID {state.notice.cid}</div>}
+          className="p-3.5 border border-rose-200 bg-rose-50/70 rounded-2xl text-xs text-rose-800 space-y-1.5">
+          <div className="font-semibold">{state.notice.message}</div>
+          {state.notice.cid && <div className="text-[10px] text-rose-500 font-mono">Correlation ID: {state.notice.cid}</div>}
           {state.notice.kind === "expired" && companyCandidate && (
-            <button type="button" data-testid="restart-btn" className="mt-2 px-2 py-1 border rounded"
-              onClick={() => void controller.loadContext(companyCandidate)}>Start a new search</button>
+            <button type="button" data-testid="restart-btn" className="mt-1 px-3 py-1.5 bg-white border border-rose-300 rounded-xl text-rose-700 font-bold hover:bg-rose-50 cursor-pointer shadow-2xs"
+              onClick={() => void controller.loadContext(companyCandidate)}>Bắt đầu tìm kiếm mới</button>
           )}
         </div>
       )}
@@ -177,12 +257,21 @@ export const InvoiceActionPanel: React.FC<InvoiceActionPanelProps> = ({
           onOpen={(id) => void controller.openInvoice(id)} />
       )}
       {state.results && state.results.kind !== "empty" && (
-        <div className="text-xs text-gray-500" data-testid="search-trace">
-          Request ID {state.results.requestId} · Correlation ID {state.results.cid}
+        <div className="text-[10px] text-slate-400 font-mono" data-testid="search-trace">
+          Request ID: {state.results.requestId} · Correlation ID: {state.results.cid}
         </div>
       )}
       {state.document && <InvoiceReadView doc={state.document} />}
-      {state.document && onPrepareFollowup && <button disabled={!isVerified} type="button" className="border rounded p-2" onClick={() => onPrepareFollowup(state.document!.document.invoice_id)}>Soạn lời nhắc cho hóa đơn đã chọn (L3)</button>}
+      {state.document && onPrepareFollowup && (
+        <button
+          disabled={!isVerified}
+          type="button"
+          className="w-full py-2.5 px-3 rounded-xl border border-blue-200 bg-blue-50/50 hover:bg-blue-100/60 text-blue-700 text-xs font-bold transition-all cursor-pointer shadow-2xs flex items-center justify-center gap-1.5"
+          onClick={() => onPrepareFollowup(state.document!.document.invoice_id)}
+        >
+          <span>✍️ Soạn thư nhắc nợ cho hóa đơn đã chọn (L3)</span>
+        </button>
+      )}
     </div>
   );
 };

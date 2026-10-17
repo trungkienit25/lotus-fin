@@ -1,3 +1,4 @@
+import os
 import frappe
 
 def setup_demo_environment():
@@ -72,5 +73,117 @@ def setup_demo_environment():
 				fy.flags.ignore_permissions = True
 				fy.save()
 
+	# 4. Ensure test item exists for non-stock service billing
+	service_item = "SRV-CONSULTING"
+	if not frappe.db.exists("Item", service_item):
+		it = frappe.new_doc("Item")
+		it.item_code = service_item
+		it.item_name = "Dịch vụ Tư vấn Quản trị Tài chính"
+		it.item_group = "All Item Groups"
+		it.is_stock_item = 0
+		it.flags.ignore_permissions = True
+		it.flags.ignore_mandatory = True
+		it.insert()
+
+	# 5. Seed accounting records for Lotus-fin if empty
+	if frappe.db.count("GL Entry", {"company": "Lotus-fin"}) == 0:
+		# Approved cash accounts config
+		frappe.db.set_value("Company", "Lotus-fin", "ai002_approved_cash_accounts", '["Cash - L"]')
+
+		# Sales Invoice 1
+		si = frappe.new_doc("Sales Invoice")
+		si.company = "Lotus-fin"
+		si.customer = "Grant Plastics Ltd."
+		si.set_posting_time = 1
+		si.posting_date = "2026-02-15"
+		si.due_date = "2026-03-15"
+		si.debit_to = "Debtors - L"
+		si.append("items", {
+			"item_code": service_item,
+			"qty": 1,
+			"rate": 50000000,
+			"income_account": "Sales - L",
+			"cost_center": "Main - L"
+		})
+		si.flags.ignore_permissions = True
+		si.insert()
+		si.submit()
+
+		# Payment Entry (partial payment)
+		pe = frappe.new_doc("Payment Entry")
+		pe.company = "Lotus-fin"
+		pe.payment_type = "Receive"
+		pe.party_type = "Customer"
+		pe.party = "Grant Plastics Ltd."
+		pe.set_posting_time = 1
+		pe.posting_date = "2026-03-01"
+		pe.paid_from = "Debtors - L"
+		pe.paid_to = "Cash - L"
+		pe.paid_amount = 30000000
+		pe.received_amount = 30000000
+		pe.target_exchange_rate = 1.0
+		pe.append("references", {
+			"reference_doctype": "Sales Invoice",
+			"reference_name": si.name,
+			"total_amount": 50000000,
+			"outstanding_amount": 50000000,
+			"allocated_amount": 30000000
+		})
+		pe.flags.ignore_permissions = True
+		pe.insert()
+		pe.submit()
+
+		# Purchase Invoice (AP obligation)
+		pi = frappe.new_doc("Purchase Invoice")
+		pi.company = "Lotus-fin"
+		pi.supplier = "Summit Traders Ltd."
+		pi.set_posting_time = 1
+		pi.posting_date = "2026-03-01"
+		pi.due_date = "2026-03-25"
+		pi.credit_to = "Creditors - L"
+		pi.append("items", {
+			"item_code": service_item,
+			"qty": 1,
+			"rate": 15000000,
+			"expense_account": "Administrative Expenses - L",
+			"cost_center": "Main - L"
+		})
+		pi.flags.ignore_permissions = True
+		pi.insert()
+		pi.submit()
+
+	# 6. Configure Default Outgoing SMTP Email Account (Frappe Mail Service)
+	smtp_email = os.environ.get("LOTUS_SMTP_EMAIL") or "lotusfin.notifications@gmail.com"
+	smtp_server = os.environ.get("LOTUS_SMTP_SERVER") or "smtp.gmail.com"
+	smtp_port = int(os.environ.get("LOTUS_SMTP_PORT") or 587)
+	smtp_pwd = os.environ.get("LOTUS_SMTP_PASSWORD") or "btcyjmbjnykrrpol"
+	smtp_tls = int(os.environ.get("LOTUS_SMTP_USE_TLS") or 1)
+
+	if not frappe.db.exists("Email Account", {"email_id": smtp_email}):
+		email_acc = frappe.get_doc({
+			"doctype": "Email Account",
+			"email_id": smtp_email,
+			"email_account_name": "Fin Lotus Notifications",
+			"service": "GMail" if "gmail" in smtp_server.lower() else "Custom",
+			"smtp_server": smtp_server,
+			"smtp_port": smtp_port,
+			"use_tls": smtp_tls,
+			"password": smtp_pwd,
+			"enable_outgoing": 1,
+			"default_outgoing": 1,
+			"add_signature": 0,
+		})
+		email_acc.insert(ignore_permissions=True)
+	else:
+		# Update existing Email Account with latest credentials from env
+		frappe.db.set_value("Email Account", {"email_id": smtp_email}, {
+			"smtp_server": smtp_server,
+			"smtp_port": smtp_port,
+			"use_tls": smtp_tls,
+			"password": smtp_pwd,
+			"enable_outgoing": 1,
+			"default_outgoing": 1,
+		})
+
 	frappe.db.commit()
-	return {"status": "success", "message": "Demo environment fully configured"}
+	return {"status": "success", "message": "Demo environment fully configured with SMTP"}
