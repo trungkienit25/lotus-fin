@@ -119,10 +119,10 @@ export const RepaymentScheduleView: React.FC<RepaymentScheduleViewProps> = ({
             </div>
             <div className="flex items-center gap-3">
               <ModuleBadge moduleId="repayment_schedule" size="md" />
-              <h1 className="text-2xl font-bold tracking-tight">Mô phỏng Lịch Trả nợ & Stress Test Lãi suất</h1>
+              <h1 className="text-2xl font-bold tracking-tight">Debt Repayment Simulation & Interest Rate Stress Test</h1>
             </div>
             <p className="text-sm text-slate-300 mt-1">
-              Lập bảng phân bổ gốc lãi từng kỳ (PMT Cố định vs Dư nợ giảm dần) và đánh giá độ nhạy dòng tiền khi lãi suất thị trường tăng sốc (+bps).
+              Generate periodic principal and interest amortization schedules (Fixed PMT vs. Equal Principal) and assess cash flow sensitivity under market interest rate shocks (+bps).
             </p>
           </div>
         </div>
@@ -132,12 +132,12 @@ export const RepaymentScheduleView: React.FC<RepaymentScheduleViewProps> = ({
       <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs">
         <div className="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
           <ModuleBadge moduleId="repayment_schedule" size="xs" />
-          <span>Thông số Khoản vay & Giả định Cú sốc Lãi suất (+bps)</span>
+          <span>Loan Parameters & Rate Shock Assumptions (+bps)</span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Số tiền gốc vay (VND)</label>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Principal Amount (VND)</label>
             <input
               type="number"
               value={principal}
@@ -149,7 +149,7 @@ export const RepaymentScheduleView: React.FC<RepaymentScheduleViewProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Lãi suất cơ sở (%/Năm)</label>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Base Interest Rate (%/Year)</label>
             <input
               type="number"
               value={baseRate}
@@ -160,7 +160,7 @@ export const RepaymentScheduleView: React.FC<RepaymentScheduleViewProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Thời hạn (Tháng)</label>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Term (Months)</label>
             <input
               type="number"
               value={termMonths}
@@ -172,28 +172,28 @@ export const RepaymentScheduleView: React.FC<RepaymentScheduleViewProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Phương thức trả nợ</label>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Repayment Method</label>
             <select
               value={method}
               onChange={(e) => setMethod(e.target.value as any)}
               className="w-full text-xs p-2 rounded-xl border border-slate-300 bg-white"
             >
-              <option value="EQUAL_INSTALLMENT">Gốc + Lãi Cố định (PMT)</option>
-              <option value="EQUAL_PRINCIPAL">Gốc đều, Lãi giảm dần</option>
+              <option value="EQUAL_INSTALLMENT">Fixed Annuity / PMT (Principal + Interest)</option>
+              <option value="EQUAL_PRINCIPAL">Equal Principal (Declining Balance)</option>
             </select>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-rose-600 mb-1">Sốc Lãi suất (+bps)</label>
+            <label className="block text-xs font-semibold text-rose-600 mb-1">Rate Shock (+bps)</label>
             <select
               value={shockBps}
               onChange={(e) => setShockBps(Number(e.target.value))}
               className="w-full text-xs p-2 rounded-xl border border-rose-300 bg-rose-50/50 font-bold text-rose-700"
             >
-              <option value={0}>0 bps (Cơ sở ban đầu)</option>
-              <option value={100}>+100 bps (+1.0%/năm)</option>
-              <option value={200}>+200 bps (+2.0%/năm)</option>
-              <option value={300}>+300 bps (+3.0%/năm)</option>
+              <option value={0}>0 bps (Baseline)</option>
+              <option value={100}>+100 bps (+1.0%/year)</option>
+              <option value={200}>+200 bps (+2.0%/year)</option>
+              <option value={300}>+300 bps (+3.0%/year)</option>
             </select>
           </div>
         </div>
@@ -202,27 +202,27 @@ export const RepaymentScheduleView: React.FC<RepaymentScheduleViewProps> = ({
       {/* 3. 4 Core Metrics Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs">
-          <div className="text-xs text-slate-500 font-medium">Nghĩa vụ trả nợ Kỳ đầu tiên</div>
+          <div className="text-xs text-slate-500 font-medium">First Period Payment Obligation</div>
           <div className="text-xl font-extrabold text-blue-600 mt-1">{formatVND(metrics.firstPeriodPayment)}</div>
-          <div className="text-[11px] text-slate-400 mt-1">Bao gồm Gốc + Lãi</div>
+          <div className="text-[11px] text-slate-400 mt-1">Includes Principal + Interest</div>
         </div>
 
         <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs">
-          <div className="text-xs text-slate-500 font-medium">Tổng lãi vay phải trả</div>
+          <div className="text-xs text-slate-500 font-medium">Total Interest Payable</div>
           <div className="text-xl font-extrabold text-rose-600 mt-1">{formatVND(metrics.totalInterest)}</div>
-          <div className="text-[11px] text-slate-400 mt-1">Toàn bộ kỳ hạn {termMonths} tháng</div>
+          <div className="text-[11px] text-slate-400 mt-1">Over full {termMonths}-month tenure</div>
         </div>
 
         <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs">
-          <div className="text-xs text-slate-500 font-medium">Tổng dòng tiền chi trả</div>
+          <div className="text-xs text-slate-500 font-medium">Total Cash Outflow</div>
           <div className="text-xl font-extrabold text-slate-900 mt-1">{formatVND(metrics.totalPayment)}</div>
-          <div className="text-[11px] text-slate-400 mt-1">Gốc vay + Toàn bộ tiền lãi</div>
+          <div className="text-[11px] text-slate-400 mt-1">Principal + Total Interest</div>
         </div>
 
         <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs">
-          <div className="text-xs text-slate-500 font-medium">Lãi suất hiệu dụng sau sốc</div>
-          <div className="text-xl font-extrabold text-purple-600 mt-1">{metrics.effectiveRate}% / năm</div>
-          <div className="text-[11px] text-slate-400 mt-1">Đã tính +{shockBps} bps</div>
+          <div className="text-xs text-slate-500 font-medium">Effective Post-Shock Rate</div>
+          <div className="text-xl font-extrabold text-purple-600 mt-1">{metrics.effectiveRate}% / year</div>
+          <div className="text-[11px] text-slate-400 mt-1">Reflects +{shockBps} bps</div>
         </div>
       </div>
 
@@ -230,13 +230,13 @@ export const RepaymentScheduleView: React.FC<RepaymentScheduleViewProps> = ({
       <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-base font-bold text-slate-900">Bảng Phân bổ Trả nợ Chi tiết Từng kỳ</h2>
+            <h2 className="text-base font-bold text-slate-900">Periodic Amortization Schedule</h2>
             <p className="text-xs text-slate-500">
-              Chi tiết gốc, lãi và dư nợ cuối kỳ qua từng tháng
+              Detailed breakdown of principal, interest, and ending balance per monthly period
             </p>
           </div>
           <span className="text-xs font-mono font-semibold px-2.5 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200">
-            {scheduleRows.length} Kỳ thanh toán
+            {scheduleRows.length} Payment Periods
           </span>
         </div>
 
@@ -244,18 +244,18 @@ export const RepaymentScheduleView: React.FC<RepaymentScheduleViewProps> = ({
           <table className="w-full text-left text-xs border-collapse">
             <thead className="sticky top-0 bg-slate-50 border-b border-slate-200 text-slate-600 z-10 font-semibold">
               <tr>
-                <th className="py-2.5 px-3 text-center">Kỳ</th>
-                <th className="py-2.5 px-3">Dư nợ đầu kỳ</th>
-                <th className="py-2.5 px-3">Tiền gốc trả</th>
-                <th className="py-2.5 px-3">Tiền lãi phát sinh</th>
-                <th className="py-2.5 px-3">Tổng trả kỳ này</th>
-                <th className="py-2.5 px-3">Dư nợ cuối kỳ</th>
+                <th className="py-2.5 px-3 text-center">Period</th>
+                <th className="py-2.5 px-3">Beginning Balance</th>
+                <th className="py-2.5 px-3">Principal Paid</th>
+                <th className="py-2.5 px-3">Interest Incurred</th>
+                <th className="py-2.5 px-3">Total Installment</th>
+                <th className="py-2.5 px-3">Ending Balance</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {scheduleRows.map((r) => (
                 <tr key={r.period} className="hover:bg-slate-50/80 transition-colors">
-                  <td className="py-2.5 px-3 text-center font-bold text-slate-700 font-mono">T{r.period}</td>
+                  <td className="py-2.5 px-3 text-center font-bold text-slate-700 font-mono">M{r.period}</td>
                   <td className="py-2.5 px-3 font-mono text-slate-600">{formatVND(r.beginning)}</td>
                   <td className="py-2.5 px-3 font-mono font-semibold text-blue-600">{formatVND(r.principal)}</td>
                   <td className="py-2.5 px-3 font-mono font-semibold text-rose-600">{formatVND(r.interest)}</td>

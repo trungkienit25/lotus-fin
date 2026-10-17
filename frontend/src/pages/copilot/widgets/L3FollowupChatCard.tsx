@@ -13,7 +13,7 @@ export interface L3FollowupChatCardProps {
 export const L3FollowupChatCard: React.FC<L3FollowupChatCardProps> = ({
   invoiceId = "ACC-SINV-2026-00001",
   customerName = "Grant Plastics Ltd.",
-  amountText = "67,000,000 VND",
+  amountText = "$67,000.00",
   dueDate = "25/10/2026",
   recipientEmail = "accounting@grantplastics.com",
   onCreateTask,

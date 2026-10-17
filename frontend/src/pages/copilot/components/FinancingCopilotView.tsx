@@ -33,47 +33,47 @@ export const FinancingCopilotView: React.FC<FinancingCopilotViewProps> = ({
       const packages = [
         {
           bank: "Vietcombank (VCB)",
-          productName: "Gói Vay Bổ Sung Vốn Lưu Động Doanh Nghiệp SME",
-          interestRate: "7.8% - 8.5%/năm",
+          productName: "SME Working Capital Facility",
+          interestRate: "7.8% - 8.5%/year",
           maxLimit: 2000000000,
           matchScore: 95,
           tenureMonths: 12,
-          type: "Vay thấu chi / Hạn mức tín dụng",
-          tags: ["Lãi suất ưu đãi nhất", "Giải ngân nhanh 48h"],
-          reason: "Doanh nghiệp có dòng tiền doanh thu ổn định và biên lợi nhuận gộp 28.89% đáp ứng trọn vẹn tiêu chí xếp hạng tín dụng Standard A của VCB.",
+          type: "Overdraft / Revolving Credit Line",
+          tags: ["Lowest Preferred Rate", "48h Fast Disbursement"],
+          reason: "Stable revenue cash flow and 28.89% gross margin satisfy VCB Standard A credit rating criteria.",
         },
         {
           bank: "Techcombank",
-          productName: "Tín Dụng Tín Chấp & Thế Chấp Hỗn Hợp Business Fast",
-          interestRate: "8.9% - 9.5%/năm",
+          productName: "Business Fast Hybrid Credit & Collateral",
+          interestRate: "8.9% - 9.5%/year",
           maxLimit: 1500000000,
           matchScore: 88,
           tenureMonths: 24,
-          type: "Vay trung hạn mở rộng kinh doanh",
-          tags: ["Thủ tục số hóa 100%", "Hạn mức linh hoạt"],
-          reason: "Phù hợp với mục tiêu mở rộng quy mô kinh doanh; tài sản thế chấp hiện có 1.5 tỷ VND đảm bảo 150% tỷ lệ LTV.",
+          type: "Medium-Term Expansion Loan",
+          tags: ["100% Digital Processing", "Flexible Credit Limit"],
+          reason: "Well-suited for business expansion; collateral of 1.5B VND supports a comfortable 150% LTV coverage.",
         },
         {
           bank: "BIDV",
-          productName: "Tài Trợ Chuỗi Cung Ứng & Chiết Khấu Hóa Đơn (Supply Chain)",
-          interestRate: "8.2%/năm",
+          productName: "Supply Chain Finance & Invoice Discounting",
+          interestRate: "8.2%/year",
           maxLimit: 1200000000,
           matchScore: 84,
           tenureMonths: 6,
-          type: "Chiết khấu khoản phải thu (Factoring)",
-          tags: ["Không cần tài sản thế chấp bổ sung"],
-          reason: "Tận dụng trực tiếp các hóa đơn bán hàng chuẩn bị đến hạn thu để giải tỏa vốn lưu động tức thì.",
+          type: "Receivables Factoring",
+          tags: ["No Additional Collateral Required"],
+          reason: "Directly leverages near-due sales invoices to unlock working capital instantly.",
         },
         {
           bank: "MB Bank",
-          productName: "Gói Vay Tăng Tốc Sản Xuất Kinh Doanh",
-          interestRate: "9.2%/năm",
+          productName: "Production & Trading Acceleration Facility",
+          interestRate: "9.2%/year",
           maxLimit: 1000000000,
           matchScore: 80,
           tenureMonths: 12,
-          type: "Vay trả góp kỳ hạn",
-          tags: ["Lịch trả nợ linh hoạt"],
-          reason: "Dễ dàng giải ngân với hồ sơ báo cáo tài chính đã được chuẩn hóa trên hệ thống ERP.",
+          type: "Installment Term Loan",
+          tags: ["Flexible Repayment Schedule"],
+          reason: "Streamlined disbursement based on standardized ERP financial reporting records.",
         },
       ];
 
@@ -106,10 +106,10 @@ export const FinancingCopilotView: React.FC<FinancingCopilotViewProps> = ({
             </div>
             <div className="flex items-center gap-3">
               <ModuleBadge moduleId="financing_copilot" size="md" />
-              <h1 className="text-2xl font-bold tracking-tight">Cố vấn Tài trợ Vốn & Khớp nối Gói Vay Ngân hàng</h1>
+              <h1 className="text-2xl font-bold tracking-tight">Financing Advisor & Bank Credit Matching</h1>
             </div>
             <p className="text-sm text-slate-300 mt-1">
-              Khảo sát nhu cầu vốn, tính toán khả năng trả nợ (DSCR) và khớp nối các sản phẩm tín dụng ngân hàng tối ưu chi phí.
+              Analyze capital requirements, compute Debt Service Coverage Ratio (DSCR), and match cost-optimized bank credit facilities.
             </p>
           </div>
 
@@ -119,7 +119,7 @@ export const FinancingCopilotView: React.FC<FinancingCopilotViewProps> = ({
             className="px-4 py-2 rounded-xl text-white text-xs font-semibold shadow-xs hover:opacity-95 transition-all flex items-center gap-1.5 cursor-pointer"
             style={{ background: "linear-gradient(135deg, #1E63B7 0%, #2FB29A 100%)" }}
           >
-            🔍 {loading ? "Đang khớp nối..." : "Khớp nối Sản phẩm Vay"}
+            🔍 {loading ? "Matching..." : "Match Credit Facilities"}
           </button>
         </div>
       </div>
@@ -127,12 +127,12 @@ export const FinancingCopilotView: React.FC<FinancingCopilotViewProps> = ({
       {/* 2. Needs & Collateral Parameters Input */}
       <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs">
         <div className="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
-          <span>🎯</span> Thông số Nhu cầu Vốn & Tài sản Bảo đảm
+          <span>🎯</span> Capital Requirements & Collateral Parameters
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Nhu cầu vay vốn (VND)</label>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Financing Requirement (VND)</label>
             <input
               type="number"
               value={loanAmount}
@@ -144,35 +144,35 @@ export const FinancingCopilotView: React.FC<FinancingCopilotViewProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Thời hạn vay (Tháng)</label>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Tenure (Months)</label>
             <select
               value={loanTerm}
               onChange={(e) => setLoanTerm(Number(e.target.value))}
               className="w-full text-xs p-2 rounded-xl border border-slate-300 bg-white"
             >
-              <option value={6}>6 Tháng (Ngắn hạn / Vốn LĐ)</option>
-              <option value={12}>12 Tháng (1 Năm chuẩn)</option>
-              <option value={24}>24 Tháng (2 Năm trung hạn)</option>
-              <option value={36}>36 Tháng (3 Năm đầu tư)</option>
+              <option value={6}>6 Months (Short-term / Working Capital)</option>
+              <option value={12}>12 Months (Standard 1-Year)</option>
+              <option value={24}>24 Months (Medium-term 2-Year)</option>
+              <option value={36}>36 Months (Investment 3-Year)</option>
             </select>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Mục đích sử dụng vốn</label>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Capital Purpose</label>
             <select
               value={loanPurpose}
               onChange={(e) => setLoanPurpose(e.target.value)}
               className="w-full text-xs p-2 rounded-xl border border-slate-300 bg-white"
             >
-              <option value="WORKING_CAPITAL">Bổ sung Vốn Lưu động & Mua hàng</option>
-              <option value="CAPEX">Đầu tư Máy móc & Thiết bị</option>
-              <option value="EXPANSION">Mở rộng Điểm bán / Chi nhánh</option>
-              <option value="TRADE_FINANCE">Tài trợ Thương mại & Xuất nhập khẩu</option>
+              <option value="WORKING_CAPITAL">Working Capital & Inventory Procurement</option>
+              <option value="CAPEX">Machinery & Equipment Investment</option>
+              <option value="EXPANSION">Store / Branch Network Expansion</option>
+              <option value="TRADE_FINANCE">Trade Finance & Import-Export</option>
             </select>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Giá trị Tài sản thế chấp (VND)</label>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Collateral Asset Value (VND)</label>
             <input
               type="number"
               value={collateralValue}
@@ -188,27 +188,27 @@ export const FinancingCopilotView: React.FC<FinancingCopilotViewProps> = ({
       {/* 3. Four Core Capacity Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs">
-          <div className="text-xs text-slate-500 font-medium">Hạn mức vay khả thi tối đa</div>
-          <div className="text-xl font-extrabold text-blue-600 mt-1">2.000.000.000 VND</div>
-          <div className="text-[11px] text-slate-400 mt-1">Dựa trên EBITDA & LTV</div>
+          <div className="text-xs text-slate-500 font-medium">Estimated Borrowing Capacity</div>
+          <div className="text-xl font-extrabold text-blue-600 mt-1">2,000,000,000 VND</div>
+          <div className="text-[11px] text-slate-400 mt-1">Based on EBITDA & LTV</div>
         </div>
 
         <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs">
-          <div className="text-xs text-slate-500 font-medium">Hệ số Trả nợ (DSCR)</div>
+          <div className="text-xs text-slate-500 font-medium">Debt Service Coverage (DSCR)</div>
           <div className="text-xl font-extrabold text-emerald-600 mt-1">{dscrRatio}x</div>
-          <div className="text-[11px] text-emerald-600 font-medium mt-1">✓ Rất an toàn (&gt; 1.5x)</div>
+          <div className="text-[11px] text-emerald-600 font-medium mt-1">✓ Prime Safety Buffer (&gt; 1.5x)</div>
         </div>
 
         <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs">
-          <div className="text-xs text-slate-500 font-medium">Nghĩa vụ trả nợ ước tính/tháng</div>
+          <div className="text-xs text-slate-500 font-medium">Est. Monthly Debt Service</div>
           <div className="text-xl font-extrabold text-slate-800 mt-1">{formatVND(estimatedMonthlyDebtService)}</div>
-          <div className="text-[11px] text-slate-400 mt-1">Gốc + Lãi bình quân</div>
+          <div className="text-[11px] text-slate-400 mt-1">Average Principal + Interest</div>
         </div>
 
         <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs">
-          <div className="text-xs text-slate-500 font-medium">Gợi ý hình thức tín dụng</div>
-          <div className="text-base font-bold text-indigo-700 mt-1">Hạn mức Vốn Lưu động</div>
-          <div className="text-[11px] text-indigo-500 mt-1">Tối ưu chi phí lãi vay</div>
+          <div className="text-xs text-slate-500 font-medium">Recommended Credit Facility</div>
+          <div className="text-base font-bold text-indigo-700 mt-1">Revolving Working Capital Line</div>
+          <div className="text-[11px] text-indigo-500 mt-1">Optimizes interest expense</div>
         </div>
       </div>
 
@@ -216,11 +216,11 @@ export const FinancingCopilotView: React.FC<FinancingCopilotViewProps> = ({
       <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-base font-bold text-slate-900">Danh mục Gói Tín dụng Ngân hàng Khớp nối</h2>
-            <p className="text-xs text-slate-500">Được chấm điểm tương thích tự động dựa trên năng lực tài chính thực tế</p>
+            <h2 className="text-base font-bold text-slate-900">Matched Bank Credit Facility Catalog</h2>
+            <p className="text-xs text-slate-500">Automatically scored based on verified enterprise financial health</p>
           </div>
           <span className="text-xs font-mono text-blue-600 font-bold bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200">
-            {matchedPackages.length} Gói Phù hợp
+            {matchedPackages.length} Matched Packages
           </span>
         </div>
 
@@ -243,17 +243,17 @@ export const FinancingCopilotView: React.FC<FinancingCopilotViewProps> = ({
 
                 <div className="grid grid-cols-2 gap-2 my-3 text-xs">
                   <div className="p-2.5 rounded-xl bg-white border border-slate-100">
-                    <div className="text-slate-400">Lãi suất tham chiếu:</div>
+                    <div className="text-slate-400">Reference Rate:</div>
                     <div className="font-bold text-slate-800 mt-0.5">{pkg.interestRate}</div>
                   </div>
                   <div className="p-2.5 rounded-xl bg-white border border-slate-100">
-                    <div className="text-slate-400">Hạn mức tối đa:</div>
+                    <div className="text-slate-400">Maximum Limit:</div>
                     <div className="font-bold text-emerald-600 mt-0.5">{formatVND(pkg.maxLimit)}</div>
                   </div>
                 </div>
 
                 <div className="text-xs text-slate-600 leading-relaxed bg-white p-3 rounded-xl border border-slate-100 mb-3">
-                  <span className="font-semibold text-slate-800">Cơ sở đánh giá: </span>
+                  <span className="font-semibold text-slate-800">Underwriting Rationale: </span>
                   {pkg.reason}
                 </div>
               </div>
@@ -271,7 +271,7 @@ export const FinancingCopilotView: React.FC<FinancingCopilotViewProps> = ({
                     onClick={() => onNavigateTab("repayment_schedule")}
                     className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 cursor-pointer"
                   >
-                    Xem Lịch Trả Nợ ➔
+                    View Repayment Schedule ➔
                   </button>
                 )}
               </div>

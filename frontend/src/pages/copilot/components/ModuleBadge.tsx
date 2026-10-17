@@ -122,7 +122,7 @@ export const getAIModuleBadgeConfig = (id: string): ModuleBadgeConfig => {
     return {
       bg: "bg-gradient-to-br from-slate-800 via-indigo-900 to-blue-700",
       code: "L1/L2",
-      label: "Tra cứu Chứng từ",
+      label: "Invoice Inquiries",
       icon: (
         <svg className="w-full h-full block shrink-0 text-white drop-shadow-2xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -140,7 +140,7 @@ export const getAIModuleBadgeConfig = (id: string): ModuleBadgeConfig => {
     return {
       bg: "bg-gradient-to-br from-amber-700 via-rose-800 to-red-900",
       code: "V1",
-      label: "Quá hạn Cuối",
+      label: "Past Final Due",
       icon: (
         <svg className="w-full h-full block shrink-0 text-white drop-shadow-2xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="10" />
@@ -155,7 +155,7 @@ export const getAIModuleBadgeConfig = (id: string): ModuleBadgeConfig => {
     return {
       bg: "bg-gradient-to-br from-indigo-700 to-blue-600",
       code: "L4",
-      label: "Tạo Việc Theo dõi",
+      label: "Receivables Task",
       icon: (
         <svg className="w-full h-full block shrink-0 text-white drop-shadow-2xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M9 11l3 3L22 4" />
@@ -170,7 +170,7 @@ export const getAIModuleBadgeConfig = (id: string): ModuleBadgeConfig => {
     return {
       bg: "bg-gradient-to-br from-emerald-700 to-teal-600",
       code: "L3",
-      label: "Thư Nhắc Nợ",
+      label: "Debt Reminder",
       icon: (
         <svg className="w-full h-full block shrink-0 text-white drop-shadow-2xs" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />

@@ -9,14 +9,14 @@ export interface InvoiceSearchResultsProps {
   onOpen: (invoiceId: string) => void;
 }
 
-const STATUS_LABEL: Record<number, string> = { 0: "Draft (Bản nháp)", 1: "Submitted (Đã ghi nhận)" };
+const STATUS_LABEL: Record<number, string> = { 0: "Draft", 1: "Submitted" };
 
 /** Identity-only rows (no amounts). Even a single match requires an explicit click. */
 export const InvoiceSearchResults: React.FC<InvoiceSearchResultsProps> = ({ results, selectedId, busy, onOpen }) => {
   if (results.kind === "empty") {
     return (
       <div data-testid="results-empty" className="text-xs text-slate-600 p-4 border border-slate-200/80 rounded-xl bg-[#F9FBFC] text-center font-sans">
-        Không tìm thấy hóa đơn nào khớp với tiêu chí trong phạm vi kiểm tra. Điều này không có nghĩa là không có hóa đơn ngoài khoảng này.
+        No sales invoices matched the search criteria within the verified scope.
       </div>
     );
   }
@@ -26,7 +26,7 @@ export const InvoiceSearchResults: React.FC<InvoiceSearchResultsProps> = ({ resu
       {!selectable && (
         <div data-testid="results-partial" role="status" className="text-xs p-3.5 border border-amber-200 bg-amber-50 rounded-xl text-amber-900 flex items-center gap-2">
           <span>⚠️</span>
-          <span>Kết quả tìm kiếm chưa hoàn tất toàn bộ phạm vi, tính năng chọn xem bị tạm khóa. Hãy thu hẹp tiêu chí và tìm kiếm lại.</span>
+          <span>Partial results returned due to query boundary limits. Selection is temporarily locked; please narrow criteria and retry.</span>
         </div>
       )}
       <ul className="divide-y divide-slate-100 border border-slate-200/80 rounded-2xl bg-white overflow-hidden shadow-2xs">
@@ -51,7 +51,7 @@ export const InvoiceSearchResults: React.FC<InvoiceSearchResultsProps> = ({ resu
                     {safeText(item.invoiceId)}
                   </div>
                   <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5">
-                    <span>Ngày: {safeText(item.postingDate, 10)}</span>
+                    <span>Date: {safeText(item.postingDate, 10)}</span>
                     <span>•</span>
                     <span className={`font-semibold ${isSubmitted ? "text-emerald-700" : "text-amber-700"}`}>
                       {STATUS_LABEL[item.docstatus]}

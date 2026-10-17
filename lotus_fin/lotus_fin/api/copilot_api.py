@@ -167,7 +167,7 @@ def search_real_invoices(
     sql = f"""
         SELECT 
             name, customer_name, posting_date, due_date,
-            outstanding_amount, grand_total, docstatus, company, modified
+            outstanding_amount, grand_total, docstatus, company, currency, modified
         FROM `tabSales Invoice`
         WHERE {where_clause}
         ORDER BY posting_date DESC, creation DESC
@@ -177,6 +177,7 @@ def search_real_invoices(
         records = frappe.db.sql(sql, values, as_dict=True)
         invoices = []
         for r in records:
+            inv_curr = r.get("currency") or "USD"
             invoices.append({
                 "invoiceId": r.get("name"),
                 "customerName": r.get("customer_name"),
@@ -186,7 +187,7 @@ def search_real_invoices(
                 "grandTotal": float(r.get("grand_total") or 0.0),
                 "docstatus": int(r.get("docstatus")),
                 "company": r.get("company"),
-                "currency": "VND"
+                "currency": inv_curr
             })
         return {
             "status": "success",
@@ -224,7 +225,7 @@ def get_real_overdue_invoices(
     sql = f"""
         SELECT 
             name, customer_name, posting_date, due_date,
-            outstanding_amount, grand_total, modified,
+            outstanding_amount, grand_total, currency, modified,
             DATEDIFF(%(as_of_date)s, due_date) AS overdue_days
         FROM `tabSales Invoice`
         WHERE {where_clause}
@@ -236,6 +237,7 @@ def get_real_overdue_invoices(
         items = []
         for r in records:
             out_val = float(r.get("outstanding_amount") or 0.0)
+            inv_curr = r.get("currency") or "USD"
             items.append({
                 "invoiceId": r.get("name"),
                 "customerName": r.get("customer_name"),
@@ -244,7 +246,8 @@ def get_real_overdue_invoices(
                 "overdueDays": max(0, int(r.get("overdue_days") or 0)),
                 "currentOutstandingDecimal": f"{int(out_val):,}",
                 "outstandingAmount": out_val,
-                "partyAccountCurrency": "VND",
+                "partyAccountCurrency": inv_curr,
+                "currency": inv_curr,
                 "sourceModified": str(r.get("modified") or "")
             })
         return {

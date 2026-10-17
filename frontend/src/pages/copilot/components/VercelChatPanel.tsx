@@ -5,6 +5,7 @@ import DOMPurify from "dompurify";
 import { useTranslation } from "../../../i18n";
 import { formatBrandText } from "../../../utils/brand";
 import { ModuleBadge } from "./ModuleBadge";
+import { CopilotMessageBody } from "./CopilotMessageBody";
 import { bootstrapSession } from "../../../providers/sessionBootstrap";
 import { routeCopilotIntent } from "../actions/copilotIntentRouter";
 import {
@@ -287,74 +288,27 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
         throw new Error("No direct text reply");
       }
     } catch (err: any) {
-      // Fallback grounded in real database values
-      const lower = text.toLowerCase();
-      let fallbackText = "";
-      let fallbackTool = "get_financial_snapshot";
-      let fallbackLabel = "F001: Financial Health Snapshot";
-      let wType: any = "health";
-
-      if (lower.includes("cash") || lower.includes("dòng tiền") || lower.includes("forecast") || lower.includes("runway")) {
-        fallbackTool = "get_cash_forecast";
-        fallbackLabel = "F002: 30-Day Cash Forecast";
-        wType = "cash_forecast";
-        fallbackText =
-          `**30-Day Cash Flow Forecast (AI002) for ${company}:**\n\n` +
-          `- **Opening Cash & Bank Balance (Verified GL):** -117,854 VND\n` +
-          `- **Expected Inflows from AR Invoices:** +87,000 VND\n` +
-          `- **Payable Obligations (AP):** 184,293 VND\n` +
-          `- **Liquidity Assessment:** Negative opening balance recorded on Demo Bank Account (-117,854 VND). Collection acceleration recommended to restore positive liquidity runway.`;
-      } else if (lower.includes("risk") || lower.includes("rủi ro") || lower.includes("overdue") || lower.includes("nợ")) {
-        fallbackTool = "evaluate_risk_signal";
-        fallbackLabel = "F003: Risk Signal Monitor (AR_OVERDUE_SPIKE)";
-        wType = "risk_signal";
-        fallbackText =
-          `**Accounting Risk Signal Detected (AI003) for ${company}:**\n\n` +
-          `- **Observed Signal:** \`AR_OVERDUE_SPIKE\` (Overdue Accounts Receivable)\n` +
-          `- **Overdue Ratio:** **100%** on 87,000 VND total receivables\n` +
-          `- **Risk Verdict:** **BENIGN (Within baseline bounds)**\n` +
-          `- **Conclusion:** No anomalous delta spike observed against historical benchmark (Δ 0.00 pp).`;
-      } else if (lower.includes("what if") || lower.includes("stress") || lower.includes("mô phỏng") || lower.includes("giảm")) {
-        fallbackTool = "simulate_what_if_scenario";
-        fallbackLabel = "F004: Cash Stress-Testing (What-If)";
-        wType = "what_if";
-        fallbackText =
-          `**What-If Scenario Simulation (9 KPIs) for ${company}:**\n\n` +
-          `Scenario: **-15% Revenue drop** and **+15 Days Collection delay**:\n` +
-          `- **Projected Revenue:** 850,000,000 VND (Variance: -150,000,000 VND)\n` +
-          `- **Net Cash Flow (NCF):** 13,333,333 VND/month\n` +
-          `- **Ending Cash Buffer:** 313,333,333 VND (Status: HEALTHY)\n` +
-          `- **Cash Conversion Cycle (CCC):** 45 days\n\n` +
-          `**Takeaway:** Enterprise maintains positive safety margin well above the minimum liquidity floor.`;
-      } else {
-        fallbackText =
-          `Verified financial report for **${company}** directly from ERP General Ledger:\n\n` +
-          `### Core Accounting Metrics:\n` +
-          `- **Net Revenue:** **363,000 VND**\n` +
-          `- **Cost of Goods Sold (COGS):** **253,760 VND**\n` +
-          `- **Gross Margin:** **30.09%**\n` +
-          `- **Accounts Receivable (AR):** **316,000 VND**\n` +
-          `- **Accounts Payable (AP):** **184,293 VND**\n` +
-          `- **Cash & Bank Balance:** **-117,854 VND**\n\n` +
-          `All figures are quantitatively derived from active ERP records without speculative interpolation.`;
-      }
+      console.error("AI Copilot request failed:", err);
+      const isVietnamese = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i.test(text);
+      const errorMessage = isVietnamese
+        ? `⚠️ **Hệ thống AI Copilot đang gặp trục trặc kỹ thuật hoặc gián đoạn kết nối.**\n\nKhông thể truy xuất dữ liệu kế toán trực tiếp từ hệ thống lúc này. Vui lòng kiểm tra lại kết nối mạng, phiên đăng nhập ERPNext hoặc thử lại sau giây lát.`
+        : `⚠️ **AI Copilot service is currently experiencing technical difficulties or a connection disruption.**\n\nCould not retrieve live accounting data from the system at this time. Please verify your connection, ERPNext session, or try again in a moment.`;
 
       setMessages((prev) => [
         ...prev,
         {
           id: assistantMsgId,
           sender: "assistant",
-          content: formatBrandText(fallbackText),
+          content: errorMessage,
           timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
           toolCalls: [
             {
-              name: fallbackTool,
-              label: fallbackLabel,
-              status: "completed",
-              args: { company, as_of_date: "2026-09-26" },
+              name: "copilot_error",
+              label: "Connection Disruption",
+              status: "error",
+              args: { company },
             },
           ],
-          widgetType: wType,
         },
       ]);
     } finally {
@@ -375,43 +329,43 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
 
   const starterCards = [
     {
-      title: "Tra cứu Hóa đơn Bán hàng",
-      description: "Tìm kiếm hóa đơn L1/L2, lọc theo trạng thái Draft / Submitted",
-      query: "Tìm hóa đơn có mã SINV",
+      title: "Search Sales Invoices",
+      description: "Find L1/L2 invoices, filter by Draft or Submitted status",
+      query: "Search sales invoices with prefix SINV",
       inspectorTab: "invoice_actions",
       tag: "L1 / L2",
     },
     {
-      title: "Tạo Việc Theo dõi Công nợ",
-      description: "Khởi tạo đề xuất L4 có đếm ngược hết hạn và xác nhận",
-      query: "Tạo task theo dõi công nợ quá hạn",
+      title: "Create Receivables Task",
+      description: "Initialize L4 proposal with expiration countdown and dual confirmation",
+      query: "Create receivables follow-up task for overdue invoices",
       inspectorTab: "invoice_actions",
       tag: "L4 Task",
     },
     {
-      title: "Soạn Thảo Nhắc Nợ Khách hàng",
-      description: "Tiện ích soạn thảo L3 cục bộ, sao chép hoặc chuyển sang task",
-      query: "Soạn thư nhắc nợ khách hàng",
+      title: "Draft Customer Reminder",
+      description: "Local L3 drafting utility to review, copy or elevate to task",
+      query: "Draft customer payment reminder",
       inspectorTab: "invoice_actions",
-      tag: "L3 Nháp",
+      tag: "L3 Draft",
     },
     {
-      title: "Hóa đơn Quá hạn Cuối còn Dư nợ",
-      description: "Kiểm tra danh sách nợ quá hạn V1 có rủi ro",
-      query: "Cho tôi xem hóa đơn qua hạn cuối còn dư nợ",
+      title: "Past-Final-Due Invoices",
+      description: "Inspect high-risk overdue invoices with remaining balance",
+      query: "Show me past final due invoices with outstanding balance",
       inspectorTab: "invoice_actions",
-      tag: "V1 Quá hạn",
+      tag: "V1 Overdue",
     },
     {
       title: "Financial Health Snapshot",
-      description: "Doanh thu, Giá vốn, Biên lợi nhuận & Số dư tiền thực tế",
+      description: "Revenue, COGS, Gross Margin & Ledger Cash Balance",
       query: "Summary of financial health snapshot and key accounting indicators",
       inspectorTab: "financial_health",
       tag: "AI001",
     },
     {
       title: "30-Day Cash Forecast",
-      description: "Quỹ đạo số dư cuối ngày & Khả năng thanh khoản",
+      description: "Daily EOD cash trajectory & Liquidity runway assessment",
       query: "Project 30-day cash forecast and evaluate liquidity risk",
       inspectorTab: "cash_forecast",
       tag: "AI002",
@@ -423,11 +377,11 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
       {/* 1. Chat Header Bar - Compact & Clean */}
       <div className="flex items-center justify-between px-3.5 sm:px-5 py-2.5 border-b border-gray-200 bg-white/95 backdrop-blur sticky top-0 z-10 shrink-0">
         <div className="flex items-center gap-2.5 min-w-0">
-          {onToggleSidebar && (
+          {onToggleSidebar && !isSidebarOpen && (
             <button
               onClick={onToggleSidebar}
-              className="p-1.5 -ml-1 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer shrink-0"
-              title={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+              className="p-1.5 -ml-1 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer shrink-0 md:hidden"
+              title="Expand sidebar"
             >
               <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h7" />
@@ -510,12 +464,13 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
       <div className="flex-1 overflow-y-auto px-3 sm:px-6 pt-3 pb-32 space-y-4">
         {/* Welcome Hero when no messages */}
         {messages.length === 0 && (
-          <div className="max-w-2xl mx-auto pt-1 pb-4 flex flex-col items-center text-center">
-            <div
-              className="size-9 rounded-xl flex items-center justify-center text-white text-base font-bold shadow-xs mb-2"
-              style={{ background: "linear-gradient(135deg, #1E63B7 0%, #2FB29A 100%)" }}
-            >
-              ✦
+          <div className="max-w-2xl mx-auto pt-4 pb-6 flex flex-col items-center text-center">
+            <div className="size-12 rounded-2xl flex items-center justify-center bg-white border border-gray-200/90 shadow-sm p-1.5 mb-3.5">
+              <img
+                src={`${import.meta.env.BASE_URL}brand/logo.jpg`}
+                alt="Lotus Fin AI"
+                className="size-full object-contain rounded-xl"
+              />
             </div>
             <h1 className="text-base sm:text-lg font-bold text-gray-900 tracking-tight">
               How can I assist with your financial analytics today?
@@ -616,49 +571,53 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
                           {isExp && t.output && (
                             <div className="p-3 bg-white/95 border-t border-indigo-100 text-[11px] text-slate-700 max-h-48 overflow-y-auto space-y-1.5 font-sans">
                               <div className="flex items-center justify-between pb-1.5 border-b border-slate-100">
-                                <span className="text-slate-400 font-semibold uppercase text-[9px] tracking-wider">Trạng thái đối soát</span>
+                                <span className="text-slate-400 font-semibold uppercase text-[9px] tracking-wider">Audit Status</span>
                                 <span className={`px-2 py-0.2 rounded-full font-bold text-[9px] ${
                                   t.output.status === "VALIDATION_ERROR" || t.output.status === "ERROR"
                                     ? "bg-rose-50 text-rose-700 border border-rose-200"
                                     : "bg-emerald-50 text-emerald-700 border border-emerald-200"
                                 }`}>
                                   {t.output.status === "VALIDATION_ERROR"
-                                    ? "Cần xác thực dữ liệu"
+                                    ? "Validation Required"
                                     : t.output.status === "FORECAST_UNAVAILABLE"
-                                    ? "Bảo toàn số dư (chưa có lịch phát sinh)"
+                                    ? "Baseline Conserved (No Projected Events)"
                                     : t.output.status === "INCONSISTENT_DATA"
-                                    ? "Đang đối soát sổ cái"
-                                    : "Đã xác thực dữ liệu"}
+                                    ? "Reconciling Ledger"
+                                    : "Ledger Verified"}
                                 </span>
                               </div>
                               {t.output.verified_company && (
                                 <div className="flex items-center justify-between text-slate-600">
-                                  <span className="text-slate-400">Đơn vị hạch toán:</span>
+                                  <span className="text-slate-400">Company:</span>
                                   <span className="font-semibold text-slate-800">{t.output.verified_company}</span>
                                 </div>
                               )}
                               {t.output.opening_cash?.aggregate_amount !== undefined && (
                                 <div className="flex items-center justify-between text-slate-600">
-                                  <span className="text-slate-400">Số dư khả dụng đầu kỳ:</span>
-                                  <span className="font-mono font-bold text-blue-700">{Number(t.output.opening_cash.aggregate_amount).toLocaleString("vi-VN")} VND</span>
+                                  <span className="text-slate-400">Opening Available Cash:</span>
+                                  <span className="font-mono font-bold text-blue-700">
+                                    {(t.output.currency === "USD" || !t.output.currency)
+                                      ? `$${Number(t.output.opening_cash.aggregate_amount).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                                      : `${Number(t.output.opening_cash.aggregate_amount).toLocaleString("vi-VN")} ${t.output.currency}`}
+                                  </span>
                                 </div>
                               )}
                               {t.output.count !== undefined && (
                                 <div className="flex items-center justify-between text-slate-600">
-                                  <span className="text-slate-400">Số lượng bản ghi:</span>
+                                  <span className="text-slate-400">Record Count:</span>
                                   <span className="font-mono font-bold text-slate-800">{t.output.count}</span>
                                 </div>
                               )}
                               {Array.isArray(t.output.limitations) && t.output.limitations.length > 0 && (
                                 <div className="pt-1 text-[10px] text-amber-800 bg-amber-50/70 p-2 rounded-lg border border-amber-200/60 leading-relaxed">
-                                  <span className="font-bold">Lưu ý nghiệp vụ: </span>
+                                  <span className="font-bold">Operational Note: </span>
                                   <span>
                                     {t.output.limitations
                                       .map((l: string) =>
                                         l === "Explicit cash_account_scope is required."
-                                          ? "Cần chọn phạm vi tài khoản tiền mặt trong thiết lập"
-                                          : l.replace(/STRICT_BASELINE_V1/g, "Nguyên tắc thận trọng")
-                                             .replace(/TRADE_ONLY/g, "Phạm vi thương mại")
+                                          ? "Explicit cash_account_scope is required in configuration"
+                                          : l.replace(/STRICT_BASELINE_V1/g, "Strict Baseline Rule")
+                                             .replace(/TRADE_ONLY/g, "Trade Only Scope")
                                       )
                                       .join("; ")}
                                   </span>
@@ -672,8 +631,8 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
                   </div>
                 )}
 
-                {/* Executive Markdown Content with Industry-Standard Typography */}
-                <ExecutiveMarkdownView content={msg.content} />
+                {/* KaTeX Math & Markdown Content with Industry-Standard Typography */}
+                <CopilotMessageBody content={msg.content} />
 
                 {/* Action Widgets Directly in Chat Feed */}
                 {msg.widgetType === "invoice_search" && (
@@ -695,7 +654,7 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
                   <L3FollowupChatCard
                     invoiceId={msg.widgetData?.invoiceId || "ACC-SINV-2026-00001"}
                     customerName={msg.widgetData?.customerName || "Grant Plastics Ltd."}
-                    amountText={msg.widgetData?.amountText || "67,000,000 VND"}
+                    amountText={msg.widgetData?.amountText || "$67,000.00 USD"}
                     dueDate={msg.widgetData?.dueDate || "25/10/2026"}
                     recipientEmail={msg.widgetData?.recipientEmail}
                     onCreateTask={(text) => {
@@ -704,11 +663,11 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
                         {
                           id: `asst-${Date.now()}`,
                           sender: "assistant",
-                          content: "Tôi đã chuyển nội dung này sang bản đề xuất tạo việc theo dõi (L4 Proposal):",
+                          content: "Elevated draft content into an L4 Task Proposal:",
                           timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
                           widgetType: "l4_proposal",
                           widgetData: {
-                            title: `Theo dõi công nợ: ${msg.widgetData?.invoiceId || "ACC-SINV-2026-00001"}`,
+                            title: `Follow-up Receivables: ${msg.widgetData?.invoiceId || "ACC-SINV-2026-00001"}`,
                             targetEntity: `Sales Invoice/${msg.widgetData?.invoiceId || "ACC-SINV-2026-00001"}`
                           }
                         },

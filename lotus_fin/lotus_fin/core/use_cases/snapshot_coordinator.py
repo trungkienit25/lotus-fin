@@ -39,7 +39,7 @@ class SnapshotCoordinator:
         period_start: str,
         period_end: str,
         as_of: Optional[str] = None,
-        currency: str = "VND",
+        currency: Optional[str] = None,
         correlation_id: Optional[str] = None,
         comparison: Optional[str] = None,
         raw_sources: Optional[Dict[str, Any]] = None,
@@ -199,7 +199,7 @@ class SnapshotCoordinator:
                         ["Company accounting currency could not be determined."],
                         ["Financial metrics cannot be labeled without a verified accounting currency."]
                     )
-                if requested_currency != company_currency_norm:
+                if requested_currency and requested_currency != company_currency_norm:
                     log_event(
                         event_type=EVENT_REQUEST_FAILED,
                         correlation_id=cid,
@@ -215,7 +215,7 @@ class SnapshotCoordinator:
                         ],
                         ["Financial metrics are only reported in the company accounting currency."]
                     )
-                # Server-authoritative currency replaces the client-provided label.
+                # Server-authoritative currency replaces or sets the client-provided label.
                 currency = company_currency
         except ImportError:
             # Non-Frappe unit-test environment: keep the provided currency.

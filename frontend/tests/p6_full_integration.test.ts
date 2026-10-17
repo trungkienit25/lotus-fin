@@ -10,7 +10,7 @@ test("bounded intents choose review views without confirming", () => {
     ["Tạo Task theo dõi", "L4"], ["Xác nhận tạo Task", "CONFIRM"], ["Gửi email", "L5"],
     ["Submit/Cancel", "L5"], ["Tìm hóa đơn đã quá hạn cuối", "V1"], ["Tạo cái đó", "CLARIFY"]];
   for (const [text, kind] of cases) assert.equal(routeCopilotIntent(text).kind, kind);
-  assert.match(routeCopilotIntent("Xác nhận tạo Task").message!, /không cấp quyền/);
+  assert.match(routeCopilotIntent("Xác nhận tạo Task").message!, /do not grant execution authority/i);
 });
 
 test("all protected feature responses fence actor, epoch and generation", async () => {
