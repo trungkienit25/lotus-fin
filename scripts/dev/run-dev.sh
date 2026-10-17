@@ -13,11 +13,12 @@
 set -eo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROOT_DIR="$SCRIPT_DIR"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 FE_DIR="${ROOT_DIR}/frontend"
 DOCKER_DIR="${ROOT_DIR}/frappe_docker"
 COMPOSE_FILE="${DOCKER_DIR}/pwd.yml"
 BACKEND_CONTAINER="frappe_docker-backend-1"
+
 
 CYAN='\033[0;36m'
 GREEN='\033[0;32m'

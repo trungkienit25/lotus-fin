@@ -6,7 +6,9 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-FE_DIR="${SCRIPT_DIR}/frontend"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+FE_DIR="${ROOT_DIR}/frontend"
+
 
 print_header() {
     echo -e "\n\033[1;36m========================================================\033[0m"
