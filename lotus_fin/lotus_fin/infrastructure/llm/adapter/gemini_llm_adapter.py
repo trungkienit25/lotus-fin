@@ -18,6 +18,7 @@ class GeminiLLMAdapter(ILLMProvider):
     """
     Adapter communicating with Google Generative AI (Gemini) REST API.
     Zero external SDK dependency (pure urllib.request).
+    Includes automatic multi-key rotation and error fallback (429 Quota Exceeded, 403 Forbidden, 5xx Server Error).
     """
 
     def __init__(
@@ -33,13 +34,19 @@ class GeminiLLMAdapter(ILLMProvider):
             or os.environ.get("LOTUS_LLM_MODEL")
             or "gemini-1.5-flash"
         )
-        self.api_key = (
+        raw_key = (
             api_key
             or os.environ.get("GEMINI_API_KEY")
             or os.environ.get("LOTUS_AI_API_KEY")
             or os.environ.get("LOTUS_LLM_API_KEY")
             or ""
         )
+        # Parse comma-separated list of keys, stripping quotes and whitespaces
+        self.api_keys: List[str] = [
+            k.strip().strip('"').strip("'")
+            for k in raw_key.replace("\n", ",").split(",")
+            if k.strip().strip('"').strip("'")
+        ]
         self.timeout_seconds = timeout_seconds
 
     def generate(
@@ -47,10 +54,8 @@ class GeminiLLMAdapter(ILLMProvider):
         messages: List[ChatMessage],
         tools: Optional[List[ToolDefinition]] = None
     ) -> LLMResponse:
-        if not self.api_key:
+        if not self.api_keys:
             raise ValueError("GEMINI_API_KEY (or LOTUS_AI_API_KEY / LOTUS_LLM_API_KEY) is not configured.")
-
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model_name}:generateContent?key={self.api_key}"
 
         contents: List[Dict[str, Any]] = []
         system_instruction_text = None
@@ -117,49 +122,63 @@ class GeminiLLMAdapter(ILLMProvider):
             payload["tools"] = [{"functionDeclarations": function_declarations}]
 
         data = json.dumps(payload).encode("utf-8")
-        req = urllib.request.Request(
-            url,
-            data=data,
-            headers={"Content-Type": "application/json"},
-            method="POST"
-        )
 
-        try:
-            with urllib.request.urlopen(req, timeout=self.timeout_seconds) as resp:
-                raw_body = resp.read().decode("utf-8")
-                res_json = json.loads(raw_body)
-        except urllib.error.HTTPError as e:
-            err_msg = e.read().decode("utf-8") if e.fp else str(e)
-            raise RuntimeError(f"Gemini API Error {e.code}: {err_msg}")
-        except Exception as e:
-            raise RuntimeError(f"Gemini Network Error: {str(e)}")
+        # Multi-key fallback execution loop
+        last_exception = None
+        for key_idx, current_key in enumerate(self.api_keys):
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model_name}:generateContent?key={current_key}"
+            req = urllib.request.Request(
+                url,
+                data=data,
+                headers={"Content-Type": "application/json"},
+                method="POST"
+            )
 
-        candidates = res_json.get("candidates", [])
-        if not candidates:
-            return LLMResponse(content="")
+            try:
+                with urllib.request.urlopen(req, timeout=self.timeout_seconds) as resp:
+                    raw_body = resp.read().decode("utf-8")
+                    res_json = json.loads(raw_body)
+                    
+                candidates = res_json.get("candidates", [])
+                if not candidates:
+                    return LLMResponse(content="")
 
-        content_parts = candidates[0].get("content", {}).get("parts", [])
-        text_content_list = []
-        parsed_tool_calls: Optional[List[ToolCallRequest]] = None
+                content_parts = candidates[0].get("content", {}).get("parts", [])
+                text_content_list = []
+                parsed_tool_calls: Optional[List[ToolCallRequest]] = None
 
-        for idx, part in enumerate(content_parts):
-            if "text" in part:
-                text_content_list.append(part["text"])
-            elif "functionCall" in part:
-                if parsed_tool_calls is None:
-                    parsed_tool_calls = []
-                fn_call = part["functionCall"]
-                ts = part.get("thought_signature") or part.get("thoughtSignature")
-                parsed_tool_calls.append(
-                    ToolCallRequest(
-                        id=f"gemini_call_{idx}",
-                        tool_name=fn_call.get("name", ""),
-                        arguments=fn_call.get("args", {}),
-                        thought_signature=ts
-                    )
+                for idx, part in enumerate(content_parts):
+                    if "text" in part:
+                        text_content_list.append(part["text"])
+                    elif "functionCall" in part:
+                        if parsed_tool_calls is None:
+                            parsed_tool_calls = []
+                        fn_call = part["functionCall"]
+                        ts = part.get("thought_signature") or part.get("thoughtSignature")
+                        parsed_tool_calls.append(
+                            ToolCallRequest(
+                                id=f"gemini_call_{idx}",
+                                tool_name=fn_call.get("name", ""),
+                                arguments=fn_call.get("args", {}),
+                                thought_signature=ts
+                            )
+                        )
+
+                return LLMResponse(
+                    content="\n".join(text_content_list),
+                    tool_calls=parsed_tool_calls,
                 )
 
-        return LLMResponse(
-            content="\n".join(text_content_list),
-            tool_calls=parsed_tool_calls,
-        )
+            except urllib.error.HTTPError as e:
+                err_msg = e.read().decode("utf-8") if e.fp else str(e)
+                last_exception = RuntimeError(f"Gemini API Error {e.code} on key #{key_idx + 1}: {err_msg}")
+                _logger.warning("Gemini API key #%d failed with code %d. Attempting fallback to next key...", key_idx + 1, e.code)
+                continue
+            except Exception as e:
+                last_exception = RuntimeError(f"Gemini Network Error on key #{key_idx + 1}: {str(e)}")
+                _logger.warning("Gemini network error on key #%d: %s. Attempting fallback...", key_idx + 1, str(e))
+                continue
+
+        if last_exception:
+            raise last_exception
+        raise RuntimeError("All configured Gemini API keys failed.")
