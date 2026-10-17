@@ -83,6 +83,12 @@ jobs:
           }
           entries.update(defaults)
 
+          def sanitize_val(v: str) -> str:
+              v = v.strip()
+              if "," in v and ('"' in v or "'" in v):
+                  return ",".join(x.strip().strip('"').strip("'") for x in v.split(",") if x.strip().strip('"').strip("'"))
+              return v
+
           # If existing file on disk, read it
           if os.path.exists(env_path):
               with open(env_path, "r", encoding="utf-8") as f:
@@ -90,7 +96,7 @@ jobs:
                       line = line.strip()
                       if line and not line.startswith("#") and "=" in line:
                           k, v = line.split("=", 1)
-                          entries[k.strip()] = v.strip()
+                          entries[k.strip()] = sanitize_val(v)
 
           # If SECRET_ENV_FILE provided, parse and override
           if secret_file:
@@ -99,7 +105,7 @@ jobs:
                   line = line.strip()
                   if line and not line.startswith("#") and "=" in line:
                       k, v = line.split("=", 1)
-                      entries[k.strip()] = v.strip()
+                      entries[k.strip()] = sanitize_val(v)
 
           # Individual secret overrides from environment if present
           secret_keys = [
