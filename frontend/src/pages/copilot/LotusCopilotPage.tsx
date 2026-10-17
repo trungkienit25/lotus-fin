@@ -247,20 +247,20 @@ export const LotusCopilotPage: React.FC = () => {
   return (
     <div className="flex h-[calc(100vh-3.5rem)] overflow-hidden bg-[#F8FAFC] relative">
       {/* Mobile Backdrop Overlay: covers below the header and blurs background when sidebar is open */}
-      {isLeftSidebarOpen && (
-        <div
-          onClick={() => setIsLeftSidebarOpen(false)}
-          className="fixed top-14 inset-x-0 bottom-0 z-30 bg-slate-900/40 backdrop-blur-xs md:hidden transition-opacity duration-300"
-          aria-hidden="true"
-        />
-      )}
-
-      {/* 1. Left Chatbot Sidebar (Gemini Style: Collapsed narrow rail or Expanded full panel) */}
       <div
-        className={`bg-white border-r border-slate-200 transition-all duration-300 flex flex-col justify-between shrink-0 z-40 ${
+        onClick={() => setIsLeftSidebarOpen(false)}
+        className={`fixed top-14 inset-x-0 bottom-0 z-30 bg-slate-900/40 backdrop-blur-xs md:hidden transition-opacity duration-300 ${
+          isLeftSidebarOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
+        aria-hidden="true"
+      />
+
+      {/* 1. Left Chatbot Sidebar (Gemini Style: Smooth sliding drawer on mobile, animated rail/panel on desktop) */}
+      <div
+        className={`bg-white border-r border-slate-200 transition-all duration-300 ease-in-out flex flex-col justify-between shrink-0 z-40 ${
           isLeftSidebarOpen
-            ? "fixed top-14 bottom-0 left-0 w-72 h-[calc(100vh-3.5rem)] md:relative md:top-auto md:bottom-auto md:h-full md:w-64 shadow-2xl md:shadow-none"
-            : "hidden md:flex md:w-16 md:relative md:h-full overflow-hidden"
+            ? "fixed top-14 bottom-0 left-0 w-72 h-[calc(100vh-3.5rem)] translate-x-0 md:relative md:top-auto md:bottom-auto md:h-full md:w-64 shadow-2xl md:shadow-none"
+            : "fixed top-14 bottom-0 left-0 w-72 h-[calc(100vh-3.5rem)] -translate-x-full md:translate-x-0 md:relative md:top-auto md:bottom-auto md:h-full md:w-16 overflow-hidden shadow-none"
         }`}
       >
         {isLeftSidebarOpen ? (
