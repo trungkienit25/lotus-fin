@@ -140,7 +140,7 @@ jobs:
           fi
 
           echo ">>> [4/5] Applying container stack updates via Docker Compose..."
-          docker compose --env-file "$ENV_PATH" -f "$APP_DIR/docker/production/compose.prod.yml" up -d --remove-orphans
+          docker compose --env-file "$ENV_PATH" -f "$APP_DIR/docker/production/compose.prod.yml" up -d --remove-orphans --force-recreate backend queue-long queue-short scheduler
 
           echo ">>> [5/5] Running automated verification & health checks..."
           sleep 5
