@@ -47,8 +47,13 @@ export const RiskSignalView: React.FC<RiskSignalViewProps> = ({
   }, [company, signalId, asOfDate]);
 
   const formatVND = (val: any) => {
-    if (val === null || val === undefined || isNaN(Number(val))) return "-- VND";
-    return Math.round(Number(val)).toLocaleString("vi-VN") + " VND";
+    const cur = result?.observed?.supporting_currency || result?.currency || "USD";
+    if (val === null || val === undefined || isNaN(Number(val))) return `-- ${cur}`;
+    const num = Number(val);
+    if (cur === "USD") {
+      return `$${num.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+    return Math.round(num).toLocaleString("vi-VN") + " " + cur;
   };
 
   const observedVal = result?.observed?.value !== undefined

@@ -126,8 +126,13 @@ export const WhatIfStudioView: React.FC<WhatIfStudioViewProps> = ({
   }, [company, salesShock, delayDays, supplierDays, opexShock, payrollShock, oneOffExpense, finAmount, finTerm, finRate]);
 
   const formatVND = (val: number | null | undefined) => {
-    if (val === null || val === undefined || isNaN(val)) return "-- VND";
-    return Math.round(Number(val)).toLocaleString("vi-VN") + " VND";
+    const cur = result?.kpis_9_layer?.revenue?.unit === "VND" ? "VND" : "USD";
+    if (val === null || val === undefined || isNaN(val)) return `-- ${cur}`;
+    const num = Number(val);
+    if (cur === "USD") {
+      return `$${num.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+    return Math.round(num).toLocaleString("vi-VN") + " " + cur;
   };
 
   const kpis = result?.kpis_9_layer || {};

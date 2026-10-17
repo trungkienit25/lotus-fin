@@ -43,8 +43,13 @@ export const CashForecastView: React.FC<CashForecastViewProps> = ({
   }, [company, asOfDate]);
 
   const formatVND = (val: any) => {
-    if (val === null || val === undefined || val === "" || isNaN(Number(val))) return "-- VND";
-    return Math.round(Number(val)).toLocaleString("vi-VN") + " VND";
+    const cur = data?.currency || "USD";
+    if (val === null || val === undefined || val === "" || isNaN(Number(val))) return `-- ${cur}`;
+    const num = Number(val);
+    if (cur === "USD") {
+      return `$${num.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+    return Math.round(num).toLocaleString("vi-VN") + " " + cur;
   };
 
   const aggregateAmount = data?.opening_cash?.aggregate_amount !== undefined

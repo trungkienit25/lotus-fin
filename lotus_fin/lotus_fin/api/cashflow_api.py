@@ -78,12 +78,14 @@ def get_ai002_cash_forecast(
     financial_as_of: Optional[str] = None,
     forecast_start: Optional[str] = None,
     forecast_end: Optional[str] = None,
-    currency: str = "VND",
+    currency: Optional[str] = None,
     correlation_id: Optional[str] = None,
     include_explanation: Union[bool, int, str] = False,
     cash_account_scope: Optional[Union[List[str], str]] = None,
 ) -> Dict[str, Any]:
     """Deterministic 30-day EOD cash forecast with fail-closed reconciliation."""
+    from lotus_fin.security.access import get_company_accounting_currency
+    target_currency = currency or get_company_accounting_currency(company) or "USD"
     try:
         as_of_date = datetime.strptime(financial_as_of, "%Y-%m-%d").date() if financial_as_of else (date.today() - timedelta(days=1))
         start_date = datetime.strptime(forecast_start, "%Y-%m-%d").date() if forecast_start else (as_of_date + timedelta(days=1))
@@ -94,7 +96,7 @@ def get_ai002_cash_forecast(
             financial_as_of=None,
             forecast_start=None,
             forecast_end=None,
-            reporting_currency=currency,
+            reporting_currency=target_currency,
             correlation_id=correlation_id or "",
         )
         return _typed_fail_closed(
@@ -127,7 +129,7 @@ def get_ai002_cash_forecast(
         financial_as_of=as_of_date,
         forecast_start=start_date,
         forecast_end=end_date,
-        reporting_currency=currency,
+        reporting_currency=target_currency,
         cash_account_scope=scope_list,
         coverage_scope=CoverageScope.TRADE_ONLY,
         include_explanation=want_explanation,

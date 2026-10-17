@@ -301,10 +301,10 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
         wType = "cash_forecast";
         fallbackText =
           `**30-Day Cash Flow Forecast (AI002) for ${company}:**\n\n` +
-          `- **Opening Cash & Bank Balance (Verified GL):** -117,854 VND\n` +
-          `- **Expected Inflows from AR Invoices:** +87,000 VND\n` +
-          `- **Payable Obligations (AP):** 184,293 VND\n` +
-          `- **Liquidity Assessment:** Negative opening balance recorded on Demo Bank Account (-117,854 VND). Collection acceleration recommended to restore positive liquidity runway.`;
+          `- **Opening Cash & Bank Balance (Verified GL):** -$117,854.00\n` +
+          `- **Expected Inflows from AR Invoices:** +$87,000.00\n` +
+          `- **Payable Obligations (AP):** $184,293.00\n` +
+          `- **Liquidity Assessment:** Negative opening balance recorded on Demo Bank Account (-$117,854.00). Collection acceleration recommended to restore positive liquidity runway.`;
       } else if (lower.includes("risk") || lower.includes("rủi ro") || lower.includes("overdue") || lower.includes("nợ")) {
         fallbackTool = "evaluate_risk_signal";
         fallbackLabel = "F003: Risk Signal Monitor (AR_OVERDUE_SPIKE)";
@@ -312,7 +312,7 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
         fallbackText =
           `**Accounting Risk Signal Detected (AI003) for ${company}:**\n\n` +
           `- **Observed Signal:** \`AR_OVERDUE_SPIKE\` (Overdue Accounts Receivable)\n` +
-          `- **Overdue Ratio:** **100%** on 87,000 VND total receivables\n` +
+          `- **Overdue Ratio:** **100%** on $87,000.00 total receivables\n` +
           `- **Risk Verdict:** **BENIGN (Within baseline bounds)**\n` +
           `- **Conclusion:** No anomalous delta spike observed against historical benchmark (Δ 0.00 pp).`;
       } else if (lower.includes("what if") || lower.includes("stress") || lower.includes("mô phỏng") || lower.includes("giảm")) {
@@ -322,21 +322,21 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
         fallbackText =
           `**What-If Scenario Simulation (9 KPIs) for ${company}:**\n\n` +
           `Scenario: **-15% Revenue drop** and **+15 Days Collection delay**:\n` +
-          `- **Projected Revenue:** 850,000,000 VND (Variance: -150,000,000 VND)\n` +
-          `- **Net Cash Flow (NCF):** 13,333,333 VND/month\n` +
-          `- **Ending Cash Buffer:** 313,333,333 VND (Status: HEALTHY)\n` +
+          `- **Projected Revenue:** $850,000.00 (Variance: -$150,000.00)\n` +
+          `- **Net Cash Flow (NCF):** $13,333.33/month\n` +
+          `- **Ending Cash Buffer:** $313,333.33 (Status: HEALTHY)\n` +
           `- **Cash Conversion Cycle (CCC):** 45 days\n\n` +
           `**Takeaway:** Enterprise maintains positive safety margin well above the minimum liquidity floor.`;
       } else {
         fallbackText =
           `Verified financial report for **${company}** directly from ERP General Ledger:\n\n` +
           `### Core Accounting Metrics:\n` +
-          `- **Net Revenue:** **363,000 VND**\n` +
-          `- **Cost of Goods Sold (COGS):** **253,760 VND**\n` +
+          `- **Net Revenue:** **$363,000.00**\n` +
+          `- **Cost of Goods Sold (COGS):** **$253,760.00**\n` +
           `- **Gross Margin:** **30.09%**\n` +
-          `- **Accounts Receivable (AR):** **316,000 VND**\n` +
-          `- **Accounts Payable (AP):** **184,293 VND**\n` +
-          `- **Cash & Bank Balance:** **-117,854 VND**\n\n` +
+          `- **Accounts Receivable (AR):** **$316,000.00**\n` +
+          `- **Accounts Payable (AP):** **$184,293.00**\n` +
+          `- **Cash & Bank Balance:** **-$117,854.00**\n\n` +
           `All figures are quantitatively derived from active ERP records without speculative interpolation.`;
       }
 
@@ -642,7 +642,11 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
                               {t.output.opening_cash?.aggregate_amount !== undefined && (
                                 <div className="flex items-center justify-between text-slate-600">
                                   <span className="text-slate-400">Opening Available Cash:</span>
-                                  <span className="font-mono font-bold text-blue-700">{Number(t.output.opening_cash.aggregate_amount).toLocaleString("vi-VN")} VND</span>
+                                  <span className="font-mono font-bold text-blue-700">
+                                    {(t.output.currency === "USD" || !t.output.currency)
+                                      ? `$${Number(t.output.opening_cash.aggregate_amount).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                                      : `${Number(t.output.opening_cash.aggregate_amount).toLocaleString("vi-VN")} ${t.output.currency}`}
+                                  </span>
                                 </div>
                               )}
                               {t.output.count !== undefined && (
@@ -697,7 +701,7 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
                   <L3FollowupChatCard
                     invoiceId={msg.widgetData?.invoiceId || "ACC-SINV-2026-00001"}
                     customerName={msg.widgetData?.customerName || "Grant Plastics Ltd."}
-                    amountText={msg.widgetData?.amountText || "67,000,000 VND"}
+                    amountText={msg.widgetData?.amountText || "$67,000.00 USD"}
                     dueDate={msg.widgetData?.dueDate || "25/10/2026"}
                     recipientEmail={msg.widgetData?.recipientEmail}
                     onCreateTask={(text) => {
