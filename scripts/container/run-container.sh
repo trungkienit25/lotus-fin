@@ -9,7 +9,7 @@
 set -eo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROOT_DIR="$SCRIPT_DIR"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 PROD_COMPOSE="${ROOT_DIR}/docker/production/compose.prod.yml"
 ENV_FILE="${ROOT_DIR}/docker/production/.env.production"
 
@@ -54,8 +54,9 @@ EOF
     # Check if frontend gateway image exists; if not, build it automatically
     if ! docker image inspect lotus-fin/gateway:latest >/dev/null 2>&1; then
         print_warning "Image lotus-fin/gateway:latest not found. Running packaging step..."
-        "${ROOT_DIR}/run-packaging.sh"
+        "${ROOT_DIR}/scripts/packaging/run-packaging.sh"
     fi
+
 
     print_step "2/3" "Launching production containers via Docker Compose..."
     docker compose --env-file "$ENV_FILE" -f "$PROD_COMPOSE" up -d

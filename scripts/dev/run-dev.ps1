@@ -8,9 +8,11 @@
 
 $ErrorActionPreference = "Stop"
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$dockerDir = Join-Path $scriptDir "frappe_docker"
+$rootDir = Split-Path -Parent (Split-Path -Parent $scriptDir)
+$dockerDir = Join-Path $rootDir "frappe_docker"
 $composeFile = Join-Path $dockerDir "pwd.yml"
-$feDir = Join-Path $scriptDir "frontend"
+$feDir = Join-Path $rootDir "frontend"
+
 
 Write-Host "`n>>> [1/5] Detecting System & Prerequisites..." -ForegroundColor Cyan
 Write-Host "Operating System: Microsoft Windows ($( [System.Environment]::OSVersion.VersionString ))" -ForegroundColor Green

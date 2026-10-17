@@ -18,7 +18,9 @@ param (
 
 $ErrorActionPreference = "Stop"
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$FeDir = Join-Path $ScriptDir "frontend"
+$RootDir = Split-Path -Parent (Split-Path -Parent $ScriptDir)
+$FeDir = Join-Path $RootDir "frontend"
+
 
 function Print-Header([string]$Title) {
     Write-Host ""
