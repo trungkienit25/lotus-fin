@@ -8,39 +8,20 @@ export interface V1PastDueChatCardProps {
   onSelectInvoice?: (invId: string) => void;
 }
 
-const FALLBACK_OVERDUE_ITEMS: PastFinalDueItemVm[] = [
-  {
-    invoiceId: "ACC-SINV-2026-00001",
-    finalDueDate: "2026-07-21",
-    overdueDays: 86,
-    currentOutstandingDecimal: "67,000",
-    partyAccountCurrency: "VND",
-    sourceModified: "2026-07-21",
-    selectionRef: "ref-sinv-01",
-  },
-  {
-    invoiceId: "ACC-SINV-2026-00005",
-    finalDueDate: "2026-02-27",
-    overdueDays: 230,
-    currentOutstandingDecimal: "20,000",
-    partyAccountCurrency: "VND",
-    sourceModified: "2026-02-27",
-    selectionRef: "ref-sinv-05",
-  },
-];
-
 export const V1PastDueChatCard: React.FC<V1PastDueChatCardProps> = ({
   company = "Lotus-fin (Demo)",
   onSelectInvoice,
 }) => {
-  const [items, setItems] = useState<PastFinalDueItemVm[]>(FALLBACK_OVERDUE_ITEMS);
+  const [items, setItems] = useState<PastFinalDueItemVm[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [sourceLabel, setSourceLabel] = useState<string>("Connecting to ERP...");
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
     async function fetchOverdue() {
       try {
+        setFetchError(null);
         const session = await bootstrapSession().catch(() => null);
         const headers: Record<string, string> = { "Content-Type": "application/json" };
         if (session?.csrfToken) {
@@ -58,19 +39,21 @@ export const V1PastDueChatCard: React.FC<V1PastDueChatCardProps> = ({
           const wire = await res.json();
           const data = wire.message;
           if (data && data.items && isMounted) {
-            setItems(data.items.length > 0 ? data.items : FALLBACK_OVERDUE_ITEMS);
+            setItems(data.items);
             setSourceLabel(data.source || "ERPNext Live Database");
             setLoading(false);
             return;
           }
         }
-      } catch (err) {
-        console.warn("Failed to fetch real overdue invoices, using fallback:", err);
-      }
-      if (isMounted) {
-        setItems(FALLBACK_OVERDUE_ITEMS);
-        setSourceLabel("ERP Database Offline Cache");
-        setLoading(false);
+        throw new Error("Unable to retrieve overdue invoice records from ERP server.");
+      } catch (err: any) {
+        console.warn("Failed to fetch real overdue invoices:", err);
+        if (isMounted) {
+          setItems([]);
+          setFetchError("AI service / ERP database encountered a connection error. Could not retrieve overdue invoices.");
+          setSourceLabel("Connection Disrupted");
+          setLoading(false);
+        }
       }
     }
 
@@ -121,6 +104,12 @@ export const V1PastDueChatCard: React.FC<V1PastDueChatCardProps> = ({
                 <tr>
                   <td colSpan={5} className="py-6 text-center text-slate-400 font-sans">
                     <span className="inline-block animate-pulse">Loading verified invoice data from ERPNext...</span>
+                  </td>
+                </tr>
+              ) : fetchError ? (
+                <tr>
+                  <td colSpan={5} className="py-6 px-4 text-center text-rose-700 bg-rose-50/50 text-xs font-sans">
+                    ⚠️ {fetchError}
                   </td>
                 </tr>
               ) : items.length === 0 ? (

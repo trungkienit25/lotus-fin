@@ -8,65 +8,24 @@ export interface InvoiceActionChatCardProps {
   onOpenModalTab?: () => void;
 }
 
-const FALLBACK_INVOICES: (InvoiceRowVm & { customerName?: string; grandTotal?: number; currency?: string })[] = [
-  {
-    invoiceId: "ACC-SINV-2026-00001",
-    postingDate: "2026-07-21",
-    docstatus: 1,
-    recordVersion: "v1.0",
-    selectionRef: "ref-sinv-01",
-    customerName: "Grant Plastics Ltd.",
-    grandTotal: 67000,
-    currency: "VND",
-  },
-  {
-    invoiceId: "ACC-SINV-2026-00002",
-    postingDate: "2026-09-14",
-    docstatus: 1,
-    recordVersion: "v1.0",
-    selectionRef: "ref-sinv-02",
-    customerName: "Palmer Productions Ltd.",
-    grandTotal: 15000,
-    currency: "VND",
-  },
-  {
-    invoiceId: "ACC-SINV-2026-00003",
-    postingDate: "2026-10-28",
-    docstatus: 1,
-    recordVersion: "v1.0",
-    selectionRef: "ref-sinv-03",
-    customerName: "West View Software Ltd.",
-    grandTotal: 229000,
-    currency: "USD",
-  },
-  {
-    invoiceId: "ACC-SINV-2026-00005",
-    postingDate: "2026-02-27",
-    docstatus: 1,
-    recordVersion: "v1.0",
-    selectionRef: "ref-sinv-05",
-    customerName: "Grant Plastics Ltd.",
-    grandTotal: 20000,
-    currency: "USD",
-  },
-];
-
 export const InvoiceActionChatCard: React.FC<InvoiceActionChatCardProps> = ({
   company,
   onOpenModalTab,
 }) => {
-  const [invoices, setInvoices] = useState<any[]>(FALLBACK_INVOICES);
+  const [invoices, setInvoices] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<"ALL" | "DRAFT" | "SUBMITTED">("ALL");
   const [selectedDoc, setSelectedDoc] = useState<DocumentVm | null>(null);
   const [loading, setLoading] = useState(false);
   const [fetchingList, setFetchingList] = useState(true);
   const [sourceTag, setSourceTag] = useState("Connecting to ERP...");
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
     async function fetchRealInvoices() {
       try {
+        setFetchError(null);
         const session = await bootstrapSession().catch(() => null);
         const headers: Record<string, string> = { "Content-Type": "application/json" };
         if (session?.csrfToken) {
@@ -84,19 +43,21 @@ export const InvoiceActionChatCard: React.FC<InvoiceActionChatCardProps> = ({
           const wire = await res.json();
           const data = wire.message;
           if (data && data.invoices && isMounted) {
-            setInvoices(data.invoices.length > 0 ? data.invoices : FALLBACK_INVOICES);
+            setInvoices(data.invoices);
             setSourceTag(data.source || "ERPNext Live Database");
             setFetchingList(false);
             return;
           }
         }
-      } catch (err) {
-        console.warn("Failed to fetch real invoices, using cache:", err);
-      }
-      if (isMounted) {
-        setInvoices(FALLBACK_INVOICES);
-        setSourceTag("ERP Database Offline Cache");
-        setFetchingList(false);
+        throw new Error("Unable to retrieve invoice records from ERP server.");
+      } catch (err: any) {
+        console.warn("Failed to fetch real invoices:", err);
+        if (isMounted) {
+          setInvoices([]);
+          setFetchError("AI service / ERP database encountered a connection error. Could not retrieve invoices.");
+          setSourceTag("Connection Disrupted");
+          setFetchingList(false);
+        }
       }
     }
 
@@ -256,6 +217,11 @@ export const InvoiceActionChatCard: React.FC<InvoiceActionChatCardProps> = ({
               {fetchingList ? (
                 <div className="py-8 text-center text-slate-400 font-sans">
                   <span className="inline-block animate-pulse">Querying invoices from General Ledger...</span>
+                </div>
+              ) : fetchError ? (
+                <div className="py-6 px-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
+                  <span className="text-base">⚠️</span>
+                  <span>{fetchError}</span>
                 </div>
               ) : filteredInvoices.length === 0 ? (
                 <div className="py-8 text-center text-slate-400 font-sans">

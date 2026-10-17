@@ -288,74 +288,27 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
         throw new Error("No direct text reply");
       }
     } catch (err: any) {
-      // Fallback grounded in real database values
-      const lower = text.toLowerCase();
-      let fallbackText = "";
-      let fallbackTool = "get_financial_snapshot";
-      let fallbackLabel = "F001: Financial Health Snapshot";
-      let wType: any = "health";
-
-      if (lower.includes("cash") || lower.includes("dòng tiền") || lower.includes("forecast") || lower.includes("runway")) {
-        fallbackTool = "get_cash_forecast";
-        fallbackLabel = "F002: 30-Day Cash Forecast";
-        wType = "cash_forecast";
-        fallbackText =
-          `**30-Day Cash Flow Forecast (AI002) for ${company}:**\n\n` +
-          `- **Opening Cash & Bank Balance (Verified GL):** -$117,854.00\n` +
-          `- **Expected Inflows from AR Invoices:** +$87,000.00\n` +
-          `- **Payable Obligations (AP):** $184,293.00\n` +
-          `- **Liquidity Assessment:** Negative opening balance recorded on Demo Bank Account (-$117,854.00). Collection acceleration recommended to restore positive liquidity runway.`;
-      } else if (lower.includes("risk") || lower.includes("rủi ro") || lower.includes("overdue") || lower.includes("nợ")) {
-        fallbackTool = "evaluate_risk_signal";
-        fallbackLabel = "F003: Risk Signal Monitor (AR_OVERDUE_SPIKE)";
-        wType = "risk_signal";
-        fallbackText =
-          `**Accounting Risk Signal Detected (AI003) for ${company}:**\n\n` +
-          `- **Observed Signal:** \`AR_OVERDUE_SPIKE\` (Overdue Accounts Receivable)\n` +
-          `- **Overdue Ratio:** **100%** on $87,000.00 total receivables\n` +
-          `- **Risk Verdict:** **BENIGN (Within baseline bounds)**\n` +
-          `- **Conclusion:** No anomalous delta spike observed against historical benchmark (Δ 0.00 pp).`;
-      } else if (lower.includes("what if") || lower.includes("stress") || lower.includes("mô phỏng") || lower.includes("giảm")) {
-        fallbackTool = "simulate_what_if_scenario";
-        fallbackLabel = "F004: Cash Stress-Testing (What-If)";
-        wType = "what_if";
-        fallbackText =
-          `**What-If Scenario Simulation (9 KPIs) for ${company}:**\n\n` +
-          `Scenario: **-15% Revenue drop** and **+15 Days Collection delay**:\n` +
-          `- **Projected Revenue:** $850,000.00 (Variance: -$150,000.00)\n` +
-          `- **Net Cash Flow (NCF):** $13,333.33/month\n` +
-          `- **Ending Cash Buffer:** $313,333.33 (Status: HEALTHY)\n` +
-          `- **Cash Conversion Cycle (CCC):** 45 days\n\n` +
-          `**Takeaway:** Enterprise maintains positive safety margin well above the minimum liquidity floor.`;
-      } else {
-        fallbackText =
-          `Verified financial report for **${company}** directly from ERP General Ledger:\n\n` +
-          `### Core Accounting Metrics:\n` +
-          `- **Net Revenue:** **$363,000.00**\n` +
-          `- **Cost of Goods Sold (COGS):** **$253,760.00**\n` +
-          `- **Gross Margin:** **30.09%**\n` +
-          `- **Accounts Receivable (AR):** **$316,000.00**\n` +
-          `- **Accounts Payable (AP):** **$184,293.00**\n` +
-          `- **Cash & Bank Balance:** **-$117,854.00**\n\n` +
-          `All figures are quantitatively derived from active ERP records without speculative interpolation.`;
-      }
+      console.error("AI Copilot request failed:", err);
+      const isVietnamese = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i.test(text);
+      const errorMessage = isVietnamese
+        ? `⚠️ **Hệ thống AI Copilot đang gặp trục trặc kỹ thuật hoặc gián đoạn kết nối.**\n\nKhông thể truy xuất dữ liệu kế toán trực tiếp từ hệ thống lúc này. Vui lòng kiểm tra lại kết nối mạng, phiên đăng nhập ERPNext hoặc thử lại sau giây lát.`
+        : `⚠️ **AI Copilot service is currently experiencing technical difficulties or a connection disruption.**\n\nCould not retrieve live accounting data from the system at this time. Please verify your connection, ERPNext session, or try again in a moment.`;
 
       setMessages((prev) => [
         ...prev,
         {
           id: assistantMsgId,
           sender: "assistant",
-          content: formatBrandText(fallbackText),
+          content: errorMessage,
           timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
           toolCalls: [
             {
-              name: fallbackTool,
-              label: fallbackLabel,
-              status: "completed",
-              args: { company, as_of_date: "2026-09-26" },
+              name: "copilot_error",
+              label: "Connection Disruption",
+              status: "error",
+              args: { company },
             },
           ],
-          widgetType: wType,
         },
       ]);
     } finally {

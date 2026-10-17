@@ -105,7 +105,8 @@ def process_copilot_query(
             if items:
                 lines.append("\n**Overdue Receivables Priority List:**")
                 for it in items[:5]:
-                    lines.append(f"- **{it.get('invoiceId')}** &bull; {it.get('customerName')} &bull; Overdue: **+{it.get('overdueDays')} days** &bull; Balance: **{it.get('currentOutstandingDecimal')} VND**")
+                    cur = it.get('partyAccountCurrency') or it.get('currency') or 'USD'
+                    lines.append(f"- **{it.get('invoiceId')}** &bull; {it.get('customerName')} &bull; Overdue: **+{it.get('overdueDays')} days** &bull; Balance: **{it.get('currentOutstandingDecimal')} {cur}**")
 
             lines.append("\n💡 You can initiate a collection plan or draft a debt reminder directly from the table below.")
 
