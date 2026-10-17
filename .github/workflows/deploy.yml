@@ -140,6 +140,9 @@ jobs:
           fi
 
           echo ">>> [4/5] Applying container stack updates via Docker Compose..."
+          for k in GEMINI_API_KEY OPENAI_API_KEY DB_PASSWORD ADMIN_PASSWORD LOTUS_SMTP_PASSWORD LOTUS_AI_PROVIDER LOTUS_LLM_PROVIDER LOTUS_LLM_MODEL SERVER_NAME PROD_PORT LOTUS_SITE; do
+            unset "$k" || true
+          done
           docker compose --env-file "$ENV_PATH" -f "$APP_DIR/docker/production/compose.prod.yml" up -d --remove-orphans --force-recreate backend queue-long queue-short scheduler
 
           echo ">>> [5/5] Running automated verification & health checks..."
