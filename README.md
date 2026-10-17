@@ -1,241 +1,280 @@
-# Lotus Fin — Technical Specification & System Architecture
+<div align="center">
 
-## 1. System Overview
+# 🪷 Lotus Fin
 
-**Lotus Fin** is an enterprise-grade AI Financial Copilot and Autonomous Decision Support System tailored for Small and Medium Enterprises (SMEs). The platform bridges conversational AI with deterministic ERP General Ledger systems, eliminating hallucination risks in mission-critical corporate accounting.
+### **Enterprise-Grade Deterministic AI Financial Copilot for SMEs**
+
+*Bridging Conversational AI with Auditable ERP General Ledgers. Zero Hallucinations. Continuous Liquidity Modeling. Dual-Control Governance.*
+
+<p align="center">
+  <a href="#-why-lotus-fin"><img src="https://img.shields.io/badge/Architecture-Clean%20%7C%20ReAct%20Loop-3b82f6?style=for-the-badge&logo=fastapi" alt="Clean Architecture" /></a>
+  <a href="#-quick-start"><img src="https://img.shields.io/badge/Deployment-1--Click%20Cloud%20(Port%2080)-10b981?style=for-the-badge&logo=docker" alt="Docker Ready" /></a>
+  <a href="#-dual-control-policy-safety-gate-l5"><img src="https://img.shields.io/badge/Security-Dual--Control%20Gate%20(L5)-ef4444?style=for-the-badge&logo=shield" alt="Dual Control" /></a>
+  <a href="#-multi-provider-resilience--fallback"><img src="https://img.shields.io/badge/LLM-Gemini%20%7C%20OpenAI%20%7C%20NVIDIA-8b5cf6?style=for-the-badge&logo=openai" alt="LLM Providers" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-f59e0b?style=for-the-badge" alt="License" /></a>
+</p>
+
+<p align="center">
+  <a href="#-overview">Overview</a> •
+  <a href="#-why-lotus-fin">Why Lotus Fin</a> •
+  <a href="#-core-modules-f001--f007">Core Modules</a> •
+  <a href="#-quick-start">Quick Start</a> •
+  <a href="#-system-architecture">Architecture</a> •
+  <a href="#-documentation--links">Documentation</a> •
+  <a href="#-contributing">Contributing</a>
+</p>
+
+---
+
+</div>
+
+## 📌 Overview
+
+**Lotus Fin** is an open-source, enterprise-grade AI Financial Copilot engineered specifically for Small and Medium Enterprises (SMEs). 
+
+While conventional generative AI tools invent plausible-sounding numbers and fail in mission-critical accounting, **Lotus Fin enforces a zero-hallucination paradigm**: natural language queries are parsed through an audited **ReAct Agent Loop**, which triggers **deterministic financial execution tools** directly connected to live General Ledger databases (ERPNext/Frappe Framework).
+
+Whether you need a **real-time 30-day cash runway projection**, early warnings on **debt clustering**, dynamic **stress testing**, or **automated debt follow-up notices sent via SMTP**, Lotus Fin delivers mathematical certainty paired with modern executive intelligence.
 
 ```
-+-----------------------------------------------------------------------------------+
-|                                  CLIENT LAYER                                     |
-|                   React 19 SPA (Vite, TypeScript, TailwindCSS)                    |
-+-----------------------------------------+-----------------------------------------+
-                                          | HTTP / WebSocket (Port 80)
-                                          v
-+-----------------------------------------------------------------------------------+
-|                             EDGE GATEWAY (Reverse Proxy)                          |
-|                       Nginx Gateway Container (Port 80)                           |
-|       / -> Static React SPA | /(api|desk|assets) -> Frappe Upstream (:8080)       |
-+-----------------------------------------+-----------------------------------------+
-                                          |
-                                          v
-+-----------------------------------------------------------------------------------+
-|                        APPLICATION & BUSINESS LOGIC LAYER                         |
-|   +------------------------------------+   +----------------------------------+   |
-|   |        Frappe v16 / ERPNext        |   |         Lotus Fin App            |   |
-|   |  - Core DocTypes & General Ledger  |   |  - Clean Architecture Core       |   |
-|   |  - Auth, Role-Based Access Control |   |  - ReAct Agent Controller        |   |
-|   |  - Outgoing SMTP Mail Services     |   |  - Dual-Control Policy Gate (L5) |   |
-|   +------------------------------------+   +-----------------+----------------+   |
-+--------------------------------------------------------------|--------------------+
-                                                               | Tool Calls
-                                                               v
-+-----------------------------------------------------------------------------------+
-|                      DETERMINISTIC FINANCIAL ENGINE (F001 - F007)                 |
-|  - F001: Corporate Financial Health Analyst (P&L, Cash Ratio, Working Capital)    |
-|  - F002: 30-Day Cash Forecast & Runway (Contractual Payment Schedule Source)      |
-|  - F003: Financial Risk Signal Detector (AP Due Clusters, AR Overdue Spikes)      |
-|  - F004: What-If Stress Testing Engine (Revenue Shock, Collection Delay)          |
-|  - F005: Bank Facility & Working Capital Loan Matcher                             |
-|  - F006: Loan Amortization & Basis Point Interest Rate Shock (PMT Engine)         |
-|  - F007: Receivables Statement Reconciliation & Automated SMTP Dispatch           |
-+-----------------------------------------+-----------------------------------------+
-                                          |
-                                          v
-+-----------------------------------------------------------------------------------+
-|                           DATA & PERSISTENCE LAYER                                |
-|          MariaDB 11.8 (ERP Ledger)    |    Redis 6.2 (Cache & Celery Queues)      |
-+-----------------------------------------------------------------------------------+
+       "How is our cash runway if sales drop 20% and Grant Plastics delays payment 30 days?"
+                                         │
+                                         ▼
+   ┌───────────────────────────────────────────────────────────────────────────┐
+   │                            Lotus Fin AI Copilot                           │
+   │  ✓ Deterministic ReAct Tool Call: simulate_what_if_scenario               │
+   │  ✓ Audited GL Ingestion: Pulls verified AR/AP milestones from MariaDB     │
+   │  ✓ Math Engine: Models cash deficit curve with exact variance             │
+   │  ✓ Presentation Gate: Strips raw internal keys & formats executive report │
+   └─────────────────────────────────────┬─────────────────────────────────────┘
+                                         │
+                                         ▼
+   "Executed What-If Stress Test for Lotus-fin:
+    • Revenue Shock Applied: -20% (Projected Revenue: 40,000,000 VND)
+    • Debtor Delay: +30 Days
+    • Ending Cash Balance: 111,146 VND (HEALTHY)
+    💡 Recommendation: Working capital buffer remains positive for 30 days."
 ```
 
 ---
 
-## 2. Technical Stack
+## ⚡ Why Lotus Fin?
 
-| Tier | Technology | Specification / Version |
-| :--- | :--- | :--- |
-| **Edge Gateway** | Nginx Alpine | Reverse proxy, Gzip compression, single Port 80 entrypoint |
-| **Frontend SPA** | React, TypeScript, Vite | React 19, TailwindCSS, Lucide Icons, Headless UI |
-| **Backend Framework** | Frappe Framework, Python | Python 3.12/3.13, Frappe v16.36.1, ERPNext v16.36.1 |
-| **AI Orchestration** | Deterministic ReAct Loop | Whitelisted tool dispatcher, prompt engine, presentation gate |
-| **LLM Providers** | Multi-Key Rotating Adapters | Google Gemini API, OpenAI API, NVIDIA NIM (`z-ai/glm-5.3-flash`) |
-| **Relational Database** | MariaDB | 11.8 (`utf8mb4_unicode_ci`), ACID transactional storage |
-| **Queue & Cache** | Redis Alpine | Redis 6.2 (separate cache and job queues) |
-| **Container Engine** | Docker & Docker Compose | Multi-stage build, rootless isolation, healthchecks |
+| Challenge in Traditional SME Accounting | How Lotus Fin Solves It |
+| :--- | :--- |
+| **Generative AI Hallucinations** | **Zero-Hallucination ReAct Loop:** LLMs are never permitted to generate, guess, or interpolate financial amounts. Every figure is produced by verified, deterministically audited Python calculations. |
+| **Disconnected Spreadsheets** | **Live General Ledger Integration:** Connects directly with Frappe / ERPNext accounting tables, invoices, payments, and payment schedules. |
+| **High API Failure Rates & Rate Limits** | **Multi-Key Rotating Fallback:** Native support for multiple API keys across Google Gemini, OpenAI, and NVIDIA NIM (`z-ai/glm-5.3-flash`) with seamless failover upon encountering HTTP 429 or quota caps. |
+| **Uncontrolled AI Actions** | **L5 Dual-Control Safety Gates:** Prohibits autonomous money transfers and requires dual independent sign-offs (Controller + Board) for ledger cancellations. |
+| **Complex Deployment & DevOps Overhead** | **1-Click Port 80 Deployment:** Single script (`./run.sh deploy`) self-heals system swap, spins up Docker, hydrates database seed, and serves everything behind Nginx on Port 80. |
 
 ---
 
-## 3. Financial Engine Specifications (F001 — F007)
+## 🧭 Core Modules (F001 — F007)
 
 ```
-                       User Prompt
-                            │
-                            ▼
-              ┌───────────────────────────┐
-              │    Agent Runner Loop      │
-              │  - System Prompt Engine   │
-              │  - Tool Whitelist Schema  │
-              └─────────────┬─────────────┘
-                            │ Structured Tool Invocation
-                            ▼
-   ┌──────────────────────────────────────────────────┐
-   │             Financial Engine Registry            │
-   ├───────────────────┬──────────────────────────────┤
-   │ F001: Health      │ P&L, AR/AP, Liquidity Ratio  │
-   │ F002: Cashflow    │ 30-Day Inflow/Outflow Curves │
-   │ F003: Risk        │ AP Cluster & AR Aging Spike  │
-   │ F004: What-If     │ Sensitivity Stress Models    │
-   │ F005: Lending     │ Commercial Credit Matching   │
-   │ F006: Repayment   │ PMT Loan Amortization Engine │
-   │ F007: Reminder    │ Debt Letter & SMTP Dispatch  │
-   └───────────────────┴──────────────────────────────┘
-                            │ Deterministic JSON Response
-                            ▼
-              ┌───────────────────────────┐
-              │     Presentation Gate     │
-              │  - Strip Internal Tokens  │
-              │  - Enforce Executive Tone │
-              └─────────────┬─────────────┘
-                            │ Sanitized Natural Output
-                            ▼
-                    End-User Presentation
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                            LOTUS FIN FINANCIAL SUITE                         │
+├─────────────────────┬────────────────────────────────────────────────────────┤
+│ F001 · Health       │ Real-time P&L, Gross Margin, Cash Ratio, AR/AP Aging   │
+│ F002 · Cashflow     │ 30-Day Predictive Cash Forecast from Payment Schedules │
+│ F003 · Risk Signals │ Statistical Cluster Alerts (AP Spikes & AR Delinquency)│
+│ F004 · What-If      │ Stress Simulations: Revenue Shocks & Debtor Delays     │
+│ F005 · Financing    │ SME Commercial Loan & Working Capital Facility Matcher │
+│ F006 · Amortization │ Equal Monthly Installments (PMT) & Basis Point Shocks  │
+│ F007 · Debt Followup│ Dynamic L3 Customer Reminder Drafting & Auto-SMTP Mail │
+└─────────────────────┴────────────────────────────────────────────────────────┘
 ```
 
-### Module Breakdown
-- **F001 — Financial Health Snapshot:** Evaluates gross margin, net revenue, operating cash, and overdue debt ratios from GL entries.
-- **F002 — 30-Day Cash Forecast:** Ingests contractual payment schedules from submitted `Sales Invoice` and `Purchase Invoice` records to map expected daily liquidity without statistical interpolation.
-- **F003 — Early Risk Signals:** Runs cluster analysis over due dates to identify upcoming liquidity drains (`AP_DUE_CLUSTER`) and aging receivables degradation (`AR_OVERDUE_SPIKE`).
-- **F004 — What-If Stress Testing:** Models working capital impact under revenue changes (-30% to +20%) and debtor payment delays (+15 to +60 days).
-- **F005 — SME Loan Facility Matcher:** Compares verified debt-service coverage ratio (DSCR) and revenue history against commercial lending product parameters.
-- **F006 — Loan Amortization Engine:** Calculates monthly installments using standard annuity formulas (PMT), modeling baseline and interest rate shocks (+100 to +300 bps).
-- **F007 — Debt Follow-up & Automated Dispatch:** Matches overdue customer records, builds an L3 reconciliation draft, and transmits notices through `frappe.sendmail`.
+- **F001 — Corporate Financial Health (AI001):** Instant calculation of net revenue, gross margin, cash buffers, and receivables turnover from real ledger vouchers.
+- **F002 — 30-Day Predictive Cash Flow (AI002):** Ingests contractual payment schedules from submitted `Sales Invoice` and `Purchase Invoice` records to map daily liquidity without statistical fiction.
+- **F003 — Early Risk Signals & Debt Clustering (AI003):** Identifies impending liquidity crunches by detecting concentration spikes in vendor dues (`AP_DUE_CLUSTER`) and deteriorating debtor aging (`AR_OVERDUE_SPIKE`).
+- **F004 — What-If Stress Testing Engine (AI004/AI005):** Simulates liquidity runway under configurable business stress parameters (revenue shifts, supplier payment compression, debtor delays).
+- **F005 — SME Loan Facility Matcher:** Evaluates debt-service coverage ratios (DSCR) against commercial banking loan products and calculates match scores.
+- **F006 — Loan Amortization & Rate Shock:** Models fixed-rate loan amortization schedules (PMT) with variable basis point interest shocks (+100 to +300 bps).
+- **F007 — Receivables Statement Reconciliation & Automated Dispatch:** Auto-generates formal debt reminders with live customer metadata, editable templates, and 1-click dispatch via standard `frappe.sendmail`.
 
 ---
 
-## 4. Policy Gate & Security Controls (L5)
+## 🛡️ Dual-Control Policy Safety Gate (L5)
 
-To prevent unauthorized ledger alterations or automated capital transfer risks, sensitive operational actions require explicit authorization gates:
+Lotus Fin incorporates an enterprise dual-control governance model to safeguard SME treasury:
 
 ```
-                  Sensitive User Intent
-                            │
-                            ▼
-            ┌───────────────────────────────┐
-            │   Dual-Control Policy Gate    │
-            │   (Evaluation Engine)         │
-            └───────────────┬───────────────┘
-                            │
-            ┌───────────────┴───────────────┐
-            ▼                               ▼
-    [ Low-Risk Action ]             [ High-Risk Action ]
-    - Search Invoices               - Cancel Sales Invoice
-    - View Overdue Report           - Wire Transfer Execution
-            │                               │
-            │ Single-User Confirm           ├─ Cancel: Dual Sign-off Required
-            ▼                               │  (Controller & Board Member)
-    Execute Request                         └─ Wire: Hard-Blocked (Manual Banking Only)
+                          User / Copilot Action Request
+                                       │
+                                       ▼
+                     ┌───────────────────────────────────┐
+                     │    Dual-Control Policy Gate (L5)  │
+                     └─────────────────┬─────────────────┘
+                                       │
+              ┌────────────────────────┴────────────────────────┐
+              ▼                                                 ▼
+      [ Read / Draft Tasks ]                         [ High-Risk Ledger Mutations ]
+   (Search Invoices, Draft Mail)                     (Cancel Invoices, Wire Transfers)
+              │                                                 │
+              ▼                                                 ▼
+        Single Confirm                                 Evaluation Verdict
+    (Immediate Dispatch)                     ┌──────────────────┴──────────────────┐
+                                             ▼                                     ▼
+                                    [ Cancel Invoice ]                     [ Wire Transfer ]
+                                    Dual Sign-offs Required                Hard Blocked (403)
+                                (Finance Controller + Board)           (Manual Banking Token Only)
 ```
-
-| Action Identifier | Risk Level | Policy Decision | Verification Requirement |
-| :--- | :---: | :---: | :--- |
-| `submit_sales_invoice` | High | Conditional | Single-level approval from Accounts User or Manager |
-| `cancel_sales_invoice` | Critical | Restricted | **Dual-Control Gate:** Independent sign-offs from Controller & Board |
-| `send_statement_email` | Medium | Allowed | Sender verification against customer registered domain |
-| `request_disbursement` | High | Conditional | Payable Clerk draft -> Finance Manager budget approval |
-| `execute_wire_transfer` | Critical | **Blocked** | Prohibited for AI/automation. Manual bank execution only |
-| `autonomous_reconciliation` | Critical | **Blocked** | Prohibited. Adjustments require manual audit justification |
 
 ---
 
-## 5. Operations & Lifecycle Management
+## 🚀 Quick Start
 
-Operational tasks are encapsulated in modular scripts under [`scripts/`](scripts/README.md) and exposed via [`run.sh`](run.sh).
+Deploy Lotus Fin in under 5 minutes on any cloud server or local machine.
 
-```
-scripts/
-├── deploy/
-│   └── run-deploy.sh                 # 1-Click Cloud Deployment Pipeline
-├── dev/
-│   ├── run-dev.sh                    # Linux / macOS / WSL Local Dev Server
-│   └── run-dev.ps1                   # Windows PowerShell Local Dev Server
-├── packaging/
-│   └── run-packaging.sh              # Multi-Stage Production Image Builder
-├── container/
-│   └── run-container.sh              # Production Container Lifecycle Orchestrator
-└── data/database/
-    └── initial_db_seed.sql.gz        # Portable General Ledger Seed Snapshot
-```
+### 🌟 1-Click Production Cloud Deployment (Port 80)
+For fresh Linux VPS instances (Ubuntu 22.04 / 24.04, Debian, AWS EC2, DigitalOcean):
 
-### Production Cloud Deployment (Single Command)
 ```bash
+# 1. Clone repository
 git clone https://github.com/your-org/lotus-fin.git
 cd lotus-fin
+
+# 2. Grant execution permissions
 chmod +x run.sh scripts/*/*.sh
+
+# 3. Launch automated cloud deployment
 ./run.sh deploy
 ```
-1. Audits host system; configures **2GB Swapfile** if host memory is constrained.
-2. Verifies or installs official Docker Engine and Compose plugin.
-3. Packages frontend assets into `lotus-fin/gateway:latest`.
-4. Boots the production cluster exposed on **Port 80**.
-5. Restores the bundled database snapshot (`initial_db_seed.sql.gz`), executes `bench migrate`, and configures the default SMTP account.
-6. Conducts HTTP health verification and outputs the public URL.
 
-### Local Development Environment
-- **POSIX (Linux / macOS / WSL):**
-  ```bash
-  ./run.sh dev
-  ```
-- **Windows (PowerShell):**
-  ```powershell
-  .\scripts\dev\run-dev.ps1
-  ```
-- Dev Frontend: `http://localhost:5173` | Frappe Desk: `http://localhost:8080`
-
-### Image Packaging
-```bash
-./run.sh packaging
-```
-
-### Container Lifecycle
-```bash
-./scripts/container/run-container.sh status    # Check container health and memory
-./scripts/container/run-container.sh logs      # Stream combined container logs
-./scripts/container/run-container.sh restart   # Graceful service restart
-./scripts/container/run-container.sh stop      # Stop production cluster
-```
+> **Automated Pipeline Features:**
+> - **Self-Healing Swap:** Automatically detects host memory and provisions a **2GB Swapfile** if RAM is constrained.
+> - **Docker Auto-Bootstrap:** Installs Docker Engine & Compose plugin if not present.
+> - **Zero-Config Database Hydration:** Automatically restores the bundled MariaDB database snapshot (`scripts/data/database/initial_db_seed.sql.gz`), migrates schemas, and activates default SMTP accounts.
+> - **Nginx Gateway (Port 80):** Serves the compiled React 19 SPA and proxies API routes without requiring custom host reverse proxy setups.
 
 ---
 
-## 6. Configuration Reference (`.env`)
+### 💻 Local Developer Setup
+
+#### On Linux / macOS / WSL:
+```bash
+./run.sh dev
+```
+
+#### On Windows (PowerShell):
+```powershell
+.\scripts\dev\run-dev.ps1
+```
+
+- **Frontend Application:** `http://localhost:5173` (Vite Hot-Reload)
+- **Frappe Desk & API:** `http://localhost:8080`
+- **Default Credentials:** `Administrator` / `admin`
+
+---
+
+## 🔄 Multi-Provider Resilience & Fallback
+
+Never experience downtime due to API quota depletion. Configure comma-separated keys in your `.env` file:
 
 ```ini
-# AI Provider Configuration ('gemini' | 'openai' | 'nvidia' | 'deepseek' | 'mock')
+# Provider Selection ('gemini' | 'openai' | 'nvidia' | 'deepseek' | 'mock')
 LOTUS_AI_PROVIDER=gemini
 LOTUS_AI_MODEL=gemini-flash-latest
 
-# Multi-Key Rotation & Automatic Fallback (Comma-separated)
-GEMINI_API_KEY=key_1, key_2, key_3
-OPENAI_API_KEY="sk-key1", "sk-key2"
-NVIDIA_API_KEY="nvapi-key1", "nvapi-key2"
+# Google Gemini (Supports Multiple Keys with Automatic Failover)
+GEMINI_API_KEY=AQ.Ab8RN6KcdBJg..., AQ.Ab8RN6J6ZVGE..., AQ.Ab8RN6J1q4sH...
+
+# OpenAI / DeepSeek (Multiple Keys)
+OPENAI_API_KEY="sk-proj-key1...", "sk-proj-key2..."
+
+# NVIDIA NIM High-Performance Endpoint
+NVIDIA_API_KEY="nvapi-key1...", "nvapi-key2..."
 NVIDIA_MODEL_NAME=z-ai/glm-5.3-flash
 
-# Database Settings
-DB_HOST=db
-DB_PORT=3306
-MYSQL_ROOT_PASSWORD=admin
-MARIADB_ROOT_PASSWORD=admin
-
-# Outgoing SMTP Mail Settings
+# Outgoing SMTP Mail Settings (Auto-Provisions into ERPNext)
 LOTUS_SMTP_SERVER=smtp.gmail.com
 LOTUS_SMTP_PORT=587
-LOTUS_SMTP_EMAIL=notifications@yourdomain.com
+LOTUS_SMTP_EMAIL=your_email@gmail.com
 LOTUS_SMTP_PASSWORD=your_app_password
 LOTUS_SMTP_USE_TLS=1
 ```
 
+*When any key encounters HTTP 429 (Rate Limit) or quota exhaustion, Lotus Fin automatically falls back to the next healthy key in the pool.*
+
 ---
 
-## 7. Documentation Index
+## 🏛️ System Architecture
 
-- [Operations & Automated Scripts Manual](scripts/README.md)
-- [Enterprise Security Architecture SSOT](docs/security/README.md)
-- [中文技术文档 (Chinese Documentation)](docs/zh/README.md)
+```
+                                  [ Client Browser ]
+                                          │
+                                          │ HTTP / WS (Port 80)
+                                          ▼
+                [ Nginx Gateway Container (Static Hosting & Routing) ]
+                  ├── /               ──> React 19 SPA (Vite + TailwindCSS)
+                  └── /(api|desk|app) ──> [ Frappe ERPNext Backend (:8080) ]
+                                                 │
+                         ┌───────────────────────┼────────────────────────┐
+                         ▼                       ▼                        ▼
+                 [ ReAct AI Agent ]     [ MariaDB 11.8 ]         [ Redis 6.2 ]
+                 (Prompt & Tool Loop)   (General Ledger Records) (Cache & Workers)
+                         │
+                         ▼
+             [ Financial Engine (F001 - F007) ]
+```
+
+---
+
+## 📁 Repository Tour
+
+```
+lotus-fin/
+├── docker/production/         # Production Nginx Gateway & Docker Compose definitions
+├── frontend/                  # React 19 Single Page Application (TailAdmin theme)
+│   ├── src/components/        # Reusable financial widgets & charts
+│   ├── src/constants/         # Policy catalogs & executive dictionary
+│   └── src/pages/copilot/     # AI Copilot chat interface, L3 cards & L5 audit view
+├── lotus_fin/                 # Frappe Framework Core Application
+│   ├── api/                   # RESTful API endpoints for Copilot and financial data
+│   ├── application/agent/     # ReAct Agent loop, Prompt Engine, Presentation Gate
+│   ├── domain/constants/      # Centralized business messages & safety verdicts
+│   ├── infrastructure/llm/    # Multi-key rotating adapters (Gemini, OpenAI, NVIDIA)
+│   └── modules/               # Core analytical calculation modules (F001 — F007)
+├── scripts/                   # Modular Operational Automation
+│   ├── deploy/                # 1-Click production cloud deployer (run-deploy.sh)
+│   ├── dev/                   # Local developer setup (run-dev.sh / run-dev.ps1)
+│   ├── packaging/             # Multi-stage container packaging (run-packaging.sh)
+│   ├── container/             # Container lifecycle manager (run-container.sh)
+│   ├── data/database/         # Exported database seed (initial_db_seed.sql.gz)
+│   └── README.md              # Detailed scripts operations manual
+└── docs/                      # Technical Documentation & Specs
+    ├── TECHNICAL_SPECIFICATION.md  # Detailed System Architecture Specification
+    └── zh/                    # Complete Chinese Documentation (中文技术文档)
+```
+
+---
+
+## 📚 Documentation & Links
+
+- 📖 [Technical Specification & Deep Architecture](docs/TECHNICAL_SPECIFICATION.md)
+- 🛠️ [Operations & Deployment Manual](scripts/README.md)
+- 🇨🇳 [中文文档 (Chinese Documentation Hub)](docs/zh/README.md)
+- 🛡️ [Security Single Source of Truth (SSOT)](docs/security/README.md)
+- 📑 [Frappe Framework Official Guide](https://frappeframework.com/docs)
+
+---
+
+## 🤝 Contributing
+
+We welcome community contributions, bug reports, and pull requests!
+1. Fork the Project.
+2. Create your Feature Branch (`git checkout -b feat/AmazingFeature`).
+3. Commit your Changes (`git commit -m 'feat: Add some AmazingFeature'`).
+4. Push to the Branch (`git push origin feat/AmazingFeature`).
+5. Open a Pull Request.
+
+---
+
+<div align="center">
+
+**Built with pride for resilient SMEs worldwide.**  
+Licensed under the [MIT License](LICENSE).
+
+</div>
