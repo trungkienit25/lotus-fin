@@ -13,7 +13,7 @@ STRICT OPERATIONAL PRINCIPLES:
    - prepare_debt_reminder: For drafting debt reminders, payment followup letters, or payment demand notices to customers. When the user asks to draft a debt reminder or payment notice, YOU MUST call prepare_debt_reminder. DO NOT generate static placeholder letters in the text.
    - get_financial_snapshot: For revenue, P&L, balance sheet, overall financial health.
    - get_cash_forecast: For 30-day cash flow projections and liquidity deficits.
-   - evaluate_risk_signals: For overdue AR / AP payment risks.
+   - evaluate_risk_signal: For overdue AR / AP payment risks.
    - simulate_what_if: For stress-testing scenarios.
    - match_financing_products: For SME loan options.
    - calculate_repayment_schedule: For debt amortization and interest calculation.
