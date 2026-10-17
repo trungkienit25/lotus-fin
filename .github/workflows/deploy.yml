@@ -143,12 +143,12 @@ jobs:
           for k in GEMINI_API_KEY OPENAI_API_KEY DB_PASSWORD ADMIN_PASSWORD LOTUS_SMTP_PASSWORD LOTUS_AI_PROVIDER LOTUS_LLM_PROVIDER LOTUS_LLM_MODEL SERVER_NAME PROD_PORT LOTUS_SITE; do
             unset "$k" || true
           done
-          docker compose --env-file "$ENV_PATH" -f "$APP_DIR/docker/production/compose.prod.yml" up -d --remove-orphans --force-recreate backend queue-long queue-short scheduler
+          docker compose --env-file "$ENV_PATH" -f "$APP_DIR/docker/production/compose.prod.yml" up -d --remove-orphans --force-recreate backend frappe-frontend queue-long queue-short scheduler
 
           echo ">>> [5/5] Running automated verification & health checks..."
           sleep 5
           curl -s -f http://127.0.0.1/ >/dev/null && echo "    ✔ Web Gateway HTTP 200 OK"
-          curl -s -f http://127.0.0.1/api/method/frappe.ping >/dev/null && echo "    ✔ Frappe Backend API ping OK"
+          curl -s -f -H "Host: frontend" http://127.0.0.1/api/method/frappe.ping >/dev/null && echo "    ✔ Frappe Backend API ping OK"
 
           echo "=========================================================="
           echo "   🎉 LOTUS FIN PRODUCTION DEPLOYMENT COMPLETED!          "
