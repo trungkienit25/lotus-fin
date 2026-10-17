@@ -1,3 +1,4 @@
+import os
 import frappe
 
 def setup_demo_environment():
@@ -151,5 +152,38 @@ def setup_demo_environment():
 		pi.insert()
 		pi.submit()
 
+	# 6. Configure Default Outgoing SMTP Email Account (Frappe Mail Service)
+	smtp_email = os.environ.get("LOTUS_SMTP_EMAIL") or "lotusfin.notifications@gmail.com"
+	smtp_server = os.environ.get("LOTUS_SMTP_SERVER") or "smtp.gmail.com"
+	smtp_port = int(os.environ.get("LOTUS_SMTP_PORT") or 587)
+	smtp_pwd = os.environ.get("LOTUS_SMTP_PASSWORD") or "btcyjmbjnykrrpol"
+	smtp_tls = int(os.environ.get("LOTUS_SMTP_USE_TLS") or 1)
+
+	if not frappe.db.exists("Email Account", {"email_id": smtp_email}):
+		email_acc = frappe.get_doc({
+			"doctype": "Email Account",
+			"email_id": smtp_email,
+			"email_account_name": "Fin Lotus Notifications",
+			"service": "GMail" if "gmail" in smtp_server.lower() else "Custom",
+			"smtp_server": smtp_server,
+			"smtp_port": smtp_port,
+			"use_tls": smtp_tls,
+			"password": smtp_pwd,
+			"enable_outgoing": 1,
+			"default_outgoing": 1,
+			"add_signature": 0,
+		})
+		email_acc.insert(ignore_permissions=True)
+	else:
+		# Update existing Email Account with latest credentials from env
+		frappe.db.set_value("Email Account", {"email_id": smtp_email}, {
+			"smtp_server": smtp_server,
+			"smtp_port": smtp_port,
+			"use_tls": smtp_tls,
+			"password": smtp_pwd,
+			"enable_outgoing": 1,
+			"default_outgoing": 1,
+		})
+
 	frappe.db.commit()
-	return {"status": "success", "message": "Demo environment fully configured"}
+	return {"status": "success", "message": "Demo environment fully configured with SMTP"}

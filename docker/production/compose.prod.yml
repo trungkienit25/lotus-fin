@@ -64,6 +64,11 @@ services:
       LOTUS_LLM_MODEL: ${LOTUS_LLM_MODEL:-gemini-flash-lite-latest}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      LOTUS_SMTP_SERVER: ${LOTUS_SMTP_SERVER:-smtp.gmail.com}
+      LOTUS_SMTP_PORT: ${LOTUS_SMTP_PORT:-587}
+      LOTUS_SMTP_EMAIL: ${LOTUS_SMTP_EMAIL:-lotusfin.notifications@gmail.com}
+      LOTUS_SMTP_PASSWORD: ${LOTUS_SMTP_PASSWORD:-btcyjmbjnykrrpol}
+      LOTUS_SMTP_USE_TLS: ${LOTUS_SMTP_USE_TLS:-1}
     depends_on:
       configurator:
         condition: service_completed_successfully
