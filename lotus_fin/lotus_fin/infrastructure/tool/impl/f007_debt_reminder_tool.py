@@ -50,7 +50,8 @@ class PrepareDebtReminderTool(IToolCommand):
             customer_name = (matched_inv or {}).get("customerName") or "Grant Plastics Ltd."
             due_date = (matched_inv or {}).get("finalDueDate") or (matched_inv or {}).get("dueDate") or "25/10/2026"
             amount_val = (matched_inv or {}).get("outstandingAmount") or (matched_inv or {}).get("grandTotal") or 67000.0
-            amount_str = f"{int(amount_val):,} VND"
+            currency = (matched_inv or {}).get("currency") or (matched_inv or {}).get("partyAccountCurrency") or "USD"
+            amount_str = f"{int(amount_val):,} {currency}"
             recipient_email = f"accounting@{customer_name.lower().replace(' ', '').replace('.', '')}.com"
 
             data = {

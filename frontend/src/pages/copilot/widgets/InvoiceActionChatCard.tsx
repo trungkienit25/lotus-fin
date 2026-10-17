@@ -37,7 +37,7 @@ const FALLBACK_INVOICES: (InvoiceRowVm & { customerName?: string; grandTotal?: n
     selectionRef: "ref-sinv-03",
     customerName: "West View Software Ltd.",
     grandTotal: 229000,
-    currency: "VND",
+    currency: "USD",
   },
   {
     invoiceId: "ACC-SINV-2026-00005",
@@ -47,7 +47,7 @@ const FALLBACK_INVOICES: (InvoiceRowVm & { customerName?: string; grandTotal?: n
     selectionRef: "ref-sinv-05",
     customerName: "Grant Plastics Ltd.",
     grandTotal: 20000,
-    currency: "VND",
+    currency: "USD",
   },
 ];
 
@@ -292,7 +292,7 @@ export const InvoiceActionChatCard: React.FC<InvoiceActionChatCardProps> = ({
                             <>
                               <span>•</span>
                               <span className="font-mono font-semibold text-slate-700">
-                                {Number(inv.grandTotal).toLocaleString()} {inv.currency || "VND"}
+                                {Number(inv.grandTotal).toLocaleString()} {inv.currency || "USD"}
                               </span>
                             </>
                           )}
