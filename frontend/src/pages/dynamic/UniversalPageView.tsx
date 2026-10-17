@@ -18,25 +18,10 @@ export const UniversalPageView: React.FC = () => {
   const pageName = rawPageName ? decodeURIComponent(rawPageName) : "";
   const navigate = useNavigate();
 
-  // If page is an AI Feature Page, render LotusCopilotPage directly
-  if (
-    [
-      "financial-health",
-      "cash-forecast",
-      "risk-signal",
-      "what-if-studio",
-      "lotus-copilot",
-      "financing-copilot",
-      "repayment-schedule",
-      "ai",
-    ].includes(pageName)
-  ) {
-    return <LotusCopilotPage />;
-  }
-
   const [pageDoc, setPageDoc] = useState<{ title?: string; name: string; module?: string; icon?: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
 
   // Sales Funnel Filters
   const [companies, setCompanies] = useState<string[]>([]);
@@ -174,8 +159,25 @@ export const UniversalPageView: React.FC = () => {
   const converted = funnelData[3]?.value || 0;
   const overallConversionRate = totalLeads > 0 ? ((converted / totalLeads) * 100).toFixed(1) : "0.0";
 
+  if (
+    [
+      "financial-health",
+      "cash-forecast",
+      "risk-signal",
+      "what-if-studio",
+      "lotus-copilot",
+      "financing-copilot",
+      "repayment-schedule",
+      "ai",
+    ].includes(pageName)
+  ) {
+    return <LotusCopilotPage />;
+  }
+
+
   return (
     <div className="space-y-6">
+
       {/* 1. Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
