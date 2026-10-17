@@ -255,40 +255,52 @@ export const LotusCopilotPage: React.FC = () => {
         />
       )}
 
-      {/* 1. Left Chatbot Sidebar (Overlay drawer on mobile, collapsible flex column on desktop) */}
+      {/* 1. Left Chatbot Sidebar (Gemini Style: Collapsed narrow rail or Expanded full panel) */}
       <div
-        className={`bg-white border-r border-slate-200 transition-all duration-300 flex flex-col justify-between shrink-0 ${
+        className={`bg-white border-r border-slate-200 transition-all duration-300 flex flex-col justify-between shrink-0 z-40 ${
           isLeftSidebarOpen
-            ? "fixed inset-y-0 left-0 z-40 w-72 md:relative md:w-64 shadow-2xl md:shadow-none"
-            : "-translate-x-full md:translate-x-0 md:w-0 overflow-hidden"
+            ? "fixed inset-y-0 left-0 w-72 md:relative md:w-64 shadow-2xl md:shadow-none"
+            : "hidden md:flex md:w-16 md:relative overflow-hidden"
         }`}
       >
-        <div className="p-3.5 flex flex-col h-full overflow-hidden">
-          {/* Sidebar Header: New Chat Button + Explicit Close Button */}
-          <div className="flex items-center gap-2 mb-3 shrink-0">
+        {isLeftSidebarOpen ? (
+          /* Expanded Sidebar View */
+          <div className="p-3.5 flex flex-col h-full overflow-hidden">
+            {/* Sidebar Top: Logo + Brand Name + Toggle (Hamburger) Button */}
+            <div className="flex items-center justify-between mb-3.5 shrink-0">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <img
+                  src={`${import.meta.env.BASE_URL}brand/logo.jpg`}
+                  alt="Lotus Fin"
+                  className="size-7 object-contain rounded-lg"
+                />
+                <span className="font-bold text-gray-900 text-sm truncate tracking-tight">Lotus Fin</span>
+              </div>
+
+              {/* Toggle Sidebar Button (Horizontal bars) inside Sidebar */}
+              <button
+                onClick={() => setIsLeftSidebarOpen(false)}
+                className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 border border-slate-200 transition-colors cursor-pointer"
+                title="Collapse sidebar"
+                aria-label="Collapse sidebar"
+              >
+                <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h7" />
+                </svg>
+              </button>
+            </div>
+
+            {/* New Chat Button (Prominent pill like Gemini) */}
             <button
               onClick={() => {
                 handleStartNewChat();
                 if (window.innerWidth < 768) setIsLeftSidebarOpen(false);
               }}
-              className="flex-1 py-2 px-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800 text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-2xs"
+              className="w-full py-2 px-3 mb-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs shrink-0"
             >
               <span className="text-base font-bold text-blue-600">+</span>
               <span>New Chat</span>
             </button>
-
-            {/* Explicit Close Button inside Sidebar */}
-            <button
-              onClick={() => setIsLeftSidebarOpen(false)}
-              className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 border border-slate-200 transition-colors cursor-pointer"
-              title="Close sidebar"
-              aria-label="Close sidebar"
-            >
-              <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
 
           {/* Top Section: Quick Capabilities & Tools (Auto-collapsed accordions) */}
           <div className="space-y-1.5 shrink-0 pb-3 border-b border-slate-100">
@@ -456,6 +468,43 @@ export const LotusCopilotPage: React.FC = () => {
             </select>
           </div>
         </div>
+      ) : (
+          /* Collapsed Narrow Rail View (Desktop only: 64px width with toggle button & New Chat icon) */
+          <div className="flex flex-col items-center py-3.5 px-2 h-full gap-3">
+            {/* Toggle Hamburger Button */}
+            <button
+              onClick={() => setIsLeftSidebarOpen(true)}
+              className="p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+              title="Expand sidebar"
+              aria-label="Expand sidebar"
+            >
+              <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h7" />
+              </svg>
+            </button>
+
+            {/* New Chat Quick Icon Button */}
+            <button
+              onClick={() => handleStartNewChat()}
+              className="p-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 transition-colors cursor-pointer"
+              title="New Chat"
+              aria-label="New Chat"
+            >
+              <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+              </svg>
+            </button>
+
+            {/* Brand Logo in Rail */}
+            <div className="mt-auto pb-2">
+              <img
+                src={`${import.meta.env.BASE_URL}brand/logo.jpg`}
+                alt="Lotus Fin"
+                className="size-7 object-contain rounded-lg opacity-80"
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* 2. Main Center Workspace: Full Vercel AI Chatbot Feed (Spacious & 100% Focused) */}

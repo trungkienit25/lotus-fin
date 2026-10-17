@@ -424,11 +424,11 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
       {/* 1. Chat Header Bar - Compact & Clean */}
       <div className="flex items-center justify-between px-3.5 sm:px-5 py-2.5 border-b border-gray-200 bg-white/95 backdrop-blur sticky top-0 z-10 shrink-0">
         <div className="flex items-center gap-2.5 min-w-0">
-          {onToggleSidebar && (
+          {onToggleSidebar && !isSidebarOpen && (
             <button
               onClick={onToggleSidebar}
-              className="p-1.5 -ml-1 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer shrink-0"
-              title={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+              className="p-1.5 -ml-1 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer shrink-0 md:hidden"
+              title="Expand sidebar"
             >
               <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h7" />
@@ -511,12 +511,13 @@ export const VercelChatPanel: React.FC<VercelChatPanelProps> = ({
       <div className="flex-1 overflow-y-auto px-3 sm:px-6 pt-3 pb-32 space-y-4">
         {/* Welcome Hero when no messages */}
         {messages.length === 0 && (
-          <div className="max-w-2xl mx-auto pt-1 pb-4 flex flex-col items-center text-center">
-            <div
-              className="size-9 rounded-xl flex items-center justify-center text-white text-base font-bold shadow-xs mb-2"
-              style={{ background: "linear-gradient(135deg, #1E63B7 0%, #2FB29A 100%)" }}
-            >
-              ✦
+          <div className="max-w-2xl mx-auto pt-4 pb-6 flex flex-col items-center text-center">
+            <div className="size-12 rounded-2xl flex items-center justify-center bg-white border border-gray-200/90 shadow-sm p-1.5 mb-3.5">
+              <img
+                src={`${import.meta.env.BASE_URL}brand/logo.jpg`}
+                alt="Lotus Fin AI"
+                className="size-full object-contain rounded-xl"
+              />
             </div>
             <h1 className="text-base sm:text-lg font-bold text-gray-900 tracking-tight">
               How can I assist with your financial analytics today?
