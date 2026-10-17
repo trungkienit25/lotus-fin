@@ -144,7 +144,7 @@ class CopilotController:
                 company=verified_company,
                 as_of_date=dto.as_of_date
             )
-            fallback_reply = legacy_res.get("reply", "Hệ thống đã trích xuất dữ liệu sổ cái doanh nghiệp thành công.")
+            fallback_reply = legacy_res.get("reply", "Enterprise general ledger records successfully extracted.")
             tool_called = legacy_res.get("tool_called")
 
             # Persist messages to session repository
@@ -222,7 +222,7 @@ class CopilotController:
         if not session:
             return {
                 "session_id": session_id,
-                "title": "Cuộc trò chuyện mới",
+                "title": "New Conversation",
                 "messages": [],
                 "total": 0
             }
@@ -247,7 +247,7 @@ class CopilotController:
 
         return {
             "session_id": session.id,
-            "title": session.title or "Hội thoại tài chính Lotus Fin",
+            "title": session.title or "Lotus Fin Financial Copilot Session",
             "company": session.company,
             "user_id": session.user_id,
             "created_at": session.created_at.isoformat() if hasattr(session.created_at, "isoformat") else str(session.created_at),
