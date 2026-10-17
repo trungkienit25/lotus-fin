@@ -184,6 +184,11 @@ services:
     environment:
       FRAPPE_REDIS_CACHE: redis://redis-cache:6379
       FRAPPE_REDIS_QUEUE: redis://redis-queue:6379
+      LOTUS_AI_PROVIDER: ${LOTUS_AI_PROVIDER:-gemini}
+      LOTUS_LLM_PROVIDER: ${LOTUS_LLM_PROVIDER:-gemini}
+      LOTUS_LLM_MODEL: ${LOTUS_LLM_MODEL:-gemini-flash-lite-latest}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
     depends_on:
       configurator:
         condition: service_completed_successfully
@@ -205,6 +210,11 @@ services:
     environment:
       FRAPPE_REDIS_CACHE: redis://redis-cache:6379
       FRAPPE_REDIS_QUEUE: redis://redis-queue:6379
+      LOTUS_AI_PROVIDER: ${LOTUS_AI_PROVIDER:-gemini}
+      LOTUS_LLM_PROVIDER: ${LOTUS_LLM_PROVIDER:-gemini}
+      LOTUS_LLM_MODEL: ${LOTUS_LLM_MODEL:-gemini-flash-lite-latest}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
     depends_on:
       configurator:
         condition: service_completed_successfully

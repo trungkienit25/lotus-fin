@@ -11,6 +11,7 @@ Comprehensive operational guide, real-world deployment lessons, and architectura
 | [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) | End-to-end 1-click production deployment manual, swap configuration, docker-compose orchestration, database hydration, and custom domain setup. |
 | [TROUBLESHOOTING_LESSONS_LEARNED.md](TROUBLESHOOTING_LESSONS_LEARNED.md) | In-depth retrospective on challenges encountered and battle-tested solutions (Headless Frappe vs React SPA routing, `/copilot/session` proxying, edge SSL proxy headers, automated database restores). |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Complete architectural topology, multi-container networking, Nginx reverse proxy gateway rules, and security boundaries. |
+| [CI_CD_PIPELINE.md](CI_CD_PIPELINE.md) | Pull-based self-hosted GitHub Actions runner setup, zero-inbound secret injection, and automated container convergence. |
 
 ---
 

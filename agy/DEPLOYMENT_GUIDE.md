@@ -102,3 +102,13 @@ Because the Nginx Gateway uses a wildcard catch-all `server_name _;`, you can ma
 2. **Edge Proxy / CDN Auto-SSL**:
    - If using Cloudflare or Tenten VCloud DNS with proxy enabled, SSL certificates are automatically terminated at the Edge CDN layer.
    - Traffic is forwarded securely to Port 80 on your VPS, and the Nginx Gateway automatically preserves the HTTPS protocol context via `X-Forwarded-Proto`.
+
+---
+
+## 5. Automated CI/CD & Secret Injection
+
+For production deployments with automated secret injection, refer to the dedicated guide:
+👉 [CI_CD_PIPELINE.md](CI_CD_PIPELINE.md)
+- Uses pull-based GitHub Actions Self-Hosted Runner on VPS.
+- Zero inbound open ports required (Port 22 SSH completely isolated).
+- Auto-injects production secrets (`GEMINI_API_KEY`, etc.) directly into `docker/production/.env.production` on push to `release/beta-1.0`.
