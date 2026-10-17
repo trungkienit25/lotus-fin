@@ -329,3 +329,83 @@ def create_real_task(
         _logger.exception("Failed to insert Task: %s", str(e))
         return {"status": "error", "message": str(e)}
 
+
+@whitelist(methods=["POST"], allow_guest=True)
+def evaluate_policy_gate(
+    policy_id: str,
+    target_invoice: Optional[str] = None,
+    company: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Evaluates business safety policy against live ERP ledger state.
+    Returns clear, human-understandable verdicts for executive presentation.
+    """
+    user = getattr(frappe.session, "user", "Administrator") if frappe else "Administrator"
+    roles = frappe.get_roles(user) if frappe and hasattr(frappe, "get_roles") else ["System Manager"]
+    comp = company or "Lotus-fin (Demo)"
+
+    invoice_info = None
+    if target_invoice and frappe:
+        try:
+            inv = frappe.db.get_value(
+                "Sales Invoice",
+                target_invoice,
+                ["name", "customer_name", "docstatus", "outstanding_amount", "grand_total"],
+                as_dict=True
+            )
+            if inv:
+                invoice_info = {
+                    "invoice_id": inv.name,
+                    "customer_name": inv.customer_name,
+                    "docstatus": inv.docstatus,
+                    "outstanding_amount": float(inv.outstanding_amount or 0),
+                    "grand_total": float(inv.grand_total or 0)
+                }
+        except Exception:
+            pass
+
+    from lotus_fin.domain.constants.executive_messages import POLICY_GATE_VERDICTS
+
+    inv_display = target_invoice or "được chọn"
+
+    if policy_id == "submit_sales_invoice":
+        if invoice_info and invoice_info["docstatus"] == 1:
+            cfg = dict(POLICY_GATE_VERDICTS["submit_sales_invoice"]["already_submitted"])
+            cfg["verdict_detail"] = cfg["verdict_detail"].format(invoice=inv_display)
+            return cfg
+        cfg = dict(POLICY_GATE_VERDICTS["submit_sales_invoice"]["eligible"])
+        cfg["verdict_detail"] = cfg["verdict_detail"].format(invoice=inv_display)
+        return cfg
+
+    elif policy_id == "cancel_sales_invoice":
+        if invoice_info and invoice_info["docstatus"] == 0:
+            cfg = dict(POLICY_GATE_VERDICTS["cancel_sales_invoice"]["is_draft"])
+            cfg["verdict_detail"] = cfg["verdict_detail"].format(invoice=inv_display)
+            return cfg
+        cfg = dict(POLICY_GATE_VERDICTS["cancel_sales_invoice"]["dual_control_required"])
+        cfg["verdict_detail"] = cfg["verdict_detail"].format(invoice=inv_display, company=comp)
+        return cfg
+
+    elif policy_id == "send_statement_email":
+        return dict(POLICY_GATE_VERDICTS["send_statement_email"]["default"])
+
+    elif policy_id == "request_disbursement":
+        return dict(POLICY_GATE_VERDICTS["request_disbursement"]["default"])
+
+    elif policy_id == "execute_wire_transfer":
+        return dict(POLICY_GATE_VERDICTS["execute_wire_transfer"]["blocked"])
+
+    elif policy_id == "autonomous_reconciliation":
+        return dict(POLICY_GATE_VERDICTS["autonomous_reconciliation"]["blocked"])
+
+    return {
+        "status": "info",
+        "verdict_title": "Chính Sách Hoạt Động Bình Thường",
+        "verdict_detail": "Quy tắc kiểm soát nội bộ đang được áp dụng theo đúng quy chuẩn phân quyền.",
+        "risk_badge": "Tiêu chuẩn",
+        "action_allowed": True,
+        "approval_required": "Theo phân quyền hệ thống."
+    }
+
+
+

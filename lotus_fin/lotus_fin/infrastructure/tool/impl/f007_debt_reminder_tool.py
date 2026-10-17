@@ -76,3 +76,4 @@ class PrepareDebtReminderTool(IToolCommand):
                 is_success=False,
                 error_message=str(e)
             )
+

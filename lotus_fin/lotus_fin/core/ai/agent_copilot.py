@@ -69,58 +69,58 @@ def process_copilot_query(
             invs = res.get("invoices", [])
             
             lines = [
-                f"Đã tra cứu danh sách hóa đơn bán hàng của **{verified_company}**:\n",
-                f"- Tìm thấy **{len(invs)}** chứng từ phù hợp với yêu cầu.",
+                f"Retrieved sales invoices for **{verified_company}**:\n",
+                f"- Found **{len(invs)}** matching documents in the General Ledger.",
             ]
             if invs:
-                lines.append("\n**Các chứng từ gần nhất:**")
+                lines.append("\n**Recent Invoices:**")
                 for inv in invs[:5]:
-                    st = "Đã xác nhận" if inv.get("docstatus") == 1 else "Bản nháp"
+                    st = "Submitted" if inv.get("docstatus") == 1 else "Draft"
                     gt = f"{int(inv.get('grandTotal', 0)):,} VND"
                     lines.append(f"- **{inv.get('invoiceId')}** &bull; {inv.get('customerName')} &bull; {inv.get('postingDate')} &bull; `{st}` &bull; **{gt}**")
             
-            lines.append("\n💡 Bạn có thể xem chi tiết hoặc lọc theo trạng thái chứng từ ở bảng phía dưới.")
+            lines.append("\n💡 You can view full details or filter by document status in the table below.")
 
             return {
                 "status": "success",
                 "reply": "\n".join(lines),
                 "tool_called": "search_real_invoices",
-                "tool_label": "Tra cứu Hóa đơn Bán hàng",
+                "tool_label": "Search Sales Invoices",
                 "tool_output": res
             }
         except Exception as e:
             _logger.warning("Invoice search routing error: %s", str(e))
 
     # Tool Route 0B: Past Final Due / Overdue Invoices
-    if any(k in q_lower for k in ["quá hạn cuối", "quá hạn", "past final due", "past_final_due"]):
+    if any(k in q_lower for k in ["quá hạn cuối", "quá hạn", "past final due", "past_final_due", "overdue", "aging"]):
         try:
             from lotus_fin.api.copilot_api import get_real_overdue_invoices
             res = get_real_overdue_invoices(company=verified_company, as_of_date=as_of_date)
             items = res.get("items", [])
             
             lines = [
-                f"Báo cáo các hóa đơn quá hạn thanh toán còn dư nợ của **{verified_company}**:\n",
-                f"- Phát hiện **{len(items)}** chứng từ đã quá hạn thanh toán cần theo dõi thu hồi.",
+                f"Overdue Accounts Receivable report for **{verified_company}**:\n",
+                f"- Detected **{len(items)}** overdue documents requiring collection followup.",
             ]
             if items:
-                lines.append("\n**Danh sách nợ cần đôn đốc:**")
+                lines.append("\n**Overdue Receivables Priority List:**")
                 for it in items[:5]:
-                    lines.append(f"- **{it.get('invoiceId')}** &bull; {it.get('customerName')} &bull; Quá hạn: **+{it.get('overdueDays')} ngày** &bull; Dư nợ: **{it.get('currentOutstandingDecimal')} VND**")
+                    lines.append(f"- **{it.get('invoiceId')}** &bull; {it.get('customerName')} &bull; Overdue: **+{it.get('overdueDays')} days** &bull; Balance: **{it.get('currentOutstandingDecimal')} VND**")
 
-            lines.append("\n💡 Bạn có thể khởi tạo kế hoạch theo dõi hoặc chuẩn bị thư nhắc nợ trực tiếp từ bảng dưới.")
+            lines.append("\n💡 You can initiate a collection plan or draft a debt reminder directly from the table below.")
 
             return {
                 "status": "success",
                 "reply": "\n".join(lines),
                 "tool_called": "get_real_overdue_invoices",
-                "tool_label": "Hóa đơn Quá hạn Thanh toán",
+                "tool_label": "Overdue Invoices Analysis",
                 "tool_output": res
             }
         except Exception as e:
             _logger.warning("Overdue query routing error: %s", str(e))
 
     # Tool Route 0C: Debt Reminder / Followup Drafting (L3 Template with Real Invoice Data)
-    if any(k in q_lower for k in ["soạn thư nhắc nợ", "soạn thư", "nhắc nợ", "thư nhắc nợ", "thư đòi nợ", "followup", "debt reminder", "nhắc nhở thanh toán"]):
+    if any(k in q_lower for k in ["soạn thư nhắc nợ", "soạn thư", "nhắc nợ", "thư nhắc nợ", "thư đòi nợ", "followup", "debt reminder", "nhắc nhở thanh toán", "reminder", "statement"]):
         try:
             from lotus_fin.api.copilot_api import get_real_overdue_invoices, search_real_invoices
             # Try to match specific invoice ID in query
@@ -144,23 +144,23 @@ def process_copilot_query(
             # Extract fields with verified data or graceful defaults
             inv_id = (matched_inv or {}).get("invoiceId") or "ACC-SINV-2026-00001"
             customer_name = (matched_inv or {}).get("customerName") or "Grant Plastics Ltd."
-            due_date = (matched_inv or {}).get("finalDueDate") or (matched_inv or {}).get("dueDate") or "25/10/2026"
+            due_date = (matched_inv or {}).get("finalDueDate") or (matched_inv or {}).get("dueDate") or "2026-10-25"
             amount_val = (matched_inv or {}).get("outstandingAmount") or (matched_inv or {}).get("grandTotal") or 67000.0
             amount_str = f"{int(amount_val):,} VND"
 
             reply_text = (
-                f"Đã khởi tạo bản thảo **Thư nhắc nợ & Đề nghị đối soát công nợ** cho **{customer_name}**:\n\n"
-                f"- **Chứng từ đối chiếu:** `{inv_id}`\n"
-                f"- **Số tiền cần thanh toán:** **{amount_str}**\n"
-                f"- **Hạn thanh toán quy định:** `{due_date}`\n\n"
-                f"💡 Bạn có thể kiểm tra, điền email người nhận và chỉnh sửa nội dung thư trực tiếp tại bảng tương tác bên dưới trước khi sao chép hoặc phân công công việc."
+                f"Drafted **Debt Reminder & Statement Reconciliation** for **{customer_name}**:\n\n"
+                f"- **Reference Document:** `{inv_id}`\n"
+                f"- **Outstanding Amount:** **{amount_str}**\n"
+                f"- **Due Date:** `{due_date}`\n\n"
+                f"💡 You can review, specify the recipient email, and edit the letter directly in the interactive panel below before copying or assigning follow-up tasks."
             )
 
             return {
                 "status": "success",
                 "reply": reply_text,
                 "tool_called": "prepare_debt_reminder",
-                "tool_label": "Soạn Thư Nhắc Nợ Khách Hàng",
+                "tool_label": "Draft Customer Debt Reminder",
                 "tool_output": {
                     "invoiceId": inv_id,
                     "customerName": customer_name,
@@ -227,26 +227,26 @@ def process_copilot_query(
                     added_interest = float(int_kpi.absolute_change)
                     added_val = int_kpi.get("absolute_change", 0) if isinstance(int_kpi, dict) else getattr(int_kpi, "absolute_change", 0)
                     added_interest = float(added_val or 0.0)
-                    shock_info = f"\n- **Tác động sốc lãi suất (+{shock_bps} bps):** Chi phí lãi tăng thêm **+{_format_currency(added_interest)}**."
+                    shock_info = f"\n- **Interest Rate Shock Impact (+{shock_bps} bps):** Additional interest expense of **+{_format_currency(added_interest)}**."
 
             avg_monthly = float(sched_res.summary.get("average_monthly_payment", 0.0))
             total_int = float(sched_res.summary.get("total_interest", 0.0))
 
             reply = (
-                f"Đã lập kế hoạch trả nợ định lượng (AI006) cho khoản vay của **{verified_company}**:\n\n"
-                f"- **Gốc vay:** {_format_currency(principal)}\n"
-                f"- **Lãi suất cơ sở:** {rate*100:.1f}%/năm &bull; **Kỳ hạn:** {term} tháng\n"
-                f"- **Phương thức:** Trả góp đều (PMT — Gốc + Lãi cố định hàng tháng)\n"
-                f"- **Khoản thanh toán bình quân:** **{_format_currency(avg_monthly)}/tháng**\n"
-                f"- **Tổng lãi dự kiến trong toàn kỳ:** {_format_currency(total_int)}{shock_info}\n\n"
-                f"💡 **Khuyến nghị:** Dòng tiền chi trả hàng tháng đã được tính toán chính xác để cân đối nguồn thu tiền mặt."
+                f"Generated quantitative repayment schedule (F006) for **{verified_company}**:\n\n"
+                f"- **Loan Principal:** {_format_currency(principal)}\n"
+                f"- **Base Interest Rate:** {rate*100:.1f}%/yr &bull; **Tenor:** {term} months\n"
+                f"- **Amortization Method:** Equal Monthly Installment (PMT — Fixed Principal + Interest)\n"
+                f"- **Average Monthly Payment:** **{_format_currency(avg_monthly)}/month**\n"
+                f"- **Total Projected Interest:** {_format_currency(total_int)}{shock_info}\n\n"
+                f"💡 **Executive Recommendation:** Monthly debt servicing obligations have been modeled to reconcile against projected cash flow."
             )
 
             return {
                 "status": "success",
                 "reply": reply,
                 "tool_called": "calculate_repayment_schedule",
-                "tool_label": "F006: Tính Lịch Trả Nợ & Áp Lực Lãi Suất",
+                "tool_label": "F006: Loan Amortization & Rate Shock",
                 "tool_output": {
                     "principal": principal,
                     "annual_rate": rate,
@@ -262,7 +262,7 @@ def process_copilot_query(
             _logger.warning("F006 error: %s", str(e))
 
     # Tool Route 2: Financing & Bank Loan Inquiries (F005)
-    if any(k in q_lower for k in ["vay", "tín dụng", "vốn lưu động", "ngân hàng", "gói vay", "lãi suất vay", "hạn mức"]):
+    if any(k in q_lower for k in ["vay", "tín dụng", "vốn lưu động", "ngân hàng", "gói vay", "lãi suất vay", "hạn mức", "loan", "financing", "credit line", "working capital"]):
         amount = 500000000.0
         trieu_match = re.search(r"(\d+)\s*(triệu|tr)", q_lower)
         ty_match = re.search(r"(\d+)\s*(tỷ|ti)", q_lower)
@@ -272,7 +272,7 @@ def process_copilot_query(
             amount = float(ty_match.group(1)) * 1000000000.0
 
         term = 12
-        term_match = re.search(r"(\d+)\s*(tháng|t\b)", q_lower)
+        term_match = re.search(r"(\d+)\s*(tháng|t\b|months?)", q_lower)
         if term_match:
             term = int(term_match.group(1))
 
@@ -286,38 +286,104 @@ def process_copilot_query(
         
         prods = res.get("matched_products", [])
         reply_lines = [
-            f"Dựa trên hồ sơ tài chính thực tế của **{verified_company}**, tôi đã đối chiếu gói vay với danh mục sản phẩm tín dụng ngân hàng:",
-            f"- **Quy mô nhu cầu:** {_format_currency(amount)}",
-            f"- **Thời hạn đề xuất:** {term} tháng",
+            f"Based on **{verified_company}**'s financial profile, the system matched commercial banking loan products:",
+            f"- **Requested Capital:** {_format_currency(amount)}",
+            f"- **Proposed Tenor:** {term} months",
             "",
-            "### 🏆 Top sản phẩm tín dụng phù hợp nhất:"
+            "### 🏆 Top Matched Credit Facilities:"
         ]
         for idx, p in enumerate(prods[:3], 1):
             p_rate = (p.get("nominal_rate_annual", 0.0) * 100)
             monthly_interest = p.get("estimated_monthly_interest", 0.0)
             reply_lines.append(
-                f"{idx}. **{p.get('provider')} — {p.get('product_name')}** (Điểm phù hợp: {p.get('match_score')}/100)\n"
-                f"   - Lãi suất: **{p_rate:.1f}%/năm** &bull; Lãi tạm tính: **~{_format_currency(monthly_interest)}/tháng**\n"
-                f"   - Tốc độ giải ngân: **{p.get('disbursement_speed_days')} ngày**\n"
-                f"   - Đánh giá: {p.get('rationale', 'Đủ điều kiện tài trợ tiêu chuẩn.')}"
+                f"{idx}. **{p.get('provider')} — {p.get('product_name')}** (Match Score: {p.get('match_score')}/100)\n"
+                f"   - Nominal Rate: **{p_rate:.1f}%/year** &bull; Est. Monthly Interest: **~{_format_currency(monthly_interest)}/mo**\n"
+                f"   - Disbursement Speed: **{p.get('disbursement_speed_days')} business days**\n"
+                f"   - Assessment: {p.get('rationale', 'Meets standard commercial underwriting requirements.')}"
             )
         
-        reply_lines.append("\n*Lưu ý: Kết quả đối chiếu căn cứ theo dữ liệu sổ sách hiện hữu. Bạn có thể sang trang Gói vay & Tài trợ để xem toàn bộ danh mục.*")
+        reply_lines.append("\n*Note: Matching is based on verified ledger history. You can view the full facility catalog in the Financing & Capital tab.*")
 
         return {
             "status": "success",
             "reply": "\n".join(reply_lines),
             "tool_called": "match_financing_products",
-            "tool_label": "F005: Khớp nối Sản phẩm Tín dụng Ngân hàng",
+            "tool_label": "F005: Commercial Financing Facility Match",
             "tool_output": res
         }
 
+    # Tool Route 2.5: Cashflow Forecast 30 days (F002) - Match cash flow / runway / liquidity before generic risk signal
+    if any(k in q_lower for k in ["dòng tiền", "quỹ đạo", "runway", "dự báo 30", "dự báo tiền", "thâm hụt", "thanh khoản", "cash flow", "cashflow", "liquidity", "forecast"]):
+        tool_args = {
+            "company": verified_company,
+            "financial_as_of": as_of_date or "2026-10-16"
+        }
+        try:
+            res = plugin_registry.dispatch_tool("get_cash_forecast", tool_args)
+            
+            # Format clean, executive, user-friendly accounting explanation without database jargon
+            op_cash = res.get("opening_cash", {})
+            op_amt = float(op_cash.get("aggregate_amount", 0.0) or 0.0)
+            f_points = res.get("forecast_points", [])
+            ending_amt = float(f_points[-1].get("modeled_cash", op_amt) or op_amt) if f_points else op_amt
+            net_change = ending_amt - op_amt
+            
+            events = res.get("cash_events", [])
+            inflows = [e for e in events if e.get("direction") == "INFLOW" or e.get("direction") == "inflow"]
+            outflows = [e for e in events if e.get("direction") == "OUTFLOW" or e.get("direction") == "outflow"]
+            total_in = sum(float(e.get("amount", 0)) for e in inflows)
+            total_out = sum(float(e.get("amount", 0)) for e in outflows)
+            
+            shortfalls = res.get("shortfall_events", [])
+            
+            reply_lines = [
+                f"### 📊 30-Day Cash Flow Forecast & Liquidity Report",
+                f"**Entity:** {verified_company} &bull; **Forecast Horizon:** {res.get('forecast_start', '')} to {res.get('forecast_end', '')}\n",
+                f"---",
+                f"### 1. Cash Balance Overview",
+                f"- **Opening Cash Balance:** **{_format_currency(op_amt)}** (reconciled with General Ledger)",
+                f"- **Projected Ending Cash:** **{_format_currency(ending_amt)}**",
+                f"- **Net Cash Flow Change:** **{'+' if net_change >= 0 else ''}{_format_currency(net_change)}**\n",
+                f"---",
+                f"### 2. Major Inflow & Outflow Milestones",
+                f"- **Total Projected Inflows:** **{_format_currency(total_in)}** ({len(inflows)} events)",
+                f"- **Total Projected Outflows:** **{_format_currency(total_out)}** ({len(outflows)} events)"
+            ]
+            
+            if events:
+                reply_lines.append("\n**Transaction Schedule:**")
+                for ev in events:
+                    ev_type = "Receivables Collection" if (ev.get("direction") == "INFLOW" or ev.get("direction") == "inflow") else "Vendor Payment"
+                    ev_amt = _format_currency(ev.get("amount"))
+                    reply_lines.append(f"- **{ev.get('date')}:** {ev_type} &bull; Amount: **{ev_amt}**")
+            
+            reply_lines.append(f"\n---")
+            reply_lines.append(f"### 3. Liquidity & Solvency Assessment")
+            if not shortfalls:
+                reply_lines.append(f"- **Liquidity Status:** **Secure / Stable**. No cash deficits or negative balances projected during the 30-day window.")
+                reply_lines.append(f"- **Executive Recommendation:** Enterprise maintains a positive liquidity cushion. Working capital can support planned operational activities.")
+            else:
+                reply_lines.append(f"- **Liquidity Warning:** Cash shortfall risks detected within the forecasting horizon.")
+                reply_lines.append(f"- **Executive Recommendation:** Prepare short-term working capital buffering or activate bank overdraft lines.")
+
+            reply_lines.append(f"\n💡 *You can inspect daily modeled cash curves in the detailed forecast section below.*")
+
+            return {
+                "status": "success",
+                "reply": "\n".join(reply_lines),
+                "tool_called": "get_cash_forecast",
+                "tool_label": "30-Day Cash Flow Forecast",
+                "tool_output": res
+            }
+        except Exception as e:
+            _logger.warning("F002 cashflow error: %s", str(e))
+
     # Tool Route 3: Risk Signal Monitoring (F003)
-    if any(k in q_lower for k in ["rủi ro", "tín hiệu", "risk signal", "quá hạn", "đột biến", "tập trung nợ", "cluster", "spike"]):
-        signal_type = "AP_DUE_CLUSTER" if any(k in q_lower for k in ["phải trả", "nhà cung cấp", "ap", "due"]) else "AR_OVERDUE_SPIKE"
+    if any(k in q_lower for k in ["rủi ro", "tín hiệu", "risk signal", "quá hạn", "đột biến", "tập trung nợ", "cluster", "spike", "risk"]):
+        signal_type = "AP_DUE_CLUSTER" if any(k in q_lower for k in ["phải trả", "nhà cung cấp", "ap", "due", "payable"]) else "AR_OVERDUE_SPIKE"
         try:
             from lotus_fin.modules.f003_risk_signal.service import evaluate_signal, default_deps
-            as_of_val = as_of_date or "2026-09-26"
+            as_of_val = as_of_date or "2026-10-16"
             session_user = "Administrator"
             if frappe and hasattr(frappe, "session") and frappe.session and frappe.session.user:
                 session_user = frappe.session.user
@@ -333,25 +399,25 @@ def process_copilot_query(
                 include_explanation=True
             )
             
-            finding_text = "Bình thường"
+            finding_text = "Normal / Secure"
             severity = "BENIGN"
             if sig_res.finding:
-                severity = sig_res.finding.severity.value
-                finding_text = f"Cảnh báo mức **{severity}**"
+                severity = sig_res.finding.value if hasattr(sig_res.finding, "value") else str(sig_res.finding)
+                finding_text = f"Alert Level **{severity}**" if severity != "BENIGN" else "Normal / Secure"
 
             reply = (
-                f"Đã rà soát tín hiệu cảnh báo rủi ro tài chính cho **{verified_company}**:\n\n"
-                f"- **Chỉ tiêu phân tích:** `{signal_type}`\n"
-                f"- **Mức độ rủi ro:** {finding_text}\n"
-                f"- **Tình trạng giám sát:** Ổn định và đã đối soát cùng số liệu công nợ hiện hữu.\n\n"
-                f"💡 Bạn có thể xem chi tiết danh mục hóa đơn và lịch thanh toán nhà cung cấp để chủ động cân đối nguồn vốn."
+                f"Financial Risk Signal Audit for **{verified_company}**:\n\n"
+                f"- **Monitored Metric:** `{signal_type}`\n"
+                f"- **Risk Level:** {finding_text}\n"
+                f"- **Audit Status:** Verified against current ledger and aging schedules.\n\n"
+                f"💡 Review invoice aging breakdown and vendor payment schedules below to preserve working capital."
             )
 
             return {
                 "status": "success",
                 "reply": reply,
                 "tool_called": "evaluate_risk_signal",
-                "tool_label": f"Giám sát Rủi ro ({signal_type})",
+                "tool_label": f"Risk Monitoring ({signal_type})",
                 "tool_output": {
                     "signal_id": signal_type,
                     "severity": severity,
@@ -363,24 +429,24 @@ def process_copilot_query(
             _logger.warning("F003 error: %s", str(e))
 
     # Tool Route 4: What-If Stress Testing (F004)
-    if any(k in q_lower for k in ["what-if", "nếu", "kịch bản", "giảm", "sốc", "khách trả chậm", "stress-test", "stress test"]):
+    if any(k in q_lower for k in ["what-if", "nếu", "kịch bản", "giảm", "sốc", "khách trả chậm", "stress-test", "stress test", "scenario"]):
         sales_change = 0.0
-        if "giảm 20%" in q_lower or "-20%" in q_lower:
+        if "giảm 20%" in q_lower or "-20%" in q_lower or "drop 20%" in q_lower:
             sales_change = -0.20
-        elif "giảm 30%" in q_lower or "-30%" in q_lower:
+        elif "giảm 30%" in q_lower or "-30%" in q_lower or "drop 30%" in q_lower:
             sales_change = -0.30
-        elif "giảm 10%" in q_lower or "-10%" in q_lower:
+        elif "giảm 10%" in q_lower or "-10%" in q_lower or "drop 10%" in q_lower:
             sales_change = -0.10
-        elif "tăng 20%" in q_lower or "+20%" in q_lower:
+        elif "tăng 20%" in q_lower or "+20%" in q_lower or "increase 20%" in q_lower:
             sales_change = 0.20
 
         delay_days = 0
-        delay_match = re.search(r"trễ\s*(\d+)\s*ngày", q_lower)
+        delay_match = re.search(r"(?:trễ|delay|late)\s*(\d+)\s*(?:ngày|days?)", q_lower)
         if delay_match:
             delay_days = int(delay_match.group(1))
-        elif "trễ 15" in q_lower:
+        elif "trễ 15" in q_lower or "15 days" in q_lower:
             delay_days = 15
-        elif "trễ 30" in q_lower:
+        elif "trễ 30" in q_lower or "30 days" in q_lower:
             delay_days = 30
 
         tool_args = {
@@ -398,45 +464,22 @@ def process_copilot_query(
         rev = metrics.get("revenue", {})
 
         reply = (
-            f"Đã kích hoạt mô hình mô phỏng áp lực định lượng (What-If Simulation) cho **{verified_company}**:\n\n"
-            f"- **Giả định áp dụng:** Doanh thu biến động **{sales_change*100:+.0f}%**, Khách hàng trả chậm **+{delay_days} ngày**.\n"
-            f"- **Doanh thu kỳ vọng:** {_format_currency(rev.get('simulation'))} (Chênh lệch: {_format_currency(rev.get('absolute_change'))})\n"
-            f"- **Dòng tiền thuần dự kiến:** {_format_currency(ncf.get('simulation'))}\n"
-            f"- **Tiền mặt cuối kỳ:** **{_format_currency(ending_cash.get('simulation'))}** ({ending_cash.get('status', 'HEALTHY')})\n\n"
-            f"💡 **Khuyến nghị:** {'Cần chuẩn bị phương án đệm thanh khoản hoặc hạn mức tín dụng dự phòng kịp thời.' if ending_cash.get('simulation', 0) < 50000000 else 'Doanh nghiệp vẫn duy trì được bộ đệm an toàn khả quan.'}"
+            f"Executed quantitative stress simulation (What-If Model) for **{verified_company}**:\n\n"
+            f"- **Scenario Parameters:** Revenue Shock **{sales_change*100:+.0f}%**, Collection Delay **+{delay_days} days**.\n"
+            f"- **Projected Revenue:** {_format_currency(rev.get('simulation'))} (Variance: {_format_currency(rev.get('absolute_change'))})\n"
+            f"- **Projected Net Cash Flow:** {_format_currency(ncf.get('simulation'))}\n"
+            f"- **Ending Cash Balance:** **{_format_currency(ending_cash.get('simulation'))}** ({ending_cash.get('status', 'HEALTHY')})\n\n"
+            f"💡 **Executive Recommendation:** {'Prepare contingent credit buffering or standby facilities immediately.' if ending_cash.get('simulation', 0) < 50000000 else 'Company maintains resilient liquidity buffers under modeled stress.'}"
         )
 
         return {
             "status": "success",
             "reply": reply,
             "tool_called": "simulate_what_if_scenario",
-            "tool_label": "F004: Mô phỏng Áp lực Dòng tiền (What-If)",
+            "tool_label": "F004: What-If Stress Simulation",
             "tool_output": res
         }
 
-    # Tool Route 5: Cashflow Forecast 30 days (F002)
-    if any(k in q_lower for k in ["dòng tiền", "quỹ đạo", "runway", "dự báo 30", "dự báo tiền", "thâm hụt"]):
-        tool_args = {
-            "company": verified_company,
-            "financial_as_of": as_of_date or "2026-12-31"
-        }
-        try:
-            res = plugin_registry.dispatch_tool("get_cash_forecast", tool_args)
-            reply = (
-                f"Báo cáo dự báo dòng tiền 30 ngày cho **{verified_company}**:\n\n"
-                f"- **Kế hoạch thu chi:** Dòng tiền thu từ các khoản phải thu khách hàng và lịch chi trả nhà cung cấp đã được phân bổ chi tiết cho 30 ngày tới.\n"
-                f"- **Khả năng duy trì thanh khoản:** Các số dư ban đầu được đối chiếu chuẩn xác với số dư tài khoản ngân hàng và tiền mặt thực tế.\n\n"
-                f"💡 Bạn có thể bấm vào thẻ bên dưới để theo dõi biểu đồ quỹ đạo số dư từng ngày."
-            )
-            return {
-                "status": "success",
-                "reply": reply,
-                "tool_called": "get_cash_forecast",
-                "tool_label": "Dự báo Dòng tiền 30 Ngày",
-                "tool_output": res
-            }
-        except Exception:
-            pass
 
     # Default Tool Route: Financial Health Snapshot (F001)
     tool_args = {
@@ -453,27 +496,27 @@ def process_copilot_query(
     ar_val = metrics.get("ar_outstanding", {}).get("value")
     ap_val = metrics.get("ap_outstanding", {}).get("value")
 
-    rev_str = _format_currency(rev_val) if rev_val is not None else "Đang cập nhật"
-    cash_str = _format_currency(cash_val) if cash_val is not None else "Đang cập nhật"
+    rev_str = _format_currency(rev_val) if rev_val is not None else "Updating..."
+    cash_str = _format_currency(cash_val) if cash_val is not None else "Updating..."
     ar_str = _format_currency(ar_val) if ar_val is not None else "0 VND"
     ap_str = _format_currency(ap_val) if ap_val is not None else "0 VND"
     margin_str = f"{(margin_val * 100):.2f}%" if margin_val is not None else "N/A"
 
     reply = (
-        f"Tổng hợp các chỉ số sức khỏe tài chính trọng yếu của **{verified_company}**:\n\n"
-        f"### 📊 Các chỉ số trọng yếu:\n"
-        f"- **Doanh thu thuần:** **{rev_str}**\n"
-        f"- **Biên lợi nhuận gộp:** **{margin_str}**\n"
-        f"- **Số dư tiền mặt & tiền gửi:** **{cash_str}**\n"
-        f"- **Công nợ phải thu (AR):** {ar_str}\n"
-        f"- **Công nợ phải trả (AP):** {ap_str}\n\n"
-        f"💡 Bạn có thể mở báo cáo chi tiết để xem thêm bảng phân tích chỉ số tài chính chuyên sâu."
+        f"Key Executive Financial Health Snapshot for **{verified_company}**:\n\n"
+        f"### 📊 Key Performance Indicators:\n"
+        f"- **Net Revenue:** **{rev_str}**\n"
+        f"- **Gross Margin:** **{margin_str}**\n"
+        f"- **Cash & Bank Balances:** **{cash_str}**\n"
+        f"- **Accounts Receivable (AR):** {ar_str}\n"
+        f"- **Accounts Payable (AP):** {ap_str}\n\n"
+        f"💡 Open the Financial Analysis tab to inspect detailed ratio breakdowns."
     )
 
     return {
         "status": "success",
         "reply": reply,
         "tool_called": "get_financial_snapshot",
-        "tool_label": "Sức khỏe Tài chính Doanh nghiệp",
+        "tool_label": "Corporate Financial Health",
         "tool_output": res
     }

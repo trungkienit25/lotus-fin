@@ -97,9 +97,25 @@ class CopilotController:
                 company=verified_company,
                 as_of_date=dto.as_of_date
             )
+            fast_reply = fast_res.get("reply", "")
+
+            # Persist fast-path conversation to database session
+            try:
+                from lotus_fin.domain.model.chat_message import ChatMessage
+                from lotus_fin.domain.model.chat_session import ChatSession
+                from lotus_fin.domain.model.message_role import MessageRole
+                session = _session_repo.get_session(session_id) or ChatSession(
+                    id=session_id, user_id=user.user_id, company=user.company, title=dto.message[:80]
+                )
+                session.add_message(ChatMessage(role=MessageRole.USER, content=dto.message))
+                session.add_message(ChatMessage(role=MessageRole.ASSISTANT, content=fast_reply))
+                _session_repo.save_session(session)
+            except Exception as e:
+                _logger.warning("Failed to persist fast-path chat message: %s", e)
+
             return {
                 "session_id": session_id,
-                "reply": fast_res.get("reply"),
+                "reply": fast_reply,
                 "tool_called": fast_res.get("tool_called"),
                 "tool_label": fast_res.get("tool_label"),
                 "tool_output": fast_res.get("tool_output"),

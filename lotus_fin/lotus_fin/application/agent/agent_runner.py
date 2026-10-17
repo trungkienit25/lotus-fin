@@ -24,6 +24,47 @@ class AgentExecutionResult(BaseModel):
     status: str = Field(default="SUCCESS", description="Execution status e.g. SUCCESS, BUDGET_EXCEEDED")
 
 
+import re
+
+def sanitize_executive_reply(text: str) -> str:
+    """
+    Automated Presentation Gate (English-First Standard):
+    Enforces that internal DB columns, raw boolean flags, implementation version keys,
+    and technical artifacts are stripped or converted to natural executive English
+    before persisting or presenting to users.
+    """
+    if not text:
+        return text
+
+    # 1. Strip raw boolean tags and keys in parentheses or standalone
+    # e.g. (has_constituent_deficit: false), (has_constituent_deficit: true), has_constituent_deficit: false
+    text = re.sub(r'\(?\bhas_constituent_deficit:\s*(?:true|false|None)\)?\.?', '', text, flags=re.IGNORECASE)
+    text = re.sub(r'\(?\bconstituent_deficit:\s*(?:true|false|None)\)?\.?', '', text, flags=re.IGNORECASE)
+    text = re.sub(r'\(?\bopening_cash_deficit:\s*(?:true|false|None)\)?\.?', '', text, flags=re.IGNORECASE)
+
+    # 2. Strip raw shortfall events array or keys
+    # e.g. (shortfall_events: []), shortfall_events: []
+    text = re.sub(r'\(?\bshortfall_events:\s*\[\s*\]\)?\.?', '', text, flags=re.IGNORECASE)
+    text = re.sub(r'\(?\bshortfall_events\b\)?', '', text, flags=re.IGNORECASE)
+
+    # 3. Strip internal methodology / contract version tags
+    # e.g. (STRICT_BASELINE_V1), STRICT_BASELINE_V1
+    text = re.sub(r'\(?\bSTRICT_BASELINE_V1\)?\.?', '', text)
+    text = re.sub(r'\(?\bTRADE_ONLY\)?\.?', '', text)
+    text = re.sub(r'\(?\bNO_CONFIRMED_SETTLEMENT_EVENTS\)?\.?', '', text)
+    text = re.sub(r'\(?\bFORECAST_UNAVAILABLE\)?\.?', '', text)
+    text = re.sub(r'\(?\bVALIDATION_ERROR\)?\.?', '', text)
+    text = re.sub(r'\(?\bINCONSISTENT_DATA\)?\.?', '', text)
+
+    # 4. Clean up trailing double spaces, empty parentheses (), and orphaned punctuation
+    text = re.sub(r'\(\s*\)', '', text)
+    text = re.sub(r'[ \t]{2,}', ' ', text)
+    text = re.sub(r'\s+\.', '.', text)
+    text = re.sub(r'\s+,', ',', text)
+
+    return text.strip()
+
+
 class AgentRunner:
     """
     Controlled ReAct Agent Loop:
@@ -73,6 +114,8 @@ class AgentRunner:
             # Case A: LLM produced final answer with no further tool calls
             if not response.has_tool_calls:
                 final_content = response.content or "Analysis completed."
+                # Automation Gate: Sanitize executive reply before persistence and return
+                final_content = sanitize_executive_reply(final_content)
                 session.add_message(ChatMessage(role=MessageRole.ASSISTANT, content=final_content))
                 return AgentExecutionResult(
                     reply=final_content,
