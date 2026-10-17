@@ -24,6 +24,8 @@
   <a href="#-contributing">Contributing</a>
 </p>
 
+**English** • [简体中文 (Chinese)](README-zh.md)
+
 ---
 
 </div>
