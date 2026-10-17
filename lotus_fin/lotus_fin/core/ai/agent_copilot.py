@@ -43,13 +43,99 @@ def _format_currency(val, currency: Optional[str] = None) -> str:
         return f"{val} {cur}"
 
 
+from enum import Enum
+
+class CopilotIntent(str, Enum):
+    SALES_INVOICE_SEARCH = "sales_invoice_search"
+    OVERDUE_INVOICES = "overdue_invoices"
+    DEBT_REMINDER = "debt_reminder"
+    REPAYMENT_SCHEDULE = "repayment_schedule"
+    FINANCING_MATCH = "financing_match"
+    CASH_FORECAST = "cash_forecast"
+    RISK_SIGNAL = "risk_signal"
+    WHAT_IF_STRESS = "what_if_stress"
+    FINANCIAL_SNAPSHOT = "financial_snapshot"
+
+
+# Normalized keyword patterns for deterministic intent classification fallback
+INTENT_PATTERNS = {
+    CopilotIntent.SALES_INVOICE_SEARCH: [
+        r"\b(?:search|find|lookup|query)\s+(?:sales\s+)?invoices?\b",
+        r"\b(?:sales\s+)?invoice\s+(?:number|id|code)?\b",
+        r"\bsinv\b",
+    ],
+    CopilotIntent.OVERDUE_INVOICES: [
+        r"\bpast\s+(?:final\s+)?due\b",
+        r"\boverdue\b",
+        r"\baging\b",
+        r"\bar\s+overdue\b",
+    ],
+    CopilotIntent.DEBT_REMINDER: [
+        r"\bdebt\s+reminder\b",
+        r"\bpayment\s+reminder\b",
+        r"\bfollowup\b",
+        r"\bcollection\s+letter\b",
+        r"\bstatement\s+reconciliation\b",
+        r"\bdraft\s+(?:a\s+)?(?:reminder|letter|notice)\b",
+    ],
+    CopilotIntent.REPAYMENT_SCHEDULE: [
+        r"\brepayment\b",
+        r"\bamortization\b",
+        r"\bprincipal\b",
+        r"\binterest\s+rate\s+shock\b",
+        r"\brate\s+shock\b",
+        r"\bpmt\b",
+        r"\bdebt\s+service\b",
+    ],
+    CopilotIntent.FINANCING_MATCH: [
+        r"\bfinancing\b",
+        r"\bcredit\s+line\b",
+        r"\bworking\s+capital\b",
+        r"\bbank\s+loan\b",
+        r"\bloan\s+facility\b",
+        r"\bborrowing\b",
+    ],
+    CopilotIntent.CASH_FORECAST: [
+        r"\bcash\s*flow\b",
+        r"\bcashflow\b",
+        r"\brunway\b",
+        r"\bliquidity\b",
+        r"\bforecast\b",
+        r"\bcash\s+deficit\b",
+    ],
+    CopilotIntent.RISK_SIGNAL: [
+        r"\brisk\s+signal\b",
+        r"\bfinancial\s+risk\b",
+        r"\bcluster\b",
+        r"\bspike\b",
+        r"\banomaly\b",
+    ],
+    CopilotIntent.WHAT_IF_STRESS: [
+        r"\bwhat[- ]if\b",
+        r"\bstress[- ]test\b",
+        r"\bscenario\b",
+        r"\bshock\b",
+        r"\bsimulat(?:e|ion)\b",
+    ],
+}
+
+
+def _detect_intent(query_lower: str) -> CopilotIntent:
+    """Classifies user intent using standardized semantic regex patterns."""
+    for intent, patterns in INTENT_PATTERNS.items():
+        for pat in patterns:
+            if re.search(pat, query_lower):
+                return intent
+    return CopilotIntent.FINANCIAL_SNAPSHOT
+
+
 def process_copilot_query(
     query: str,
     company: Optional[str] = None,
     as_of_date: Optional[str] = None
 ) -> Dict[str, Any]:
     """
-    Agentic Copilot entrypoint:
+    Deterministic Agentic Copilot fallback entrypoint:
     1. Authenticates & validates company boundary.
     2. Identifies user financial intent & determines appropriate tool across 7 modules.
     3. Invokes tool deterministically via plugin registry or domain service.
@@ -57,9 +143,10 @@ def process_copilot_query(
     """
     verified_company = get_verified_company(company)
     q_lower = query.lower()
+    intent = _detect_intent(q_lower)
 
-    # Tool Route 0A: Sales Invoice Search (Real Database Exploration)
-    if any(k in q_lower for k in ["tìm hóa đơn", "tra cứu hóa đơn", "hóa đơn có mã", "tra cứu chứng từ", "sales invoice", "sinv"]):
+    # Tool Route: Sales Invoice Search
+    if intent == CopilotIntent.SALES_INVOICE_SEARCH:
         try:
             from lotus_fin.api.copilot_api import search_real_invoices
             prefix_match = re.search(r"(sinv[-\w]*|acc[-\w]*)", q_lower)
@@ -91,8 +178,8 @@ def process_copilot_query(
         except Exception as e:
             _logger.warning("Invoice search routing error: %s", str(e))
 
-    # Tool Route 0B: Past Final Due / Overdue Invoices
-    if any(k in q_lower for k in ["quá hạn cuối", "quá hạn", "past final due", "past_final_due", "overdue", "aging"]):
+    # Tool Route: Past Final Due / Overdue Invoices
+    if intent == CopilotIntent.OVERDUE_INVOICES:
         try:
             from lotus_fin.api.copilot_api import get_real_overdue_invoices
             res = get_real_overdue_invoices(company=verified_company, as_of_date=as_of_date)
@@ -120,11 +207,10 @@ def process_copilot_query(
         except Exception as e:
             _logger.warning("Overdue query routing error: %s", str(e))
 
-    # Tool Route 0C: Debt Reminder / Followup Drafting (L3 Template with Real Invoice Data)
-    if any(k in q_lower for k in ["soạn thư nhắc nợ", "soạn thư", "nhắc nợ", "thư nhắc nợ", "thư đòi nợ", "followup", "debt reminder", "nhắc nhở thanh toán", "reminder", "statement"]):
+    # Tool Route: Debt Reminder / Followup Drafting
+    if intent == CopilotIntent.DEBT_REMINDER:
         try:
             from lotus_fin.api.copilot_api import get_real_overdue_invoices, search_real_invoices
-            # Try to match specific invoice ID in query
             inv_match = re.search(r"((?:acc-)?sinv[-\w]+)", q_lower)
             target_inv_id = inv_match.group(1).upper() if inv_match else None
             
@@ -135,7 +221,6 @@ def process_copilot_query(
                 if found:
                     matched_inv = found[0]
 
-            # If no specific invoice found, fetch first overdue invoice
             if not matched_inv:
                 overdue_res = get_real_overdue_invoices(company=verified_company, as_of_date=as_of_date)
                 overdue_items = overdue_res.get("items", [])
@@ -174,15 +259,21 @@ def process_copilot_query(
         except Exception as e:
             _logger.warning("Debt reminder drafting error: %s", str(e))
 
-    # Tool Route 1: Repayment Schedule & Interest Rate Shock (F006)
-    if any(k in q_lower for k in ["trả nợ", "lịch trả", "gốc lãi", "lãi suất tăng", "sốc lãi", "shock lãi", "pmt"]):
-        principal = 1000000000.0
-        trieu_match = re.search(r"(\d+)\s*(triệu|tr)", q_lower)
-        ty_match = re.search(r"(\d+)\s*(tỷ|ti)", q_lower)
-        if trieu_match:
-            principal = float(trieu_match.group(1)) * 1000000.0
-        elif ty_match:
-            principal = float(ty_match.group(1)) * 1000000000.0
+    # Tool Route: Repayment Schedule & Interest Rate Shock (F006)
+    if intent == CopilotIntent.REPAYMENT_SCHEDULE:
+        principal = 50000.0  # Default $50,000 USD
+        num_match = re.search(r"\$?\s*(\d+(?:,\d+)*(?:\.\d+)?)\s*(?:k|thousand|m|million|usd|\$)?", q_lower)
+        if num_match:
+            try:
+                raw_num = float(num_match.group(1).replace(",", ""))
+                if "m" in q_lower or "million" in q_lower:
+                    principal = raw_num * 1000000.0
+                elif "k" in q_lower or "thousand" in q_lower:
+                    principal = raw_num * 1000.0
+                elif raw_num > 100:
+                    principal = raw_num
+            except Exception:
+                pass
 
         rate = 0.085
         rate_match = re.search(r"(\d+(?:\.\d+)?)\s*%", q_lower)
@@ -190,7 +281,7 @@ def process_copilot_query(
             rate = float(rate_match.group(1)) / 100.0
 
         term = 12
-        term_match = re.search(r"(\d+)\s*(tháng|t\b)", q_lower)
+        term_match = re.search(r"(\d+)\s*(?:months?|m\b)", q_lower)
         if term_match:
             term = int(term_match.group(1))
 
@@ -223,10 +314,8 @@ def process_copilot_query(
                 stress_engine = StressSimulationEngine()
                 params = StressScenarioParams(stress_type=StressType.RATE_SHOCK, rate_shock_bps=shock_bps)
                 st_res = stress_engine.run_stress_test(terms, params)
-                int_kpi = next((k for k in st_res.comparison_kpis if k.kpi_name == "Total Interest"), None)
                 int_kpi = next((k for k in st_res.comparison_kpis if (k.get("kpi_name") if isinstance(k, dict) else getattr(k, "kpi_name", None)) == "Total Interest"), None)
                 if int_kpi:
-                    added_interest = float(int_kpi.absolute_change)
                     added_val = int_kpi.get("absolute_change", 0) if isinstance(int_kpi, dict) else getattr(int_kpi, "absolute_change", 0)
                     added_interest = float(added_val or 0.0)
                     shock_info = f"\n- **Interest Rate Shock Impact (+{shock_bps} bps):** Additional interest expense of **+{_format_currency(added_interest)}**."
@@ -263,18 +352,24 @@ def process_copilot_query(
         except Exception as e:
             _logger.warning("F006 error: %s", str(e))
 
-    # Tool Route 2: Financing & Bank Loan Inquiries (F005)
-    if any(k in q_lower for k in ["vay", "tín dụng", "vốn lưu động", "ngân hàng", "gói vay", "lãi suất vay", "hạn mức", "loan", "financing", "credit line", "working capital"]):
-        amount = 500000000.0
-        trieu_match = re.search(r"(\d+)\s*(triệu|tr)", q_lower)
-        ty_match = re.search(r"(\d+)\s*(tỷ|ti)", q_lower)
-        if trieu_match:
-            amount = float(trieu_match.group(1)) * 1000000.0
-        elif ty_match:
-            amount = float(ty_match.group(1)) * 1000000000.0
+    # Tool Route: Financing & Bank Loan Inquiries (F005)
+    if intent == CopilotIntent.FINANCING_MATCH:
+        amount = 50000.0  # Default $50,000 USD
+        num_match = re.search(r"\$?\s*(\d+(?:,\d+)*(?:\.\d+)?)\s*(?:k|thousand|m|million|usd|\$)?", q_lower)
+        if num_match:
+            try:
+                raw_num = float(num_match.group(1).replace(",", ""))
+                if "m" in q_lower or "million" in q_lower:
+                    amount = raw_num * 1000000.0
+                elif "k" in q_lower or "thousand" in q_lower:
+                    amount = raw_num * 1000.0
+                elif raw_num > 100:
+                    amount = raw_num
+            except Exception:
+                pass
 
         term = 12
-        term_match = re.search(r"(\d+)\s*(tháng|t\b|months?)", q_lower)
+        term_match = re.search(r"(\d+)\s*(?:months?|m\b)", q_lower)
         if term_match:
             term = int(term_match.group(1))
 
@@ -314,8 +409,8 @@ def process_copilot_query(
             "tool_output": res
         }
 
-    # Tool Route 2.5: Cashflow Forecast 30 days (F002) - Match cash flow / runway / liquidity before generic risk signal
-    if any(k in q_lower for k in ["dòng tiền", "quỹ đạo", "runway", "dự báo 30", "dự báo tiền", "thâm hụt", "thanh khoản", "cash flow", "cashflow", "liquidity", "forecast"]):
+    # Tool Route: Cashflow Forecast 30 days (F002)
+    if intent == CopilotIntent.CASH_FORECAST:
         tool_args = {
             "company": verified_company,
             "financial_as_of": as_of_date or "2026-10-16"
@@ -331,8 +426,8 @@ def process_copilot_query(
             net_change = ending_amt - op_amt
             
             events = res.get("cash_events", [])
-            inflows = [e for e in events if e.get("direction") == "INFLOW" or e.get("direction") == "inflow"]
-            outflows = [e for e in events if e.get("direction") == "OUTFLOW" or e.get("direction") == "outflow"]
+            inflows = [e for e in events if str(e.get("direction", "")).upper() == "INFLOW"]
+            outflows = [e for e in events if str(e.get("direction", "")).upper() == "OUTFLOW"]
             total_in = sum(float(e.get("amount", 0)) for e in inflows)
             total_out = sum(float(e.get("amount", 0)) for e in outflows)
             
@@ -355,7 +450,7 @@ def process_copilot_query(
             if events:
                 reply_lines.append("\n**Transaction Schedule:**")
                 for ev in events:
-                    ev_type = "Receivables Collection" if (ev.get("direction") == "INFLOW" or ev.get("direction") == "inflow") else "Vendor Payment"
+                    ev_type = "Receivables Collection" if str(ev.get("direction", "")).upper() == "INFLOW" else "Vendor Payment"
                     ev_amt = _format_currency(ev.get("amount"))
                     reply_lines.append(f"- **{ev.get('date')}:** {ev_type} &bull; Amount: **{ev_amt}**")
             
@@ -380,9 +475,9 @@ def process_copilot_query(
         except Exception as e:
             _logger.warning("F002 cashflow error: %s", str(e))
 
-    # Tool Route 3: Risk Signal Monitoring (F003)
-    if any(k in q_lower for k in ["rủi ro", "tín hiệu", "risk signal", "quá hạn", "đột biến", "tập trung nợ", "cluster", "spike", "risk"]):
-        signal_type = "AP_DUE_CLUSTER" if any(k in q_lower for k in ["phải trả", "nhà cung cấp", "ap", "due", "payable"]) else "AR_OVERDUE_SPIKE"
+    # Tool Route: Risk Signal Monitoring (F003)
+    if intent == CopilotIntent.RISK_SIGNAL:
+        signal_type = "AP_DUE_CLUSTER" if any(k in q_lower for k in ["payable", "vendor", "supplier", "ap"]) else "AR_OVERDUE_SPIKE"
         try:
             from lotus_fin.modules.f003_risk_signal.service import evaluate_signal, default_deps
             as_of_val = as_of_date or "2026-10-16"
@@ -430,25 +525,25 @@ def process_copilot_query(
         except Exception as e:
             _logger.warning("F003 error: %s", str(e))
 
-    # Tool Route 4: What-If Stress Testing (F004)
-    if any(k in q_lower for k in ["what-if", "nếu", "kịch bản", "giảm", "sốc", "khách trả chậm", "stress-test", "stress test", "scenario"]):
+    # Tool Route: What-If Stress Testing (F004)
+    if intent == CopilotIntent.WHAT_IF_STRESS:
         sales_change = 0.0
-        if "giảm 20%" in q_lower or "-20%" in q_lower or "drop 20%" in q_lower:
+        if "-20%" in q_lower or "drop 20%" in q_lower or "decrease 20%" in q_lower:
             sales_change = -0.20
-        elif "giảm 30%" in q_lower or "-30%" in q_lower or "drop 30%" in q_lower:
+        elif "-30%" in q_lower or "drop 30%" in q_lower or "decrease 30%" in q_lower:
             sales_change = -0.30
-        elif "giảm 10%" in q_lower or "-10%" in q_lower or "drop 10%" in q_lower:
+        elif "-10%" in q_lower or "drop 10%" in q_lower or "decrease 10%" in q_lower:
             sales_change = -0.10
-        elif "tăng 20%" in q_lower or "+20%" in q_lower or "increase 20%" in q_lower:
+        elif "+20%" in q_lower or "increase 20%" in q_lower:
             sales_change = 0.20
 
         delay_days = 0
-        delay_match = re.search(r"(?:trễ|delay|late)\s*(\d+)\s*(?:ngày|days?)", q_lower)
+        delay_match = re.search(r"(?:delay|late)\s*(\d+)\s*(?:days?)", q_lower)
         if delay_match:
             delay_days = int(delay_match.group(1))
-        elif "trễ 15" in q_lower or "15 days" in q_lower:
+        elif "15 days" in q_lower:
             delay_days = 15
-        elif "trễ 30" in q_lower or "30 days" in q_lower:
+        elif "30 days" in q_lower:
             delay_days = 30
 
         tool_args = {
@@ -471,7 +566,7 @@ def process_copilot_query(
             f"- **Projected Revenue:** {_format_currency(rev.get('simulation'))} (Variance: {_format_currency(rev.get('absolute_change'))})\n"
             f"- **Projected Net Cash Flow:** {_format_currency(ncf.get('simulation'))}\n"
             f"- **Ending Cash Balance:** **{_format_currency(ending_cash.get('simulation'))}** ({ending_cash.get('status', 'HEALTHY')})\n\n"
-            f"💡 **Executive Recommendation:** {'Prepare contingent credit buffering or standby facilities immediately.' if ending_cash.get('simulation', 0) < 50000000 else 'Company maintains resilient liquidity buffers under modeled stress.'}"
+            f"💡 **Executive Recommendation:** {'Prepare contingent credit buffering or standby facilities immediately.' if ending_cash.get('simulation', 0) < 50000 else 'Company maintains resilient liquidity buffers under modeled stress.'}"
         )
 
         return {

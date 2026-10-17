@@ -8,7 +8,7 @@ from lotus_fin.infrastructure.tool.command.base_tool_command import IToolCommand
 
 
 class RepaymentArgs(BaseModel):
-    principal: float = Field(..., description="Loan principal amount in VND")
+    principal: float = Field(..., description="Loan principal amount in USD")
     annual_rate: float = Field(default=0.085, description="Annual nominal interest rate as decimal (e.g. 0.085 for 8.5%)")
     tenure_months: int = Field(default=12, description="Loan term in months")
     method: str = Field(default="EQUAL_INSTALLMENT", description="Amortization method: EQUAL_INSTALLMENT or EQUAL_PRINCIPAL")

@@ -11,7 +11,7 @@ class WhatIfArgs(BaseModel):
     sales_change_pct: float = Field(default=-0.15, description="Sales shock % (e.g. -0.20 for -20%)")
     collection_delay_days: int = Field(default=15, description="Customer collection delay shift in days")
     supplier_due_shift_days: int = Field(default=0, description="Supplier payment extension in days")
-    financing_amount: float = Field(default=0.0, description="Injected debt financing amount in VND")
+    financing_amount: float = Field(default=0.0, description="Injected debt financing amount in USD")
     financing_term_months: int = Field(default=12, description="Loan term in months")
     financing_rate_annual: float = Field(default=0.095, description="Annual nominal interest rate")
 
