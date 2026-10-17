@@ -29,9 +29,8 @@ export const CopilotMessageBody: React.FC<CopilotMessageBodyProps> = ({
   content,
   className = "",
 }) => {
-  if (!content) return null;
-
   const sanitizedHtml = useMemo(() => {
+    if (!content) return "";
     const mathStore: string[] = [];
 
     // 1. Extract Display Math: $$ ... $$ or \[ ... \]
@@ -54,7 +53,7 @@ export const CopilotMessageBody: React.FC<CopilotMessageBodyProps> = ({
 
     // 2. Extract Inline Math: $ ... $ or \( ... \)
     // Note: Do not match literal money like $100 without trailing closing $
-    prepared = prepared.replace(/(\\\([\s\S]*?\\\)|\$(?!\s)([^\$\n]+?)(?<!\s)\$)/g, (match, _p1, innerExpr) => {
+    prepared = prepared.replace(/(\\\([\s\S]*?\\\)|\$(?!\s)([^$\n]+?)(?<!\s)\$)/g, (match, _p1, innerExpr) => {
       const expr = match.startsWith("\\(") ? match.slice(2, -2).trim() : (innerExpr || match.slice(1, -1)).trim();
       try {
         const rendered = katex.renderToString(expr, {
