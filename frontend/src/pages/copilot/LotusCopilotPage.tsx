@@ -259,22 +259,36 @@ export const LotusCopilotPage: React.FC = () => {
       <div
         className={`bg-white border-r border-slate-200 transition-all duration-300 flex flex-col justify-between shrink-0 ${
           isLeftSidebarOpen
-            ? "fixed inset-y-0 left-0 z-40 w-72 md:static md:w-64 shadow-2xl md:shadow-none"
+            ? "fixed inset-y-0 left-0 z-40 w-72 md:relative md:w-64 shadow-2xl md:shadow-none"
             : "-translate-x-full md:translate-x-0 md:w-0 overflow-hidden"
         }`}
       >
         <div className="p-3.5 flex flex-col h-full overflow-hidden">
-          {/* New Chat Button */}
-          <button
-            onClick={() => {
-              handleStartNewChat();
-              if (window.innerWidth < 768) setIsLeftSidebarOpen(false);
-            }}
-            className="w-full py-2.5 px-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs shrink-0 mb-3"
-          >
-            <span className="text-base font-bold text-blue-600">+</span>
-            <span>New Chat</span>
-          </button>
+          {/* Sidebar Header: New Chat Button + Explicit Close Button */}
+          <div className="flex items-center gap-2 mb-3 shrink-0">
+            <button
+              onClick={() => {
+                handleStartNewChat();
+                if (window.innerWidth < 768) setIsLeftSidebarOpen(false);
+              }}
+              className="flex-1 py-2 px-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800 text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-2xs"
+            >
+              <span className="text-base font-bold text-blue-600">+</span>
+              <span>New Chat</span>
+            </button>
+
+            {/* Explicit Close Button inside Sidebar */}
+            <button
+              onClick={() => setIsLeftSidebarOpen(false)}
+              className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 border border-slate-200 transition-colors cursor-pointer"
+              title="Close sidebar"
+              aria-label="Close sidebar"
+            >
+              <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
 
           {/* Top Section: Quick Capabilities & Tools (Auto-collapsed accordions) */}
           <div className="space-y-1.5 shrink-0 pb-3 border-b border-slate-100">
@@ -445,7 +459,7 @@ export const LotusCopilotPage: React.FC = () => {
       </div>
 
       {/* 2. Main Center Workspace: Full Vercel AI Chatbot Feed (Spacious & 100% Focused) */}
-      <div className="flex-1 flex flex-col h-full relative overflow-hidden">
+      <div className="flex-1 w-full min-w-0 flex flex-col h-full relative overflow-hidden">
         <VercelChatPanel
           key={activeSessionId || "new_session"}
           company={selectedCompany}
