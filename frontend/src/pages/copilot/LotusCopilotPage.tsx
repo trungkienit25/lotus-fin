@@ -78,8 +78,13 @@ export const LotusCopilotPage: React.FC = () => {
   const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(isDirectFeatureRoute);
   const [isModalMaximized, setIsModalMaximized] = useState<boolean>(false);
   
-  // Left Sidebar & Tools Accordion state (DEFAULT COLLAPSED AS REQUESTED)
-  const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState<boolean>(true);
+  // Left Sidebar state: closed by default on mobile (< 768px), open on desktop
+  const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      return window.innerWidth >= 768;
+    }
+    return false;
+  });
   const [isToolsExpanded, setIsToolsExpanded] = useState<boolean>(false);
 
   const [companies, setCompanies] = useState<string[]>([]);
@@ -95,9 +100,10 @@ export const LotusCopilotPage: React.FC = () => {
 
   // Real chat history loaded from database
   const [chatSessions, setChatSessions] = useState<Array<{ id: string; title: string; time: string; query?: string }>>([]);
-  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  // Start with a clean new session by default on initial page load
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(() => `session_${Date.now()}`);
 
-  // Load chat sessions from database
+  // Load chat sessions from database without overriding fresh new chat
   const fetchChatSessions = () => {
     axios
       .get(`/api/method/lotus_fin.api.copilot_api.list_chat_sessions?company=${encodeURIComponent(selectedCompany)}&limit=50`)
@@ -122,9 +128,7 @@ export const LotusCopilotPage: React.FC = () => {
             };
           });
           setChatSessions(mapped);
-          if (!activeSessionId) {
-            setActiveSessionId(mapped[0].id);
-          }
+          // Do NOT force activeSessionId to mapped[0].id so the user starts with a clean new chat
         }
       })
       .catch((err) => {
@@ -149,6 +153,9 @@ export const LotusCopilotPage: React.FC = () => {
     setActiveSessionId(sessionId);
     setActivePrompt(null);
     setIsReportModalOpen(false);
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      setIsLeftSidebarOpen(false);
+    }
   };
 
   const handleStartNewChat = () => {
@@ -156,6 +163,9 @@ export const LotusCopilotPage: React.FC = () => {
     setActiveSessionId(newId);
     setActivePrompt(null);
     setIsReportModalOpen(false);
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      setIsLeftSidebarOpen(false);
+    }
   };
 
   // Sync tab with URL
@@ -236,16 +246,30 @@ export const LotusCopilotPage: React.FC = () => {
 
   return (
     <div className="flex h-[calc(100vh-64px)] overflow-hidden bg-[#F8FAFC] relative">
-      {/* 1. Left Chatbot Sidebar (Collapsible History & Financial Sub-tools) */}
+      {/* Mobile Backdrop Overlay: covers the screen on mobile and blurs background when sidebar is open */}
+      {isLeftSidebarOpen && (
+        <div
+          onClick={() => setIsLeftSidebarOpen(false)}
+          className="fixed inset-0 z-30 bg-slate-900/40 backdrop-blur-xs md:hidden transition-opacity duration-300"
+          aria-hidden="true"
+        />
+      )}
+
+      {/* 1. Left Chatbot Sidebar (Overlay drawer on mobile, collapsible flex column on desktop) */}
       <div
-        className={`bg-white border-r border-slate-200 transition-all duration-300 flex flex-col justify-between shrink-0 z-20 ${
-          isLeftSidebarOpen ? "w-64" : "w-0 overflow-hidden"
+        className={`bg-white border-r border-slate-200 transition-all duration-300 flex flex-col justify-between shrink-0 ${
+          isLeftSidebarOpen
+            ? "fixed inset-y-0 left-0 z-40 w-72 md:static md:w-64 shadow-2xl md:shadow-none"
+            : "-translate-x-full md:translate-x-0 md:w-0 overflow-hidden"
         }`}
       >
         <div className="p-3.5 flex flex-col h-full overflow-hidden">
           {/* New Chat Button */}
           <button
-            onClick={handleStartNewChat}
+            onClick={() => {
+              handleStartNewChat();
+              if (window.innerWidth < 768) setIsLeftSidebarOpen(false);
+            }}
             className="w-full py-2.5 px-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs shrink-0 mb-3"
           >
             <span className="text-base font-bold text-blue-600">+</span>
