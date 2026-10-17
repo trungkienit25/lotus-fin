@@ -33,7 +33,7 @@
 
 ## 🚀 极速部署与运行指南
 
-Lotus Fin 在 [`scripts/`](scripts.md) 目录下提供了模块化运维脚本，并通过根目录下的统一分发脚本 [`run.sh`](../../run.sh) 进行统一调用。
+Lotus Fin 在 [`scripts/`](../scripts/README.md) 目录下提供了模块化运维脚本，并通过根目录下的统一分发脚本 [`run.sh`](../run.sh) 进行统一调用。
 
 ### 方案 A：云服务器一键生产部署（默认暴露 HTTP 80 端口）
 在全新安装的 Linux 云服务器（Ubuntu 22.04 / 24.04、Debian、腾讯云/阿里云/华为云 VPS、AWS EC2）上：
@@ -56,7 +56,7 @@ chmod +x run.sh scripts/*/*.sh
 3. **环境参数校验：** 检查并初始化生产环境变量配置文件 `docker/production/.env.production`。
 4. **Nginx 网关打包：** 多阶段自动构建前端单页应用并组装 `lotus-fin/gateway:latest` 容器镜像。
 5. **容器集群拉起：** 启动 8 个生产容器集群，统一通过 Nginx 网关对外暴露 **80 端口**。
-6. **数据库自动水化（Hydration）：** 自动导入 [`scripts/data/database/initial_db_seed.sql.gz`](../../scripts/data/database/initial_db_seed.sql.gz) 数据库快照、执行 `bench migrate` 同步结构，并自动配置好 SMTP 邮件通知账号。
+6. **数据库自动水化（Hydration）：** 自动导入 [`scripts/data/database/initial_db_seed.sql.gz`](../scripts/data/database/initial_db_seed.sql.gz) 数据库快照、执行 `bench migrate` 同步结构，并自动配置好 SMTP 邮件通知账号。
 7. **可用性就绪核验：** 执行 HTTP 健康探测，返回服务器公网 IP 与登录入口。
 
 ### 方案 B：本地开发环境快速启动
@@ -119,18 +119,28 @@ lotus-fin/
 │   ├── packaging/             # 容器镜像打包脚本 (run-packaging.sh)
 │   ├── container/             # 容器生命周期管理脚本 (run-container.sh)
 │   ├── data/database/         # 数据库初始化种子快照 (initial_db_seed.sql.gz)
-│   └── README.md              # 运维脚本操作手册 (英文/越南文)
-└── docs/                      # 架构设计、安全合规及多语言文档
-    ├── README.md              # 英文总文档入口
-    └── zh/                    # 全套中文文档库
-        ├── README.md          # 中文主页
-        ├── scripts.md         # 运维与一键部署中文手册
-        └── security.md        # 企业级安全与合规设计说明
+│   └── README.md              # 运维脚本操作手册 (英文)
+├── docs/                      # 英文技术文档总库
+└── docs-zh/                   # 完整中文技术文档总库
+    ├── README.md              # 中文技术文档入口主页
+    ├── TECHNICAL_SPECIFICATION.md # 系统架构白皮书与技术规格
+    ├── SETUP_AND_AI_ONBOARDING_GUIDE.md # 开发者与 AI 智能体上手指南
+    ├── GIT_WORKFLOW.md        # 分支流转与提交规范
+    ├── AI_MODULE_ARCHITECTURE_PROPOSAL.md # AI 模块架构设计提案
+    ├── API_DESIGN_CONVENTIONS.md # API 设计与 DTO 规范
+    ├── adr/                   # 架构决策记录 (ADR)
+    ├── architecture/          # 架构分层与设计模式解析
+    ├── scripts.md             # 运维脚本中文手册
+    └── security.md            # 企业级安全与合规设计说明
 ```
 
 ---
 
 ## 📖 相关文档链接
+- [系统架构白皮书与技术规格](TECHNICAL_SPECIFICATION.md)
+- [开发者与 AI 智能体上手指南](SETUP_AND_AI_ONBOARDING_GUIDE.md)
+- [Git 分支与约定式提交规范](GIT_WORKFLOW.md)
 - [运维与部署自动化脚本中文手册](scripts.md)
 - [安全合规与权限架构设计说明 (中文版)](security.md)
-- [English Main Documentation](../../README.md)
+- [English Documentation Suite](../docs/README.md)
+

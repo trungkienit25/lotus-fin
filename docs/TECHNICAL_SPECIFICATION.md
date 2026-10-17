@@ -237,51 +237,7 @@ LOTUS_SMTP_USE_TLS=1
 ## 7. Documentation Index
 
 - [Operations & Automated Scripts Manual](scripts/README.md)
-- [Enterprise Security Architecture SSOT](docs/security/README.md)
-- [中文技术文档 (Chinese Documentation)](docs/zh/README.md)
-
-### Container Lifecycle
-```bash
-./scripts/container/run-container.sh status    # Check container health and memory
-./scripts/container/run-container.sh logs      # Stream combined container logs
-./scripts/container/run-container.sh restart   # Graceful service restart
-./scripts/container/run-container.sh stop      # Stop production cluster
-```
-
----
-
-## 6. Configuration Reference (`.env`)
-
-```ini
-# AI Provider Configuration ('gemini' | 'openai' | 'nvidia' | 'deepseek' | 'mock')
-LOTUS_AI_PROVIDER=gemini
-LOTUS_AI_MODEL=gemini-flash-latest
-
-# Multi-Key Rotation & Automatic Fallback (Comma-separated)
-GEMINI_API_KEY=key_1, key_2, key_3
-OPENAI_API_KEY="sk-key1", "sk-key2"
-NVIDIA_API_KEY="nvapi-key1", "nvapi-key2"
-NVIDIA_MODEL_NAME=z-ai/glm-5.3-flash
-
-# Database Settings
-DB_HOST=db
-DB_PORT=3306
-MYSQL_ROOT_PASSWORD=admin
-MARIADB_ROOT_PASSWORD=admin
-
-# Outgoing SMTP Mail Settings
-LOTUS_SMTP_SERVER=smtp.gmail.com
-LOTUS_SMTP_PORT=587
-LOTUS_SMTP_EMAIL=notifications@yourdomain.com
-LOTUS_SMTP_PASSWORD=your_app_password
-LOTUS_SMTP_USE_TLS=1
-```
-
----
-
-## 7. Documentation Index
-
-- [Operations & Automated Scripts Manual](scripts/README.md)
-- [Enterprise Security Architecture SSOT](docs/security/README.md)
-- [中文技术文档 (Chinese Documentation)](docs/zh/README.md)
+- [Operations & Automated Scripts Manual](../scripts/README.md)
+- [Enterprise Security Architecture SSOT](security/README.md)
+- [中文技术文档 (Chinese Documentation)](../docs-zh/README.md)
 
