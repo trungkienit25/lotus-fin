@@ -103,3 +103,4 @@ Dự án sử dụng Nginx Gateway làm cổng vào duy nhất tại `Port 80`:
 - **Đường dẫn `/`:** Phục vụ ứng dụng React SPA (TailAdmin/Lotus Copilot).
 - **Đường dẫn `/api`, `/desk`, `/assets`, `/socket.io`:** Proxy trực tiếp tới backend Frappe/ERPNext (`frappe-frontend:8080`).
 - Người dùng cuối và nhân viên tài chính chỉ cần truy cập vào `http://<IP-SERVER>/` mà không cần nhập thêm cổng `:8080` hay cấu hình domain phức tạp.
+
