@@ -18,71 +18,71 @@ except (ImportError, AttributeError):
 
 from lotus_fin.security.access import get_verified_company, check_report_permission
 
-# Danh sách ánh xạ các Key Reports tiêu chuẩn của ERPNext
+# ERPNext standard Key Reports registry mapping
 KEY_REPORTS_REGISTRY = {
 	# 1. Accounting Key Reports
 	"general_ledger": {
 		"report_name": "General Ledger",
-		"description": "Toàn bộ phát sinh Nợ/Có của các tài khoản kế toán theo thời gian."
+		"description": "Complete chronological debit/credit postings across general ledger accounts."
 	},
 	"accounts_receivable": {
 		"report_name": "Accounts Receivable",
-		"description": "Chi tiết công nợ phải thu từ khách hàng, tuổi nợ (aging) và hạn thanh toán."
+		"description": "Customer receivables breakdown, aging schedules, and contractual due dates."
 	},
 	"accounts_payable": {
 		"report_name": "Accounts Payable",
-		"description": "Chi tiết công nợ phải trả cho nhà cung cấp."
+		"description": "Supplier trade payable obligations and payment aging analysis."
 	},
 	"profit_and_loss": {
 		"report_name": "Profit and Loss Statement",
-		"description": "Báo cáo kết quả hoạt động kinh doanh (Doanh thu, Giá vốn COGS, Chi phí, Lợi nhuận)."
+		"description": "Income statement performance (Net Revenue, COGS, Operating OPEX, Net Profit)."
 	},
 	"trial_balance": {
 		"report_name": "Trial Balance",
-		"description": "Bảng cân đối thử tổng hợp số dư Nợ/Có của toàn bộ hệ thống tài khoản kế toán."
+		"description": "Trial balance consolidating opening, transactional, and closing debit/credit ledger balances."
 	},
 	"cash_flow": {
 		"report_name": "Cash Flow",
-		"description": "Báo cáo lưu chuyển tiền tệ (Kinh doanh, Đầu tư, Tài chính)."
+		"description": "Statement of Cash Flows (Operating, Investing, Financing activities)."
 	},
 	"financial_analytics": {
 		"report_name": "Financial Analytics",
-		"description": "Phân tích tài chính tổng hợp theo chu kỳ tháng/quý."
+		"description": "Consolidated financial performance analytics across monthly/quarterly cycles."
 	},
 	# 2. Selling Key Reports
 	"sales_analytics": {
 		"report_name": "Sales Analytics",
-		"description": "Phân tích doanh số bán hàng theo khách hàng, sản phẩm, nhóm hàng."
+		"description": "Sales performance analytics by customer, product, and item group."
 	},
 	"sales_order_analysis": {
 		"report_name": "Sales Order Analysis",
-		"description": "Phân tích tình trạng thực hiện và giao hàng của các đơn đặt hàng."
+		"description": "Order fulfillment, delivery tracking, and billed status analysis."
 	},
 	# 3. Buying Key Reports
 	"purchase_analytics": {
 		"report_name": "Purchase Analytics",
-		"description": "Phân tích chi phí mua hàng và biến động giá từ các nhà cung cấp."
+		"description": "Procurement cost breakdown and supplier purchase price trends."
 	},
 	# 4. Assets Key Reports
 	"asset_depreciation_ledger": {
 		"report_name": "Asset Depreciation Ledger",
-		"description": "Sổ chi tiết khấu hao tài sản cố định qua từng kỳ."
+		"description": "Fixed asset depreciation schedules and book value amortization ledger."
 	},
 	# 5. Stock / Subcontracting Key Reports
 	"stock_balance": {
 		"report_name": "Stock Balance",
-		"description": "Số dư tồn kho tức thời và giá trị tồn kho theo từng kho hàng."
+		"description": "Real-time inventory quantities and valuation balances by warehouse."
 	},
 	"subcontracted_item_to_receive": {
 		"report_name": "Subcontracted Item To Be Received",
-		"description": "Báo cáo theo dõi hàng hóa gia công ngoài đang chờ nhận về."
+		"description": "Pending outward subcontracted materials awaiting receipt."
 	}
 }
 
 
 @whitelist()
 def get_available_key_reports() -> Dict[str, Any]:
-	"""Trả về danh mục các Key Reports có sẵn trong Lotus Fin phục vụ AI Model."""
+	"""Returns catalog of key ERP reports available for financial modeling and AI."""
 	return {
 		"status": "success",
 		"reports": KEY_REPORTS_REGISTRY
@@ -256,20 +256,20 @@ def extract_key_report_data(
 	company: Optional[str] = None
 ) -> Dict[str, Any]:
 	"""
-	Trích xuất dữ liệu chuẩn hóa từ một Key Report của ERPNext để nạp cho Model AI hoặc Client.
-	Áp dụng server-side company authorization guard và report permission check.
+	Extracts normalized data from an ERPNext Key Report to feed into AI models or client consumers.
+	Enforces server-side company authorization guard and report permission check.
 	
-	:param report_key: Khóa của báo cáo trong KEY_REPORTS_REGISTRY (ví dụ: 'general_ledger', 'sales_analytics')
-	:param filters: Bộ lọc đầu vào cho báo cáo (from_date, to_date, company, ...)
-	:param company: Tên công ty (untrusted param, validated server-side)
+	:param report_key: Key of the report in KEY_REPORTS_REGISTRY (e.g. 'general_ledger', 'sales_analytics')
+	:param filters: Input filters dictionary for the report (from_date, to_date, company, ...)
+	:param company: Company name (untrusted parameter, validated server-side)
 	"""
 	if report_key not in KEY_REPORTS_REGISTRY:
-		frappe.throw(_(f"Report key '{report_key}' không tồn tại trong Lotus Fin Key Reports Registry."))
+		frappe.throw(_("Report key '{0}' does not exist in Lotus Fin Key Reports Registry.").format(report_key))
 
 	report_meta = KEY_REPORTS_REGISTRY[report_key]
 	report_name = report_meta["report_name"]
 
-	# Parse filters nếu truyền dạng chuỗi JSON
+	# Parse filters if provided as JSON string
 	if isinstance(filters, str):
 		filters = json.loads(filters)
 	elif filters is None:
@@ -287,7 +287,7 @@ def extract_key_report_data(
 	check_report_permission(report_name)
 
 	try:
-		# Chạy report engine nội bộ của Frappe
+		# Execute Frappe internal report engine
 		report_result = run(report_name=report_name, filters=filters)
 		columns = report_result.get("columns", [])
 		result_data = report_result.get("result", [])
@@ -298,7 +298,7 @@ def extract_key_report_data(
 			report_key, columns, result_data, add_total_row, skip_total_row
 		)
 
-		# Chuẩn hóa dữ liệu đầu ra dạng tabular/features sạch
+		# Normalize clean tabular / feature output data
 		return {
 			"status": "success",
 			"report_key": report_key,
@@ -332,8 +332,8 @@ def get_ai_training_dataset(
 	to_date: Optional[str] = None
 ) -> Dict[str, Any]:
 	"""
-	Gói tổng hợp toàn bộ dữ liệu từ các Key Reports thành 1 Dataset hợp nhất
-	để nạp vào mô hình AI. Áp dụng server-side company authorization guard.
+	Aggregates data across Key Reports into a unified dataset
+	for AI modeling and offline training. Enforces server-side company authorization guard.
 	"""
 	verified_company = get_verified_company(company)
 	base_filters = {"company": verified_company}
