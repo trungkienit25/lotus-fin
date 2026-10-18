@@ -59,6 +59,16 @@ class CopilotIntent(str, Enum):
 
 # Normalized keyword patterns for deterministic intent classification fallback
 INTENT_PATTERNS = {
+    CopilotIntent.RISK_SIGNAL: [
+        r"\brisk\s+signal\b",
+        r"\bfinancial\s+risk\b",
+        r"\brisk\b",
+        r"\bcluster\b",
+        r"\bspike\b",
+        r"\banomaly\b",
+        r"\brủi\s*ro\b",
+        r"\btín\s*hiệu\b",
+    ],
     CopilotIntent.SALES_INVOICE_SEARCH: [
         r"\b(?:search|find|lookup|query)\s+(?:sales\s+)?invoices?\b",
         r"\b(?:sales\s+)?invoice\s+(?:number|id|code)?\b",
@@ -73,10 +83,11 @@ INTENT_PATTERNS = {
     CopilotIntent.DEBT_REMINDER: [
         r"\bdebt\s+reminder\b",
         r"\bpayment\s+reminder\b",
-        r"\bfollowup\b",
         r"\bcollection\s+letter\b",
         r"\bstatement\s+reconciliation\b",
-        r"\bdraft\s+(?:a\s+)?(?:reminder|letter|notice)\b",
+        r"\bdraft\s+(?:a\s+)?(?:reminder|letter|notice|email)\b",
+        r"\bsoạn\s+(?:thư|lời\s*nhắc|nhắc\s*nợ)\b",
+        r"\bnhắc\s*nợ\b",
     ],
     CopilotIntent.REPAYMENT_SCHEDULE: [
         r"\brepayment\b",
@@ -102,13 +113,6 @@ INTENT_PATTERNS = {
         r"\bliquidity\b",
         r"\bforecast\b",
         r"\bcash\s+deficit\b",
-    ],
-    CopilotIntent.RISK_SIGNAL: [
-        r"\brisk\s+signal\b",
-        r"\bfinancial\s+risk\b",
-        r"\bcluster\b",
-        r"\bspike\b",
-        r"\banomaly\b",
     ],
     CopilotIntent.WHAT_IF_STRESS: [
         r"\bwhat[- ]if\b",

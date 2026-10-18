@@ -79,11 +79,12 @@ class CopilotController:
             verified_company = dto.company or "Wind Power LLC"
             roles = (dto.context_filters or {}).get("roles") or ["System Manager"]
 
+        today_str = frappe.utils.today() if (frappe and hasattr(frappe, "utils")) else "2026-10-18"
         user = UserPrincipal(
             user_id=user_id,
             company=verified_company,
             roles=roles,
-            as_of_date=dto.as_of_date or "2026-12-31"
+            as_of_date=dto.as_of_date or today_str
         )
 
         session_id = dto.session_id or f"{user_id}_{verified_company}"

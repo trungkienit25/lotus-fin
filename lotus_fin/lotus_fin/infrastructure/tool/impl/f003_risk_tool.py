@@ -9,7 +9,7 @@ from lotus_fin.infrastructure.tool.command.base_tool_command import IToolCommand
 class RiskSignalArgs(BaseModel):
     company: str = Field(..., description="Target company to evaluate")
     signal_type: str = Field(default="AR_OVERDUE_SPIKE", description="Signal ID: AR_OVERDUE_SPIKE or AP_DUE_CLUSTER")
-    as_of_date: str = Field(default="2026-12-31", description="Cutoff date in YYYY-MM-DD")
+    as_of_date: Optional[str] = Field(default=None, description="Cutoff date in YYYY-MM-DD")
 
 
 class EvaluateRiskSignalTool(IToolCommand):
@@ -17,7 +17,7 @@ class EvaluateRiskSignalTool(IToolCommand):
     def definition(self) -> ToolDefinition:
         return ToolDefinition(
             name="evaluate_risk_signal",
-            description="Evaluate accounts receivable (AR overdue spikes) or accounts payable (AP due clusters) risk signals with verified voucher evidence.",
+            description="Evaluate accounts receivable risk signals (AR overdue spikes), accounts payable risks (AP due clusters), and payment concentration risks with verified voucher evidence. Always call this tool when the user asks to evaluate risk signals, analyze payment risks, inspect overdue AR risk, or detect financial anomalies.",
             parameters_schema=RiskSignalArgs.model_json_schema()
         )
 
@@ -27,7 +27,19 @@ class EvaluateRiskSignalTool(IToolCommand):
     def execute(self, arguments: Dict[str, Any], user: UserPrincipal) -> ToolExecutionResult:
         from lotus_fin.modules.f003_risk_signal.service import evaluate_signal, default_deps
         company = arguments.get("company") or user.company
-        as_of_date = arguments.get("as_of_date") or user.as_of_date or "2026-12-31"
+
+        today_str = "2026-10-18"
+        try:
+            import frappe
+            if hasattr(frappe, "utils"):
+                today_str = str(frappe.utils.today())
+        except Exception:
+            pass
+
+        as_of_date = arguments.get("as_of_date") or user.as_of_date or today_str
+        if as_of_date > today_str:
+            as_of_date = today_str
+
         signal_type = arguments.get("signal_type") or "AR_OVERDUE_SPIKE"
 
         checked_user = user.user_id or "Administrator"
