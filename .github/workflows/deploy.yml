@@ -153,6 +153,7 @@ jobs:
           sleep 5
           curl -s -f http://127.0.0.1/ >/dev/null && echo "    ✔ Web Gateway HTTP 200 OK"
           curl -s -f -H "Host: frontend" http://127.0.0.1/api/method/frappe.ping >/dev/null && echo "    ✔ Frappe Backend API ping OK"
+          curl -s -I -H "Host: frontend" http://127.0.0.1/copilot/session | grep -qE "(200|401)" && echo "    ✔ Copilot Session Bootstrap OK"
 
           echo "=========================================================="
           echo "   🎉 LOTUS FIN PRODUCTION DEPLOYMENT COMPLETED!          "
