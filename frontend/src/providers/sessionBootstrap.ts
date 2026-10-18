@@ -16,6 +16,7 @@ export class SessionBootstrapError extends Error {
 }
 
 let generation = 0;
+let inMemoryCsrfToken: string | null = null;
 
 export function requireSameOrigin(baseUrl: string): void {
   if (typeof window !== "undefined" && new URL(baseUrl || "/", window.location.origin).origin !== window.location.origin) {
@@ -25,6 +26,7 @@ export function requireSameOrigin(baseUrl: string): void {
 
 export function clearSessionBootstrap(): void {
   generation += 1;
+  inMemoryCsrfToken = null;
   markSessionRevoked();
 }
 
@@ -34,13 +36,20 @@ export function assertSessionGeneration(expected: number): void {
   if (expected !== generation) throw new DOMException("Session changed", "AbortError");
 }
 
+export function getActiveCsrfToken(): string | null {
+  return inMemoryCsrfToken;
+}
+
 /** No cached token: each protected operation binds to the latest server session. */
 export async function bootstrapSession(signal?: AbortSignal): Promise<SessionState> {
   const expected = generation;
   const result = await fetchServerSession(signal);
   assertSessionGeneration(expected);
   if (result.status !== 200 || !result.user || !result.csrfToken) {
+    inMemoryCsrfToken = null;
     throw new SessionBootstrapError(result.status || 502, null);
   }
+  inMemoryCsrfToken = result.csrfToken;
   return { user: result.user, csrfToken: result.csrfToken };
 }
+

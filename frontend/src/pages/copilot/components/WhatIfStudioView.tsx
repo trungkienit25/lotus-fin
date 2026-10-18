@@ -3,6 +3,8 @@ import axios from "axios";
 import { useTranslation } from "../../../i18n";
 import { formatBrandText } from "../../../utils/brand";
 import { ModuleBadge } from "./ModuleBadge";
+import { bootstrapSession } from "../../../providers/sessionBootstrap";
+
 
 interface WhatIfStudioViewProps {
   company: string;
@@ -74,18 +76,28 @@ export const WhatIfStudioView: React.FC<WhatIfStudioViewProps> = ({
     if (!company) return;
     setLoading(true);
     try {
-      const res = await axios.post("/api/method/lotus_fin.modules.f005_financing.service.simulate_what_if", {
-        company,
-        sales_change_pct: salesShock / 100.0,
-        collection_delay_days: delayDays,
-        supplier_due_shift_days: supplierDays,
-        payroll_change_pct: payrollShock / 100.0,
-        opex_change_pct: opexShock / 100.0,
-        one_off_expense: oneOffExpense,
-        financing_amount: finAmount,
-        financing_term_months: finAmount > 0 ? finTerm : 0,
-        financing_rate_annual: finAmount > 0 ? finRate / 100.0 : 0.0,
-      });
+      const session = await bootstrapSession().catch(() => null);
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (session?.csrfToken) {
+        headers["X-Frappe-CSRF-Token"] = session.csrfToken;
+      }
+
+      const res = await axios.post(
+        "/api/method/lotus_fin.modules.f005_financing.service.simulate_what_if",
+        {
+          company,
+          sales_change_pct: salesShock / 100.0,
+          collection_delay_days: delayDays,
+          supplier_due_shift_days: supplierDays,
+          payroll_change_pct: payrollShock / 100.0,
+          opex_change_pct: opexShock / 100.0,
+          one_off_expense: oneOffExpense,
+          financing_amount: finAmount,
+          financing_term_months: finAmount > 0 ? finTerm : 0,
+          financing_rate_annual: finAmount > 0 ? finRate / 100.0 : 0.0,
+        },
+        { headers }
+      );
 
       if (res.data?.message) {
         setResult(res.data.message);
@@ -93,6 +105,7 @@ export const WhatIfStudioView: React.FC<WhatIfStudioViewProps> = ({
         throw new Error("No simulation payload");
       }
     } catch {
+
       // Deterministic 9-layer calculation mock fallback
       const baseRev = 450000000;
       const simRev = baseRev * (1 + salesShock / 100);

@@ -181,8 +181,9 @@ def get_financial_snapshot(
 # ---------------------------------------------------------------------------
 
 _AI003_REQUEST_KEYS = frozenset(
-    {"cmd", "company", "signal_id", "as_of_date", "correlation_id", "include_explanation"}
+    {"cmd", "company", "signal_id", "as_of_date", "correlation_id", "include_explanation", "csrf_token"}
 )
+
 
 
 def _ai003_bool(value) -> bool:

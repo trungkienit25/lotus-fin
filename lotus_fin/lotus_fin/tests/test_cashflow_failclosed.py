@@ -55,16 +55,16 @@ AR_SUCCESS_ROWS = {
     "status": "success",
     "company": COMPANY,
     "data": [
-        {"voucher_no": "SINV-0001", "party": "Customer A", "outstanding": 3000000, "due_date": "2026-10-01", "currency": "VND"},
-        {"voucher_no": "SINV-0002", "party": "Customer B", "outstanding": 2000000, "due_date": "2026-09-20", "currency": "VND"},
-        {"voucher_no": "SINV-0003", "party": "Customer C", "outstanding": 0, "due_date": "2026-09-25", "currency": "VND"},
+        {"voucher_no": "SINV-0001", "party": "Customer A", "outstanding": 3000000, "due_date": "2026-10-01", "currency": "USD"},
+        {"voucher_no": "SINV-0002", "party": "Customer B", "outstanding": 2000000, "due_date": "2026-09-20", "currency": "USD"},
+        {"voucher_no": "SINV-0003", "party": "Customer C", "outstanding": 0, "due_date": "2026-09-25", "currency": "USD"},
     ],
 }
 AP_SUCCESS_ROWS = {
     "status": "success",
     "company": COMPANY,
     "data": [
-        {"voucher_no": "PINV-0001", "party": "Supplier Z", "outstanding": 1000000, "due_date": "2026-10-05", "currency": "VND"},
+        {"voucher_no": "PINV-0001", "party": "Supplier Z", "outstanding": 1000000, "due_date": "2026-10-05", "currency": "USD"},
     ],
 }
 
@@ -75,7 +75,7 @@ def verified_opening_cash():
         reconciliation="ERP_GL_EQUALS_TRIAL_BALANCE_NOT_BANK_RECONCILED",
         has_constituent_deficit=False,
         accounts=[
-            AccountBalance(account="Cash - A2F", amount=Decimal("11550000"), currency="VND", deficit=False)
+            AccountBalance(account="Cash - A2F", amount=Decimal("11550000"), currency="USD", deficit=False)
         ],
     )
 
@@ -86,9 +86,10 @@ def make_request(scope=None):
         financial_as_of=AS_OF,
         forecast_start=START,
         forecast_end=END,
-        reporting_currency="VND",
+        reporting_currency="USD",
         cash_account_scope=scope if scope is not None else ["Cash - A2F"],
     )
+
 
 
 class TestObligationFailClosed(unittest.TestCase):
@@ -818,9 +819,10 @@ class TestAccountScopeResolution(unittest.TestCase):
                 is_group=0,
                 disabled=0,
                 account_type="Cash",
-                account_currency="VND",
+                account_currency="USD",
             )
             request = make_request(scope=["Cash - A2F"])
+
             valid, reason, msg = validate_forecast_request(request, user="tester")
 
         self.assertTrue(valid)

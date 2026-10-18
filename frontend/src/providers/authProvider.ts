@@ -1,9 +1,28 @@
 import type { AuthProvider } from "@refinedev/core";
 import axios from "axios";
-import { bootstrapSession, clearSessionBootstrap } from "./sessionBootstrap.ts";
+import { bootstrapSession, clearSessionBootstrap, getActiveCsrfToken } from "./sessionBootstrap.ts";
 
 // Đảm bảo mọi request đều gửi kèm cookie session của Frappe (sid)
 axios.defaults.withCredentials = true;
+
+// Tự động đính kèm X-Frappe-CSRF-Token cho mọi request nếu có token phiên
+axios.interceptors.request.use(async (config) => {
+  const url = config.url || "";
+  if (!url.includes("/api/method/login") && !url.includes("/copilot/session")) {
+    let token = getActiveCsrfToken();
+    if (!token) {
+      try {
+        const session = await bootstrapSession();
+        token = session.csrfToken;
+      } catch {}
+    }
+    if (token && !config.headers["X-Frappe-CSRF-Token"]) {
+      config.headers["X-Frappe-CSRF-Token"] = token;
+    }
+  }
+  return config;
+});
+
 
 export const authProvider: AuthProvider = {
   login: async ({ email, password }) => {

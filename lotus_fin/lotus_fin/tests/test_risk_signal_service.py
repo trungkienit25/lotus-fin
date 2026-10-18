@@ -278,9 +278,10 @@ class StageA6_CurrencyAndSource(unittest.TestCase):
     def test_company_currency_gate(self):
         ar = _FakeAR(_ar_snap("565000", "0.1150", date(2026, 9, 26)),
                      _ar_snap("650000", "0.0000", date(2026, 8, 26)))
-        result = evaluate_signal(_ar_payload(), checked_user=USER, deps=_deps(currency="USD", ar=ar))
+        result = evaluate_signal(_ar_payload(), checked_user=USER, deps=_deps(currency="EUR", ar=ar))
         self.assertEqual(result.status, Status.VALIDATION_ERROR)
         self.assertEqual(result.reason_code, ReasonCode.UNSUPPORTED_COMPANY_CURRENCY)
+
 
     def test_source_error_before_policy(self):
         ar = _FakeAR(

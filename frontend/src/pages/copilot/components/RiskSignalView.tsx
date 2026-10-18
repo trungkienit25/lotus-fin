@@ -3,6 +3,7 @@ import axios from "axios";
 import { useTranslation } from "../../../i18n";
 import { formatBrandText } from "../../../utils/brand";
 import { ModuleBadge } from "./ModuleBadge";
+import { bootstrapSession } from "../../../providers/sessionBootstrap";
 
 interface RiskSignalViewProps {
   company: string;
@@ -18,18 +19,30 @@ export const RiskSignalView: React.FC<RiskSignalViewProps> = ({
   const [asOfDate, setAsOfDate] = useState<string>("2026-09-26");
   const [includeExplanation, setIncludeExplanation] = useState<boolean>(true);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<any>(null);
 
   const evaluateSignal = async () => {
     if (!company) return;
     setLoading(true);
+    setError(null);
     try {
-      const res = await axios.post("/api/method/lotus_fin.api.ai_insights.get_risk_signal", {
-        company,
-        signal_id: signalId,
-        as_of_date: asOfDate,
-        include_explanation: includeExplanation ? 1 : 0,
-      });
+      const session = await bootstrapSession().catch(() => null);
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (session?.csrfToken) {
+        headers["X-Frappe-CSRF-Token"] = session.csrfToken;
+      }
+
+      const res = await axios.post(
+        "/api/method/lotus_fin.api.ai_insights.get_risk_signal",
+        {
+          company,
+          signal_id: signalId,
+          as_of_date: asOfDate,
+          include_explanation: includeExplanation ? 1 : 0,
+        },
+        { headers }
+      );
 
       const payload = res.data?.message || res.data;
       if (payload) {
@@ -37,10 +50,13 @@ export const RiskSignalView: React.FC<RiskSignalViewProps> = ({
       }
     } catch (err: any) {
       console.warn("Could not evaluate risk signal:", err);
+      const msg = err?.response?.data?.exception || err?.response?.data?._server_messages || err?.message || "Evaluation failed";
+      setError(typeof msg === "string" ? msg : "Evaluation failed");
     } finally {
       setLoading(false);
     }
   };
+
 
   useEffect(() => {
     evaluateSignal();
@@ -147,6 +163,32 @@ export const RiskSignalView: React.FC<RiskSignalViewProps> = ({
           HIGH: Critical Risk (Action Required)
         </span>
       </div>
+
+      {/* Loading Skeleton */}
+      {loading && !result && (
+        <div className="bg-white rounded-2xl p-12 border border-slate-200/80 shadow-xs flex flex-col items-center justify-center text-slate-500">
+          <svg className="w-8 h-8 animate-spin text-blue-600 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          <p className="text-sm font-medium">Evaluating risk signal against General Ledger...</p>
+        </div>
+      )}
+
+      {/* Error Alert */}
+      {error && !loading && (
+        <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 flex items-center justify-between">
+          <div className="flex items-center gap-2 text-sm">
+            <span>⚠️</span>
+            <span>Failed to evaluate risk signal: {error}</span>
+          </div>
+          <button
+            onClick={() => evaluateSignal()}
+            className="px-3 py-1 bg-rose-600 text-white text-xs font-semibold rounded-lg hover:bg-rose-700 transition-colors cursor-pointer"
+          >
+            Retry
+          </button>
+        </div>
+      )}
 
       {/* 3. Result & Verdict Panel */}
       {result && (

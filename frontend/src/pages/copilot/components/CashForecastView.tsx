@@ -3,6 +3,7 @@ import axios from "axios";
 import { useTranslation } from "../../../i18n";
 import { formatBrandText } from "../../../utils/brand";
 import { ModuleBadge } from "./ModuleBadge";
+import { bootstrapSession } from "../../../providers/sessionBootstrap";
 
 interface CashForecastViewProps {
   company: string;
@@ -16,16 +17,28 @@ export const CashForecastView: React.FC<CashForecastViewProps> = ({
   const { t } = useTranslation();
   const [asOfDate, setAsOfDate] = useState<string>("2026-09-26");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<any>(null);
 
   const fetchForecast = async () => {
     if (!company) return;
     setLoading(true);
+    setError(null);
     try {
-      const res = await axios.post("/api/method/lotus_fin.api.ai_insights.get_ai002_cash_forecast", {
-        company,
-        financial_as_of: asOfDate,
-      });
+      const session = await bootstrapSession().catch(() => null);
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (session?.csrfToken) {
+        headers["X-Frappe-CSRF-Token"] = session.csrfToken;
+      }
+
+      const res = await axios.post(
+        "/api/method/lotus_fin.api.ai_insights.get_ai002_cash_forecast",
+        {
+          company,
+          financial_as_of: asOfDate,
+        },
+        { headers }
+      );
 
       const payload = res.data?.message || res.data;
       if (payload) {
@@ -33,10 +46,13 @@ export const CashForecastView: React.FC<CashForecastViewProps> = ({
       }
     } catch (err: any) {
       console.warn("Could not fetch real cash forecast:", err);
+      const msg = err?.response?.data?.exception || err?.response?.data?._server_messages || err?.message || "Failed to fetch cash forecast";
+      setError(typeof msg === "string" ? msg : "Failed to fetch cash forecast");
     } finally {
       setLoading(false);
     }
   };
+
 
   useEffect(() => {
     fetchForecast();
@@ -110,6 +126,32 @@ export const CashForecastView: React.FC<CashForecastViewProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Loading Skeleton */}
+      {loading && !data && (
+        <div className="bg-white rounded-2xl p-12 border border-slate-200/80 shadow-xs flex flex-col items-center justify-center text-slate-500">
+          <svg className="w-8 h-8 animate-spin text-blue-600 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          <p className="text-sm font-medium">Extracting opening cash balances and contractual obligations from General Ledger...</p>
+        </div>
+      )}
+
+      {/* Error Alert */}
+      {error && !loading && (
+        <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 flex items-center justify-between">
+          <div className="flex items-center gap-2 text-sm">
+            <span>⚠️</span>
+            <span>Failed to fetch cash forecast: {error}</span>
+          </div>
+          <button
+            onClick={() => fetchForecast()}
+            className="px-3 py-1 bg-rose-600 text-white text-xs font-semibold rounded-lg hover:bg-rose-700 transition-colors cursor-pointer"
+          >
+            Retry
+          </button>
+        </div>
+      )}
 
       {/* 2. Tier 1: Opening Cash & Bank Balances Verification */}
       <div className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs">

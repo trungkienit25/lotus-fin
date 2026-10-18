@@ -112,22 +112,22 @@ class TestCashflowSecurityAndHardening(unittest.TestCase):
             financial_as_of=date(2026, 9, 26),
             forecast_start=date(2026, 9, 27),
             forecast_end=date(2026, 10, 26),
-            currency="VND",
+            currency="USD",
             opening_cash=OpeningCash(
-                aggregate_amount=Decimal("11550000"),
+                aggregate_amount=Decimal("11550"),
                 reconciliation="RECONCILED",
                 has_constituent_deficit=False,
-                accounts=[AccountBalance("Cash", Decimal("11550000"), "VND", False)],
+                accounts=[AccountBalance("Cash", Decimal("11550"), "USD", False)],
             ),
         )
 
         # 1. Hallucinated amount: 999999999
-        valid, violations = validate_grounding("Cash will be 999999999 VND tomorrow", mock_resp)
+        valid, violations = validate_grounding("Cash will be 999999999 USD tomorrow", mock_resp)
         self.assertFalse(valid)
         self.assertTrue(any("999999999" in v for v in violations))
 
         # 2. Altered opening cash
-        valid, violations = validate_grounding("Opening cash balance is 50,000,000 VND.", mock_resp)
+        valid, violations = validate_grounding("Opening cash balance is 50,000 USD.", mock_resp)
         self.assertFalse(valid)
 
         # 3. Unsupported risk claims
@@ -136,14 +136,15 @@ class TestCashflowSecurityAndHardening(unittest.TestCase):
         self.assertTrue(any("subjective risk" in v for v in violations))
 
         # 4. Wrong currency
-        valid, violations = validate_grounding("Opening cash balance is 11,550,000 USD.", mock_resp)
+        valid, violations = validate_grounding("Opening cash balance is 11,550 EUR.", mock_resp)
         self.assertFalse(valid)
         self.assertTrue(any("currency" in v for v in violations))
 
         # 5. Grounded factual statement passes
-        valid, violations = validate_grounding("Opening cash balance is 11,550,000 VND.", mock_resp)
+        valid, violations = validate_grounding("Opening cash balance is 11,550 USD.", mock_resp)
         self.assertTrue(valid)
         self.assertEqual(len(violations), 0)
+
 
     def test_model_failure_degradation(self):
         """When LLM times out or errors, explanation.status must be UNAVAILABLE with typed error_code."""

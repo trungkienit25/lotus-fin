@@ -259,11 +259,13 @@ class TestCashflowEnginePurePython(unittest.TestCase):
             financial_as_of=self.as_of,
             forecast_start=self.start,
             forecast_end=self.end,
-            reporting_currency="USD",
+            cash_account_scope=["Acc1"],
+            reporting_currency="EUR",
         )
         valid, reason, _ = validate_forecast_request(bad_req_3)
         self.assertFalse(valid)
         self.assertEqual(reason, ReasonCode.UNSUPPORTED_CURRENCY)
+
 
     def test_compound_cache_key_isolation(self):
         """Cache keys differ when user, company, date, scope, or source_mode differs."""

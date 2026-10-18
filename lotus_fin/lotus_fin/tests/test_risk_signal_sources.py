@@ -126,11 +126,12 @@ class ARPairSemantics(unittest.TestCase):
         self.assertEqual(ctx.exception.reason_code, ReasonCode.UNSUPPORTED_SOURCE_VERSION)
 
     def test_currency_gate(self):
-        provider = _FakeARProvider(lambda company, cutoff: _ai001_envelope(company=company, currency="USD"))
+        provider = _FakeARProvider(lambda company, cutoff: _ai001_envelope(company=company, currency="EUR"))
         with self.assertRaises(SourceFailure) as ctx:
             sources.fetch_ar_pair(provider, "C", date(2026, 9, 26))
         self.assertEqual(ctx.exception.status, Status.VALIDATION_ERROR)
         self.assertEqual(ctx.exception.reason_code, ReasonCode.UNSUPPORTED_COMPANY_CURRENCY)
+
 
     def test_forbidden_propagates(self):
         provider = _FakeARProvider(lambda company, cutoff: _ai001_envelope(company=company, status="FORBIDDEN"))
@@ -411,9 +412,10 @@ class V2_2Identity(unittest.TestCase):
     def test_currency_gate_before_identity(self):
         # Gold: AP_CURRENCY_MISMATCH_BEFORE_IDENTITY — reconciliation never invoked.
         with self.assertRaises(SourceFailure) as ctx:
-            gate_company_currency("USD")
+            gate_company_currency("EUR")
         self.assertEqual(ctx.exception.status, Status.VALIDATION_ERROR)
-        gate_company_currency("VND")  # passes
+        gate_company_currency("USD")  # passes
+
 
     def test_identity_never_from_amount_or_date(self):
         rows = [
