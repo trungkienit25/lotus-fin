@@ -49,9 +49,11 @@ jobs:
 
           echo ">>> [1/5] Syncing latest Git repository state..."
           TARGET_BRANCH="${GITHUB_REF_NAME:-release/beta-1.0}"
+          PREV_COMMIT=$(git rev-parse HEAD 2>/dev/null || echo "")
           git fetch origin "$TARGET_BRANCH"
           git checkout "$TARGET_BRANCH"
           git pull origin "$TARGET_BRANCH"
+          NEW_COMMIT=$(git rev-parse HEAD 2>/dev/null || echo "")
 
           echo ">>> [2/5] Injecting production configuration and secrets..."
           ENV_PATH="$APP_DIR/docker/production/.env.production"
@@ -132,19 +134,35 @@ jobs:
           cp "$ENV_PATH" "$APP_DIR/.env"
           chmod 600 "$APP_DIR/.env"
 
+          SHOULD_REBUILD_FE="false"
           if [ "$REBUILD_FRONTEND" = "true" ]; then
+            SHOULD_REBUILD_FE="true"
+            echo "    → Rebuild explicitly requested via workflow input."
+          elif [ -n "$PREV_COMMIT" ] && [ -n "$NEW_COMMIT" ] && [ "$PREV_COMMIT" != "$NEW_COMMIT" ] && git diff --name-only "$PREV_COMMIT" "$NEW_COMMIT" 2>/dev/null | grep -qE '^(frontend/|docker/production/)'; then
+            SHOULD_REBUILD_FE="true"
+            echo "    → Frontend or production Docker changes detected between ${PREV_COMMIT:0:7} and ${NEW_COMMIT:0:7}."
+          elif ! docker image inspect lotus-fin/gateway:latest >/dev/null 2>&1; then
+            SHOULD_REBUILD_FE="true"
+            echo "    → Container image lotus-fin/gateway:latest does not exist locally."
+          fi
+
+          if [ "$SHOULD_REBUILD_FE" = "true" ]; then
             echo ">>> [3/5] Rebuilding frontend gateway image..."
             "$APP_DIR/scripts/packaging/run-packaging.sh"
           else
-            echo ">>> [3/5] Skipping frontend packaging (not requested)."
+            echo ">>> [3/5] Skipping frontend packaging (no frontend changes detected)."
           fi
 
           echo ">>> [4/5] Applying container stack updates via Docker Compose..."
           for k in GEMINI_API_KEY OPENAI_API_KEY DB_PASSWORD ADMIN_PASSWORD LOTUS_SMTP_PASSWORD LOTUS_AI_PROVIDER LOTUS_LLM_PROVIDER LOTUS_LLM_MODEL SERVER_NAME PROD_PORT LOTUS_SITE; do
             unset "$k" || true
           done
-          docker compose --env-file "$ENV_PATH" -f "$APP_DIR/docker/production/compose.prod.yml" up -d --remove-orphans --force-recreate backend frappe-frontend queue-long queue-short scheduler
-          docker compose --env-file "$ENV_PATH" -f "$APP_DIR/docker/production/compose.prod.yml" restart web
+          if [ "$SHOULD_REBUILD_FE" = "true" ]; then
+            docker compose --env-file "$ENV_PATH" -f "$APP_DIR/docker/production/compose.prod.yml" up -d --remove-orphans --force-recreate backend frappe-frontend queue-long queue-short scheduler web
+          else
+            docker compose --env-file "$ENV_PATH" -f "$APP_DIR/docker/production/compose.prod.yml" up -d --remove-orphans --force-recreate backend frappe-frontend queue-long queue-short scheduler
+            docker compose --env-file "$ENV_PATH" -f "$APP_DIR/docker/production/compose.prod.yml" restart web
+          fi
 
           echo ">>> [4.1/5] Running Frappe database migrations & versioned patches..."
           docker compose --env-file "$ENV_PATH" -f "$APP_DIR/docker/production/compose.prod.yml" exec -T backend bench --site "${LOTUS_SITE:-frontend}" migrate --skip-failing || true
