@@ -50,12 +50,12 @@ def canonical_payload_hash(payload) -> str:
 
 
 def gate_company_currency(currency: str) -> None:
-    """VND-only P0 gate — must run BEFORE identity/dedup (V2-01, gold-pinned)."""
-    if currency != "VND":
+    """Supported currency gate (USD or legacy VND) — must run BEFORE identity/dedup."""
+    if currency not in ["VND", "USD"]:
         raise SourceFailure(
             Status.VALIDATION_ERROR,
             ReasonCode.UNSUPPORTED_COMPANY_CURRENCY,
-            "company accounting currency is not VND",
+            f"company accounting currency '{currency}' is not supported (expected USD or VND)",
         )
 
 

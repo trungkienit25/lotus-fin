@@ -22,16 +22,16 @@ export const PastFinalDueView: React.FC<PastFinalDueViewProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-white border border-slate-200/80 shadow-2xs">
         <div>
           <h3 className="text-base font-bold text-slate-900 tracking-tight">
-            Hóa đơn đã qua hạn cuối còn dư nợ (Past-Final-Due)
+            Past-Final-Due Invoices with Outstanding Balance
           </h3>
           <p className="text-xs text-slate-500 mt-0.5">
-            Ngày hạch toán hệ thống: <span className="font-mono font-medium text-slate-700">{data.siteLocalDate}</span> ({data.siteTimezone}) · Phạm vi: <span className="font-medium text-slate-700">{data.authorizedScope}</span>
+            System Accounting Date: <span className="font-mono font-medium text-slate-700">{data.siteLocalDate}</span> ({data.siteTimezone}) · Scope: <span className="font-medium text-slate-700">{data.authorizedScope}</span>
           </p>
         </div>
         <div className="flex items-center gap-2">
           {isDemo && (
             <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
-              Dữ liệu kiểm thử
+              Test Data
             </span>
           )}
           {isCore && (
@@ -41,7 +41,7 @@ export const PastFinalDueView: React.FC<PastFinalDueViewProps> = ({
           )}
           {isPartial && (
             <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-              Phạm vi một phần
+              Partial Coverage
             </span>
           )}
         </div>
@@ -58,19 +58,19 @@ export const PastFinalDueView: React.FC<PastFinalDueViewProps> = ({
       {/* Invoice Table */}
       {data.items.length === 0 ? (
         <div className="p-8 text-center text-xs text-slate-500 border border-dashed border-slate-200 rounded-2xl bg-white">
-          {isCore ? "Hiện tại chưa có hóa đơn quá hạn nào cần xử lý trong phạm vi đã chọn." : "Không tìm thấy hóa đơn quá hạn thỏa mãn điều kiện."}
+          {isCore ? "No overdue invoices requiring collection within the authorized scope." : "No overdue invoices found matching the criteria."}
         </div>
       ) : (
         <div className="overflow-x-auto rounded-2xl border border-slate-200/80 bg-white shadow-2xs">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="bg-[#F8FAFC] border-b border-slate-200/80 text-[11px] font-bold text-slate-600 uppercase tracking-wider">
-                <th className="py-3 px-4">Mã Hóa đơn</th>
-                <th className="py-3 px-4">Hạn chót thanh toán</th>
-                <th className="py-3 px-4">Số ngày quá hạn</th>
-                <th className="py-3 px-4 text-right">Dư nợ hiện tại</th>
-                <th className="py-3 px-4">Đơn vị tiền tệ</th>
-                <th className="py-3 px-4 text-center">Thao tác</th>
+                <th className="py-3 px-4">Invoice ID</th>
+                <th className="py-3 px-4">Due Date</th>
+                <th className="py-3 px-4">Days Overdue</th>
+                <th className="py-3 px-4 text-right">Outstanding Amount</th>
+                <th className="py-3 px-4">Currency</th>
+                <th className="py-3 px-4 text-center">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -80,7 +80,7 @@ export const PastFinalDueView: React.FC<PastFinalDueViewProps> = ({
                   <td className="py-3 px-4 font-mono text-slate-600">{item.finalDueDate}</td>
                   <td className="py-3 px-4">
                     <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
-                      +{item.overdueDays} ngày
+                      +{item.overdueDays} days
                     </span>
                   </td>
                   <td className="py-3 px-4 text-right font-mono font-bold text-slate-900">
@@ -97,7 +97,7 @@ export const PastFinalDueView: React.FC<PastFinalDueViewProps> = ({
                           : "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200"
                       }`}
                     >
-                      {item.selectionRef ? "Xem chi tiết ↗" : "Chưa xác thực"}
+                      {item.selectionRef ? "View Details ↗" : "Unverified"}
                     </button>
                   </td>
                 </tr>
@@ -110,14 +110,14 @@ export const PastFinalDueView: React.FC<PastFinalDueViewProps> = ({
       {/* Footer & Freshness */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-slate-400 px-1">
         <span>
-          Đã quét: <strong className="text-slate-600">{data.coverage.scannedRows}</strong> · Trả về: <strong className="text-slate-600">{data.coverage.returnedRows}</strong> · Thời điểm đối soát: <span className="font-mono">{data.observedAtUtc}</span>
+          Scanned: <strong className="text-slate-600">{data.coverage.scannedRows}</strong> · Returned: <strong className="text-slate-600">{data.coverage.returnedRows}</strong> · As-of Timestamp: <span className="font-mono">{data.observedAtUtc}</span>
         </span>
         {onRefresh && (
           <button
             onClick={onRefresh}
             className="text-blue-600 hover:text-blue-700 font-semibold cursor-pointer self-start sm:self-auto"
           >
-            Làm mới dữ liệu ↻
+            Refresh Records ↻
           </button>
         )}
       </div>

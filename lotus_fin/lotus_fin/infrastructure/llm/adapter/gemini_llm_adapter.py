@@ -49,6 +49,10 @@ class GeminiLLMAdapter(ILLMProvider):
         ]
         self.timeout_seconds = timeout_seconds
 
+    @property
+    def api_key(self) -> str:
+        return self.api_keys[0] if self.api_keys else ""
+
     def generate(
         self,
         messages: List[ChatMessage],

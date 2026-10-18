@@ -46,35 +46,35 @@ export function IntegratedCapabilities({ profile, feature, draft = "" }: {
       <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 className="text-base font-bold text-slate-900 tracking-tight flex items-center gap-2">
-            <span>Kiểm toán Tác động & An toàn Chính sách</span>
+            <span>Impact Audit & Policy Safety Gate</span>
             <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
               {feature} Engine
             </span>
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
             {profile === "DEMO"
-              ? "Chế độ mô phỏng kiểm thử an toàn — không gây ảnh hưởng đến sổ cái sản xuất"
-              : "Hệ thống kiểm soát kép — tuân thủ quy chuẩn kế toán doanh nghiệp"}
+              ? "Safe simulation testing mode — isolated from production ledger"
+              : "Dual-control compliance — enterprise accounting policy adherence"}
           </p>
         </div>
         <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 font-mono self-start sm:self-auto">
-          {profile === "DEMO" ? "Mô phỏng" : "ERP Live"}
+          {profile === "DEMO" ? "Simulation" : "ERP Live"}
         </span>
       </div>
 
       {feature === "L4" && (
         <div className="space-y-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs">
           <div>
-            <h3 className="text-sm font-bold text-slate-800">Khởi tạo Tác vụ Theo dõi Công nợ</h3>
+            <h3 className="text-sm font-bold text-slate-800">Initialize Receivables Follow-up Task</h3>
             <p className="text-xs text-slate-500 mt-0.5">
-              Quy trình chuẩn hóa: Chuẩn bị nội dung → Xem trước thay đổi → Phê duyệt tác vụ.
+              Standard workflow: Prepare Content → Preview Mutations → Dual Authorization.
             </p>
           </div>
 
           <div className="space-y-3">
             <div>
               <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">
-                Tiêu đề công việc
+                Task Title
               </label>
               <input
                 aria-label="Task title"
@@ -82,13 +82,13 @@ export function IntegratedCapabilities({ profile, feature, draft = "" }: {
                 onChange={(e) => setTitle(e.target.value)}
                 maxLength={140}
                 className="w-full text-xs rounded-xl border border-slate-200 bg-[#F9FBFC] px-3.5 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#1E63B7]/20 focus:border-[#1E63B7] transition-all"
-                placeholder="VD: Theo dõi công nợ quá hạn..."
+                placeholder="e.g. Follow up on overdue receivables..."
               />
             </div>
 
             <div>
               <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">
-                Nội dung chi tiết
+                Description & Context
               </label>
               <textarea
                 aria-label="Task description"
@@ -97,13 +97,13 @@ export function IntegratedCapabilities({ profile, feature, draft = "" }: {
                 maxLength={2000}
                 rows={3}
                 className="w-full text-xs rounded-xl border border-slate-200 bg-[#F9FBFC] px-3.5 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#1E63B7]/20 focus:border-[#1E63B7] transition-all resize-none"
-                placeholder="Mô tả công việc cần xử lý..."
+                placeholder="Detailed follow-up instructions..."
               />
             </div>
 
             <div>
               <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">
-                Hạn hoàn thành
+                Due Date
               </label>
               <input
                 aria-label="Task due date"
@@ -125,7 +125,7 @@ export function IntegratedCapabilities({ profile, feature, draft = "" }: {
                 }
                 className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all disabled:opacity-50 cursor-pointer shadow-2xs"
               >
-                {busy ? "Đang xử lý..." : "Xem đề xuất Tác vụ"}
+                {busy ? "Processing..." : "Generate Task Proposal"}
               </button>
             </div>
           </div>
@@ -168,16 +168,16 @@ export function IntegratedCapabilities({ profile, feature, draft = "" }: {
       {feature === "L5" && (
         <div className="space-y-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs">
           <div>
-            <h3 className="text-sm font-bold text-slate-800">Cổng Kiểm soát Tác động Cao (L5 Dual-Control Gate)</h3>
+            <h3 className="text-sm font-bold text-slate-800">High-Impact Control Gateway (L5 Dual-Control Gate)</h3>
             <p className="text-xs text-slate-500 mt-0.5">
-              Đánh giá rủi ro và xác thực chính sách. Mọi hành động có tác động vĩnh viễn (gửi tiền, hủy chứng từ) đều yêu cầu phê duyệt đa tầng.
+              Risk assessment and policy validation. Actions with irreversible financial impact (fund disbursement, document cancellation) require multi-tier authorization.
             </p>
           </div>
 
           <div className="space-y-3">
             <div>
               <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">
-                Hành động cần đánh giá
+                Target High-Impact Action
               </label>
               <select
                 aria-label="High impact action"
@@ -188,11 +188,11 @@ export function IntegratedCapabilities({ profile, feature, draft = "" }: {
                 }}
                 className="w-full text-xs rounded-xl border border-slate-200 bg-[#F9FBFC] px-3.5 py-2.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#1E63B7]/20 focus:border-[#1E63B7] transition-all cursor-pointer"
               >
-                <option value="l5.doc.submit_sales_invoice.v1">Ghi nhận Hóa đơn Bán hàng (Submit Sales Invoice)</option>
-                <option value="l5.doc.cancel_sales_invoice.v1">Hủy bỏ Hóa đơn Bán hàng (Cancel Sales Invoice)</option>
-                <option value="l5.comm.send_statement_email.v1">Gửi Bảng đối chiếu Công nợ qua Email</option>
-                <option value="l5.pay.execute_wire_transfer.v1">Thực hiện Chuyển tiền Thanh toán (Wire Transfer)</option>
-                <option value="l5.sched.autonomous_reconciliation.v1">Kích hoạt Tự động Đối soát Sổ cái</option>
+                <option value="l5.doc.submit_sales_invoice.v1">Submit Sales Invoice (Formal Ledger Booking)</option>
+                <option value="l5.doc.cancel_sales_invoice.v1">Cancel Sales Invoice (Reversal)</option>
+                <option value="l5.comm.send_statement_email.v1">Transmit Statement of Accounts via Email</option>
+                <option value="l5.pay.execute_wire_transfer.v1">Execute Bank Wire Transfer</option>
+                <option value="l5.sched.autonomous_reconciliation.v1">Trigger Automated General Ledger Reconciliation</option>
               </select>
             </div>
 
@@ -202,7 +202,7 @@ export function IntegratedCapabilities({ profile, feature, draft = "" }: {
                 onClick={() => void run("l5_review")}
                 className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all disabled:opacity-50 cursor-pointer shadow-2xs"
               >
-                {busy ? "Đang đánh giá..." : "Xem chính sách kiểm soát"}
+                {busy ? "Evaluating..." : "Review Policy Rules"}
               </button>
             </div>
           </div>
@@ -229,7 +229,7 @@ export function IntegratedCapabilities({ profile, feature, draft = "" }: {
               onClick={() => void run("past_final_due")}
               className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all disabled:opacity-50 cursor-pointer shadow-2xs"
             >
-              {busy ? "Đang tìm kiếm..." : "Tìm hóa đơn đã quá hạn cuối"}
+              {busy ? "Searching..." : "Find Past-Final-Due Invoices"}
             </button>
           </div>
           {overdue && <PastFinalDueView data={overdue} onRefresh={() => void run("past_final_due")} />}
@@ -239,7 +239,7 @@ export function IntegratedCapabilities({ profile, feature, draft = "" }: {
       {busy && (
         <div className="p-3 rounded-xl bg-blue-50 border border-blue-200 text-blue-700 text-xs flex items-center gap-2">
           <div className="size-2 rounded-full bg-blue-600 animate-ping"></div>
-          <span>Đang xác minh chính sách và đối soát hệ thống...</span>
+          <span>Verifying compliance policy and reconciling records...</span>
         </div>
       )}
 

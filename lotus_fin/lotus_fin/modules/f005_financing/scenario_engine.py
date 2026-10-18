@@ -75,11 +75,11 @@ class WhatIfScenarioEngine:
         shortfall_events = []
         if shortfall_sim > Decimal("0"):
             shortfall_events.append({
-                "date": "T+45 (Giữa kỳ)",
+                "date": "T+45 (Mid-horizon)",
                 "projected_cash": float(end_cash_sim.quantize(Decimal("1.0"), rounding=ROUND_HALF_UP)),
                 "deficit_amount": float(shortfall_sim.quantize(Decimal("1.0"), rounding=ROUND_HALF_UP)),
                 "urgency_level": "CRITICAL" if end_cash_sim < Decimal("0") else "HIGH",
-                "recommended_action": "Kích hoạt gói tài trợ vốn lưu động hoặc chiết khấu hóa đơn (AI-F005)."
+                "recommended_action": "Activate working capital facility or invoice discounting (AI-F005)."
             })
 
         return ScenarioSimulationResult(
@@ -93,19 +93,19 @@ class WhatIfScenarioEngine:
                 "supplier_due_shift_days": params.supplier_due_shift_days,
                 "financing_amount": float(params.financing_amount)
             },
-            revenue=self._create_kpi("revenue", "Revenue", rev_base, rev_sim, "VND"),
-            gross_profit=self._create_kpi("gross_profit", "Gross Profit", gp_base, gp_sim, "VND"),
+            revenue=self._create_kpi("revenue", "Revenue", rev_base, rev_sim, "USD"),
+            gross_profit=self._create_kpi("gross_profit", "Gross Profit", gp_base, gp_sim, "USD"),
             gross_margin=self._create_kpi("gross_margin", "Gross Margin", gm_base, gm_sim, "%", is_ratio=True),
-            ar_outstanding=self._create_kpi("ar_outstanding", "Accounts Receivable", ar_base, ar_sim, "VND"),
+            ar_outstanding=self._create_kpi("ar_outstanding", "Accounts Receivable", ar_base, ar_sim, "USD"),
             dso=self._create_kpi("dso", "Days Sales Outstanding", dso_base, dso_sim, "days"),
-            net_cash_flow=self._create_kpi("net_cash_flow", "Net Cash Flow", ncf_base, ncf_sim, "VND"),
-            ending_cash=self._create_kpi("ending_cash", "Ending Cash Balance", end_cash_base, end_cash_sim, "VND"),
+            net_cash_flow=self._create_kpi("net_cash_flow", "Net Cash Flow", ncf_base, ncf_sim, "USD"),
+            ending_cash=self._create_kpi("ending_cash", "Ending Cash Balance", end_cash_base, end_cash_sim, "USD"),
             ccc=self._create_kpi("ccc", "Cash Conversion Cycle", ccc_base, ccc_sim, "days"),
-            cash_shortfall=self._create_kpi("cash_shortfall", "Cash Shortfall Deficit", shortfall_base, shortfall_sim, "VND"),
+            cash_shortfall=self._create_kpi("cash_shortfall", "Cash Shortfall Deficit", shortfall_base, shortfall_sim, "USD"),
             shortfall_events=shortfall_events,
             limitations=[
-                "Mô hình giả định cấu trúc biến phí / định phí duy trì ổn định theo kỳ cơ sở.",
-                "Chưa tính thuế TNDN phát sinh theo quý."
+                "Model assumes fixed and variable operational cost structures remain stable relative to baseline.",
+                "Corporate income tax liabilities are not accrued intra-quarter."
             ]
         )
 

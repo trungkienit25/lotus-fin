@@ -8,65 +8,24 @@ export interface InvoiceActionChatCardProps {
   onOpenModalTab?: () => void;
 }
 
-const FALLBACK_INVOICES: (InvoiceRowVm & { customerName?: string; grandTotal?: number; currency?: string })[] = [
-  {
-    invoiceId: "ACC-SINV-2026-00001",
-    postingDate: "2026-07-21",
-    docstatus: 1,
-    recordVersion: "v1.0",
-    selectionRef: "ref-sinv-01",
-    customerName: "Grant Plastics Ltd.",
-    grandTotal: 67000,
-    currency: "VND",
-  },
-  {
-    invoiceId: "ACC-SINV-2026-00002",
-    postingDate: "2026-09-14",
-    docstatus: 1,
-    recordVersion: "v1.0",
-    selectionRef: "ref-sinv-02",
-    customerName: "Palmer Productions Ltd.",
-    grandTotal: 15000,
-    currency: "VND",
-  },
-  {
-    invoiceId: "ACC-SINV-2026-00003",
-    postingDate: "2026-10-28",
-    docstatus: 1,
-    recordVersion: "v1.0",
-    selectionRef: "ref-sinv-03",
-    customerName: "West View Software Ltd.",
-    grandTotal: 229000,
-    currency: "VND",
-  },
-  {
-    invoiceId: "ACC-SINV-2026-00005",
-    postingDate: "2026-02-27",
-    docstatus: 1,
-    recordVersion: "v1.0",
-    selectionRef: "ref-sinv-05",
-    customerName: "Grant Plastics Ltd.",
-    grandTotal: 20000,
-    currency: "VND",
-  },
-];
-
 export const InvoiceActionChatCard: React.FC<InvoiceActionChatCardProps> = ({
   company,
   onOpenModalTab,
 }) => {
-  const [invoices, setInvoices] = useState<any[]>(FALLBACK_INVOICES);
+  const [invoices, setInvoices] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<"ALL" | "DRAFT" | "SUBMITTED">("ALL");
   const [selectedDoc, setSelectedDoc] = useState<DocumentVm | null>(null);
   const [loading, setLoading] = useState(false);
   const [fetchingList, setFetchingList] = useState(true);
-  const [sourceTag, setSourceTag] = useState("Đang kết nối ERP...");
+  const [sourceTag, setSourceTag] = useState("Connecting to ERP...");
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
     async function fetchRealInvoices() {
       try {
+        setFetchError(null);
         const session = await bootstrapSession().catch(() => null);
         const headers: Record<string, string> = { "Content-Type": "application/json" };
         if (session?.csrfToken) {
@@ -84,19 +43,21 @@ export const InvoiceActionChatCard: React.FC<InvoiceActionChatCardProps> = ({
           const wire = await res.json();
           const data = wire.message;
           if (data && data.invoices && isMounted) {
-            setInvoices(data.invoices.length > 0 ? data.invoices : FALLBACK_INVOICES);
+            setInvoices(data.invoices);
             setSourceTag(data.source || "ERPNext Live Database");
             setFetchingList(false);
             return;
           }
         }
-      } catch (err) {
-        console.warn("Failed to fetch real invoices, using cache:", err);
-      }
-      if (isMounted) {
-        setInvoices(FALLBACK_INVOICES);
-        setSourceTag("ERP Database Offline Cache");
-        setFetchingList(false);
+        throw new Error("Unable to retrieve invoice records from ERP server.");
+      } catch (err: any) {
+        console.warn("Failed to fetch real invoices:", err);
+        if (isMounted) {
+          setInvoices([]);
+          setFetchError("AI service / ERP database encountered a connection error. Could not retrieve invoices.");
+          setSourceTag("Connection Disrupted");
+          setFetchingList(false);
+        }
       }
     }
 
@@ -152,14 +113,14 @@ export const InvoiceActionChatCard: React.FC<InvoiceActionChatCardProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold tracking-tight text-white">
-                Tra cứu Hóa đơn Bán hàng (Sales Invoices)
+                Sales Invoices Explorer
               </span>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-500/20 text-blue-300 border border-blue-400/30">
                 L1 / L2 Engine
               </span>
             </div>
             <p className="text-xs text-slate-300 mt-0.5">
-              Tra cứu theo đầu mã, kỳ phát sinh và trạng thái chứng từ
+              Search & reconcile invoices by prefix, posting date, and status
             </p>
           </div>
         </div>
@@ -173,7 +134,7 @@ export const InvoiceActionChatCard: React.FC<InvoiceActionChatCardProps> = ({
               onClick={onOpenModalTab}
               className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-white text-slate-800 hover:bg-slate-100 transition-all cursor-pointer shadow-2xs"
             >
-              Mở Tab Đầy Đủ ↗
+              Open Full Tab ↗
             </button>
           )}
         </div>
@@ -188,34 +149,34 @@ export const InvoiceActionChatCard: React.FC<InvoiceActionChatCardProps> = ({
                   {selectedDoc.document.invoice_id}
                 </span>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">
-                  CHỈ ĐỌC (READ-ONLY)
+                  READ-ONLY
                 </span>
               </div>
               <button
                 onClick={() => setSelectedDoc(null)}
                 className="text-xs text-slate-500 hover:text-slate-800 px-2 py-1 rounded-lg hover:bg-white cursor-pointer font-bold transition-all"
               >
-                ✕ Thu gọn
+                ✕ Collapse
               </button>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
               <div className="p-2.5 rounded-lg bg-white border border-slate-200/60">
-                <span className="text-slate-400 block text-[10px]">Loại chứng từ</span>
-                <span className="font-bold text-slate-800 mt-0.5 block">Hóa đơn Bán hàng</span>
+                <span className="text-slate-400 block text-[10px]">Document Type</span>
+                <span className="font-bold text-slate-800 mt-0.5 block">Sales Invoice</span>
               </div>
               <div className="p-2.5 rounded-lg bg-white border border-slate-200/60">
-                <span className="text-slate-400 block text-[10px]">Ngày ghi nhận</span>
+                <span className="text-slate-400 block text-[10px]">Posting Date</span>
                 <span className="font-bold text-slate-800 font-mono mt-0.5 block">{selectedDoc.document.posting_date}</span>
               </div>
               <div className="p-2.5 rounded-lg bg-white border border-slate-200/60">
-                <span className="text-slate-400 block text-[10px]">Trạng thái</span>
+                <span className="text-slate-400 block text-[10px]">Status</span>
                 <span className={`font-bold mt-0.5 block ${selectedDoc.document.docstatus === 1 ? "text-emerald-700" : "text-amber-700"}`}>
-                  {selectedDoc.document.docstatus === 1 ? "Đã ghi nhận" : "Bản nháp"}
+                  {selectedDoc.document.docstatus === 1 ? "Submitted" : "Draft"}
                 </span>
               </div>
               <div className="p-2.5 rounded-lg bg-white border border-slate-200/60">
-                <span className="text-slate-400 block text-[10px]">Phiên bản bản ghi</span>
+                <span className="text-slate-400 block text-[10px]">Record Version</span>
                 <span className="font-mono text-slate-800 font-bold mt-0.5 block">{selectedDoc.document.record_version}</span>
               </div>
             </div>
@@ -227,7 +188,7 @@ export const InvoiceActionChatCard: React.FC<InvoiceActionChatCardProps> = ({
               <div className="relative flex-1 min-w-[200px]">
                 <input
                   type="text"
-                  placeholder="Nhập mã chứng từ (VD: SINV-2026)..."
+                  placeholder="Filter by invoice ID (e.g. SINV-2026)..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full text-xs rounded-xl border border-slate-200 bg-[#F9FBFC] px-3.5 py-2 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1E63B7]/20 focus:border-[#1E63B7] transition-all"
@@ -245,7 +206,7 @@ export const InvoiceActionChatCard: React.FC<InvoiceActionChatCardProps> = ({
                         : "text-slate-500 hover:text-slate-800"
                     }`}
                   >
-                    {st === "ALL" ? "Tất cả" : st === "SUBMITTED" ? "Đã ghi nhận" : "Bản nháp"}
+                    {st === "ALL" ? "All" : st === "SUBMITTED" ? "Submitted" : "Draft"}
                   </button>
                 ))}
               </div>
@@ -255,11 +216,16 @@ export const InvoiceActionChatCard: React.FC<InvoiceActionChatCardProps> = ({
             <div className="space-y-2">
               {fetchingList ? (
                 <div className="py-8 text-center text-slate-400 font-sans">
-                  <span className="inline-block animate-pulse">Đang truy vấn danh sách hóa đơn từ ERPNext...</span>
+                  <span className="inline-block animate-pulse">Querying invoices from General Ledger...</span>
+                </div>
+              ) : fetchError ? (
+                <div className="py-6 px-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
+                  <span className="text-base">⚠️</span>
+                  <span>{fetchError}</span>
                 </div>
               ) : filteredInvoices.length === 0 ? (
                 <div className="py-8 text-center text-slate-400 font-sans">
-                  Không tìm thấy hóa đơn nào khớp với tiêu chí tìm kiếm.
+                  No invoices match the search criteria.
                 </div>
               ) : (
                 filteredInvoices.map((inv) => (
@@ -283,7 +249,7 @@ export const InvoiceActionChatCard: React.FC<InvoiceActionChatCardProps> = ({
                           )}
                         </div>
                         <div className="flex items-center gap-2 text-[11px] text-slate-400 mt-0.5">
-                          <span>Ngày: {inv.postingDate}</span>
+                          <span>Date: {inv.postingDate}</span>
                           <span>•</span>
                           <span className={inv.docstatus === 1 ? "text-emerald-600 font-semibold" : "text-amber-600 font-semibold"}>
                             {inv.docstatus === 1 ? "Submitted" : "Draft"}
@@ -292,7 +258,7 @@ export const InvoiceActionChatCard: React.FC<InvoiceActionChatCardProps> = ({
                             <>
                               <span>•</span>
                               <span className="font-mono font-semibold text-slate-700">
-                                {Number(inv.grandTotal).toLocaleString()} {inv.currency || "VND"}
+                                {Number(inv.grandTotal).toLocaleString()} {inv.currency || "USD"}
                               </span>
                             </>
                           )}
@@ -305,7 +271,7 @@ export const InvoiceActionChatCard: React.FC<InvoiceActionChatCardProps> = ({
                       onClick={() => handleOpenDoc(inv)}
                       className="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:border-[#1E63B7] text-[#1E63B7] text-xs font-bold shadow-2xs transition-all cursor-pointer hover:bg-blue-50/50 shrink-0"
                     >
-                      Mở xem ↗
+                      View ↗
                     </button>
                   </div>
                 ))
@@ -316,7 +282,7 @@ export const InvoiceActionChatCard: React.FC<InvoiceActionChatCardProps> = ({
 
         {/* Footer */}
         <div className="pt-2 flex items-center justify-between text-[11px] text-slate-400 border-t border-slate-100">
-          <span>Tổng cộng {filteredInvoices.length} chứng từ</span>
+          <span>Total {filteredInvoices.length} invoices</span>
           <span className="font-mono text-slate-500 font-medium">{sourceTag}</span>
         </div>
       </div>
