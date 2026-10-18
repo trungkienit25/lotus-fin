@@ -40,7 +40,7 @@ class FinancingPlugin(BaseLotusPlugin):
                     "type": "object",
                     "properties": {
                         "company": {"type": "string", "description": "Company name"},
-                        "amount": {"type": "number", "description": "Funding amount in VND"},
+                        "amount": {"type": "number", "description": "Funding amount in USD"},
                         "term_months": {"type": "integer", "description": "Loan tenor in months"},
                         "purpose": {"type": "string", "enum": ["WORKING_CAPITAL", "EQUIPMENT", "INVOICE_RECOVERY", "EXPANSION"]}
                     },

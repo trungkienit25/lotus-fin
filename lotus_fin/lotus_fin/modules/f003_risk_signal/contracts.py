@@ -140,6 +140,7 @@ class CountBasis(str, Enum):
 
 
 class Unit(str, Enum):
+    USD = "USD"
     VND = "VND"
     RATIO = "ratio"
     PERCENTAGE_POINTS = "percentage_points"
@@ -318,7 +319,7 @@ class RuleBlock:
     comparator: str = "GTE"
     high_threshold: Optional[Decimal] = None
     floor: Optional[Decimal] = None
-    materiality_unit: Unit = Unit.VND
+    materiality_unit: Unit = Unit.USD
     materiality_definition: Optional[MaterialityDefinition] = None
     window_start: Optional[date] = None
     window_end: Optional[date] = None

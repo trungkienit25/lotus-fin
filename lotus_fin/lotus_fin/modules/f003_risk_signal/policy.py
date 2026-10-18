@@ -64,7 +64,7 @@ class SignalPolicy:
     baseline_spec: Optional[str]  # AR resolver version; None for AP
     window_days: Optional[int]  # AP W=30; None for AR
     production_calibrated: bool = False
-    materiality_unit: Unit = Unit.VND
+    materiality_unit: Unit = Unit.USD
     comparator: str = "GTE"
 
     def __post_init__(self) -> None:

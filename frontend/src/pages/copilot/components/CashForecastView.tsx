@@ -42,7 +42,7 @@ export const CashForecastView: React.FC<CashForecastViewProps> = ({
     fetchForecast();
   }, [company, asOfDate]);
 
-  const formatVND = (val: any) => {
+  const formatCurrency = (val: any) => {
     const cur = data?.currency || "USD";
     if (val === null || val === undefined || val === "" || isNaN(Number(val))) return `-- ${cur}`;
     const num = Number(val);
@@ -138,7 +138,7 @@ export const CashForecastView: React.FC<CashForecastViewProps> = ({
           <div className={`text-3xl font-extrabold mt-1 tracking-tight font-mono ${
             aggregateAmount !== null && aggregateAmount < 0 ? "text-rose-700" : "text-slate-900"
           }`}>
-            {formatVND(aggregateAmount)}
+            {formatCurrency(aggregateAmount)}
           </div>
         </div>
 
@@ -159,7 +159,7 @@ export const CashForecastView: React.FC<CashForecastViewProps> = ({
                   >
                     <span className="text-slate-700 font-medium">{acc.account}</span>
                     <span className={`font-bold font-mono ${isDeficit ? "text-rose-600" : "text-blue-600"}`}>
-                      {formatVND(bal)}
+                      {formatCurrency(bal)}
                     </span>
                   </div>
                 );
@@ -200,7 +200,7 @@ export const CashForecastView: React.FC<CashForecastViewProps> = ({
                 forecastPoints.map((pt: any, idx: number) => (
                   <tr key={idx} className="hover:bg-slate-50/80 transition-colors">
                     <td className="py-2.5 px-3 font-mono font-medium text-slate-800">{pt.date}</td>
-                    <td className="py-2.5 px-3 font-bold font-mono text-slate-900">{formatVND(pt.eod_balance || pt.amount)}</td>
+                    <td className="py-2.5 px-3 font-bold font-mono text-slate-900">{formatCurrency(pt.eod_balance || pt.amount)}</td>
                     <td className="py-2.5 px-3 text-slate-600">{pt.event_desc || "Conserved baseline balance"}</td>
                     <td className="py-2.5 px-3 text-center">
                       <span
@@ -284,7 +284,7 @@ export const CashForecastView: React.FC<CashForecastViewProps> = ({
                       </td>
                       <td className="py-2.5 px-3 font-mono text-slate-600">{ob.due_date}</td>
                       <td className={`py-2.5 px-3 font-mono font-bold ${isAR ? "text-emerald-600" : "text-rose-600"}`}>
-                        {isAR ? "+" : "-"}{formatVND(amt)}
+                        {isAR ? "+" : "-"}{formatCurrency(amt)}
                       </td>
                       <td className="py-2.5 px-3 font-mono text-slate-500">
                         {ob.source_ref || ob.voucher_no || "--"}

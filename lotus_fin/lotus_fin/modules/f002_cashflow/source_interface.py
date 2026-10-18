@@ -19,7 +19,7 @@ class FutureEventSource(ABC):
         company: str,
         start_date: date,
         end_date: date,
-        currency: str = "VND",
+        currency: str = "USD",
         financial_as_of: Optional[date] = None,
     ) -> List[CashEvent]:
         pass
@@ -36,7 +36,7 @@ class FailClosedSource(FutureEventSource):
         company: str,
         start_date: date,
         end_date: date,
-        currency: str = "VND",
+        currency: str = "USD",
         financial_as_of: Optional[date] = None,
     ) -> List[CashEvent]:
         # Fail closed — returns empty list
@@ -61,7 +61,7 @@ class SyntheticFixtureSource(FutureEventSource):
         company: str,
         start_date: date,
         end_date: date,
-        currency: str = "VND",
+        currency: str = "USD",
         financial_as_of: Optional[date] = None,
     ) -> List[CashEvent]:
         if not self.fixture_path or not os.path.exists(self.fixture_path):
@@ -127,7 +127,7 @@ class ErpScheduleEventSource(FutureEventSource):
         company: str,
         start_date: date,
         end_date: date,
-        currency: str = "VND",
+        currency: str = "USD",
         financial_as_of: Optional[date] = None,
     ) -> List[CashEvent]:
         try:

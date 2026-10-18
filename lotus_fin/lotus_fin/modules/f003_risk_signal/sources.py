@@ -84,13 +84,19 @@ class AI001PublicARProvider:
 
     def fetch(self, company: str, cutoff: date) -> ARSnapshot:
         snapshot_callable = _ai001_snapshot_callable()
+        comp_curr = "USD"
+        try:
+            from lotus_fin.security.access import get_company_accounting_currency
+            comp_curr = get_company_accounting_currency(company) or "USD"
+        except Exception:
+            pass
         try:
             envelope = snapshot_callable(
                 company=company,
                 period_start="%04d-01-01" % cutoff.year,
                 period_end=cutoff.isoformat(),
                 as_of=cutoff.isoformat(),
-                currency="VND",
+                currency=comp_curr,
                 comparison=None,
                 include_explanation=False,
             )

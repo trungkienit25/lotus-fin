@@ -125,7 +125,7 @@ export const WhatIfStudioView: React.FC<WhatIfStudioViewProps> = ({
     runSimulation();
   }, [company, salesShock, delayDays, supplierDays, opexShock, payrollShock, oneOffExpense, finAmount, finTerm, finRate]);
 
-  const formatVND = (val: number | null | undefined) => {
+  const formatCurrency = (val: number | null | undefined) => {
     const cur = result?.kpis_9_layer?.revenue?.unit === "VND" ? "VND" : "USD";
     if (val === null || val === undefined || isNaN(val)) return `-- ${cur}`;
     const num = Number(val);
@@ -150,7 +150,7 @@ export const WhatIfStudioView: React.FC<WhatIfStudioViewProps> = ({
     { id: "net_cash_flow", label: "6. Net Cash Flow (NCF)", desc: "Inflows minus operating expenses and debt obligations", isCurrency: true },
     { id: "ending_cash", label: "7. Ending Cash Balance", desc: "Consolidated operational liquidity reserve across bank accounts", isCurrency: true },
     { id: "ccc", label: "8. Cash Conversion Cycle (CCC)", desc: "Net days from inventory outlay to customer cash collection", isDays: true },
-    { id: "cash_shortfall", label: "9. Liquidity Safety Buffer Shortfall", desc: "Deficit relative to required 50M VND minimum safety buffer", isCurrency: true },
+    { id: "cash_shortfall", label: "9. Liquidity Safety Buffer Shortfall", desc: "Deficit relative to required minimum safety buffer", isCurrency: true },
   ];
 
   return (
@@ -341,10 +341,10 @@ export const WhatIfStudioView: React.FC<WhatIfStudioViewProps> = ({
                 onChange={(e) => setOneOffExpense(Number(e.target.value))}
                 className="w-full text-xs p-1.5 rounded-lg border border-slate-300 bg-white"
               >
-                <option value={0}>None (0 VND)</option>
-                <option value={50000000}>50,000,000 VND (Major machinery repair)</option>
-                <option value={100000000}>100,000,000 VND (Tax assessment / Legal)</option>
-                <option value={200000000}>200,000,000 VND (Branch lease deposit)</option>
+                <option value={0}>None ($0 USD)</option>
+                <option value={2000}>$2,000 USD (Major machinery repair)</option>
+                <option value={5000}>$5,000 USD (Tax assessment / Legal)</option>
+                <option value={10000}>$10,000 USD (Branch lease deposit)</option>
               </select>
             </div>
           </div>
@@ -364,10 +364,10 @@ export const WhatIfStudioView: React.FC<WhatIfStudioViewProps> = ({
                 className="w-full text-xs p-1.5 rounded-lg border border-slate-300 bg-white font-medium text-slate-800"
               >
                 <option value={0}>No Debt (Self-funded)</option>
-                <option value={200000000}>200,000,000 VND (Working Capital Overdraft)</option>
-                <option value={300000000}>300,000,000 VND (Short-term 12M Loan)</option>
-                <option value={500000000}>500,000,000 VND (Medium-term Expansion Loan)</option>
-                <option value={1000000000}>1,000,000,000 VND (Major Credit Facility)</option>
+                <option value={10000}>$10,000 USD (Working Capital Overdraft)</option>
+                <option value={25000}>$25,000 USD (Short-term 12M Loan)</option>
+                <option value={50000}>$50,000 USD (Medium-term Expansion Loan)</option>
+                <option value={100000}>$100,000 USD (Major Credit Facility)</option>
               </select>
             </div>
 
@@ -409,30 +409,30 @@ export const WhatIfStudioView: React.FC<WhatIfStudioViewProps> = ({
         <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs">
           <div className="text-xs text-slate-500 font-medium">💵 Ending Cash Balance</div>
           <div className="text-2xl font-extrabold text-slate-900 mt-1 tracking-tight">
-            {formatVND(endingCash.simulation)}
+            {formatCurrency(endingCash.simulation)}
           </div>
           <div className={`text-xs font-semibold mt-1.5 ${endingCash.absolute_change >= 0 ? "text-emerald-600" : "text-rose-600"}`}>
-            {endingCash.absolute_change >= 0 ? "▲ +" : "▼ "}{formatVND(endingCash.absolute_change)}
+            {endingCash.absolute_change >= 0 ? "▲ +" : "▼ "}{formatCurrency(endingCash.absolute_change)}
           </div>
         </div>
 
         <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs">
           <div className="text-xs text-slate-500 font-medium">🌊 Net Cash Flow (NCF)</div>
           <div className="text-2xl font-extrabold text-slate-900 mt-1 tracking-tight">
-            {formatVND(ncf.simulation)}
+            {formatCurrency(ncf.simulation)}
           </div>
           <div className={`text-xs font-semibold mt-1.5 ${ncf.absolute_change >= 0 ? "text-emerald-600" : "text-rose-600"}`}>
-            {ncf.absolute_change >= 0 ? "▲ +" : "▼ "}{formatVND(ncf.absolute_change)}
+            {ncf.absolute_change >= 0 ? "▲ +" : "▼ "}{formatCurrency(ncf.absolute_change)}
           </div>
         </div>
 
         <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs">
           <div className="text-xs text-slate-500 font-medium">📈 Post-Shock Revenue</div>
           <div className="text-2xl font-extrabold text-slate-900 mt-1 tracking-tight">
-            {formatVND(rev.simulation)}
+            {formatCurrency(rev.simulation)}
           </div>
           <div className={`text-xs font-semibold mt-1.5 ${rev.absolute_change >= 0 ? "text-emerald-600" : "text-rose-600"}`}>
-            {rev.absolute_change >= 0 ? "▲ +" : "▼ "}{formatVND(rev.absolute_change)}
+            {rev.absolute_change >= 0 ? "▲ +" : "▼ "}{formatCurrency(rev.absolute_change)}
           </div>
         </div>
 
@@ -487,13 +487,13 @@ export const WhatIfStudioView: React.FC<WhatIfStudioViewProps> = ({
                       <div className="text-[11px] text-slate-400">{k.desc}</div>
                     </td>
                     <td className="py-2.5 px-3 text-slate-500">
-                      {isRatio ? `${(item.baseline * 100).toFixed(1)}%` : isDays ? `${item.baseline} days` : formatVND(item.baseline)}
+                      {isRatio ? `${(item.baseline * 100).toFixed(1)}%` : isDays ? `${item.baseline} days` : formatCurrency(item.baseline)}
                     </td>
                     <td className="py-2.5 px-3 font-bold text-slate-900 font-mono">
-                      {isRatio ? `${(item.simulation * 100).toFixed(1)}%` : isDays ? `${item.simulation} days` : formatVND(item.simulation)}
+                      {isRatio ? `${(item.simulation * 100).toFixed(1)}%` : isDays ? `${item.simulation} days` : formatCurrency(item.simulation)}
                     </td>
                     <td className={`py-2.5 px-3 font-semibold ${isGoodChange ? "text-emerald-600" : "text-rose-600"}`}>
-                      {absVal !== null ? (absVal > 0 ? "+" : "") + (isRatio ? `${(absVal * 100).toFixed(1)} pp` : isDays ? `${absVal} days` : formatVND(absVal)) : "—"}
+                      {absVal !== null ? (absVal > 0 ? "+" : "") + (isRatio ? `${(absVal * 100).toFixed(1)} pp` : isDays ? `${absVal} days` : formatCurrency(absVal)) : "—"}
                     </td>
                     <td className={`py-2.5 px-3 font-semibold ${isGoodChange ? "text-emerald-600" : "text-rose-600"}`}>
                       {item.relative_change !== null ? `${(item.relative_change * 100).toFixed(1)}%` : "—"}

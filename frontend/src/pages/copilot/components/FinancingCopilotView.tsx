@@ -14,16 +14,16 @@ export const FinancingCopilotView: React.FC<FinancingCopilotViewProps> = ({
   onNavigateTab,
 }) => {
   const { t } = useTranslation();
-  const [loanAmount, setLoanAmount] = useState<number>(1000000000);
+  const [loanAmount, setLoanAmount] = useState<number>(50000);
   const [loanTerm, setLoanTerm] = useState<number>(12);
   const [loanPurpose, setLoanPurpose] = useState<string>("WORKING_CAPITAL");
-  const [collateralValue, setCollateralValue] = useState<number>(1500000000);
+  const [collateralValue, setCollateralValue] = useState<number>(75000);
   const [loading, setLoading] = useState(false);
   const [matchedPackages, setMatchedPackages] = useState<any[]>([]);
 
-  const formatVND = (val: number | null | undefined) => {
-    if (val === null || val === undefined || isNaN(val)) return "-- VND";
-    return Math.round(Number(val)).toLocaleString("vi-VN") + " VND";
+  const formatUSD = (val: number | null | undefined) => {
+    if (val === null || val === undefined || isNaN(val)) return "-- USD";
+    return "$" + Math.round(Number(val)).toLocaleString("en-US");
   };
 
   const runMatching = () => {
@@ -35,7 +35,7 @@ export const FinancingCopilotView: React.FC<FinancingCopilotViewProps> = ({
           bank: "Vietcombank (VCB)",
           productName: "SME Working Capital Facility",
           interestRate: "7.8% - 8.5%/year",
-          maxLimit: 2000000000,
+          maxLimit: 100000,
           matchScore: 95,
           tenureMonths: 12,
           type: "Overdraft / Revolving Credit Line",
@@ -46,18 +46,18 @@ export const FinancingCopilotView: React.FC<FinancingCopilotViewProps> = ({
           bank: "Techcombank",
           productName: "Business Fast Hybrid Credit & Collateral",
           interestRate: "8.9% - 9.5%/year",
-          maxLimit: 1500000000,
+          maxLimit: 75000,
           matchScore: 88,
           tenureMonths: 24,
           type: "Medium-Term Expansion Loan",
           tags: ["100% Digital Processing", "Flexible Credit Limit"],
-          reason: "Well-suited for business expansion; collateral of 1.5B VND supports a comfortable 150% LTV coverage.",
+          reason: "Well-suited for business expansion; collateral of $75,000 USD supports a comfortable 150% LTV coverage.",
         },
         {
           bank: "BIDV",
           productName: "Supply Chain Finance & Invoice Discounting",
           interestRate: "8.2%/year",
-          maxLimit: 1200000000,
+          maxLimit: 60000,
           matchScore: 84,
           tenureMonths: 6,
           type: "Receivables Factoring",
@@ -68,7 +68,7 @@ export const FinancingCopilotView: React.FC<FinancingCopilotViewProps> = ({
           bank: "MB Bank",
           productName: "Production & Trading Acceleration Facility",
           interestRate: "9.2%/year",
-          maxLimit: 1000000000,
+          maxLimit: 50000,
           matchScore: 80,
           tenureMonths: 12,
           type: "Installment Term Loan",
@@ -132,15 +132,15 @@ export const FinancingCopilotView: React.FC<FinancingCopilotViewProps> = ({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Financing Requirement (VND)</label>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Financing Requirement (USD)</label>
             <input
               type="number"
               value={loanAmount}
-              step={50000000}
+              step={5000}
               onChange={(e) => setLoanAmount(Number(e.target.value))}
               className="w-full text-xs p-2 rounded-xl border border-slate-300 bg-white font-mono font-bold text-slate-800"
             />
-            <div className="text-[11px] text-blue-600 font-medium mt-1">{formatVND(loanAmount)}</div>
+            <div className="text-[11px] text-blue-600 font-medium mt-1">{formatUSD(loanAmount)}</div>
           </div>
 
           <div>
@@ -172,15 +172,15 @@ export const FinancingCopilotView: React.FC<FinancingCopilotViewProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Collateral Asset Value (VND)</label>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Collateral Asset Value (USD)</label>
             <input
               type="number"
               value={collateralValue}
-              step={100000000}
+              step={5000}
               onChange={(e) => setCollateralValue(Number(e.target.value))}
               className="w-full text-xs p-2 rounded-xl border border-slate-300 bg-white font-mono font-bold text-slate-800"
             />
-            <div className="text-[11px] text-emerald-600 font-medium mt-1">{formatVND(collateralValue)}</div>
+            <div className="text-[11px] text-emerald-600 font-medium mt-1">{formatUSD(collateralValue)}</div>
           </div>
         </div>
       </div>
@@ -189,7 +189,7 @@ export const FinancingCopilotView: React.FC<FinancingCopilotViewProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs">
           <div className="text-xs text-slate-500 font-medium">Estimated Borrowing Capacity</div>
-          <div className="text-xl font-extrabold text-blue-600 mt-1">2,000,000,000 VND</div>
+          <div className="text-xl font-extrabold text-blue-600 mt-1">$100,000 USD</div>
           <div className="text-[11px] text-slate-400 mt-1">Based on EBITDA & LTV</div>
         </div>
 
@@ -201,7 +201,7 @@ export const FinancingCopilotView: React.FC<FinancingCopilotViewProps> = ({
 
         <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs">
           <div className="text-xs text-slate-500 font-medium">Est. Monthly Debt Service</div>
-          <div className="text-xl font-extrabold text-slate-800 mt-1">{formatVND(estimatedMonthlyDebtService)}</div>
+          <div className="text-xl font-extrabold text-slate-800 mt-1">{formatUSD(estimatedMonthlyDebtService)}</div>
           <div className="text-[11px] text-slate-400 mt-1">Average Principal + Interest</div>
         </div>
 
@@ -248,7 +248,7 @@ export const FinancingCopilotView: React.FC<FinancingCopilotViewProps> = ({
                   </div>
                   <div className="p-2.5 rounded-xl bg-white border border-slate-100">
                     <div className="text-slate-400">Maximum Limit:</div>
-                    <div className="font-bold text-emerald-600 mt-0.5">{formatVND(pkg.maxLimit)}</div>
+                    <div className="font-bold text-emerald-600 mt-0.5">{formatUSD(pkg.maxLimit)}</div>
                   </div>
                 </div>
 

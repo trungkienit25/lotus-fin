@@ -99,16 +99,16 @@ class CopilotOrchestrator:
         msg_lower = message.lower()
         
         if "vay" in msg_lower and "tìm" in msg_lower or "gói vay" in msg_lower:
-            # Trích xuất số tiền vay (mock)
-            amount = 1000000000  # Default 1 Tỷ
-            if "500 triệu" in msg_lower: amount = 500000000
-            if "2 tỷ" in msg_lower: amount = 2000000000
+            # Trích xuất số tiền vay (mock/USD)
+            amount = 50000  # Default $50,000 USD
+            if "20k" in msg_lower or "500 triệu" in msg_lower: amount = 20000
+            if "80k" in msg_lower or "2 tỷ" in msg_lower: amount = 80000
             
-            return IntentType.FINANCING_SUPPORT, {"requested_amount": amount, "currency": "VND"}
+            return IntentType.FINANCING_SUPPORT, {"requested_amount": amount, "currency": "USD"}
             
         elif "trả nợ" in msg_lower or "lịch" in msg_lower or "stress" in msg_lower or "lãi suất tăng" in msg_lower:
-            # Trích xuất thông số (mock)
-            amount = 1000000000
+            # Trích xuất thông số (mock/USD)
+            amount = 50000
             rate = 0.10
             term = 12
             if "lãi suất tăng" in msg_lower:
@@ -123,8 +123,8 @@ class CopilotOrchestrator:
             # Khởi tạo Matcher của AI005
             matcher = FinancingMatcher()
             params = FinancingProductParams(
-                requested_amount=Decimal(str(entities.get("requested_amount", 1000000000))),
-                currency=entities.get("currency", "VND")
+                requested_amount=Decimal(str(entities.get("requested_amount", 50000))),
+                currency=entities.get("currency", "USD")
             )
             
             # Tính toán
@@ -147,7 +147,7 @@ class CopilotOrchestrator:
                 "data": [{"product_id": m.product_id, "score": float(m.match_score), "max_amount": float(m.max_amount)} for m in matches[:3]]
             }
             
-            reply = f"Tôi đã tìm thấy {len(matches)} gói vay phù hợp. Gói tốt nhất là **{best_match.product_id}** với điểm phù hợp {float(best_match.match_score)*100:.1f}%. Hạn mức tối đa: {float(best_match.max_amount):,.0f} VND."
+            reply = f"Tôi đã tìm thấy {len(matches)} gói vay phù hợp. Gói tốt nhất là **{best_match.product_id}** với điểm phù hợp {float(best_match.match_score)*100:.1f}%. Hạn mức tối đa: ${float(best_match.max_amount):,.2f} USD."
             
             return reply, action, widget
             
@@ -157,7 +157,7 @@ class CopilotOrchestrator:
     def _handle_stress_test(self, entities: Dict[str, Any]) -> Tuple[str, CopilotAction, Dict[str, Any]]:
         """Điều phối module AI006 - Repayment / Stress."""
         try:
-            principal = Decimal(str(entities.get("principal", 1000000000)))
+            principal = Decimal(str(entities.get("principal", 50000)))
             rate = Decimal(str(entities.get("rate", 0.10)))
             term = entities.get("term", 12)
             stress_bps = entities.get("stress_bps", 0)
@@ -193,7 +193,7 @@ class CopilotOrchestrator:
                 else:
                     added_cost = 0.0
                 
-                reply = f"Tôi đã chạy kịch bản Stress Test (Tăng {stress_bps} bps lãi suất). Tổng lãi phải trả của bạn sẽ tăng thêm **{added_cost:,.0f} VND** so với kịch bản gốc."
+                reply = f"Tôi đã chạy kịch bản Stress Test (Tăng {stress_bps} bps lãi suất). Tổng lãi phải trả của bạn sẽ tăng thêm **${added_cost:,.2f} USD** so với kịch bản gốc."
                 
             else:
                 # Gọi Repayment Engine thông thường
@@ -211,7 +211,7 @@ class CopilotOrchestrator:
                     "data": {"summary": result.summary, "periods": len(result.payment_schedule)}
                 }
                 
-                reply = f"Tôi đã lập lịch trả nợ cho khoản vay {principal:,.0f} VND (lãi {float(rate)*100}%/năm, {term} tháng). Mỗi tháng bạn cần trả trung bình **{result.summary['average_monthly_payment']:,.0f} VND**."
+                reply = f"Tôi đã lập lịch trả nợ cho khoản vay ${principal:,.2f} USD (lãi {float(rate)*100}%/năm, {term} tháng). Mỗi tháng bạn cần trả trung bình **${result.summary['average_monthly_payment']:,.2f} USD**."
             
             return reply, action, widget
             

@@ -28,11 +28,11 @@ class RepaymentAdvisor:
         method = method_map.get(result.loan_terms.get("amortization_method"), "Không xác định")
 
         narrative = (
-            f"Với khoản vay {summary['principal']:,.0f} {summary.get('currency', 'VND')}, "
+            f"Với khoản vay {summary['principal']:,.2f} {summary.get('currency', 'USD')}, "
             f"áp dụng phương pháp {method} trong {summary['total_periods']} kỳ:\n"
-            f"- Tổng tiền lãi dự kiến: {summary['total_interest']:,.0f} {summary.get('currency', 'VND')}\n"
-            f"- Tổng chi phí (gồm phí): {summary['total_fees']:,.0f} {summary.get('currency', 'VND')}\n"
-            f"- Thanh toán trung bình mỗi kỳ: {summary['average_monthly_payment']:,.0f} {summary.get('currency', 'VND')}\n\n"
+            f"- Tổng tiền lãi dự kiến: {summary['total_interest']:,.2f} {summary.get('currency', 'USD')}\n"
+            f"- Tổng chi phí (gồm phí): {summary['total_fees']:,.2f} {summary.get('currency', 'USD')}\n"
+            f"- Thanh toán trung bình mỗi kỳ: {summary['average_monthly_payment']:,.2f} {summary.get('currency', 'USD')}\n\n"
         )
         
         narrative += "Lưu ý: " + " ".join(result.assumptions)

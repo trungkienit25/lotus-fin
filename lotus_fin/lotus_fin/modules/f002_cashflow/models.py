@@ -48,7 +48,7 @@ class ForecastRequest:
     forecast_start: date
     forecast_end: date
     granularity: str = "daily"
-    reporting_currency: str = "VND"
+    reporting_currency: str = "USD"
     cash_account_scope: List[str] = field(default_factory=list)
     coverage_scope: CoverageScope = CoverageScope.TRADE_ONLY
     finance_book: Optional[str] = None
@@ -96,7 +96,7 @@ class CashEvent:
     obligation_id: Optional[str] = None
     assumption_id: Optional[str] = None
     company: str = ""
-    currency: str = "VND"
+    currency: str = "USD"
     financial_as_of: Optional[date] = None
 
 
@@ -151,7 +151,7 @@ class ForecastResponse:
     accounting_timezone: str = "Asia/Ho_Chi_Minh"
     forecast_start: Optional[date] = None
     forecast_end: Optional[date] = None
-    currency: str = "VND"
+    currency: str = "USD"
     rounding: str = "Decimal"
     opening_cash: Optional[OpeningCash] = None
     opening_cash_deficit: bool = False

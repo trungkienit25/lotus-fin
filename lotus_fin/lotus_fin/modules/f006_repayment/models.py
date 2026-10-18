@@ -47,10 +47,10 @@ class StressType(str, Enum):
 @dataclass
 class LoanTerms:
     """Điều kiện khoản vay đầu vào cho Repayment Engine."""
-    principal: Decimal                                                # Số tiền vay gốc (VND)
+    principal: Decimal                                                # Số tiền vay gốc (USD)
     annual_rate: Decimal                                              # Lãi suất danh nghĩa năm (0.10 = 10%)
     term_months: int                                                  # Thời hạn vay (tháng)
-    currency: str = "VND"
+    currency: str = "USD"
     rate_type: str = "FIXED"                                          # FIXED | FLOATING
     payment_frequency: PaymentFrequency = PaymentFrequency.MONTHLY
     amortization_method: AmortizationMethod = AmortizationMethod.EQUAL_INSTALLMENT

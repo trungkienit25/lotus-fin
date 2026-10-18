@@ -145,7 +145,7 @@ def get_opening_cash_ledger(
     company: str,
     as_of: date,
     account_scope: Optional[List[str]] = None,
-    currency: str = "VND",
+    currency: str = "USD",
     db_cursor: Any = None,
     user: Optional[str] = None,
 ) -> OpeningCash:
@@ -655,7 +655,7 @@ def _collect_obligations(
 def get_trade_obligations(
     company: str,
     as_of: date,
-    currency: str = "VND",
+    currency: str = "USD",
     user: Optional[str] = None,
 ) -> List[Obligation]:
     """
@@ -881,7 +881,7 @@ def get_future_cash_events(
     start_date: date,
     end_date: date,
     source_adapter: Optional[FutureEventSource] = None,
-    currency: str = "VND",
+    currency: str = "USD",
     financial_as_of: Optional[date] = None,
 ) -> List[CashEvent]:
     """

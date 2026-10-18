@@ -84,9 +84,9 @@ def validate_grounding(explanation_text: str, forecast_response: ForecastRespons
                 violations.append("Explanation refers to unverified or mismatching company.")
 
     # 3. Currency check
-    # P0 VND only; reject USD, EUR, etc. if mentioned as currency of the amounts
-    if "usd" in text_lower or "$" in text_lower or "eur" in text_lower or "€" in text_lower:
-        violations.append("Explanation mentions unsupported currency; only VND is valid for P0.")
+    # Supports USD standard or legacy VND; reject EUR, GBP, etc.
+    if "eur" in text_lower or "€" in text_lower or "gbp" in text_lower or "£" in text_lower:
+        violations.append("Explanation mentions unsupported currency; only USD and VND are valid.")
 
     # 4. If forecast itself is unavailable, explanation must not assert positive cash or imaginary forecasts
     if forecast_response.status == ForecastStatus.FORECAST_UNAVAILABLE:

@@ -2,3 +2,4 @@
 
 [post_model_sync]
 lotus_fin.patches.v1_0.set_default_currency_usd
+lotus_fin.patches.v1_0.migrate_vnd_amounts_to_usd

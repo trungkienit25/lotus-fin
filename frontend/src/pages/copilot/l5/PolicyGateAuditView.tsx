@@ -192,7 +192,7 @@ export const PolicyGateAuditView: React.FC<PolicyGateAuditViewProps> = ({ compan
               >
                 {invoices.map((inv) => (
                   <option key={inv.invoiceId} value={inv.invoiceId}>
-                    {inv.invoiceId} — {inv.customerName} ({inv.grandTotal.toLocaleString()} VND) [{inv.docstatus === 1 ? "Submitted" : "Draft"}]
+                    {inv.invoiceId} — {inv.customerName} (${Number(inv.grandTotal).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}) [{inv.docstatus === 1 ? "Submitted" : "Draft"}]
                   </option>
                 ))}
               </select>

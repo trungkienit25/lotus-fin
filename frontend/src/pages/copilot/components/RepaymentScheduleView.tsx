@@ -13,7 +13,7 @@ export const RepaymentScheduleView: React.FC<RepaymentScheduleViewProps> = ({
   onNavigateTab,
 }) => {
   const { t } = useTranslation();
-  const [principal, setPrincipal] = useState<number>(1000000000);
+  const [principal, setPrincipal] = useState<number>(50000);
   const [baseRate, setBaseRate] = useState<number>(8.5);
   const [termMonths, setTermMonths] = useState<number>(12);
   const [method, setMethod] = useState<"EQUAL_INSTALLMENT" | "EQUAL_PRINCIPAL">("EQUAL_INSTALLMENT");
@@ -27,9 +27,9 @@ export const RepaymentScheduleView: React.FC<RepaymentScheduleViewProps> = ({
     effectiveRate: 0,
   });
 
-  const formatVND = (val: number | null | undefined) => {
-    if (val === null || val === undefined || isNaN(val)) return "-- VND";
-    return Math.round(Number(val)).toLocaleString("vi-VN") + " VND";
+  const formatUSD = (val: number | null | undefined) => {
+    if (val === null || val === undefined || isNaN(val)) return "-- USD";
+    return "$" + Math.round(Number(val)).toLocaleString("en-US");
   };
 
   const calculateSchedule = () => {
@@ -137,15 +137,15 @@ export const RepaymentScheduleView: React.FC<RepaymentScheduleViewProps> = ({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Principal Amount (VND)</label>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Principal Amount (USD)</label>
             <input
               type="number"
               value={principal}
-              step={50000000}
+              step={5000}
               onChange={(e) => setPrincipal(Number(e.target.value))}
               className="w-full text-xs p-2 rounded-xl border border-slate-300 bg-white font-mono font-bold text-slate-800"
             />
-            <div className="text-[11px] text-blue-600 font-medium mt-1">{formatVND(principal)}</div>
+            <div className="text-[11px] text-blue-600 font-medium mt-1">{formatUSD(principal)}</div>
           </div>
 
           <div>
@@ -203,19 +203,19 @@ export const RepaymentScheduleView: React.FC<RepaymentScheduleViewProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs">
           <div className="text-xs text-slate-500 font-medium">First Period Payment Obligation</div>
-          <div className="text-xl font-extrabold text-blue-600 mt-1">{formatVND(metrics.firstPeriodPayment)}</div>
+          <div className="text-xl font-extrabold text-blue-600 mt-1">{formatUSD(metrics.firstPeriodPayment)}</div>
           <div className="text-[11px] text-slate-400 mt-1">Includes Principal + Interest</div>
         </div>
 
         <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs">
           <div className="text-xs text-slate-500 font-medium">Total Interest Payable</div>
-          <div className="text-xl font-extrabold text-rose-600 mt-1">{formatVND(metrics.totalInterest)}</div>
+          <div className="text-xl font-extrabold text-rose-600 mt-1">{formatUSD(metrics.totalInterest)}</div>
           <div className="text-[11px] text-slate-400 mt-1">Over full {termMonths}-month tenure</div>
         </div>
 
         <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs">
           <div className="text-xs text-slate-500 font-medium">Total Cash Outflow</div>
-          <div className="text-xl font-extrabold text-slate-900 mt-1">{formatVND(metrics.totalPayment)}</div>
+          <div className="text-xl font-extrabold text-slate-900 mt-1">{formatUSD(metrics.totalPayment)}</div>
           <div className="text-[11px] text-slate-400 mt-1">Principal + Total Interest</div>
         </div>
 
@@ -256,11 +256,11 @@ export const RepaymentScheduleView: React.FC<RepaymentScheduleViewProps> = ({
               {scheduleRows.map((r) => (
                 <tr key={r.period} className="hover:bg-slate-50/80 transition-colors">
                   <td className="py-2.5 px-3 text-center font-bold text-slate-700 font-mono">M{r.period}</td>
-                  <td className="py-2.5 px-3 font-mono text-slate-600">{formatVND(r.beginning)}</td>
-                  <td className="py-2.5 px-3 font-mono font-semibold text-blue-600">{formatVND(r.principal)}</td>
-                  <td className="py-2.5 px-3 font-mono font-semibold text-rose-600">{formatVND(r.interest)}</td>
-                  <td className="py-2.5 px-3 font-mono font-bold text-slate-900">{formatVND(r.total)}</td>
-                  <td className="py-2.5 px-3 font-mono text-slate-700">{formatVND(r.ending)}</td>
+                  <td className="py-2.5 px-3 font-mono text-slate-600">{formatUSD(r.beginning)}</td>
+                  <td className="py-2.5 px-3 font-mono font-semibold text-blue-600">{formatUSD(r.principal)}</td>
+                  <td className="py-2.5 px-3 font-mono font-semibold text-rose-600">{formatUSD(r.interest)}</td>
+                  <td className="py-2.5 px-3 font-mono font-bold text-slate-900">{formatUSD(r.total)}</td>
+                  <td className="py-2.5 px-3 font-mono text-slate-700">{formatUSD(r.ending)}</td>
                 </tr>
               ))}
             </tbody>

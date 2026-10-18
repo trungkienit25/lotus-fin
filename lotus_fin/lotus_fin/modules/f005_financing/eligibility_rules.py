@@ -10,9 +10,9 @@ from .models import FinancingProduct, CompanyFinancialProfile, FundingRequest
 def check_amount_bounds(product: FinancingProduct, request: FundingRequest) -> Optional[str]:
     """Verifies that requested funding is within minimum and maximum product boundaries."""
     if request.amount < product.amount_min:
-        return f"Nhu cầu vốn ({request.amount:,.0f} VND) thấp hơn hạn mức tối thiểu ({product.amount_min:,.0f} VND)."
+        return f"Nhu cầu vốn ({request.amount:,.0f} {product.currency}) thấp hơn hạn mức tối thiểu ({product.amount_min:,.0f} {product.currency})."
     if request.amount > product.amount_max:
-        return f"Nhu cầu vốn ({request.amount:,.0f} VND) vượt quá hạn mức tối đa ({product.amount_max:,.0f} VND)."
+        return f"Nhu cầu vốn ({request.amount:,.0f} {product.currency}) vượt quá hạn mức tối đa ({product.amount_max:,.0f} {product.currency})."
     return None
 
 
@@ -26,7 +26,7 @@ def check_tenure_bounds(product: FinancingProduct, request: FundingRequest) -> O
 def check_revenue_threshold(product: FinancingProduct, profile: CompanyFinancialProfile) -> Optional[str]:
     """Verifies corporate annual turnover meets minimum underwriting floor."""
     if profile.annual_revenue < product.min_annual_revenue:
-        return f"Doanh thu ({profile.annual_revenue:,.0f} VND) chưa đạt tối thiểu ({product.min_annual_revenue:,.0f} VND)."
+        return f"Doanh thu ({profile.annual_revenue:,.0f} {product.currency}) chưa đạt tối thiểu ({product.min_annual_revenue:,.0f} {product.currency})."
     return None
 
 

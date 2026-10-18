@@ -204,9 +204,9 @@ class StressSimulationEngine:
         kpis = []
 
         comparisons = [
-            ("Total Interest", "total_interest", "VND"),
-            ("Total Repayment", "total_repayment", "VND"),
-            ("Average Monthly Payment", "average_monthly_payment", "VND"),
+            ("Total Interest", "total_interest", "USD"),
+            ("Total Repayment", "total_repayment", "USD"),
+            ("Average Monthly Payment", "average_monthly_payment", "USD"),
             ("Total Periods", "total_periods", "kỳ"),
             ("Interest/Principal Ratio", "interest_to_principal_ratio", "x"),
         ]
@@ -246,7 +246,7 @@ class StressSimulationEngine:
                 stressed_value=round(net_saving, 2),
                 absolute_change=round(net_saving, 2),
                 relative_change=None,
-                unit="VND",
+                unit="USD",
                 impact_assessment="FAVORABLE" if net_saving > 0 else "ADVERSE"
             ))
 
@@ -263,7 +263,7 @@ class StressSimulationEngine:
             if total_interest_kpi and total_interest_kpi.absolute_change > 0:
                 recs.append(
                     f"Nếu lãi suất tăng {params.rate_shock_bps} bps (+{params.rate_shock_bps / 100:.1f}%), "
-                    f"tổng lãi phải trả tăng thêm {total_interest_kpi.absolute_change:,.0f} VND. "
+                    f"tổng lãi phải trả tăng thêm ${total_interest_kpi.absolute_change:,.2f} USD. "
                     f"Cân nhắc khóa lãi suất cố định nếu có thể."
                 )
 
@@ -278,7 +278,7 @@ class StressSimulationEngine:
             if net_kpi and net_kpi.stressed_value > 0:
                 recs.append(
                     f"Trả trước hạn tại tháng {params.early_repayment_month} giúp tiết kiệm ròng "
-                    f"{net_kpi.stressed_value:,.0f} VND (sau khi trừ phí phạt). Nên thực hiện nếu đủ thanh khoản."
+                    f"${net_kpi.stressed_value:,.2f} USD (sau khi trừ phí phạt). Nên thực hiện nếu đủ thanh khoản."
                 )
             elif net_kpi:
                 recs.append(

@@ -89,7 +89,7 @@ class LLMExplanationProvider:
         for mid, label in [("revenue", "Recorded revenue for the period is"), ("cogs", "Cost of goods sold is"), ("cash_balance", "Closing cash balance is")]:
             m = metrics_by_id.get(mid)
             if m and m.get("status") == "AVAILABLE":
-                facts.append(f"{label} {m['value']} {payload.get('currency', 'VND')}.")
+                facts.append(f"{label} {m['value']} {payload.get('currency', 'USD')}.")
 
         gm = metrics_by_id.get("gross_margin")
         if gm and gm.get("status") == "AVAILABLE":
@@ -98,14 +98,14 @@ class LLMExplanationProvider:
 
         ar, ar_ratio = metrics_by_id.get("ar_outstanding"), metrics_by_id.get("overdue_ar_ratio")
         if ar and ar.get("status") == "AVAILABLE":
-            txt = f"Accounts receivable outstanding is {ar['value']} {payload.get('currency', 'VND')}."
+            txt = f"Accounts receivable outstanding is {ar['value']} {payload.get('currency', 'USD')}."
             if ar_ratio and ar_ratio.get("status") == "AVAILABLE":
                 txt += f" Overdue receivables ratio is {ar_ratio['value']}."
             facts.append(txt)
 
         ap = metrics_by_id.get("ap_outstanding")
         if ap and ap.get("status") == "AVAILABLE":
-            facts.append(f"Accounts payable outstanding is {ap['value']} {payload.get('currency', 'VND')}.")
+            facts.append(f"Accounts payable outstanding is {ap['value']} {payload.get('currency', 'USD')}.")
 
         comp = payload.get("comparison")
         if isinstance(comp, dict) and comp.get("status") == "AVAILABLE" and comp.get("metrics"):

@@ -104,7 +104,7 @@ export const FinancialHealthView: React.FC<FinancialHealthViewProps> = ({
     }
   };
 
-  const formatVND = (val: number | null | undefined) => {
+  const formatCurrency = (val: number | null | undefined) => {
     const cur = data?.currency || "USD";
     if (val === null || val === undefined || isNaN(val)) return `-- ${cur}`;
     const num = Number(val);
@@ -234,7 +234,7 @@ export const FinancialHealthView: React.FC<FinancialHealthViewProps> = ({
               if (meta.isRatio) {
                 displayVal = `${(m.value * 100).toFixed(2)}%`;
               } else {
-                displayVal = formatVND(m.value);
+                displayVal = formatCurrency(m.value);
                 if (m.value < 0) isNegative = true;
               }
             } else if (m && m.limitations && m.limitations.length > 0) {
@@ -325,14 +325,14 @@ export const FinancialHealthView: React.FC<FinancialHealthViewProps> = ({
                     <tr key={key} className="hover:bg-slate-50/80 transition-colors">
                       <td className="py-2.5 px-3 font-semibold text-slate-800">{meta.label}</td>
                       <td className="py-2.5 px-3 font-medium text-slate-700">
-                        {isRatio ? `${(item.current * 100).toFixed(1)}%` : formatVND(item.current)}
+                        {isRatio ? `${(item.current * 100).toFixed(1)}%` : formatCurrency(item.current)}
                       </td>
                       <td className="py-2.5 px-3 text-slate-500">
-                        {isRatio ? `${(item.previous * 100).toFixed(1)}%` : formatVND(item.previous)}
+                        {isRatio ? `${(item.previous * 100).toFixed(1)}%` : formatCurrency(item.previous)}
                       </td>
                       <td className={`py-2.5 px-3 font-semibold ${isPositive ? "text-emerald-600" : "text-rose-600"}`}>
                         {isPositive ? "+" : ""}
-                        {isRatio ? `${(item.absolute_change * 100).toFixed(1)} pp` : formatVND(item.absolute_change)}
+                        {isRatio ? `${(item.absolute_change * 100).toFixed(1)} pp` : formatCurrency(item.absolute_change)}
                       </td>
                       <td className={`py-2.5 px-3 font-semibold ${isPositive ? "text-emerald-600" : "text-rose-600"}`}>
                         {isPositive ? "▲ +" : "▼ "}
@@ -523,19 +523,19 @@ export const FinancialHealthView: React.FC<FinancialHealthViewProps> = ({
             <div className="p-3 rounded-xl bg-white/5 border border-white/10">
               <div className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Ending Cash</div>
               <div className="text-base font-bold text-emerald-400 font-mono mt-0.5">
-                {formatVND(simResult.kpis_9_layer?.ending_cash?.simulation)}
+                {formatCurrency(simResult.kpis_9_layer?.ending_cash?.simulation)}
               </div>
             </div>
             <div className="p-3 rounded-xl bg-white/5 border border-white/10">
               <div className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Net Cash Flow (NCF)</div>
               <div className="text-base font-bold text-amber-300 font-mono mt-0.5">
-                {formatVND(simResult.kpis_9_layer?.net_cash_flow?.simulation)}
+                {formatCurrency(simResult.kpis_9_layer?.net_cash_flow?.simulation)}
               </div>
             </div>
             <div className="p-3 rounded-xl bg-white/5 border border-white/10">
               <div className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Simulated Revenue</div>
               <div className="text-base font-bold text-blue-300 font-mono mt-0.5">
-                {formatVND(simResult.kpis_9_layer?.revenue?.simulation)}
+                {formatCurrency(simResult.kpis_9_layer?.revenue?.simulation)}
               </div>
             </div>
             <div className="p-3 rounded-xl bg-white/5 border border-white/10">

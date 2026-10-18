@@ -75,7 +75,13 @@ class CashflowPlugin(BaseLotusPlugin):
             as_of_str = arguments.get("financial_as_of") or arguments.get("as_of_date")
             start_str = arguments.get("forecast_start")
             end_str = arguments.get("forecast_end")
-            currency = arguments.get("currency", "VND")
+            currency = arguments.get("currency")
+            if not currency:
+                try:
+                    from lotus_fin.security.access import get_company_accounting_currency
+                    currency = get_company_accounting_currency(company) or "USD"
+                except Exception:
+                    currency = "USD"
             scope_arg = arguments.get("cash_account_scope")
 
             as_of_date = datetime.strptime(as_of_str, "%Y-%m-%d").date() if as_of_str else (date.today() - timedelta(days=1))

@@ -29,22 +29,33 @@ class FinancingIntentParser:
     def parse_user_query(query_text: str) -> FundingRequest:
         clean_text = sanitize_input(query_text).lower()
 
-        # 1. Extract Amount
-        amount = Decimal("500000000")
-        ty_match = re.search(r'(\d+([.,]\d+)?)\s*(tỷ|ty|b)', clean_text)
-        tr_match = re.search(r'(\d+([.,]\d+)?)\s*(triệu|trieu|tr|m)', clean_text)
-        raw_num_match = re.search(r'(\d{1,3}(?:[.,]\d{3})+|\d+)\s*(?:vnd|đ|dong|đồng)?', clean_text)
+        # 1. Extract Amount (USD standard, converting legacy VND if specified)
+        amount = Decimal("50000")
+        usd_explicit = bool(re.search(r'\$|\busd\b|\bdollar', clean_text))
+
+        k_match = re.search(r'(\d+([.,]\d+)?)\s*(k|nghìn|ngàn|thousand)\b', clean_text)
+        ty_match = re.search(r'(\d+([.,]\d+)?)\s*(tỷ|ty)\b', clean_text)
+        tr_match = re.search(r'(\d+([.,]\d+)?)\s*(triệu|trieu|tr)\b', clean_text)
+        raw_num_match = re.search(r'(?:\$|\busd\s*)?(\d{1,3}(?:[.,]\d{3})+|\d+)\s*(?:usd|\$)?', clean_text)
 
         if ty_match:
             val_str = ty_match.group(1).replace(',', '.')
-            amount = (Decimal(val_str) * Decimal("1000000000")).quantize(Decimal("1.0"), rounding=ROUND_HALF_UP)
+            vnd_amount = Decimal(val_str) * Decimal("1000000000")
+            amount = (vnd_amount / Decimal("25000.0")).quantize(Decimal("1.0"), rounding=ROUND_HALF_UP)
         elif tr_match:
             val_str = tr_match.group(1).replace(',', '.')
-            amount = (Decimal(val_str) * Decimal("1000000")).quantize(Decimal("1.0"), rounding=ROUND_HALF_UP)
+            vnd_amount = Decimal(val_str) * Decimal("1000000")
+            amount = (vnd_amount / Decimal("25000.0")).quantize(Decimal("1.0"), rounding=ROUND_HALF_UP)
+        elif k_match:
+            val_str = k_match.group(1).replace(',', '.')
+            amount = (Decimal(val_str) * Decimal("1000")).quantize(Decimal("1.0"), rounding=ROUND_HALF_UP)
         elif raw_num_match:
             val_str = raw_num_match.group(1).replace('.', '').replace(',', '')
-            if len(val_str) >= 6:
-                amount = Decimal(val_str)
+            raw_val = Decimal(val_str)
+            if raw_val >= 1000000 and not usd_explicit:
+                amount = (raw_val / Decimal("25000.0")).quantize(Decimal("1.0"), rounding=ROUND_HALF_UP)
+            elif raw_val > 0:
+                amount = raw_val
 
         # 2. Extract Term Months
         term_months = 12
@@ -64,7 +75,7 @@ class FinancingIntentParser:
         elif any(w in clean_text for w in ["mở rộng", "chi nhánh", "đầu tư", "expansion"]):
             purpose = FundingPurpose.EXPANSION
 
-        return FundingRequest(amount=amount, term_months=term_months, purpose=purpose)
+        return FundingRequest(amount=amount, term_months=term_months, purpose=purpose, currency="USD")
 
 
 class FinancingAIAdvisor:
@@ -105,7 +116,7 @@ class FinancingAIAdvisor:
         for m in top_matches:
             trade_offs.append(
                 f"- {m['product_name']} ({m['provider']}): Lãi suất {m['nominal_rate_annual']*100:.1f}%/năm, "
-                f"lãi ước tính {m['estimated_monthly_interest']:,.0f} VND/tháng. "
+                f"lãi ước tính ${m['estimated_monthly_interest']:,.2f}/tháng. "
                 f"Giải ngân trong {m['disbursement_speed_days']} ngày."
             )
 

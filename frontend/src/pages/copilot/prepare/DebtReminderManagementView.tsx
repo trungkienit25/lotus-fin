@@ -121,7 +121,7 @@ export const DebtReminderManagementView: React.FC<DebtReminderManagementViewProp
 
   const handleCreateTask = () => {
     if (onPrepareTask && selectedInvoice) {
-      onPrepareTask(`Follow up overdue invoice ${selectedInvoice.invoiceId} (${selectedInvoice.currentOutstandingDecimal} VND) - ${selectedInvoice.customerName}`);
+      onPrepareTask(`Follow up overdue invoice ${selectedInvoice.invoiceId} ($${selectedInvoice.currentOutstandingDecimal} USD) - ${selectedInvoice.customerName}`);
       setNotification({ type: "info", msg: "Opening task confirmation modal..." });
     }
   };

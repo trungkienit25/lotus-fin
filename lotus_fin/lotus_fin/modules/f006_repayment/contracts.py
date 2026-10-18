@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 
 
 class RepaymentInputContract(BaseModel):
-    principal: float = Field(..., gt=0, description="Loan principal amount in VND")
+    principal: float = Field(..., gt=0, description="Loan principal amount in USD")
     annual_rate: float = Field(..., ge=0, le=1.0, description="Annual nominal interest rate as decimal (e.g. 0.085)")
     term_months: int = Field(..., gt=0, description="Repayment tenure in months")
     amortization_method: str = Field(default="EQUAL_INSTALLMENT", description="EQUAL_INSTALLMENT, EQUAL_PRINCIPAL, FLAT_RATE, BULLET")
@@ -40,7 +40,7 @@ class ScheduleSummaryContract(BaseModel):
     first_payment: float
     last_payment: float
     interest_to_principal_ratio: float
-    currency: str = "VND"
+    currency: str = "USD"
 
 
 class RepaymentScheduleOutputContract(BaseModel):

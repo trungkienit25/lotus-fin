@@ -204,7 +204,7 @@ def evaluate_signal(
     reconciled = ()
     if request.signal_id is SignalId.AP_DUE_CLUSTER:
         try:
-            if any(row.currency not in ("", "VND") for row in ap_snapshot.rows):
+            if any(row.currency not in ("", "USD", "VND") for row in ap_snapshot.rows):
                 raise SourceFailure(
                     Status.SOURCE_ERROR, ReasonCode.INCONSISTENT_DATA, "row currency contradiction"
                 )
@@ -542,7 +542,7 @@ def _ap_evidence(
             as_of_date=as_of,
             report_key=ap_snapshot.report_key,
             filters=ap_snapshot.filters_applied,
-            currency="VND",
+            currency="USD",
             source_schema_version="ap_report_v1",
             payload=payload,
             captured_at=captured_at,

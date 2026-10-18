@@ -167,8 +167,8 @@ class FinancingService:
         return CompanyFinancialProfile(
             company_name=company,
             operating_months=int(data.get("operating_months", 24)),
-            annual_revenue=Decimal(str(data.get("annual_revenue", "2000000000"))),
-            current_cash_balance=Decimal(str(data.get("current_cash_balance", "300000000"))),
+            annual_revenue=Decimal(str(data.get("annual_revenue", "80000"))),
+            current_cash_balance=Decimal(str(data.get("current_cash_balance", "12000"))),
             current_dscr=Decimal(str(data.get("current_dscr", "1.35"))),
             has_collateral=bool(data.get("has_collateral", False)),
             collateral_types=data.get("collateral_types", []),
@@ -229,8 +229,8 @@ class FinancingService:
             return CompanyFinancialProfile(
                 company_name=company,
                 operating_months=24,
-                annual_revenue=Decimal("2400000000"),
-                current_cash_balance=Decimal("350000000"),
+                annual_revenue=Decimal("100000"),
+                current_cash_balance=Decimal("15000"),
                 current_dscr=Decimal("1.40"),
                 has_collateral=False,
                 collateral_types=[],
@@ -281,14 +281,14 @@ class FinancingService:
                     metrics = data.get("metrics") or {}
                     return {
                         "snapshot_id": f"snap_{company}_live",
-                        "revenue": float(metrics.get("total_revenue", {}).get("value", 1000000000.0)),
-                        "cogs": float(metrics.get("cost_of_goods_sold", {}).get("value", 600000000.0)),
-                        "ar_outstanding": float(metrics.get("accounts_receivable", {}).get("value", 250000000.0)),
-                        "ap_outstanding": float(metrics.get("accounts_payable", {}).get("value", 150000000.0)),
-                        "inventory_value": float(metrics.get("inventory_value", {}).get("value", 200000000.0)),
-                        "opening_cash": float(metrics.get("cash_balance", {}).get("value", 300000000.0)),
-                        "payroll_expense": float(metrics.get("payroll_expense", {}).get("value", 120000000.0)),
-                        "opex_expense": float(metrics.get("operating_expense", {}).get("value", 80000000.0)),
+                        "revenue": float(metrics.get("total_revenue", {}).get("value", 40000.0)),
+                        "cogs": float(metrics.get("cost_of_goods_sold", {}).get("value", 24000.0)),
+                        "ar_outstanding": float(metrics.get("accounts_receivable", {}).get("value", 10000.0)),
+                        "ap_outstanding": float(metrics.get("accounts_payable", {}).get("value", 6000.0)),
+                        "inventory_value": float(metrics.get("inventory_value", {}).get("value", 8000.0)),
+                        "opening_cash": float(metrics.get("cash_balance", {}).get("value", 12000.0)),
+                        "payroll_expense": float(metrics.get("payroll_expense", {}).get("value", 4800.0)),
+                        "opex_expense": float(metrics.get("operating_expense", {}).get("value", 3200.0)),
                         "data_mode": "verified"
                     }
         except Exception:
@@ -296,14 +296,14 @@ class FinancingService:
 
         return {
             "snapshot_id": f"snap_{company}_demo",
-            "revenue": 1000000000.0,
-            "cogs": 600000000.0,
-            "ar_outstanding": 250000000.0,
-            "ap_outstanding": 150000000.0,
-            "inventory_value": 200000000.0,
-            "opening_cash": 300000000.0,
-            "payroll_expense": 120000000.0,
-            "opex_expense": 80000000.0,
+            "revenue": 40000.0,
+            "cogs": 24000.0,
+            "ar_outstanding": 10000.0,
+            "ap_outstanding": 6000.0,
+            "inventory_value": 8000.0,
+            "opening_cash": 12000.0,
+            "payroll_expense": 4800.0,
+            "opex_expense": 3200.0,
             "data_mode": "demo"
         }
 

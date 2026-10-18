@@ -68,7 +68,7 @@ def build_financial_snapshot(
     period_start: str,
     period_end: str,
     as_of: Optional[str] = None,
-    currency: str = "VND",
+    currency: str = "USD",
     correlation_id: Optional[str] = None,
     comparison: Optional[str] = None,
     raw_sources: Optional[Dict[str, Any]] = None,

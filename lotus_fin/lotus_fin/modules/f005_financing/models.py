@@ -38,7 +38,7 @@ class FinancingProduct:
     product_type: ProductType
     amount_min: Decimal
     amount_max: Decimal
-    currency: str = "VND"
+    currency: str = "USD"
     rate_type: RateType = RateType.FIXED
     nominal_rate_annual: Decimal = Decimal("0.10")
     rate_spread_range: str = "9.0% - 12.0%/năm"
@@ -46,7 +46,7 @@ class FinancingProduct:
     term_max_months: int = 36
     disbursement_speed_days: int = 5
     min_operating_months: int = 12
-    min_annual_revenue: Decimal = Decimal("1000000000")
+    min_annual_revenue: Decimal = Decimal("40000")
     min_dscr_threshold: Optional[Decimal] = Decimal("1.20")
     requires_collateral: bool = False
     accepted_collaterals: List[str] = field(default_factory=lambda: ["REAL_ESTATE", "VEHICLE", "DEPOSIT"])
@@ -78,7 +78,7 @@ class FundingRequest:
     amount: Decimal
     term_months: int
     purpose: FundingPurpose = FundingPurpose.WORKING_CAPITAL
-    currency: str = "VND"
+    currency: str = "USD"
 
 
 @dataclass
@@ -168,14 +168,14 @@ class ScenarioSimulationResult:
     base_snapshot_id: str
     data_mode: str = "simulation"
     parameters: Dict[str, Any] = field(default_factory=dict)
-    revenue: KPIValue = field(default_factory=lambda: KPIValue("revenue", "Revenue", None, None, None, None, "VND"))
-    gross_profit: KPIValue = field(default_factory=lambda: KPIValue("gross_profit", "Gross Profit", None, None, None, None, "VND"))
+    revenue: KPIValue = field(default_factory=lambda: KPIValue("revenue", "Revenue", None, None, None, None, "USD"))
+    gross_profit: KPIValue = field(default_factory=lambda: KPIValue("gross_profit", "Gross Profit", None, None, None, None, "USD"))
     gross_margin: KPIValue = field(default_factory=lambda: KPIValue("gross_margin", "Gross Margin", None, None, None, None, "%"))
-    ar_outstanding: KPIValue = field(default_factory=lambda: KPIValue("ar_outstanding", "Accounts Receivable", None, None, None, None, "VND"))
+    ar_outstanding: KPIValue = field(default_factory=lambda: KPIValue("ar_outstanding", "Accounts Receivable", None, None, None, None, "USD"))
     dso: KPIValue = field(default_factory=lambda: KPIValue("dso", "Days Sales Outstanding", None, None, None, None, "days"))
-    net_cash_flow: KPIValue = field(default_factory=lambda: KPIValue("net_cash_flow", "Net Cash Flow", None, None, None, None, "VND"))
-    ending_cash: KPIValue = field(default_factory=lambda: KPIValue("ending_cash", "Ending Cash Balance", None, None, None, None, "VND"))
+    net_cash_flow: KPIValue = field(default_factory=lambda: KPIValue("net_cash_flow", "Net Cash Flow", None, None, None, None, "USD"))
+    ending_cash: KPIValue = field(default_factory=lambda: KPIValue("ending_cash", "Ending Cash Balance", None, None, None, None, "USD"))
     ccc: KPIValue = field(default_factory=lambda: KPIValue("ccc", "Cash Conversion Cycle", None, None, None, None, "days"))
-    cash_shortfall: KPIValue = field(default_factory=lambda: KPIValue("cash_shortfall", "Cash Shortfall Deficit", None, None, None, None, "VND"))
+    cash_shortfall: KPIValue = field(default_factory=lambda: KPIValue("cash_shortfall", "Cash Shortfall Deficit", None, None, None, None, "USD"))
     shortfall_events: List[Dict[str, Any]] = field(default_factory=list)
     limitations: List[str] = field(default_factory=list)

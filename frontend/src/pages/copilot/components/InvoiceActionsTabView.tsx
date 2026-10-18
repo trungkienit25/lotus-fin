@@ -137,10 +137,10 @@ export const InvoiceActionsTabView: React.FC<InvoiceActionsTabViewProps> = ({
           </div>
           <div className="p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur">
             <span className="text-[10px] font-medium text-slate-400 block uppercase tracking-wider">
-              Tổng phát sinh (VND)
+              Tổng phát sinh (USD)
             </span>
             <span className="text-base font-bold text-blue-300 mt-0.5 font-mono block truncate">
-              {loadingStats ? "..." : Number(stats.totalAmount).toLocaleString()}
+              {loadingStats ? "..." : `$${Number(stats.totalAmount).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
             </span>
           </div>
         </div>
@@ -287,13 +287,13 @@ const RealInvoiceExplorer: React.FC<RealInvoiceExplorerProps> = ({ company, onPr
             <div className="p-3 bg-white rounded-xl border border-blue-100">
               <span className="text-[10px] text-slate-400 block uppercase">Tổng tiền chứng từ</span>
               <span className="font-mono font-bold text-blue-700 mt-0.5 block">
-                {Number(selectedInvoice.grandTotal || 0).toLocaleString()} VND
+                ${Number(selectedInvoice.grandTotal || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
             </div>
             <div className="p-3 bg-white rounded-xl border border-blue-100">
               <span className="text-[10px] text-slate-400 block uppercase">Dư nợ còn lại</span>
               <span className="font-mono font-bold text-rose-600 mt-0.5 block">
-                {Number(selectedInvoice.outstandingAmount || 0).toLocaleString()} VND
+                ${Number(selectedInvoice.outstandingAmount || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
             </div>
           </div>
@@ -351,13 +351,13 @@ const RealInvoiceExplorer: React.FC<RealInvoiceExplorerProps> = ({ company, onPr
                     </span>
                     <span>•</span>
                     <span className="font-mono font-semibold text-slate-700">
-                      {Number(inv.grandTotal || 0).toLocaleString()} VND
+                      ${Number(inv.grandTotal || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </span>
                     {inv.outstandingAmount > 0 && (
                       <>
                         <span>•</span>
                         <span className="font-mono font-semibold text-rose-600">
-                          Còn nợ: {Number(inv.outstandingAmount).toLocaleString()} VND
+                          Còn nợ: ${Number(inv.outstandingAmount).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </span>
                       </>
                     )}

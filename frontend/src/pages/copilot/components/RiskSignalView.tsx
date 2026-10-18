@@ -46,7 +46,7 @@ export const RiskSignalView: React.FC<RiskSignalViewProps> = ({
     evaluateSignal();
   }, [company, signalId, asOfDate]);
 
-  const formatVND = (val: any) => {
+  const formatCurrency = (val: any) => {
     const cur = result?.observed?.supporting_currency || result?.currency || "USD";
     if (val === null || val === undefined || isNaN(Number(val))) return `-- ${cur}`;
     const num = Number(val);
@@ -196,14 +196,14 @@ export const RiskSignalView: React.FC<RiskSignalViewProps> = ({
                 <div className="text-xs text-slate-500">Current Observed Ratio</div>
                 <div className="text-lg font-bold text-slate-900 mt-1 font-mono">{observedVal}</div>
                 <div className="text-[11px] text-slate-400 mt-0.5">
-                  Total AR: {formatVND(result?.observed?.supporting_amount)}
+                  Total AR: {formatCurrency(result?.observed?.supporting_amount)}
                 </div>
               </div>
               <div className="p-3.5 rounded-xl border border-slate-100 bg-[#F9FBFC]">
                 <div className="text-xs text-slate-500">Baseline Ratio ({result.baseline?.cutoff || ""})</div>
                 <div className="text-lg font-bold text-slate-700 mt-1 font-mono">{baselineVal}</div>
                 <div className="text-[11px] text-slate-400 mt-0.5">
-                  Baseline AR Denominator: {formatVND(result?.baseline?.denominator)}
+                  Baseline AR Denominator: {formatCurrency(result?.baseline?.denominator)}
                 </div>
               </div>
               <div className="p-3.5 rounded-xl border border-slate-100 bg-[#F9FBFC]">
