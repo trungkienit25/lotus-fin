@@ -85,6 +85,7 @@ services:
     command:
       - >
         ls -1 apps > sites/apps.txt;
+        grep -q "lotus_fin" sites/apps.txt || echo "lotus_fin" >> sites/apps.txt;
         bench set-config -g db_host $$DB_HOST;
         bench set-config -gp db_port $$DB_PORT;
         bench set-config -g redis_cache "redis://$$REDIS_CACHE";
@@ -100,6 +101,7 @@ services:
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs
+      - ../../lotus_fin:/home/frappe/frappe-bench/apps/lotus_fin
     networks:
       - lotus_prod_net
 
