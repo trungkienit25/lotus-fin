@@ -88,43 +88,7 @@ class CopilotController:
 
         session_id = dto.session_id or f"{user_id}_{verified_company}"
 
-        # 1. Direct deterministic fast-path for operational accounting intents (invoice search, debt reminder, overdue debt)
-        q_norm = dto.message.lower()
-        if any(k in q_norm for k in ["soạn thư", "nhắc nợ", "thư nhắc nợ", "thư đòi nợ", "debt reminder", "tìm hóa đơn", "tra cứu hóa đơn", "tra cứu chứng từ", "quá hạn", "past final due"]):
-            from lotus_fin.core.ai.agent_copilot import process_copilot_query
-            fast_res = process_copilot_query(
-                query=dto.message,
-                company=verified_company,
-                as_of_date=dto.as_of_date
-            )
-            fast_reply = fast_res.get("reply", "")
-
-            # Persist fast-path conversation to database session
-            try:
-                from lotus_fin.domain.model.chat_message import ChatMessage
-                from lotus_fin.domain.model.chat_session import ChatSession
-                from lotus_fin.domain.model.message_role import MessageRole
-                session = _session_repo.get_session(session_id) or ChatSession(
-                    id=session_id, user_id=user.user_id, company=user.company, title=dto.message[:80]
-                )
-                session.add_message(ChatMessage(role=MessageRole.USER, content=dto.message))
-                session.add_message(ChatMessage(role=MessageRole.ASSISTANT, content=fast_reply))
-                _session_repo.save_session(session)
-            except Exception as e:
-                _logger.warning("Failed to persist fast-path chat message: %s", e)
-
-            return {
-                "session_id": session_id,
-                "reply": fast_reply,
-                "tool_called": fast_res.get("tool_called"),
-                "tool_label": fast_res.get("tool_label"),
-                "tool_output": fast_res.get("tool_output"),
-                "ui_widget": fast_res.get("ui_widget"),
-                "executed_tools": [fast_res.get("tool_called")] if fast_res.get("tool_called") else [],
-                "trace_id": None,
-                "latency_ms": 10
-            }
-
+        # Clean Architecture: Route message through CopilotService ReAct orchestration
         copilot_svc = service or get_copilot_service()
 
         try:
@@ -144,7 +108,7 @@ class CopilotController:
                 company=verified_company,
                 as_of_date=dto.as_of_date
             )
-            fallback_reply = legacy_res.get("reply", "Hệ thống đã trích xuất dữ liệu sổ cái doanh nghiệp thành công.")
+            fallback_reply = legacy_res.get("reply", "Enterprise general ledger records successfully extracted.")
             tool_called = legacy_res.get("tool_called")
 
             # Persist messages to session repository
@@ -222,7 +186,7 @@ class CopilotController:
         if not session:
             return {
                 "session_id": session_id,
-                "title": "Cuộc trò chuyện mới",
+                "title": "New Conversation",
                 "messages": [],
                 "total": 0
             }
@@ -247,7 +211,7 @@ class CopilotController:
 
         return {
             "session_id": session.id,
-            "title": session.title or "Hội thoại tài chính Lotus Fin",
+            "title": session.title or "Lotus Fin Financial Copilot Session",
             "company": session.company,
             "user_id": session.user_id,
             "created_at": session.created_at.isoformat() if hasattr(session.created_at, "isoformat") else str(session.created_at),

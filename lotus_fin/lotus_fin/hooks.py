@@ -24,6 +24,10 @@ page_renderer = ["lotus_fin.runtime.spa.LotusSpaPage"]
 # ---------------
 scheduler_events = {}
 
+# Installation & Migration Hooks
+# ------------------------------
+after_migrate = ["lotus_fin.patches.v1_0.set_default_currency_usd.execute"]
+
 app_home = "/app"
 
 add_to_apps_screen = [

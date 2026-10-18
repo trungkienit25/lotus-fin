@@ -8,10 +8,10 @@ from lotus_fin.infrastructure.tool.command.base_tool_command import IToolCommand
 
 class FinancingArgs(BaseModel):
     company: str = Field(..., description="Target company")
-    amount: float = Field(..., description="Desired loan capital need in VND")
+    amount: float = Field(..., description="Desired loan capital need in USD")
     term_months: int = Field(default=12, description="Desired repayment tenure in months")
     purpose: str = Field(default="WORKING_CAPITAL", description="Funding purpose: WORKING_CAPITAL, MACHINERY, EXPANSION, INVOICE_DISCOUNTING")
-    collateral_value: float = Field(default=0.0, description="Available collateral security value in VND")
+    collateral_value: float = Field(default=0.0, description="Available collateral security value in USD")
 
 
 class MatchFinancingProductsTool(IToolCommand):

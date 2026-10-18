@@ -222,11 +222,11 @@ def _fetch_validated(provider, company: str, cutoff: date, role: str) -> ARSnaps
         raise SourceFailure(
             Status.SOURCE_ERROR, ReasonCode.INCONSISTENT_DATA, "snapshot company mismatch"
         )
-    if snapshot.currency and snapshot.currency != "VND":
+    if snapshot.currency and snapshot.currency not in ["VND", "USD"]:
         raise SourceFailure(
             Status.VALIDATION_ERROR,
             ReasonCode.UNSUPPORTED_COMPANY_CURRENCY,
-            "company accounting currency is not VND",
+            f"company accounting currency '{snapshot.currency}' is not supported (expected USD or VND)",
         )
     if not snapshot.ar_metrics_available:
         if role == "baseline":

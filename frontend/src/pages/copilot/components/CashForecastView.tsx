@@ -43,8 +43,13 @@ export const CashForecastView: React.FC<CashForecastViewProps> = ({
   }, [company, asOfDate]);
 
   const formatVND = (val: any) => {
-    if (val === null || val === undefined || val === "" || isNaN(Number(val))) return "-- VND";
-    return Math.round(Number(val)).toLocaleString("vi-VN") + " VND";
+    const cur = data?.currency || "USD";
+    if (val === null || val === undefined || val === "" || isNaN(Number(val))) return `-- ${cur}`;
+    const num = Number(val);
+    if (cur === "USD") {
+      return `$${num.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+    return Math.round(num).toLocaleString("vi-VN") + " " + cur;
   };
 
   const aggregateAmount = data?.opening_cash?.aggregate_amount !== undefined
@@ -66,7 +71,7 @@ export const CashForecastView: React.FC<CashForecastViewProps> = ({
                 Lotus Fin • Cash Forecast & Runway (AI002)
               </span>
               <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
-                Tầm nhìn: 30 Ngày (Daily EOD)
+                Horizon: 30-Day (Daily EOD)
               </span>
               <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 font-mono">
                 {company}
@@ -74,16 +79,16 @@ export const CashForecastView: React.FC<CashForecastViewProps> = ({
             </div>
             <div className="flex items-center gap-3">
               <ModuleBadge moduleId="cash_forecast" size="md" />
-              <h1 className="text-2xl font-bold tracking-tight">Dự báo Dòng tiền & Quỹ đạo Thanh khoản</h1>
+              <h1 className="text-2xl font-bold tracking-tight">Cash Flow Forecast & Liquidity Trajectory</h1>
             </div>
             <p className="text-sm text-slate-300 mt-1">
-              Trích xuất số dư Sổ cái GL và lịch đáo hạn công nợ hợp đồng thực tế từ ERPNext của {company}.
+              Extracted from General Ledger cash balances and contractual receivables/payables schedule of {company}.
             </p>
           </div>
 
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 text-xs bg-white/10 px-3 py-1.5 rounded-xl border border-white/20">
-              <span className="text-slate-300">Tính đến ngày:</span>
+              <span className="text-slate-300">As-of Date:</span>
               <input
                 type="date"
                 value={asOfDate}
@@ -100,7 +105,7 @@ export const CashForecastView: React.FC<CashForecastViewProps> = ({
               <svg className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
-              <span>{loading ? "Đang dự báo..." : "Cập nhật từ ERP"}</span>
+              <span>{loading ? "Forecasting..." : "Refresh from ERP"}</span>
             </button>
           </div>
         </div>
@@ -112,9 +117,9 @@ export const CashForecastView: React.FC<CashForecastViewProps> = ({
           <div>
             <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
               <ModuleBadge moduleId="financial_health" size="xs" />
-              <span>Tier 1: Số dư Tiền mặt & Ngân hàng Đầu kỳ (Thực tế Sổ cái GL)</span>
+              <span>Tier 1: Opening Cash & Bank Balances (Actual GL Ledger)</span>
             </h2>
-            <p className="text-xs text-slate-500">Đối soát độc lập giữa Sổ cái General Ledger và Bảng cân đối thử</p>
+            <p className="text-xs text-slate-500">Independent reconciliation between General Ledger and Trial Balance</p>
           </div>
           <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
             ✓ {data?.opening_cash?.reconciliation || "GL Reconciled"}
@@ -128,7 +133,7 @@ export const CashForecastView: React.FC<CashForecastViewProps> = ({
             : "bg-gradient-to-br from-slate-50 to-slate-100/80 border-slate-200/80"
         }`}>
           <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-            Tổng số dư tiền khả dụng hợp nhất đầu kỳ
+            Total Consolidated Opening Available Cash
           </div>
           <div className={`text-3xl font-extrabold mt-1 tracking-tight font-mono ${
             aggregateAmount !== null && aggregateAmount < 0 ? "text-rose-700" : "text-slate-900"
@@ -139,7 +144,7 @@ export const CashForecastView: React.FC<CashForecastViewProps> = ({
 
         {/* Account Breakdown Chips */}
         <div>
-          <div className="text-xs font-semibold text-slate-600 mb-2">Chi tiết từng tài khoản tiền/ngân hàng thực tế:</div>
+          <div className="text-xs font-semibold text-slate-600 mb-2">Detailed cash & bank account breakdown:</div>
           <div className="flex flex-wrap gap-2.5">
             {accountList.length > 0 ? (
               accountList.map((acc: any, idx: number) => {
@@ -160,7 +165,7 @@ export const CashForecastView: React.FC<CashForecastViewProps> = ({
                 );
               })
             ) : (
-              <div className="text-xs text-slate-400">Không tìm thấy tài khoản tiền mặt/ngân hàng tương ứng.</div>
+              <div className="text-xs text-slate-400">No matching cash/bank accounts identified.</div>
             )}
           </div>
         </div>
@@ -171,12 +176,12 @@ export const CashForecastView: React.FC<CashForecastViewProps> = ({
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-              <span>📈</span> Quỹ đạo Số dư Tiền mặt 30 Ngày (Daily EOD Trajectory)
+              <span>📈</span> 30-Day Cash Trajectory (Daily EOD Trajectory)
             </h2>
-            <p className="text-xs text-slate-500">Số dư cuối ngày được dự báo dựa trên các sự kiện kế toán đã hạch toán</p>
+            <p className="text-xs text-slate-500">Projected end-of-day cash balance driven by confirmed accounting transactions</p>
           </div>
           <span className="text-xs font-mono font-semibold px-2.5 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200">
-            {forecastPoints.length > 0 ? `${forecastPoints.length} Mốc Dự báo` : "Deterministic Baseline"}
+            {forecastPoints.length > 0 ? `${forecastPoints.length} Daily Intervals` : "Deterministic Baseline"}
           </span>
         </div>
 
@@ -184,10 +189,10 @@ export const CashForecastView: React.FC<CashForecastViewProps> = ({
           <table className="w-full text-left text-xs border-collapse">
             <thead className="sticky top-0 bg-slate-50 border-b border-slate-200 text-slate-600 z-10 font-semibold">
               <tr>
-                <th className="py-2.5 px-3">Ngày</th>
-                <th className="py-2.5 px-3">Số dư Cuối ngày (EOD Cash)</th>
-                <th className="py-2.5 px-3">Sự kiện / Giao dịch chính</th>
-                <th className="py-2.5 px-3 text-center">Trạng thái</th>
+                <th className="py-2.5 px-3">Date</th>
+                <th className="py-2.5 px-3">EOD Cash Balance</th>
+                <th className="py-2.5 px-3">Key Drivers & Events</th>
+                <th className="py-2.5 px-3 text-center">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -196,7 +201,7 @@ export const CashForecastView: React.FC<CashForecastViewProps> = ({
                   <tr key={idx} className="hover:bg-slate-50/80 transition-colors">
                     <td className="py-2.5 px-3 font-mono font-medium text-slate-800">{pt.date}</td>
                     <td className="py-2.5 px-3 font-bold font-mono text-slate-900">{formatVND(pt.eod_balance || pt.amount)}</td>
-                    <td className="py-2.5 px-3 text-slate-600">{pt.event_desc || "Duy trì số dư định kỳ"}</td>
+                    <td className="py-2.5 px-3 text-slate-600">{pt.event_desc || "Conserved baseline balance"}</td>
                     <td className="py-2.5 px-3 text-center">
                       <span
                         className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
@@ -207,7 +212,7 @@ export const CashForecastView: React.FC<CashForecastViewProps> = ({
                             : "bg-rose-50 text-rose-700 border border-rose-200"
                         }`}
                       >
-                        {pt.status === "HEALTHY" ? "An toàn" : pt.status === "WARNING" ? "Cảnh báo" : "Thiếu hụt"}
+                        {pt.status === "HEALTHY" ? "Healthy" : pt.status === "WARNING" ? "Warning" : "Deficit"}
                       </span>
                     </td>
                   </tr>
@@ -217,11 +222,11 @@ export const CashForecastView: React.FC<CashForecastViewProps> = ({
                   <td colSpan={4} className="py-8 text-center text-slate-400">
                     <div>
                       {data?.reason_code === "NO_CONFIRMED_SETTLEMENT_EVENTS"
-                        ? "Không có sự kiện thanh toán tiền mặt được xác nhận trong 30 ngày tới (NO_CONFIRMED_SETTLEMENT_EVENTS)."
-                        : "Chưa có bút toán thanh toán tương lai được phê duyệt."}
+                        ? "No confirmed cash settlement events recorded within the next 30 days (NO_CONFIRMED_SETTLEMENT_EVENTS)."
+                        : "No future cash disbursement vouchers approved."}
                     </div>
                     <div className="text-[11px] text-slate-400 mt-1">
-                      Các hóa đơn mua/bán hàng bên dưới phản ánh nghĩa vụ theo ngày đáo hạn hợp đồng.
+                      Purchasing and sales invoices below reflect contractual due dates.
                     </div>
                   </td>
                 </tr>
@@ -236,12 +241,12 @@ export const CashForecastView: React.FC<CashForecastViewProps> = ({
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-              <span>📑</span> Tier 2: Nghĩa vụ Hợp đồng Thực tế (Lịch đáo hạn AR / AP từ ERP)
+              <span>📑</span> Tier 2: Actual Contractual Obligations (AR / AP Due Schedule from ERP)
             </h2>
-            <p className="text-xs text-slate-500">Các hóa đơn Bán hàng (Sales Invoices) & Mua hàng (Purchase Invoices) đã hạch toán</p>
+            <p className="text-xs text-slate-500">Booked Sales Invoices & Purchase Invoices</p>
           </div>
           <span className="text-xs font-mono font-bold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-full">
-            {obligationsList.length} Chứng từ
+            {obligationsList.length} Documents
           </span>
         </div>
 
@@ -249,11 +254,11 @@ export const CashForecastView: React.FC<CashForecastViewProps> = ({
           <table className="w-full text-left text-xs border-collapse">
             <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold">
               <tr>
-                <th className="py-2.5 px-3 text-center">Loại</th>
-                <th className="py-2.5 px-3">Đối tác / Mã băm</th>
-                <th className="py-2.5 px-3">Ngày đến hạn</th>
-                <th className="py-2.5 px-3">Số tiền còn lại</th>
-                <th className="py-2.5 px-3">Chứng từ gốc</th>
+                <th className="py-2.5 px-3 text-center">Type</th>
+                <th className="py-2.5 px-3">Counterparty / Hash</th>
+                <th className="py-2.5 px-3">Due Date</th>
+                <th className="py-2.5 px-3">Remaining Balance</th>
+                <th className="py-2.5 px-3">Voucher Reference</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -271,11 +276,11 @@ export const CashForecastView: React.FC<CashForecastViewProps> = ({
                               : "bg-purple-50 text-purple-700 border border-purple-200"
                           }`}
                         >
-                          {isAR ? "Thu (AR)" : "Chi (AP)"}
+                          {isAR ? "Inflow (AR)" : "Outflow (AP)"}
                         </span>
                       </td>
                       <td className="py-2.5 px-3 font-semibold text-slate-800">
-                        {ob.party || ob.party_hash || ob.party_type || "Đối tác"}
+                        {ob.party || ob.party_hash || ob.party_type || "Counterparty"}
                       </td>
                       <td className="py-2.5 px-3 font-mono text-slate-600">{ob.due_date}</td>
                       <td className={`py-2.5 px-3 font-mono font-bold ${isAR ? "text-emerald-600" : "text-rose-600"}`}>
@@ -290,7 +295,7 @@ export const CashForecastView: React.FC<CashForecastViewProps> = ({
               ) : (
                 <tr>
                   <td colSpan={5} className="py-6 text-center text-slate-400">
-                    Không có khoản công nợ AR/AP chưa thanh toán.
+                    No unsettled AR/AP obligations.
                   </td>
                 </tr>
               )}
@@ -303,7 +308,7 @@ export const CashForecastView: React.FC<CashForecastViewProps> = ({
       {data?.limitations && data.limitations.length > 0 && (
         <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1">
           <div className="font-bold text-slate-800 flex items-center gap-1.5">
-            <span>⚠️</span> Giới hạn & Giả định Phương pháp Kế toán (AI-F002):
+            <span>⚠️</span> Accounting Methodology Limitations & Assumptions (AI-F002):
           </div>
           <ul className="list-disc list-inside space-y-1 text-slate-600">
             {data.limitations.map((lim: string, i: number) => (

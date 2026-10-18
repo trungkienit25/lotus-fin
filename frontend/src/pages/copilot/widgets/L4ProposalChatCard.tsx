@@ -12,7 +12,7 @@ export interface L4ProposalChatCardProps {
 }
 
 export const L4ProposalChatCard: React.FC<L4ProposalChatCardProps> = ({
-  initialTitle = "Theo dõi công nợ quá hạn ACC-SINV-2026-00001",
+  initialTitle = "Follow up overdue receivables ACC-SINV-2026-00001",
   targetEntity = "Sales Invoice/ACC-SINV-2026-00001",
   company = "Lotus-fin (Demo)",
   onSuccess,
@@ -32,10 +32,10 @@ export const L4ProposalChatCard: React.FC<L4ProposalChatCardProps> = ({
     issued_at_utc: new Date().toISOString(),
     preview_title: initialTitle,
     preview_diff: [
-      { field_name: "Tên công việc", old_value: null, new_value: initialTitle, description: "Nhiệm vụ theo dõi công nợ được khởi tạo cho bộ phận kế toán" },
-      { field_name: "Hạn xử lý", old_value: null, new_value: "2026-10-25", description: "Thời hạn quy chuẩn xử lý trong vòng 7 ngày làm việc" },
-      { field_name: "Mức độ ưu tiên", old_value: null, new_value: "Trung bình", description: "Mức độ ưu tiên theo dõi định kỳ" },
-      { field_name: "Chứng từ liên kết", old_value: null, new_value: targetEntity, description: "Hóa đơn bán hàng liên quan cần thu hồi nợ" },
+      { field_name: "Task Name", old_value: null, new_value: initialTitle, description: "Receivables follow-up task initialized for the accounting team" },
+      { field_name: "Due Date", old_value: null, new_value: "2026-10-25", description: "Standard resolution timeline within 7 business days" },
+      { field_name: "Priority", old_value: null, new_value: "Medium", description: "Standard periodic follow-up priority level" },
+      { field_name: "Linked Document", old_value: null, new_value: targetEntity, description: "Associated sales invoice requiring debt collection" },
     ],
     expires_at_utc: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
     confirmation_challenge: "chal-verified-998",
@@ -156,7 +156,7 @@ export const L4ProposalChatCard: React.FC<L4ProposalChatCardProps> = ({
   if (status === "CANCELLED") {
     return (
       <div className="w-full mt-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xs text-slate-500">
-        Đã hủy đề xuất tạo tác vụ: <span className="font-semibold text-slate-700">{proposal.preview_title}</span>.
+        Task proposal cancelled: <span className="font-semibold text-slate-700">{proposal.preview_title}</span>.
       </div>
     );
   }
@@ -164,8 +164,8 @@ export const L4ProposalChatCard: React.FC<L4ProposalChatCardProps> = ({
   if (status === "EXPIRED") {
     return (
       <div className="w-full mt-3 rounded-2xl border border-rose-200 bg-rose-50/60 p-4 text-xs text-rose-700 space-y-1">
-        <div className="font-bold">Đề xuất đã hết hạn</div>
-        <div>Thời gian hiệu lực (10 phút) đã qua. Vui lòng gửi lại yêu cầu để tạo đề xuất mới.</div>
+        <div className="font-bold">Proposal Expired</div>
+        <div>The 10-minute validity window has lapsed. Please submit a new request to generate a refreshed proposal.</div>
       </div>
     );
   }
@@ -182,14 +182,14 @@ export const L4ProposalChatCard: React.FC<L4ProposalChatCardProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-sm font-bold tracking-tight text-white">
-                  Đã khởi tạo công việc theo dõi thành công
+                  Receivables Follow-Up Task Initialized Successfully
                 </span>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
-                  HOÀN THÀNH
+                  COMPLETED
                 </span>
               </div>
               <p className="text-xs text-slate-300 mt-0.5">
-                Nhiệm vụ đã được phân công và lưu vào danh sách việc cần xử lý của doanh nghiệp
+                Task assigned and recorded in the enterprise action backlog
               </p>
             </div>
           </div>
@@ -203,16 +203,16 @@ export const L4ProposalChatCard: React.FC<L4ProposalChatCardProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
             <div className="p-3 rounded-xl bg-[#F8FAFC] border border-slate-200/60">
               <span className="text-[11px] font-medium text-slate-400 block">
-                Mã công việc
+                Task ID
               </span>
               <span className="text-xs font-bold text-slate-900 font-mono block mt-0.5">{realTaskId || operationRecord.operation_id}</span>
             </div>
             <div className="p-3 rounded-xl bg-[#F8FAFC] border border-slate-200/60">
-              <span className="text-[11px] font-medium text-slate-400 block">Chứng từ gắn kèm</span>
+              <span className="text-[11px] font-medium text-slate-400 block">Linked Document</span>
               <span className="text-xs font-bold text-slate-800 font-mono block mt-0.5">{operationRecord.target_entity}</span>
             </div>
             <div className="p-3 rounded-xl bg-[#F8FAFC] border border-slate-200/60 sm:col-span-2">
-              <span className="text-[11px] font-medium text-slate-400 block">Nội dung nhiệm vụ</span>
+              <span className="text-[11px] font-medium text-slate-400 block">Task Description</span>
               <span className="text-xs font-bold text-slate-900 block mt-0.5">{proposal.preview_title}</span>
             </div>
           </div>
@@ -220,7 +220,7 @@ export const L4ProposalChatCard: React.FC<L4ProposalChatCardProps> = ({
           {/* Clean footnote */}
           <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 text-slate-600 text-[11px] flex items-center justify-between">
             <span>
-              ✓ Đã ghi nhận vào hệ thống quản lý công việc và sẵn sàng theo dõi tiến độ.
+              ✓ Recorded in task management system and ready for milestone tracking.
             </span>
             <span className="font-mono text-slate-400">{new Date(operationRecord.completed_at_utc!).toLocaleTimeString()}</span>
           </div>
@@ -238,21 +238,21 @@ export const L4ProposalChatCard: React.FC<L4ProposalChatCardProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold tracking-tight text-white">
-                Đề xuất Khởi tạo Tác vụ Theo dõi (L4)
+                Follow-Up Task Proposal (L4)
               </span>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-500/20 text-blue-300 border border-blue-400/30">
                 Awaiting Confirmation
               </span>
             </div>
             <p className="text-xs text-slate-300 mt-0.5">
-              Kiểm tra thông tin chi tiết và xác nhận bằng nút bấm tường minh
+              Review details and confirm via explicit action button
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-auto">
           <span className="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-white/10 text-slate-200 border border-white/20 backdrop-blur font-mono">
-            Hết hạn sau: {formatTimer(timeLeft)}
+            Expires in: {formatTimer(timeLeft)}
           </span>
         </div>
       </div>
@@ -261,7 +261,7 @@ export const L4ProposalChatCard: React.FC<L4ProposalChatCardProps> = ({
         {/* Field Level Changes */}
         <div className="space-y-2">
           <div className="text-xs font-bold text-slate-700">
-            Chi tiết các trường thông tin sẽ được thiết lập:
+            Target parameters to be configured:
           </div>
           <div className="rounded-xl border border-slate-200/80 bg-white divide-y divide-slate-100 text-xs overflow-hidden">
             {proposal.preview_diff.map((diff) => (
@@ -277,14 +277,14 @@ export const L4ProposalChatCard: React.FC<L4ProposalChatCardProps> = ({
         <div className="p-3 rounded-xl bg-amber-50/70 border border-amber-200/70 text-amber-900 text-xs flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <span className="text-amber-600 font-bold">ℹ</span>
-            <span>Hệ thống chỉ thực thi khi bạn bấm nút xác nhận bên dưới. Tin nhắn chat không có quyền tự kích hoạt.</span>
+            <span>The system only executes upon your explicit confirmation click below. Chat messages cannot trigger side-effects directly.</span>
           </div>
         </div>
 
         {/* Action Buttons */}
         <div className="pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100">
           <span className="text-[11px] text-slate-400">
-            Yêu cầu xác nhận từ kế toán viên
+            Requires accountant confirmation
           </span>
 
           <div className="flex items-center gap-2">
@@ -294,7 +294,7 @@ export const L4ProposalChatCard: React.FC<L4ProposalChatCardProps> = ({
               onClick={handleCancel}
               className="px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold shadow-2xs transition-all cursor-pointer disabled:opacity-50"
             >
-              Hủy bỏ
+              Cancel
             </button>
             <button
               type="button"
@@ -306,10 +306,10 @@ export const L4ProposalChatCard: React.FC<L4ProposalChatCardProps> = ({
               {status === "SUBMITTING" ? (
                 <>
                   <span className="size-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  <span>Đang xử lý...</span>
+                  <span>Processing...</span>
                 </>
               ) : (
-                <span>✓ Xác nhận Tạo việc</span>
+                <span>✓ Confirm Create Task</span>
               )}
             </button>
           </div>

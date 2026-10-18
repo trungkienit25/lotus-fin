@@ -146,6 +146,9 @@ jobs:
           docker compose --env-file "$ENV_PATH" -f "$APP_DIR/docker/production/compose.prod.yml" up -d --remove-orphans --force-recreate backend frappe-frontend queue-long queue-short scheduler
           docker compose --env-file "$ENV_PATH" -f "$APP_DIR/docker/production/compose.prod.yml" restart web
 
+          echo ">>> [4.1/5] Running Frappe database migrations & versioned patches..."
+          docker compose --env-file "$ENV_PATH" -f "$APP_DIR/docker/production/compose.prod.yml" exec -T backend bench --site "${LOTUS_SITE:-frontend}" migrate --skip-failing || true
+
           echo ">>> [5/5] Running automated verification & health checks..."
           sleep 5
           curl -s -f http://127.0.0.1/ >/dev/null && echo "    ✔ Web Gateway HTTP 200 OK"

@@ -78,8 +78,13 @@ export const LotusCopilotPage: React.FC = () => {
   const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(isDirectFeatureRoute);
   const [isModalMaximized, setIsModalMaximized] = useState<boolean>(false);
   
-  // Left Sidebar & Tools Accordion state (DEFAULT COLLAPSED AS REQUESTED)
-  const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState<boolean>(true);
+  // Left Sidebar state: closed by default on mobile (< 768px), open on desktop
+  const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      return window.innerWidth >= 768;
+    }
+    return false;
+  });
   const [isToolsExpanded, setIsToolsExpanded] = useState<boolean>(false);
 
   const [companies, setCompanies] = useState<string[]>([]);
@@ -95,9 +100,10 @@ export const LotusCopilotPage: React.FC = () => {
 
   // Real chat history loaded from database
   const [chatSessions, setChatSessions] = useState<Array<{ id: string; title: string; time: string; query?: string }>>([]);
-  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  // Start with a clean new session by default on initial page load
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(() => `session_${Date.now()}`);
 
-  // Load chat sessions from database
+  // Load chat sessions from database without overriding fresh new chat
   const fetchChatSessions = () => {
     axios
       .get(`/api/method/lotus_fin.api.copilot_api.list_chat_sessions?company=${encodeURIComponent(selectedCompany)}&limit=50`)
@@ -122,9 +128,7 @@ export const LotusCopilotPage: React.FC = () => {
             };
           });
           setChatSessions(mapped);
-          if (!activeSessionId) {
-            setActiveSessionId(mapped[0].id);
-          }
+          // Do NOT force activeSessionId to mapped[0].id so the user starts with a clean new chat
         }
       })
       .catch((err) => {
@@ -149,6 +153,9 @@ export const LotusCopilotPage: React.FC = () => {
     setActiveSessionId(sessionId);
     setActivePrompt(null);
     setIsReportModalOpen(false);
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      setIsLeftSidebarOpen(false);
+    }
   };
 
   const handleStartNewChat = () => {
@@ -156,6 +163,9 @@ export const LotusCopilotPage: React.FC = () => {
     setActiveSessionId(newId);
     setActivePrompt(null);
     setIsReportModalOpen(false);
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      setIsLeftSidebarOpen(false);
+    }
   };
 
   // Sync tab with URL
@@ -235,22 +245,62 @@ export const LotusCopilotPage: React.FC = () => {
   const [isModalErpOpen, setIsModalErpOpen] = useState<boolean>(true);
 
   return (
-    <div className="flex h-[calc(100vh-64px)] overflow-hidden bg-[#F8FAFC] relative">
-      {/* 1. Left Chatbot Sidebar (Collapsible History & Financial Sub-tools) */}
+    <div className="flex h-[calc(100vh-3.5rem)] overflow-hidden bg-[#F8FAFC] relative">
+      {/* Mobile Backdrop Overlay: covers below the header and blurs background when sidebar is open */}
       <div
-        className={`bg-white border-r border-slate-200 transition-all duration-300 flex flex-col justify-between shrink-0 z-20 ${
-          isLeftSidebarOpen ? "w-64" : "w-0 overflow-hidden"
+        onClick={() => setIsLeftSidebarOpen(false)}
+        className={`fixed top-14 inset-x-0 bottom-0 z-30 bg-slate-900/40 backdrop-blur-xs md:hidden transition-opacity duration-300 ${
+          isLeftSidebarOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
+        aria-hidden="true"
+      />
+
+      {/* 1. Left Chatbot Sidebar (Gemini Style: Smooth sliding drawer on mobile, animated rail/panel on desktop) */}
+      <div
+        className={`bg-white border-r border-slate-200 transition-all duration-300 ease-in-out flex flex-col justify-between shrink-0 z-40 ${
+          isLeftSidebarOpen
+            ? "fixed top-14 bottom-0 left-0 w-72 h-[calc(100vh-3.5rem)] translate-x-0 md:relative md:top-auto md:bottom-auto md:h-full md:w-64 shadow-2xl md:shadow-none"
+            : "fixed top-14 bottom-0 left-0 w-72 h-[calc(100vh-3.5rem)] -translate-x-full md:translate-x-0 md:relative md:top-auto md:bottom-auto md:h-full md:w-16 overflow-hidden shadow-none"
         }`}
       >
-        <div className="p-3.5 flex flex-col h-full overflow-hidden">
-          {/* New Chat Button */}
-          <button
-            onClick={handleStartNewChat}
-            className="w-full py-2.5 px-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs shrink-0 mb-3"
-          >
-            <span className="text-base font-bold text-blue-600">+</span>
-            <span>New Chat</span>
-          </button>
+        {isLeftSidebarOpen ? (
+          /* Expanded Sidebar View */
+          <div className="p-3.5 flex flex-col h-full overflow-hidden">
+            {/* Sidebar Top: Logo + Brand Name + Toggle (Hamburger) Button */}
+            <div className="flex items-center justify-between mb-3.5 shrink-0">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <img
+                  src={`${import.meta.env.BASE_URL}brand/logo.jpg`}
+                  alt="Lotus Fin"
+                  className="size-7 object-contain rounded-lg"
+                />
+                <span className="font-bold text-gray-900 text-sm truncate tracking-tight">Lotus Fin</span>
+              </div>
+
+              {/* Toggle Sidebar Button (Horizontal bars) inside Sidebar */}
+              <button
+                onClick={() => setIsLeftSidebarOpen(false)}
+                className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 border border-slate-200 transition-colors cursor-pointer"
+                title="Collapse sidebar"
+                aria-label="Collapse sidebar"
+              >
+                <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h7" />
+                </svg>
+              </button>
+            </div>
+
+            {/* New Chat Button (Prominent pill like Gemini) */}
+            <button
+              onClick={() => {
+                handleStartNewChat();
+                if (window.innerWidth < 768) setIsLeftSidebarOpen(false);
+              }}
+              className="w-full py-2 px-3 mb-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs shrink-0"
+            >
+              <span className="text-base font-bold text-blue-600">+</span>
+              <span>New Chat</span>
+            </button>
 
           {/* Top Section: Quick Capabilities & Tools (Auto-collapsed accordions) */}
           <div className="space-y-1.5 shrink-0 pb-3 border-b border-slate-100">
@@ -418,10 +468,47 @@ export const LotusCopilotPage: React.FC = () => {
             </select>
           </div>
         </div>
+      ) : (
+          /* Collapsed Narrow Rail View (Desktop only: 64px width with toggle button & New Chat icon) */
+          <div className="flex flex-col items-center py-3.5 px-2 h-full gap-3">
+            {/* Toggle Hamburger Button */}
+            <button
+              onClick={() => setIsLeftSidebarOpen(true)}
+              className="p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+              title="Expand sidebar"
+              aria-label="Expand sidebar"
+            >
+              <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h7" />
+              </svg>
+            </button>
+
+            {/* New Chat Quick Icon Button */}
+            <button
+              onClick={() => handleStartNewChat()}
+              className="p-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 transition-colors cursor-pointer"
+              title="New Chat"
+              aria-label="New Chat"
+            >
+              <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+              </svg>
+            </button>
+
+            {/* Brand Logo in Rail */}
+            <div className="mt-auto pb-2">
+              <img
+                src={`${import.meta.env.BASE_URL}brand/logo.jpg`}
+                alt="Lotus Fin"
+                className="size-7 object-contain rounded-lg opacity-80"
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* 2. Main Center Workspace: Full Vercel AI Chatbot Feed (Spacious & 100% Focused) */}
-      <div className="flex-1 flex flex-col h-full relative overflow-hidden">
+      <div className="flex-1 w-full min-w-0 flex flex-col h-full relative overflow-hidden">
         <VercelChatPanel
           key={activeSessionId || "new_session"}
           company={selectedCompany}
@@ -465,7 +552,7 @@ export const LotusCopilotPage: React.FC = () => {
                     </span>
                   </div>
                   <div className="text-[11px] text-slate-400 truncate">
-                    {allFeatureTools.find((t) => t.id === activeReportTab)?.desc || "Đối soát sổ cái kế toán thời gian thực"}
+                    {allFeatureTools.find((t) => t.id === activeReportTab)?.desc || "Real-time general ledger reconciliation"}
                   </div>
                 </div>
               </div>
@@ -475,7 +562,7 @@ export const LotusCopilotPage: React.FC = () => {
                 <button
                   onClick={() => setIsModalMaximized(!isModalMaximized)}
                   className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
-                  title={isModalMaximized ? "Thu nhỏ cửa sổ" : "Phóng to toàn màn hình"}
+                  title={isModalMaximized ? "Restore window" : "Maximize fullscreen"}
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     {isModalMaximized ? (
@@ -489,7 +576,7 @@ export const LotusCopilotPage: React.FC = () => {
                 <button
                   onClick={handleCloseReportModal}
                   className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer"
-                  title="Đóng cửa sổ (Esc)"
+                  title="Close window (Esc)"
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -648,7 +735,7 @@ export const LotusCopilotPage: React.FC = () => {
                   onSetDemoScenario={setDemoScenario}
                   activeInvoiceTransport={activeInvoiceTransport}
                   onPrepareFollowup={(invId) => {
-                    handleTriggerChatPrompt(`Soạn thư nhắc nợ đối soát công nợ cho hóa đơn ${invId}`);
+                    handleTriggerChatPrompt(`Draft debt reminder and reconciliation follow-up for invoice ${invId}`);
                   }}
                 />
               )}
@@ -657,7 +744,7 @@ export const LotusCopilotPage: React.FC = () => {
                   <V1PastDueChatCard
                     company={selectedCompany}
                     onSelectInvoice={(invId) => {
-                      handleTriggerChatPrompt(`Tạo task theo dõi công nợ cho hóa đơn ${invId}`);
+                      handleTriggerChatPrompt(`Create receivables follow-up task for invoice ${invId}`);
                     }}
                   />
                 </div>
@@ -665,7 +752,7 @@ export const LotusCopilotPage: React.FC = () => {
               {activeReportTab === "task_followup" && (
                 <div className="max-w-3xl mx-auto space-y-4">
                   <L4ProposalChatCard
-                    initialTitle="Theo dõi công nợ quá hạn ACC-SINV-2026-00001"
+                    initialTitle="Follow up overdue receivables ACC-SINV-2026-00001"
                     targetEntity="Sales Invoice/ACC-SINV-2026-00001"
                     company={selectedCompany}
                   />
@@ -676,7 +763,7 @@ export const LotusCopilotPage: React.FC = () => {
                   <DebtReminderManagementView
                     company={selectedCompany}
                     onPrepareTask={(taskTitle: string) => {
-                      handleTriggerChatPrompt(`Tạo task theo dõi công nợ: ${taskTitle}`);
+                      handleTriggerChatPrompt(`Create receivables follow-up task: ${taskTitle}`);
                     }}
                   />
                 </div>

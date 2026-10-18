@@ -1,2 +1,4 @@
-# Patches for lotus_fin
+[pre_model_sync]
 
+[post_model_sync]
+lotus_fin.patches.v1_0.set_default_currency_usd

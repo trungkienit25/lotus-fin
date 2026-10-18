@@ -33,9 +33,9 @@ def validate_forecast_request(request: ForecastRequest, user: Optional[str] = No
     if request.forecast_end != expected_end:
         return False, ReasonCode.HORIZON_MISMATCH, f"forecast_end must be exactly forecast_start + 29 days ({expected_end}) for a 30-day horizon."
 
-    # 3. Currency check
-    if request.reporting_currency != "VND":
-        return False, ReasonCode.UNSUPPORTED_CURRENCY, "Only VND is supported for P0 TRADE_ONLY baseline."
+    # 3. Currency check (Supports USD standard or legacy VND)
+    if request.reporting_currency not in ["VND", "USD"]:
+        return False, ReasonCode.UNSUPPORTED_CURRENCY, "Only USD and VND are supported for TRADE_ONLY baseline."
 
     # 4. Cash account scope is strictly required (Fix B: empty scope != auto-select all Cash/Bank)
     if not request.cash_account_scope or not isinstance(request.cash_account_scope, list) or len(request.cash_account_scope) == 0:

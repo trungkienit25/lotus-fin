@@ -96,9 +96,9 @@ def predict_cashflow(days_ahead: int = 30, company: Optional[str] = None) -> Dic
             "liquidity_risk": "LOW" if net_predicted_change >= 0 else "WARNING"
         },
         "recommendation": (
-            "Dòng tiền dự kiến dương trong 30 ngày tới. Doanh nghiệp có thể duy trì kế hoạch chi tiêu bình thường."
+            "Projected net cash flow is positive over the next 30 days. Enterprise can maintain normal operating expenditure plans."
             if net_predicted_change >= 0 else
-            "Cảnh báo: Khoản phải trả lớn hơn khoản phải thu dự kiến. Khuyến nghị thúc đẩy thu hồi công nợ sớm."
+            "Warning: Projected payables exceed receivables. Accelerated accounts receivable collection is strongly advised."
         )
     }
 
@@ -107,7 +107,7 @@ def predict_cashflow(days_ahead: int = 30, company: Optional[str] = None) -> Dic
 def analyze_invoice_risk(invoice_name: str) -> Dict[str, Any]:
     """Invoice risk assessment endpoint with company authorization."""
     if not frappe.db.exists("Sales Invoice", invoice_name):
-        frappe.throw(_(f"Hóa đơn {invoice_name} không tồn tại."), exc=frappe.DoesNotExistError)
+        frappe.throw(_("Sales Invoice {0} does not exist.").format(invoice_name), exc=frappe.DoesNotExistError)
 
     doc = frappe.get_doc("Sales Invoice", invoice_name)
     if not has_permission("Sales Invoice", ptype="read", doc=doc, user=frappe.session.user):
@@ -129,7 +129,7 @@ def analyze_invoice_risk(invoice_name: str) -> Dict[str, Any]:
     return {
         "status": "success", "invoice": invoice_name, "company": doc.company,
         "customer": customer, "amount": amount, "risk_level": risk_level,
-        "analysis": f"Khách hàng '{customer}' có {len(past_invoices)} hóa đơn lịch sử ({unpaid_count} chưa thanh toán). Rủi ro: {risk_level}."
+        "analysis": f"Customer '{customer}' has {len(past_invoices)} historical invoice(s) ({unpaid_count} unpaid). Risk rating: {risk_level}."
     }
 
 
@@ -138,7 +138,7 @@ def get_financial_snapshot(
     company: Optional[str] = None,
     period_start: Optional[str] = None,
     period_end: Optional[str] = None,
-    currency: str = "VND",
+    currency: Optional[str] = None,
     as_of: Optional[str] = None,
     correlation_id: Optional[str] = None,
     comparison: Optional[str] = None,
@@ -146,8 +146,10 @@ def get_financial_snapshot(
 ) -> Dict[str, Any]:
     """Whitelisted financial snapshot endpoint for AI-F001 Financial Health."""
     from lotus_fin.ai.financial_snapshot import build_financial_snapshot
+    from lotus_fin.security.access import get_company_accounting_currency
     p_end = period_end or "2020-12-31"
     p_start = period_start or "2020-01-01"
+    target_currency = currency or get_company_accounting_currency(company) or "USD"
 
     want_exp = False
     if isinstance(include_explanation, bool):
@@ -164,7 +166,7 @@ def get_financial_snapshot(
         return res
     res = build_financial_snapshot(
         company=company, period_start=p_start, period_end=p_end, as_of=as_of,
-        currency=currency, correlation_id=correlation_id, comparison=comparison,
+        currency=target_currency, correlation_id=correlation_id, comparison=comparison,
         source_fetcher=frappe_report_fetcher, user=frappe.session.user, include_explanation=want_exp
     )
     if hasattr(frappe, "message_log") and isinstance(frappe.message_log, list):

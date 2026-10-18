@@ -8,9 +8,9 @@ export interface L5PolicyChatCardProps {
 }
 
 export const L5PolicyChatCard: React.FC<L5PolicyChatCardProps> = ({
-  actionName = "Hủy bỏ chứng từ / Gửi thanh toán tự động",
+  actionName = "Cancel Document / Automated Direct Payment",
   reasonCode = "POLICY_SAFETY_GATE_L5_BLOCKED",
-  consequenceText = "Thao tác có tác động vĩnh viễn tới sổ cái kế toán và tài khoản ngân hàng. Cần phê duyệt kép và thực hiện trực tiếp trên giao diện kế toán được phân quyền.",
+  consequenceText = "This operation permanently affects the accounting general ledger and bank balances. It strictly requires dual authorization and direct execution in the authorized accounting module.",
 }) => {
   return (
     <div className="w-full mt-3 rounded-2xl border border-slate-200/80 bg-white overflow-hidden shadow-xs font-sans text-slate-800 transition-all">
@@ -21,14 +21,14 @@ export const L5PolicyChatCard: React.FC<L5PolicyChatCardProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold tracking-tight text-white">
-                Bị từ chối bởi Chính sách Kiểm soát Kép (L5 Gate)
+                Blocked by Dual-Control Security Policy (L5 Gate)
               </span>
               <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-500/20 text-rose-300 border border-rose-400/30">
                 BLOCKED
               </span>
             </div>
             <p className="text-xs text-slate-300 mt-0.5">
-              Hành động có tác động tài chính vĩnh viễn bị chặn tự động
+              Actions with permanent financial impact are automatically blocked
             </p>
           </div>
         </div>
@@ -42,7 +42,7 @@ export const L5PolicyChatCard: React.FC<L5PolicyChatCardProps> = ({
         <div className="p-3.5 rounded-xl bg-rose-50/70 border border-rose-200/70 text-rose-950 space-y-1.5 text-xs">
           <div className="font-bold flex items-center gap-1.5">
             <span>🛡️</span>
-            <span>Hành động yêu cầu: {actionName}</span>
+            <span>Requested Action: {actionName}</span>
           </div>
           <p className="leading-relaxed text-slate-700">
             {consequenceText}
@@ -50,7 +50,7 @@ export const L5PolicyChatCard: React.FC<L5PolicyChatCardProps> = ({
         </div>
 
         <div className="pt-1 flex items-center justify-between text-[11px] text-slate-400 border-t border-slate-100 font-mono">
-          <span>Lý do kiểm toán: {reasonCode}</span>
+          <span>Audit Reason: {reasonCode}</span>
           <span>Side effects disabled</span>
         </div>
       </div>
