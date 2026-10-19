@@ -1,13 +1,25 @@
-# 🔐 Lotus Fin — Bộ Tài Liệu An Toàn Thông Tin (Security Documentation Set)
+# 🔐 Lotus Fin — Security Documentation Set
 
-> **Hệ thống:** Lotus Fin — AI-Powered Financial Copilot for SMEs
-> **Đường đua:** FinTechathon 2026 — Topic E (SME Finance Copilot) · *Trọng số Security & Compliance: 30%*
-> **Phiên bản:** 1.0 · **Ngày ban hành:** 2026-09-18
-> **Phân loại tài liệu:** `INTERNAL`
+> **System:** Lotus Fin — AI-Powered Financial Copilot for SMEs  
+> **Competition Track:** FinTechathon 2026 — Topic E (SME Finance Copilot) · *Security & Compliance Weight: 30%*  
+> **Version:** 3.0 · **Date:** October 2026  
+> **Classification:** `ASSESSMENT READY / IMPLEMENTATION ALIGNED`  
 
 ---
 
-## 1. Mục đích
+## 📌 CORE TECHNICAL SECURITY SPECIFICATIONS
+
+The security architecture of Lotus Fin is structured into **three specialized, deep-dive technical reports**, avoiding code dump clutter by utilizing an implementation blueprint approach structured as: `Problem` $\to$ `Solution` $\to$ `Implementation Blueprint` $\to$ `Verification Evidence`:
+
+| No. | Security Specification | Core Technical Scope | Standards & Quantitative Metrics |
+| :---: | :--- | :--- | :--- |
+| **01** | [**Infrastructure & Network Security**](./01_INFRASTRUCTURE_AND_NETWORK_SECURITY_REPORT.md) | UFW Firewall, Port Isolation, Nginx Hardening, Rate Limiting (10r/s), Container Non-root, Swap (2GB) & Log Caps (30MB) | CIS Linux, CIS Docker, NIST SP 800-53, Socket Audit |
+| **02** | [**Application Security & Identity**](./02_APPLICATION_AND_IDENTITY_SECURITY_REPORT.md) | Constant-time Anti-CSRF, RBAC Module Matrix (F001-F007), Zero-Trust Multi-Tenancy (`CompanyAccessError`), Opaque HMAC Tokens (TTL 300s, $\le 2048$ chars) | OWASP API Top 10 (2023), Pytest 89/89 PASS |
+| **03** | [**AI Security & Financial Integrity**](./03_AI_SECURITY_AND_FINANCIAL_INTEGRITY_REPORT.md) | Zero-AI Calculation Invariant, Bounded ReAct Agent (Max 4 iters, 6 tools), Level 4 Human-in-the-Loop Two-Phase Commit, Presentation Gate Sanitizer | OWASP Top 10 for LLM (2025), Pytest 26/26 PASS |
+
+---
+
+## 1. Purpose
 
 Bộ tài liệu này đặc tả **toàn bộ kiến trúc an toàn thông tin của nền tảng Lotus Fin ở tầng ứng dụng và hạ tầng** (Backend Go + Frontend Next.js + dữ liệu + vận hành), từ mô hình mối đe dọa cho tới các kiểm soát cụ thể và bản đồ tuân thủ chuẩn quốc tế.
 
