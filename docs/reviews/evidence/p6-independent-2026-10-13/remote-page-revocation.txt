@@ -1,1 +1,0 @@
-{'actor': 'p6-alice@example.invalid', 'revoked_test_sessions': 3, 'remaining': 0}

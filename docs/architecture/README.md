@@ -1,9 +1,9 @@
-# 🏛️ LOTUS FIN — CODEBASE ARCHITECTURE OVERVIEW (CLEAN ARCHITECTURE & OOP)
+﻿# LOTUS FIN — CODEBASE ARCHITECTURE OVERVIEW (CLEAN ARCHITECTURE & OOP)
 
 ---
 
 ## 1. Introduction & Architecture Context
-Lotus Fin structures financial intelligence using a standardized **Clean Hexagonal Architecture (Ports & Adapters)** across four layers: `Presentation` ➔ `Application` ➔ `Domain` ➔ `Infrastructure`.
+Lotus Fin structures financial intelligence using a standardized **Clean Hexagonal Architecture (Ports & Adapters)** across four layers: Presentation → Application → Domain → Infrastructure.
 
 **Core Architectural Goals:**
 1. **Clean Hexagonal Architecture**: Strict separation of concerns between presentation, orchestration, core business entities, and infrastructure gateways.
@@ -15,7 +15,7 @@ Lotus Fin structures financial intelligence using a standardized **Clean Hexagon
 
 ## 2. Architectural Directory Tree
 
-```text
+`	ext
 lotus_fin/
 ├── presentation/                      # [LAYER 1] Presentation (Web & Desk Entrypoints)
 │   ├── controller/
@@ -89,7 +89,7 @@ lotus_fin/
 │   └── f007_debt_recovery/            # Debt Statement Follow-up & Automated Dispatch
 │
 └── tests/                             # Automated Test Suites (>460 tests)
-```
+`
 
 ---
 
@@ -102,4 +102,4 @@ lotus_fin/
 3. [**docs/architecture/03_INTERACTION_AND_DESIGN_PATTERNS.md**](03_INTERACTION_AND_DESIGN_PATTERNS.md):
    - Class interactions, the ReAct loop lifecycle, sequence diagrams, and SOLID / Design Pattern compliance.
 4. [**docs/architecture/04_CHAT_PERSISTENCE_AND_AI_AUDIT_LOGGING_PLAN.md**](04_CHAT_PERSISTENCE_AND_AI_AUDIT_LOGGING_PLAN.md):
-   - Two-tier session persistence (Redis + JSON) and AI Sandbox operational audit logging design.
+   - Two-tier session persistence (Redis + JSON) and AI Sandbox operational audit logging design.

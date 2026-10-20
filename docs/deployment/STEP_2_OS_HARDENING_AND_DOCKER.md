@@ -1,100 +1,100 @@
-# BƯỚC 2: CHUẨN BỊ & TỐI ƯU HÓA MÔI TRƯỜNG OS (OS HARDENING & DOCKER)
+# STEP 2: OS HARDENING & DOCKER ENVIRONMENT SETUP
 
-> **Giai đoạn:** Bước 2 / 7 trong quy trình triển khai Lotus Fin  
-> **Mục tiêu:** Kích hoạt bộ nhớ đệm Swap 2GB, cài đặt Docker CE & Docker Compose v2 chính thức, cấu hình xoay vòng log chống tràn ổ đĩa SSD và tạo các thư mục ứng dụng.  
-> **Điều kiện tiên quyết:** Đã hoàn thành [Bước 1: Khảo sát hiện trạng](./STEP_1_SERVER_SURVEY.md).  
-
----
-
-## 1. TẠI SAO PHẢI THỰC HIỆN CÁC THIẾT LẬP NÀY?
-
-1. **Bộ nhớ ảo (Swap Memory):**
-   * Khi chạy các lệnh nặng như `bench migrate`, `bench build`, hoặc khi MariaDB nạp nhiều giao dịch chứng từ, Linux kernel cần một vùng nhớ đệm an toàn.
-   * Nếu không có Swap, khi RAM chạm 100%, tiến trình `mysqld` hoặc `gunicorn` sẽ bị **OOM Killer** của hệ điều hành tắt đột ngột, gây hỏng dữ liệu (Database corruption).
-2. **Cấu hình Docker Log Rotation:**
-   * Mặc định, Docker ghi log container dạng file JSON và **không giới hạn dung lượng**. Sau 1 – 2 tuần chạy liên tục, log có thể phình to lên tới 10 – 20 GB, làm **đầy sạch ổ cứng**.
-   * Thiết lập `max-size: 10m` và `max-file: 3` đảm bảo mỗi container chỉ dùng tối đa **30 MB log**, giữ ổ cứng luôn sạch sẽ và an toàn.
+> **Stage:** Step 2 of 7 in the Lotus Fin Cloud Deployment Process  
+> **Objective:** Provision a 2GB Swap file, install official Docker Engine & Docker Compose v2, configure Docker container log rotation to prevent SSD storage exhaustion, and prepare filesystem deployment directories.  
+> **Prerequisites:** Completed [Step 1: Cloud Server Survey & Audit](./STEP_1_SERVER_SURVEY.md).  
 
 ---
 
-## 2. QUY TRÌNH THỰC HIỆN CHI TIẾT
+## 1. RATIONALE & ARCHITECTURAL NECESSITY
 
-Đăng nhập vào máy chủ: `ssh root@<YOUR_SERVER_IP>` và thực hiện lần lượt các bước sau:
+1. **Virtual Memory (Swap Allocation):**
+   * Heavy operational tasks such as `bench migrate`, `bench build`, or bulk transactional ledger parsing in MariaDB introduce transient memory spikes.
+   * In un-swapped environments, memory spikes to 100% trigger the Linux kernel **OOM (Out-of-Memory) Killer**, which terminates `mysqld` or `gunicorn` processes and risks catastrophic database corruption.
+2. **Docker Container Log Rotation:**
+   * By default, Docker logs container stdout/stderr as unbounded JSON files. Over weeks of production execution, logs accumulate to 10–20 GB, exhausting SSD capacity.
+   * Setting `max-size: 10m` with `max-file: 3` enforces a hard cap of **30 MB total logs per container**, protecting disk space.
 
-### 2.1. Tạo 2GB Swap Memory & Tinh chỉnh Swappiness
-Chạy khối lệnh sau để cấp phát và cố định Swap:
+---
+
+## 2. STEP-BY-STEP PROVISIONING
+
+Connect to the server via SSH: `ssh root@<YOUR_SERVER_IP>` and run the following commands:
+
+### 2.1. Allocate 2GB Swap Memory & Optimize Swappiness
+Execute the provisioning block:
 
 ```bash
-# 1. Tạo file swap 2GB
+# 1. Allocate a 2GB swap file
 fallocate -l 2G /swapfile
 
-# 2. Khóa quyền chỉ cho phép root đọc/ghi
+# 2. Restrict file permissions strictly to root
 chmod 600 /swapfile
 
-# 3. Định dạng phân vùng swap
+# 3. Format swap structure
 mkswap /swapfile
 
-# 4. Kích hoạt swap vào hệ thống
+# 4. Activate swap
 swapon /swapfile
 
-# 5. Lưu vào fstab để tự động bật mỗi khi khởi động lại máy
+# 5. Persist mount in fstab for automatic reactivation across reboots
 if ! grep -q '/swapfile' /etc/fstab; then
     echo '/swapfile none swap sw 0 0' >> /etc/fstab
 fi
 
-# 6. Tối ưu giá trị swappiness = 10 (chỉ dùng Swap khi RAM thực tế còn dưới 10%)
+# 6. Tune swappiness to 10 (utilizes Swap only when physical RAM drops below 10%)
 sysctl vm.swappiness=10
 if ! grep -q 'vm.swappiness' /etc/sysctl.conf; then
     echo 'vm.swappiness=10' >> /etc/sysctl.conf
 fi
 ```
 
-*Kiểm tra kết quả:*
+*Verification:*
 ```bash
 free -h
 ```
-👉 *Kỳ vọng:* Dòng `Swap:` hiển thị `total: 2.0Gi`.
+*Expected Output:* `Swap:` displays `total: 2.0Gi`.
 
 ---
 
-### 2.2. Cài đặt Docker Engine & Docker Compose chính thức (Docker CE)
-Cài đặt bản Docker chính thức từ Docker Hub repository (tránh dùng bản đóng gói cũ của Ubuntu):
+### 2.2. Install Official Docker Engine & Docker Compose v2 (Docker CE)
+Install upstream packages directly from the official Docker repository:
 
 ```bash
-# 1. Cài các gói tiện ích bảo mật
+# 1. Install security and certificate prerequisites
 apt update
 apt install -y ca-certificates curl gnupg lsb-release
 
-# 2. Đăng ký GPG Key chính thức của Docker
+# 2. Register official Docker GPG key
 mkdir -p /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg --yes
 
-# 3. Đăng ký Apt Repository của Docker
+# 3. Register official Docker Apt repository
 echo \
   "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
   $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-# 4. Cập nhật và cài đặt Docker CE & Docker Compose Plugin
+# 4. Update repository indices and install Docker CE & Compose plugin
 apt update
 apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-# 5. Bật Docker service tự khởi động cùng máy chủ
+# 5. Enable and start Docker systemd service
 systemctl enable docker
 systemctl start docker
 ```
 
-*Kiểm tra phiên bản:*
+*Verification:*
 ```bash
 docker --version && docker compose version
 ```
-👉 *Kỳ vọng:*  
-* `Docker version 27.x.x` (hoặc mới hơn)  
+*Expected Output:*  
+* `Docker version 27.x.x` (or newer)  
 * `Docker Compose version v2.x.x`
 
 ---
 
-### 2.3. Cấu hình giới hạn Docker Log (Chống tràn ổ đĩa SSD)
-Tạo file cấu hình daemon của Docker:
+### 2.3. Configure Docker Log Rotation
+Apply a global JSON log policy to `/etc/docker/daemon.json`:
 
 ```bash
 cat > /etc/docker/daemon.json <<EOF
@@ -107,37 +107,37 @@ cat > /etc/docker/daemon.json <<EOF
 }
 EOF
 
-# Áp dụng cấu hình ngay lập tức
+# Restart daemon to apply immediately
 systemctl restart docker
 ```
 
 ---
 
-### 2.4. Chuẩn bị các thư mục ứng dụng
-Tạo sẵn thư mục chứa mã nguồn backend và thư mục web chứa React Frontend:
+### 2.4. Prepare Deployment Filesystem Directories
+Create directory targets for frontend static distribution and project source code:
 
 ```bash
-# Thư mục chứa gói tĩnh của React Frontend (Nginx sẽ đọc thư mục này)
+# Directory hosting compiled React SPA assets served by Host Nginx
 mkdir -p /var/www/lotus-fin-fe
 chmod -R 755 /var/www/lotus-fin-fe
 
-# Thư mục chứa mã nguồn chính của dự án Lotus Fin
+# Root directory for Lotus Fin application repository
 mkdir -p ~/lotus-fin
 ```
 
 ---
 
-## 3. CHECKLIST NGHIỆM THU BƯỚC 2
+## 3. ACCEPTANCE CHECKLIST
 
-Trước khi chuyển sang Bước 3, đảm bảo tất cả các điều kiện sau đã đạt:
+Before progressing to Step 3, verify that all conditions below are satisfied:
 
-- [ ] Lệnh `swapon --show` trả về `/swapfile partition 2G`.
-- [ ] Lệnh `sysctl vm.swappiness` trả về `vm.swappiness = 10`.
-- [ ] Lệnh `docker info` chạy thành công, không báo lỗi daemon chưa bật.
-- [ ] Lệnh `docker compose version` nhận diện được compose plugin v2.
-- [ ] File `/etc/docker/daemon.json` có thiết lập `max-size: 10m`.
-- [ ] Thư mục `/var/www/lotus-fin-fe` đã được tạo thành công.
+- [ ] Command `swapon --show` reports `/swapfile partition 2G`.
+- [ ] Command `sysctl vm.swappiness` outputs `vm.swappiness = 10`.
+- [ ] Command `docker info` runs without daemon errors.
+- [ ] Command `docker compose version` validates Compose v2 availability.
+- [ ] File `/etc/docker/daemon.json` contains `max-size: 10m`.
+- [ ] Directory `/var/www/lotus-fin-fe` exists with appropriate permissions.
 
 ---
 
-👉 **Chuyển sang:** [BƯỚC 3: TRIỂN KHAI CỤM FRAPPE / ERPNEXT BACKEND DOCKER](./STEP_3_BACKEND_DEPLOYMENT.md)
+👉 **Proceed to:** [STEP 3: FRAPPE & ERPNEXT BACKEND DOCKER CLUSTER DEPLOYMENT](./STEP_3_BACKEND_DEPLOYMENT.md)

@@ -1,91 +1,130 @@
-# KẾ HOẠCH TRIỂN KHAI END-TO-END: LOTUS FIN TRÊN LINUX CLOUD SERVER
+# END-TO-END DEPLOYMENT PLAN: LOTUS FIN ON LINUX CLOUD SERVER
 
-> **Tài liệu:** End-to-End Cloud Deployment & Verification Plan  
-> **Dự án:** Lotus Fin — SME Financial Management Core with AI Key Report Pipeline  
-> **Môi trường mục tiêu:** Linux Cloud Server / VPS (Ubuntu 22.04 LTS / 2 vCPU / 8 GB RAM / 40 GB SSD)  
-> **Phiên bản tài liệu:** v1.0 — Tháng 10/2026  
-
----
-
-## 1. TỔNG QUAN KIẾN TRÚC & MỤC TIÊU TRIỂN KHAI
-
-### 1.1. Mô hình kiến trúc đơn máy chủ (Single VM Architecture)
-Hệ thống được thiết kế chạy trọn gói trên **1 máy chủ ảo Compute duy nhất** (không phát sinh chi phí Cloud Load Balancer riêng):
-
-```
-                                [ Người dùng / Trình duyệt ]
-                                             │
-                                   HTTP :80 / HTTPS :443
-                                             ▼
-                        ┌─────────────────────────────────────────┐
-                        │        Linux Cloud Server / VPS         │
-                        │         (IP: <YOUR_SERVER_IP>)          │
-                        │                                         │
-                        │   ┌─────────────────────────────────┐   │
-                        │   │  Nginx Host (Reverse Proxy)     │   │
-                        │   └──────┬────────────────────┬─────┘   │
-                        │          │                    │         │
-                        │  Tĩnh: / │      API / Desk:   │         │
-                        │          ▼      /api, /assets ▼         │
-                        │   ┌─────────────┐     ┌───────────────┐ │
-                        │   │ React Dist  │     │ Cụm 9 Docker  │ │
-                        │   │ (/var/www/  │     │ Containers    │ │
-                        │   │ lotus-fin-  │     │ (:8080)       │ │
-                        │   │ fe)         │     │ Frappe+MariaDB│ │
-                        │   └─────────────┘     └───────────────┘ │
-                        └─────────────────────────────────────────┘
-```
-
-### 1.2. Mục tiêu triển khai
-1. Khảo sát chi tiết hiện trạng cấu hình phần cứng, mạng và phần mềm của máy chủ.
-2. Thiết lập môi trường nền tảng an toàn (Swap, Docker, Nginx, Log Rotation).
-3. Triển khai cụm backend 9 containers (Frappe v16, ERPNext, MariaDB 11.8, Redis, Workers).
-4. Đồng bộ ứng dụng `lotus_fin` và nạp dữ liệu mẫu kế toán doanh nghiệp.
-5. Cấu hình Nginx phục vụ giao diện React Frontend và proxy API liền mạch.
-6. Thực hiện bộ kiểm thử end-to-end (Unit test, What-If simulation, AI Copilot API).
-7. Tự động hóa quy trình cập nhật liên tục (CI/CD) qua GitHub Actions.
+> **Document:** End-to-End Cloud Deployment & Verification Plan  
+> **System:** Lotus Fin — SME Financial Management Core with AI Key Report Pipeline  
+> **Target Environment:** Linux Cloud Server / VPS (Ubuntu 22.04 LTS / 2 vCPU / 8 GB RAM / 40 GB SSD)  
+> **Document Version:** v1.0 — October 2026  
 
 ---
 
-## 2. GIAI ĐOẠN 1: KHẢO SÁT & ĐÁNH GIÁ HIỆN TRẠNG CLOUD SERVER
+## 1. ARCHITECTURE OVERVIEW & DEPLOYMENT OBJECTIVES
 
-Trước khi cài đặt bất kỳ thành phần nào, tiến hành khảo sát máy chủ từ xa qua SSH:
+### 1.1. Cloud Network & Single Virtual Machine Architecture
+The system operates self-contained inside a dedicated Cloud VPC subnet on **a single Compute Virtual Machine** without requiring external cloud load balancers:
 
-### 2.1. Lệnh khảo sát tổng thể (All-in-one Diagnostic Script)
-Chạy script chẩn đoán trên máy chủ:
+```text
+[ Public Internet / Clients & Administrators ]
+                       │
+                       ▼
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│ CLOUD PROVIDER VPC (Virtual Private Cloud — 10.0.0.0/16)                               │
+│                                                                                        │
+│   ┌────────────────────────────────────────────────────────────────────────────────┐   │
+│   │ VPC INTERNET GATEWAY (IGW)                                                     │   │
+│   │ - Public IPv4 Allocation / Elastic IP (e.g., 203.0.113.10)                     │   │
+│   │ - 1:1 NAT Routing & Internet Ingress/Egress Gateway                            │   │
+│   └──────────────────────────────────────┬─────────────────────────────────────────┘   │
+│                                          │ Route: 0.0.0.0/0 via IGW                    │
+│                                          ▼                                             │
+│   ┌────────────────────────────────────────────────────────────────────────────────┐   │
+│   │ PUBLIC DMZ SUBNET (10.0.1.0/24)                                                │   │
+│   │                                                                                │   │
+│   │   ┌────────────────────────────────────────────────────────────────────────┐   │   │
+│   │   │ CLOUD SECURITY GROUP (Stateful Packet Filter)                          │   │   │
+│   │   │ ────────────────────────────────────────────────────────────────────── │   │   │
+│   │   │ [INBOUND RULES]                                                        │   │   │
+│   │   │ • TCP 22  (SSH)   ───► Whitelisted Admin CIDR (Remote Management)       │   │   │
+│   │   │ • TCP 80  (HTTP)  ───► 0.0.0.0/0 (SSL Certbot & HTTPS Redirect)         │   │   │
+│   │   │ • TCP 443 (HTTPS) ───► 0.0.0.0/0 (Encrypted Web Traffic & API)          │   │   │
+│   │   │ [OUTBOUND RULES]                                                       │   │   │
+│   │   │ • ALL Traffic     ───► 0.0.0.0/0 (Stateful Tracking; OS, Docker, LLM)  │   │   │
+│   │   │ ────────────────────────────────────────────────────────────────────── │   │   │
+│   │   │                                                                        │   │   │
+│   │   │   ┌────────────────────────────────────────────────────────────────┐   │   │   │
+│   │   │   │ VIRTUAL MACHINE INSTANCE (Ubuntu 22.04 LTS / 10.0.1.15)         │   │   │   │
+│   │   │   │                                                                │   │   │   │
+│   │   │   │  [Host OS Packet Filter — UFW (Uncomplicated Firewall)]        │   │   │   │
+│   │   │   │  • Default Policy: Inbound DROP | Outbound ALLOW               │   │   │   │
+│   │   │   │  • Filtered Ports: 22/tcp, 80/tcp, 443/tcp                     │   │   │   │
+│   │   │   │                            │                                   │   │   │   │
+│   │   │   │                            ▼                                   │   │   │   │
+│   │   │   │  ┌──────────────────────────────────────────────────────────┐  │   │   │   │
+│   │   │   │  │ HOST NGINX REVERSE PROXY (Layer 7 Application Gateway)   │  │   │   │   │
+│   │   │   │  │ • TLS 1.3 Termination (Let's Encrypt automated certs)    │  │   │   │   │
+│   │   │   │  │ • Security Headers (HSTS, CSP, X-Frame-Options: DENY)    │  │   │   │   │
+│   │   │   │  │ • Rate Limiting: 10 req/s per IP (Burst: 20 nodelay)     │  │   │   │   │
+│   │   │   │  │ • Payloads bounded: Client body max 50 MB (Invoices)     │  │   │   │   │
+│   │   │   │  │ • WebSockets proxy: /socket.io/ (real-time chat)         │  │   │   │   │
+│   │   │   │  └─────────────┬────────────────────────────┬───────────────┘  │   │   │   │
+│   │   │   │                │ Static Assets (/)          │ API / Desk       │   │   │   │
+│   │   │   │                ▼                            ▼ (:8080 loopback) │   │   │   │
+│   │   │   │  ┌───────────────────────────┐  ┌───────────────────────────┐  │   │   │   │
+│   │   │   │  │ React Frontend SPA        │  │ Frappe Frontend Container │  │   │   │   │
+│   │   │   │  │ (/var/www/lotus-fin-fe)   │  │ (127.0.0.1:8080)          │  │   │   │   │
+│   │   │   │  └───────────────────────────┘  └─────────────┬─────────────┘  │   │   │   │
+│   │   │   │                                               │                │   │   │   │
+│   │   │   │  ┌────────────────────────────────────────────┴─────────────┐  │   │   │   │
+│   │   │   │  │ ISOLATED DOCKER BRIDGE NETWORK (Internal non-routable)   │  │   │   │   │
+│   │   │   │  │ • backend (Gunicorn WSGI)  • db (MariaDB 11.8 - 3306)    │  │   │   │   │
+│   │   │   │  │ • redis-cache (6379)       • redis-queue (6379)          │  │   │   │   │
+│   │   │   │  │ • queue-short & queue-long • websocket (SocketIO)        │  │   │   │   │
+│   │   │   │  └──────────────────────────────────────────────────────────┘  │   │   │   │
+│   │   │   └────────────────────────────────────────────────────────────────┘   │   │   │
+│   │   └────────────────────────────────────────────────────────────────────────┘   │   │
+│   └────────────────────────────────────────────────────────────────────────────────┘   │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+### 1.2. Deployment Objectives
+1. Detailed survey and assessment of server hardware, network, and base OS packages.
+2. Foundation hardening (Swap buffer, Docker runtime, Host Nginx, log rotation).
+3. 9-container Frappe backend cluster orchestration (Frappe v16, ERPNext, MariaDB 11.8, Redis, Celery workers).
+4. `lotus_fin` application synchronization and enterprise accounting demonstration fixture seeding.
+5. Host Nginx reverse proxy configuration serving React frontend SPA and proxying backend APIs.
+6. Execution of the 6-scenario verification test matrix (Unit tests, What-If simulation, AI Copilot APIs).
+7. Automated continuous deployment (CI/CD) pipeline integration via GitHub Actions.
+
+---
+
+## 2. PHASE 1: CLOUD SERVER SURVEY & AUDIT
+
+Prior to software installation, perform an automated pre-flight audit via SSH:
+
+### 2.1. All-in-One Diagnostic Script
+Execute the system survey script on the server:
 
 ```bash
 cat << 'EOF' > /tmp/server_survey.sh
 #!/usr/bin/env bash
 echo "=========================================================="
-echo "          LOTUS FIN - BÁO CÁO KHẢO SÁT HỆ THỐNG          "
+echo "          LOTUS FIN - SYSTEM SURVEY REPORT                "
 echo "=========================================================="
 
-echo -e "\n[1] THÔNG TIN HỆ ĐIỀU HÀNH & KERNEL"
+echo -e "\n[1] OS & KERNEL INFORMATION"
 echo "Hostname: $(hostname)"
 echo "Kernel: $(uname -r)"
 echo "OS: $(lsb_release -ds 2>/dev/null || cat /etc/os-release | grep PRETTY_NAME | cut -d= -f2)"
 
-echo -e "\n[2] TÀI NGUYÊN PHẦN CỨNG (CPU / RAM / DISK)"
+echo -e "\n[2] HARDWARE RESOURCES (CPU / RAM / DISK)"
 echo "CPU Cores: $(nproc)"
 echo "RAM:"
 free -h
-echo "Ổ cứng (Disk):"
+echo "Disk:"
 df -h /
 
-echo -e "\n[3] PHẦN MỀM CƠ BẢN"
-echo "Git: $(git --version 2>/dev/null || echo 'CHƯA CÀI')"
-echo "Docker: $(docker -v 2>/dev/null || echo 'CHƯA CÀI')"
-echo "Docker Compose: $(docker compose version 2>/dev/null || echo 'CHƯA CÀI')"
-echo "Nginx: $(nginx -v 2>&1 || echo 'CHƯA CÀI')"
+echo -e "\n[3] BASE UTILITIES"
+echo "Git: $(git --version 2>/dev/null || echo 'NOT INSTALLED')"
+echo "Docker: $(docker -v 2>/dev/null || echo 'NOT INSTALLED')"
+echo "Docker Compose: $(docker compose version 2>/dev/null || echo 'NOT INSTALLED')"
+echo "Nginx: $(nginx -v 2>&1 || echo 'NOT INSTALLED')"
 
-echo -e "\n[4] CÁC CỔNG MẠNG ĐANG CHIẾM DỤNG (80, 443, 8080, 3306, 6379)"
-ss -tulpn | grep -E ':80|:443|:8080|:3306|:6379' || echo "-> Tất cả các cổng đều đang rảnh."
+echo -e "\n[4] LISTENING NETWORK PORTS (80, 443, 8080, 3306, 6379)"
+ss -tulpn | grep -E ':80|:443|:8080|:3306|:6379' || echo "-> Key ports are currently free."
 
-echo -e "\n[5] TƯỜNG LỬA NỘI BỘ (UFW)"
+echo -e "\n[5] HOST FIREWALL STATUS (UFW)"
 ufw status
 
-echo -e "\n[6] KẾT NỐI INTERNET RA NGOÀI (GITHUB / DOCKER HUB)"
+echo -e "\n[6] OUTBOUND CONNECTIVITY (GITHUB / DOCKER HUB)"
 echo -n "GitHub ping: "
 curl -Is --connect-timeout 5 https://github.com | head -n 1
 echo -n "Docker Hub ping: "
@@ -97,69 +136,69 @@ chmod +x /tmp/server_survey.sh
 /tmp/server_survey.sh
 ```
 
-### 2.2. Bảng đối chiếu kết quả khảo sát thực tế (Baseline Audit Checklist)
+### 2.2. Baseline Audit Checklist
 
-| Tiêu chí khảo sát | Lệnh kiểm tra thủ công | Tiêu chuẩn Lotus Fin | Khuyến nghị hành động |
+| Audit Criterion | Verification Command | Lotus Fin Standard | Actionable Recommendation |
 | :--- | :--- | :--- | :--- |
-| **CPU Cores** | `nproc` | Tối thiểu 2 vCPU | Đảm bảo $\ge$ 2 Core để xử lý đa nhiệm |
-| **RAM vật lý** | `free -m` | Tối thiểu 4 GB, khuyên dùng 8 GB | Chạy 9 container cần ~1.2 GB RAM |
-| **Dung lượng SSD** | `df -h /` | Tối thiểu 20 GB, khuyên dùng 40 GB | Đảm bảo dung lượng trống $\ge$ 15 GB |
-| **Swap Space** | `swapon --show` | Bắt buộc $\ge$ 2 GB | Nếu chưa có (0B), tạo ở Bước 2 |
-| **Hệ điều hành** | `lsb_release -a` | Ubuntu 22.04 LTS x86_64 / Debian 12 | Bản phân phối chuẩn tương thích Docker |
-| **Cổng 80 (HTTP)** | `ss -tulpn \| grep :80` | Nginx Host đón tiếp | Cấu hình làm Reverse Proxy ở Bước 4 |
-| **Cổng 8080 (Frappe)**| `ss -tulpn \| grep :8080`| Cần rảnh cho container | Tránh xung đột cổng |
-| **Cổng 3306 (DB)** | `ss -tulpn \| grep :3306`| Cần rảnh cho MariaDB container | Chạy độc lập trong Docker |
-| **Docker Engine** | `docker -v` | Phiên bản 24.x trở lên | Cài đặt bản chính thức ở Bước 2 |
-| **Docker Compose** | `docker compose version`| Compose Plugin v2 | Cài đặt plugin ở Bước 2 |
-| **Git CLI** | `git --version` | Git 2.25+ | Dùng để clone và pull mã nguồn |
-| **Tường lửa UFW** | `ufw status` | Không chặn cổng 22, 80, 443 | Kiểm tra Security Group của Cloud Provider |
-| **GitHub Access** | `curl -Is https://github.com` | `HTTP/2 200` | Đảm bảo server kết nối Internet |
-| **Docker Hub** | `curl -Is https://registry-1.docker.io/v2/` | `HTTP/2 401` *(chuẩn unauth)*| Sẵn sàng kéo image container |
+| **CPU Cores** | `nproc` | Minimum 2 vCPUs | Ensure $\ge 2$ Cores for multi-threaded concurrency |
+| **Physical RAM** | `free -m` | Minimum 4 GB, 8 GB recommended | 9-container cluster footprint is ~1.2 GB RAM |
+| **SSD Storage** | `df -h /` | Minimum 20 GB, 40 GB recommended | Ensure free disk space $\ge 15\text{ GB}$ |
+| **Swap Space** | `swapon --show` | Mandatory $\ge 2\text{ GB}$ | Allocate 2GB Swap file in Phase 2 if absent |
+| **Operating System** | `lsb_release -a` | Ubuntu 22.04 LTS x86_64 / Debian 12 | Official distribution compatible with Docker CE |
+| **Port 80 (HTTP)** | `ss -tulpn \| grep :80` | Free for Host Nginx | Designated for reverse proxy in Phase 4 |
+| **Port 8080 (Frappe)**| `ss -tulpn \| grep :8080`| Free for loopback proxy container | Avoid port conflicts |
+| **Port 3306 (DB)** | `ss -tulpn \| grep :3306`| Isolated inside Docker | Must never bind to public interfaces |
+| **Docker Engine** | `docker -v` | Release 24.x or newer | Install official upstream release in Phase 2 |
+| **Docker Compose** | `docker compose version`| Compose Plugin v2 | Install Compose plugin in Phase 2 |
+| **Git CLI** | `git --version` | Git 2.25+ | Required to clone and synchronize code |
+| **UFW Firewall** | `ufw status` | Ports 22, 80, 443 open | Verify Cloud Provider Security Group rules |
+| **GitHub Access** | `curl -Is https://github.com` | `HTTP/2 200` | Verify outbound network connectivity |
+| **Docker Hub** | `curl -Is https://registry-1.docker.io/v2/` | `HTTP/2 401` *(standard unauth)* | Confirms registry image pulling ability |
 
 ---
 
-## 3. GIAI ĐOẠN 2: CHUẨN BỊ & TỐI ƯU MÔI TRƯỜNG OS (OS HARDENING)
+## 3. PHASE 2: OS HARDENING & DOCKER SETUP
 
-### 3.1. Tạo 2GB Swap Memory
-Dù máy chủ có 8GB RAM, việc kích hoạt 2GB Swap với độ ưu tiên swap thấp (`swappiness=10`) là bắt buộc để triệt tiêu nguy cơ tiến trình MariaDB/Gunicorn bị Linux OOM Killer tắt ngang khi có đỉnh tải đột biến:
+### 3.1. Allocate 2GB Virtual Swap Memory
+Even on an 8GB RAM host, provisioning 2GB Swap with conservative swappiness (`swappiness=10`) is essential to eliminate the risk of the Linux Out-Of-Memory (OOM) Killer terminating MariaDB or Gunicorn processes during database migration spikes:
 
 ```bash
-# Tạo file swap 2GB
+# Allocate 2GB swap file
 fallocate -l 2G /swapfile
 chmod 600 /swapfile
 mkswap /swapfile
 swapon /swapfile
 
-# Cấu hình tự động kích hoạt khi reboot
+# Persist swap mount across system reboots
 echo '/swapfile none swap sw 0 0' >> /etc/fstab
 
-# Tối ưu swappiness (chỉ dùng swap khi RAM thực tế còn dưới 10%)
+# Tune swappiness (trigger swap only when free RAM drops below 10%)
 sysctl vm.swappiness=10
 echo 'vm.swappiness=10' >> /etc/sysctl.conf
 ```
 
-### 3.2. Cài đặt Docker Engine & Docker Compose chính thức
+### 3.2. Install Docker Engine & Docker Compose Plugin
 ```bash
 apt update
 apt install -y ca-certificates curl gnupg lsb-release
 
-# Thêm GPG key chính thức của Docker
+# Add Docker official GPG key
 mkdir -p /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-# Cài đặt Docker CE & Compose plugin
+# Install Docker CE and Compose plugin
 apt update
 apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-# Cấu hình Docker tự khởi động cùng OS
+# Enable and start Docker daemon
 systemctl enable docker
 systemctl start docker
 ```
 
-### 3.3. Cấu hình xoay vòng log (Chống tràn ổ cứng SSD)
-Mặc định Docker lưu trữ log không giới hạn. Bắt buộc giới hạn 10MB/file:
+### 3.3. Enforce Container Log Rotation Limits
+By default, Docker stores container JSON logs with unbounded growth. Enforce a strict 10MB per-file ceiling:
 
 ```bash
 cat > /etc/docker/daemon.json <<EOF
@@ -174,7 +213,7 @@ EOF
 systemctl restart docker
 ```
 
-### 3.4. Chuẩn bị thư mục chứa mã nguồn & Web tĩnh
+### 3.4. Prepare Web Root & Application Directories
 ```bash
 mkdir -p /var/www/lotus-fin-fe
 mkdir -p ~/lotus-fin
@@ -182,30 +221,30 @@ mkdir -p ~/lotus-fin
 
 ---
 
-## 4. GIAI ĐOẠN 3: TRIỂN KHAI CỤM FRAPPE BACKEND (DOCKER COMPOSE)
+## 4. PHASE 3: FRAPPE BACKEND CLUSTER DEPLOYMENT (DOCKER COMPOSE)
 
-### 4.1. Kéo mã nguồn & Cụm Frappe Docker
+### 4.1. Clone Codebase & Setup Runners
 ```bash
 cd ~
 git clone https://github.com/trungkienit25/lotus-fin.git ~/lotus-fin
 cd ~/lotus-fin
 
-# Cấp quyền thực thi script điều khiển
+# Ensure executable permissions on management runner
 chmod +x run.sh
 ```
 
-### 4.2. Khởi tạo 9 Container Dịch vụ
-Chạy lệnh khởi tạo ban đầu:
+### 4.2. Initialize 9 Container Services
+Launch the container cluster:
 ```bash
 ./run.sh up
 ```
-*Lưu ý:* Ở lần chạy đầu tiên, Docker sẽ tải các images (`frappe/erpnext:v16.36.1`, `mariadb:11.8`, `redis:6.2-alpine`) và tạo cơ sở dữ liệu `frontend`. Quá trình này mất khoảng 2 – 3 phút.
+*Note:* During the initial startup, Docker downloads base images (`frappe/erpnext:v16.36.1`, `mariadb:11.8`, `redis:6.2-alpine`) and initializes the `frontend` site database. This typically takes 2 to 3 minutes.
 
-Kiểm tra trạng thái các container:
+Verify container status:
 ```bash
 docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 ```
-*Đảm bảo 9/9 containers đều ở trạng thái `Up`:*
+*Verify that all 9 containers report healthy or `Up`:*
 1. `frappe_docker-frontend-1` (:8080)
 2. `frappe_docker-backend-1`
 3. `frappe_docker-db-1` (healthy)
@@ -216,51 +255,51 @@ docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 8. `frappe_docker-scheduler-1`
 9. `frappe_docker-websocket-1`
 
-### 4.3. Đồng bộ ứng dụng Lotus Fin & Migrate Database
+### 4.3. Synchronize Lotus Fin App & Migrate Database
 ```bash
 ./run.sh sync
 ```
-Lệnh trên thực hiện:
-* Đồng bộ code `lotus_fin` vào thư mục bench trong container.
-* Cài đặt app `lotus_fin` vào site `frontend`.
-* Chạy migration lược đồ cơ sở dữ liệu (`bench --site frontend migrate`).
-* Xóa sạch cache hệ thống (`clear-cache`).
-* Nạp cấu hình demo chuẩn.
+This command performs:
+* Synchronizes `lotus_fin` app source into the container bench directory.
+* Installs `lotus_fin` on the `frontend` site.
+* Runs database migrations (`bench --site frontend migrate`).
+* Clears all application caches (`clear-cache`).
+* Validates demo configuration fixtures.
 
-### 4.4. Nạp bộ dữ liệu mẫu tài chính kế toán
+### 4.4. Seed Demonstration Accounting Dataset
 ```bash
 ./run.sh demo
 ```
-Tạo sẵn tài khoản doanh nghiệp mẫu (`Lotus-fin (Demo)`), các năm tài chính, hóa đơn và dữ liệu phục vụ các module AI001 – AI006.
+Initializes sample enterprise accounts (`Lotus-fin (Demo)`), fiscal years, general ledger records, and transactions across modules AI001 – AI006.
 
 ---
 
-## 5. GIAI ĐOẠN 4: CẤU HÌNH NGINX REVERSE PROXY & SSL
+## 5. PHASE 4: HOST NGINX REVERSE PROXY & SSL CONFIGURATION
 
-### 5.1. Tạo cấu hình Virtual Host Nginx
-Tạo file cấu hình `/etc/nginx/sites-available/lotusfin`:
+### 5.1. Configure Nginx Virtual Host
+Create `/etc/nginx/sites-available/lotusfin`:
 
 ```bash
 cat > /etc/nginx/sites-available/lotusfin << 'EOF'
 server {
     listen 80;
-    server_name _; # Điền tên miền nếu có (ví dụ: demo.lotusfin.vn)
+    server_name _; # Replace with production domain (e.g., demo.lotusfin.vn)
 
     client_max_body_size 50m;
 
-    # 1. Phục vụ giao diện React Frontend tĩnh
+    # 1. Serve React Frontend SPA Static Assets
     location / {
         root /var/www/lotus-fin-fe;
         index index.html;
         try_files $uri $uri/ /index.html;
     }
 
-    # 2. Reverse Proxy API, SocketIO và Desk về Frappe Backend Docker (:8080)
+    # 2. Reverse Proxy APIs, SocketIO & Desk to Frappe Docker Proxy (:8080)
     location ~ ^/(api|assets|files|socket.io|app|desk)/ {
         proxy_pass http://127.0.0.1:8080;
         proxy_http_version 1.1;
 
-        # Hỗ trợ kết nối thời gian thực WebSocket cho Copilot & Desk
+        # WebSocket support for real-time Copilot streaming and desk notifications
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
 
@@ -269,27 +308,27 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
 
-        # Tăng timeout cho các báo cáo tài chính lớn và kịch bản stress-test
+        # Extended timeouts for deep financial analytics and stress-test calculations
         proxy_connect_timeout 60s;
         proxy_send_timeout 180s;
         proxy_read_timeout 180s;
 
-        # Tắt đệm proxy để phản hồi dạng Stream của AI không bị trễ
+        # Disable buffering to preserve LLM response streaming
         proxy_buffering off;
     }
 }
 EOF
 ```
 
-### 5.2. Kích hoạt Virtual Host & Reload Nginx
+### 5.2. Activate Site & Reload Nginx
 ```bash
 rm -f /etc/nginx/sites-enabled/default
 ln -sf /etc/nginx/sites-available/lotusfin /etc/nginx/sites-enabled/
 nginx -t && systemctl reload nginx
 ```
 
-### 5.3. (Tùy chọn) Kích hoạt HTTPS với Certbot Let's Encrypt
-Nếu có trỏ tên miền:
+### 5.3. (Optional) Provision Automated TLS Certificate via Certbot
+If pointing an active domain name:
 ```bash
 apt install -y certbot python3-certbot-nginx
 certbot --nginx -d demo.lotusfin.vn
@@ -297,24 +336,24 @@ certbot --nginx -d demo.lotusfin.vn
 
 ---
 
-## 6. GIAI ĐOẠN 5: TRIỂN KHAI FRONTEND REACT (TAILADMIN)
+## 6. PHASE 5: REACT FRONTEND PACKAGING & DEPLOYMENT
 
-Do Frontend build chỉ mất **1.47 giây** và sinh ra gói `dist` **< 1 MB**, phương án tối ưu nhất là build tại máy local (hoặc GitHub Actions) rồi rsync/scp lên server:
+Because compilation of the React frontend takes only **1.47 seconds** and yields an optimized `dist` payload **< 1 MB**, the optimal deployment approach is building locally (or inside CI runners) and copying artifacts to the server:
 
-### 6.1. Build tại máy phát triển (Local Machine)
-Tại thư mục `d:\Coding\lotus-fin\frontend`:
+### 6.1. Build on Local Development Workstation
+From `d:\Coding\lotus-fin\frontend`:
 ```bash
 npm run build
 tar -czf dist.tar.gz -C dist .
 ```
 
-### 6.2. Đẩy file lên Cloud Server và giải nén
-Từ máy local:
+### 6.2. Transfer and Extract onto Cloud Server
+From local machine:
 ```powershell
 scp -P 22 .\dist.tar.gz root@<YOUR_SERVER_IP>:/tmp/
 ```
 
-Trên Cloud Server:
+On the Cloud Server:
 ```bash
 rm -rf /var/www/lotus-fin-fe/*
 tar -xzf /tmp/dist.tar.gz -C /var/www/lotus-fin-fe/
@@ -323,77 +362,77 @@ rm -f /tmp/dist.tar.gz
 
 ---
 
-## 7. GIAI ĐOẠN 6: KẾ HOẠCH THỬ NGHIỆM & ĐỐI SOÁT (VERIFICATION MATRIX)
+## 7. PHASE 6: TESTING & VERIFICATION MATRIX
 
-Sau khi hoàn tất cài đặt, tiến hành chạy toàn bộ 6 kịch bản thử nghiệm:
+Following installation, execute the full 6-scenario verification sequence:
 
-```
-[Kịch bản 1: Network & Ping]  ──>  [Kịch bản 2: Desk Login]  ──>  [Kịch bản 3: AI Copilot API]
+```text
+[Scenario 1: Network & Ping]  ──>  [Scenario 2: Desk Login]  ──>  [Scenario 3: AI Copilot API]
                                                                           │
-[Kịch bản 6: Resource Audit]  <──  [Kịch bản 5: Stress Test] <──  [Kịch bản 4: Suite Test]
+[Scenario 6: Resource Audit]  <──  [Scenario 5: Stress Test] <──  [Scenario 4: Suite Test]
 ```
 
-### Kịch bản 1: Kiểm tra kết nối HTTP/HTTPS
-* **Lệnh:**
+### Scenario 1: Verify HTTP/HTTPS Endpoints
+* **Commands:**
   ```bash
   curl -I http://127.0.0.1/
   curl -I http://127.0.0.1/api/method/ping
   ```
-* **Kỳ vọng:** Trả về `HTTP/1.1 200 OK` (pong).
+* **Expected Result:** Returns `HTTP/1.1 200 OK` (pong).
 
-### Kịch bản 2: Đăng nhập giao diện Frappe Desk
+### Scenario 2: Frappe Desk Authentication
 * **URL:** `http://<YOUR_SERVER_IP>/desk/financial-health`
-* **Tài khoản:** `Administrator` / `admin`
-* **Kỳ vọng:** Đăng nhập thành công, bảng điều khiển Financial Health hiển thị các biểu đồ KPI doanh thu, chi phí, dòng tiền.
+* **Credentials:** `Administrator` / `admin`
+* **Expected Result:** Login succeeds; the Financial Health dashboard displays revenue, margins, and cash balance KPI charts.
 
-### Kịch bản 3: Kiểm tra API AI Copilot Endpoint
-* **Lệnh kiểm tra từ dòng lệnh:**
+### Scenario 3: AI Copilot API Endpoint Verification
+* **Test Command:**
   ```bash
   curl -s -X POST "http://127.0.0.1:8080/api/method/lotus_fin.api.copilot_api.chat_copilot" \
        -H "Content-Type: application/json" \
-       -d '{"query": "sức khỏe tài chính", "company": "Lotus-fin (Demo)"}'
+       -d '{"query": "financial health summary", "company": "Lotus-fin (Demo)"}'
   ```
-* **Kỳ vọng:** JSON trả về phân tích chỉ số tài chính, khuyến nghị và dữ liệu widget cấu trúc (status 200).
+* **Expected Result:** Structured JSON response containing diagnostic metrics, advice, and UI widget data (HTTP 200).
 
-### Kịch bản 4: Chạy bộ kiểm thử tự động tài chính (Integration Tests)
-* **Lệnh:**
+### Scenario 4: Automated Financial Integration Tests
+* **Command:**
   ```bash
   cd ~/lotus-fin
   ./run.sh test lotus_fin.tests.test_financial_health
   ```
-* **Kỳ vọng:** `Ran 15 tests ... OK` trong thời gian $< 0.5$ giây.
+* **Expected Result:** `Ran 15 tests ... OK` in $< 0.5$ seconds.
 
-### Kịch bản 5: Chạy mô phỏng kịch bản sốc tài chính What-If (AI004)
-* **Lệnh:**
+### Scenario 5: What-If Stress-Testing Simulation (AI004)
+* **Command:**
   ```bash
   ./run.sh simulate
   ```
-* **Kỳ vọng:** Trả về đủ ma trận 9 lớp chỉ số KPI (`revenue`, `gross_margin`, `ar_outstanding`, `dso`, `net_cash_flow`, `ending_cash`, `ccc`, `cash_shortfall`).
+* **Expected Result:** Standard output outputs all 9 modeled KPI layers (`revenue`, `gross_margin`, `ar_outstanding`, `dso`, `net_cash_flow`, `ending_cash`, `ccc`, `cash_shortfall`).
 
-### Kịch bản 6: Đo lường tải tài nguyên sau kiểm thử (Resource Audit)
-* **Lệnh:**
+### Scenario 6: Hardware Resource Audit
+* **Command:**
   ```bash
   docker stats --no-stream --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.MemPerc}}"
   ```
-* **Kỳ vọng:**
-  * Tổng RAM 9 container $\le$ 1.5 GB.
-  * RAM máy chủ còn rảnh $\ge$ 5.5 GB.
-  * CPU rảnh $\ge$ 95%.
+* **Expected Result:**
+  * 9 containers consume $\le 1.5\text{ GB}$ total RAM.
+  * Host free RAM $\ge 5.5\text{ GB}$.
+  * CPU idle $\ge 95\%$.
 
 ---
 
-## 8. GIAI ĐOẠN 7: TỰ ĐỘNG HÓA CI/CD TỪ GITHUB ACTIONS
+## 8. PHASE 7: GITHUB ACTIONS CI/CD AUTOMATION
 
-Thiết lập file workflow `.github/workflows/deploy.yml` để mỗi khi merge code vào nhánh `main` hoặc `develop`, hệ thống tự động build Frontend và sync Backend:
+Configure `.github/workflows/deploy.yml` to automatically build the frontend and update the backend upon merge to `main` or `develop`:
 
-### 8.1. Các Secret cần cấu hình trên GitHub Repo
-Vào **Settings** -> **Secrets and variables** -> **Actions** -> **New repository secret**:
+### 8.1. Secrets Required in GitHub Repository
+Under **Settings** -> **Secrets and variables** -> **Actions** -> **New repository secret**:
 * `VM_HOST`: `<YOUR_SERVER_IP>`
 * `VM_USERNAME`: `root`
-* `VM_SSH_KEY`: Private Key SSH dùng để kết nối vào máy chủ.
+* `VM_SSH_KEY`: SSH Private Key authorized on the cloud server.
 * `VM_PORT`: `22`
 
-### 8.2. Cấu trúc Pipeline CI/CD
+### 8.2. CI/CD Pipeline Configuration
 ```yaml
 name: Deploy Lotus Fin to Cloud Server
 
@@ -447,38 +486,38 @@ jobs:
           script: |
             set -e
 
-            # 1. Cập nhật Frontend
+            # 1. Update Frontend
             rm -rf /var/www/lotus-fin-fe/*
             tar -xzf /tmp/frontend/dist.tar.gz -C /var/www/lotus-fin-fe/
             rm -f /tmp/frontend/dist.tar.gz
 
-            # 2. Cập nhật Backend Code
+            # 2. Update Backend Code
             cd ~/lotus-fin
             git fetch origin main
             git reset --hard origin/main
             chmod +x run.sh
 
-            # 3. Đồng bộ vào container & Migrate
+            # 3. Synchronize containers and run migrations
             ./run.sh sync
 
-            # 4. Dọn dẹp cache Docker bảo toàn ổ cứng
+            # 4. Clean Docker cache to preserve disk space
             docker system prune -f
 
-            echo ">>> TRIỂN KHAI THÀNH CÔNG LÊN CLOUD SERVER! <<<"
+            echo ">>> DEPLOYMENT COMPLETED SUCCESSFULLY ON CLOUD SERVER! <<<"
 ```
 
 ---
 
-## 9. QUY TRÌNH BẢO TRÌ & XỬ LÝ SỰ CỐ (TROUBLESHOOTING)
+## 9. MAINTENANCE & TROUBLESHOOTING RUNBOOK
 
-| Tình huống sự cố | Dấu hiệu nhận biết | Lệnh xử lý nhanh |
+| Operational Scenario | Diagnostic Symptom | Immediate Remediation |
 | :--- | :--- | :--- |
-| **Hết dung lượng ổ đĩa** | `No space left on device` | `docker system prune -af --volumes`<br>`journalctl --vacuum-time=3d` |
-| **Tràn RAM / OOM** | Container bị restart liên tục | `free -h` kiểm tra swap.<br>`docker restart frappe_docker-backend-1` |
-| **Lỗi 502 Bad Gateway** | Nginx không kết nối được Backend | Kiểm tra container frontend Frappe: `docker ps`<br>`docker logs frappe_docker-frontend-1 --tail 50` |
-| **Không tải được dữ liệu demo** | Báo lỗi DocType missing | Chạy lại: `./run.sh sync && ./run.sh demo` |
-| **Xem log realtime của Backend** | Debug lỗi API Copilot | `docker logs -f frappe_docker-backend-1 --tail 100` |
+| **Disk Exhaustion** | `No space left on device` | `docker system prune -af --volumes`<br>`journalctl --vacuum-time=3d` |
+| **RAM Exhaustion / OOM** | Container restarts repeatedly | Check swap: `free -h`<br>Restart worker: `docker restart frappe_docker-backend-1` |
+| **502 Bad Gateway** | Nginx cannot connect to Backend | Check internal proxy container: `docker ps`<br>`docker logs frappe_docker-frontend-1 --tail 50` |
+| **Missing Demo Ledgers** | Missing DocType or chart of accounts | Re-run: `./run.sh sync && ./run.sh demo` |
+| **Realtime Backend Logs** | Debugging Copilot API or tool calls | `docker logs -f frappe_docker-backend-1 --tail 100` |
 
 ---
 
-*Tài liệu được biên soạn bởi Đội ngũ Kỹ thuật Lotus Fin — Lưu hành nội bộ.*
+*Authored by Lotus Fin Engineering Team — Internal Engineering Specification.*
