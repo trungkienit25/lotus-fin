@@ -1,2 +1,0 @@
-{"apps": ["frappe", "lotus_fin"], "frappe_only": true, "core_checks": "PASS", "business_independence": "NOT_QUALIFIED"}
-Framework HTTP readiness PASS; financial capabilities remain unqualified

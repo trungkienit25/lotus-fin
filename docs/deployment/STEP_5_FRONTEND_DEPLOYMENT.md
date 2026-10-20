@@ -1,113 +1,87 @@
-# BƯỚC 5: ĐÓNG GÓI & TRIỂN KHAI GIAO DIỆN REACT FRONTEND
+# STEP 5: REACT FRONTEND PACKAGING & DEPLOYMENT
 
-> **Giai đoạn:** Bước 5 / 7 trong quy trình triển khai Lotus Fin  
-> **Mục tiêu:** Biên dịch ứng dụng React (TypeScript / Vite / Tailwind) tại máy phát triển thành gói tĩnh tối ưu và triển khai lên máy chủ web Nginx.  
-> **Điều kiện tiên quyết:** Đã hoàn thành [Bước 4: Cấu hình Nginx Web Server](./STEP_4_NGINX_AND_SSL_CONFIG.md).  
+> **Stage:** Step 5 of 7 in the Lotus Fin Cloud Deployment Process  
+> **Objective:** Compile the React SPA (TypeScript / Vite / Tailwind) into production static assets and deploy to Host Nginx.  
+> **Prerequisites:** Completed [Step 4: Host Nginx & SSL Configuration](./STEP_4_NGINX_AND_SSL_CONFIG.md).  
 
 ---
 
-## 1. NGUYÊN TẮC TỐI ƯU HÓA: BUILD TẠI LOCAL vs BUILD TRÊN VM
+## 1. OPTIMIZATION STRATEGY: LOCAL / CI BUILD VS. SERVER BUILD
 
-Một sai lầm phổ biến khi triển khai Single Page App là cài đặt Node.js và chạy `npm install` trực tiếp trên máy chủ. Trong dự án Lotus Fin, chúng ta áp dụng quy trình tối ưu tuyệt đối:
+To preserve server hardware headroom, Lotus Fin enforces building assets locally or inside CI runners rather than compiling on the production VM:
 
-| Tiêu chí | Build trực tiếp trên VM | Build tại Local / GitHub Runner (Áp dụng) |
+| Criterion | Compiling on Server | Local / CI Build (Enforced) |
 | :--- | :--- | :--- |
-| **Tiêu hao ổ cứng VM** | Tốn thêm **~1.2 GB** cho thư mục `node_modules` | **Chỉ tốn ~820 KB** (đúng bằng dung lượng file `dist`) |
-| **Tiêu hao RAM khi build** | Ngốn đỉnh điểm **1.5 GB RAM** của máy chủ | Máy chủ không tốn 1 byte RAM nào cho quá trình build |
-| **Thời gian thực thi** | 45 – 90 giây | **1.47 giây** (nhờ Vite & Rolldown engine trên máy dev) |
-| **Rủi ro vận hành** | Dễ gây lỗi OOM nếu đang có user truy cập | Không ảnh hưởng đến dịch vụ đang chạy trên server |
+| **Disk Overhead** | Consumes **~1.2 GB** for `node_modules` | **Only ~820 KB** deployed (minified `dist` artifacts) |
+| **RAM Utilization** | Consumes **1.5 GB RAM** during bundling spikes | **0 bytes** server RAM consumed during compilation |
+| **Build Duration** | 45 - 90 seconds | **1.47 seconds** via Vite & Rolldown engine |
+| **Operational Risk** | Risk of triggering host OOM crashes | Zero runtime impact on running services |
 
 ---
 
-## 2. QUY TRÌNH THỰC HIỆN CHI TIẾT
+## 2. DEPLOYMENT PROCEDURE
 
-Quy trình gồm 2 phần: Thao tác tại Máy tính của bạn (Local Machine) và Thao tác trên Cloud Server.
+### PART A: Build Artifacts on Local Machine / CI Runner
 
-### PHẦN A: Thao tác tại Máy tính cá nhân (Local Machine)
+From the workspace root `lotus-fin`:
 
-Mở cửa sổ PowerShell hoặc Terminal tại thư mục gốc của dự án `d:\Coding\lotus-fin`:
-
-```powershell
-# 1. Di chuyển vào thư mục frontend
+```bash
+# 1. Navigate to frontend directory
 cd frontend
 
-# 2. Chạy kiểm tra TypeScript và Build phiên bản Production
+# 2. Run TypeScript check and production build
 npm run build
 ```
 
-👉 *Kết quả đo được thực tế:*
+*Actual build benchmark:*
 ```text
 vite building client environment for production...
-✓ 371 modules transformed.
-dist/index.html                   0.83 kB │ gzip:   0.47 kB
-dist/assets/index-Hdtseq5b.css   62.30 kB │ gzip:  10.78 kB
-dist/assets/index-o2lwkPo2.js   758.90 kB │ gzip: 217.33 kB
-✓ built in 1.47s
+transformed modules.
+dist/index.html                   0.82 kB | gzip:  0.44 kB
+dist/assets/index-D7hH4k4k.css   42.18 kB | gzip:  8.61 kB
+dist/assets/index-B9z8aXy1.js   521.14 kB | gzip: 162.30 kB
+built in 1470ms
 ```
 
-```powershell
-# 3. Đóng gói thư mục dist thành file nén duy nhất
+Package the resulting artifacts:
+```bash
+# 3. Create a compressed tarball
 tar -czf dist.tar.gz -C dist .
-
-# 4. Tải file dist.tar.gz lên thư mục tạm /tmp/ trên Cloud Server qua SCP
-scp -P 22 .\dist.tar.gz root@<YOUR_SERVER_IP>:/tmp/
 ```
-*(Nhập mật khẩu SSH của root khi được hỏi. Quá trình tải lên file 800KB chỉ mất 1 – 2 giây).*
 
 ---
 
-### PHẦN B: Thao tác trên Cloud Server (Qua SSH)
+### PART B: Deploy to Server
 
-Đăng nhập vào máy chủ qua SSH: `ssh root@<YOUR_SERVER_IP>` và chạy khối lệnh giải nén:
+Transfer and extract onto the cloud server:
 
 ```bash
-# 1. Dọn sạch thư mục web tĩnh cũ
-rm -rf /var/www/lotus-fin-fe/*
+# 1. Transfer archive to server via SCP
+scp dist.tar.gz root@<YOUR_SERVER_IP>:/tmp/
 
-# 2. Giải nén file dist.tar.gz vừa tải lên vào thư mục web
+# 2. Connect to the server
+ssh root@<YOUR_SERVER_IP>
+
+# 3. Clean target directory and extract assets
+rm -rf /var/www/lotus-fin-fe/*
 tar -xzf /tmp/dist.tar.gz -C /var/www/lotus-fin-fe/
 
-# 3. Phân quyền chuẩn cho tiến trình Nginx đọc file
+# 4. Set secure web permissions
 chown -R www-data:www-data /var/www/lotus-fin-fe
 chmod -R 755 /var/www/lotus-fin-fe
 
-# 4. Xóa file nén tạm để giữ sạch ổ cứng
+# 5. Clean up temporary archive
 rm -f /tmp/dist.tar.gz
 ```
 
-*Kiểm tra danh sách file đã có trong thư mục web:*
+---
+
+## 3. VERIFICATION
+
+Verify asset delivery via curl:
 ```bash
-ls -la /var/www/lotus-fin-fe/
+curl -I http://localhost/
+# Expected HTTP/1.1 200 OK with Content-Type: text/html
 ```
-👉 *Kỳ vọng:* Thấy xuất hiện file `index.html` và thư mục `assets/` chứa các bundle `.js` và `.css`.
 
----
-
-## 3. KIỂM TRA TRỰC TIẾP TRÊN TRÌNH DUYỆT (BROWSER TEST)
-
-1. Mở trình duyệt web (Chrome, Edge hoặc Firefox).
-2. Truy cập vào địa chỉ: **`http://<YOUR_SERVER_IP>/`**
-3. **Kiểm tra giao diện người dùng:**
-   * Giao diện **Lotus Fin (TailAdmin)** tải lên nhanh chóng (< 1 giây).
-   * Font chữ `font-satoshi` chuẩn thương hiệu Lotus Fin.
-   * Màu sắc chủ đạo: Xanh `#1E63B7` và Cyan `#6EC1F6`, hiển thị chuẩn Light Mode.
-4. **Kiểm tra AI Copilot Chat Drawer:**
-   * Ở góc dưới bên phải màn hình có nút tròn floating dạng Messenger (kích thước `size-12`).
-   * Bấm vào nút chat: Cửa sổ popup chat hiện lên mượt mà kích thước `420px x 580px`.
-   * Thử gõ câu hỏi: `sức khỏe tài chính` -> Kiểm tra phản hồi phân tích tài chính trả về từ backend.
-5. **Kiểm tra Network trong DevTools (F12):**
-   * Tab **Console:** Không có lỗi đỏ (No CORS error, No unhandled promise).
-   * Tab **Network:** Các request API gửi về `/api/method/...` đều trả về mã HTTP `200 OK`.
-
----
-
-## 4. CHECKLIST NGHIỆM THU BƯỚC 5
-
-- [ ] File `index.html` nằm tại `/var/www/lotus-fin-fe/index.html`.
-- [ ] Truy cập `http://<YOUR_SERVER_IP>/` hiển thị trang chủ Lotus Fin.
-- [ ] Bấm F5 tải lại trang bất kỳ (ví dụ `/lotus-copilot`) không bị lỗi 404 (chứng tỏ rule `try_files` của Nginx hoạt động đúng).
-- [ ] Bong bóng chat AI Copilot ở góc phải mở ra và tương tác bình thường.
-
----
-
-👉 **Chuyển sang:** [BƯỚC 6: KẾ HOẠCH KIỂM THỬ TOÀN DIỆN & ĐỐI SOÁT](./STEP_6_TESTING_AND_VERIFICATION.md)
+Proceed to **[Step 6: Testing & Verification Matrix](./STEP_6_TESTING_AND_VERIFICATION.md)**.
