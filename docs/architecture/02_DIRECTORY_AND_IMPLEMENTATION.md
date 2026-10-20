@@ -8,24 +8,24 @@
 - **Implementation Design**:
   - Implements CopilotController with static entrypoint handle_send_message(request_data, service=None).
   - Ingests raw client dictionaries, converts them into SendMessageDTO for strong Pydantic validation.
-  - Resolves authenticated user context: obtains rappe.session.user, validates multi-tenant company access via get_verified_company(dto.company), and constructs the UserPrincipal value object.
+  - Resolves authenticated user context: obtains frappe.session.user, validates multi-tenant company access via get_verified_company(dto.company), and constructs the UserPrincipal value object.
   - Resolves CopilotService (defaulting to the automated environment factory get_copilot_service()).
   - Serializes and emits normalized response dictionaries through ChatResponseDTO.
 
 ### 1.2. presentation/dto/
 - **chat_request.py**:
-  - SendMessageDTO(BaseModel): Strongly typed fields message: str, session_id: Optional[str], company: Optional[str], s_of_date: Optional[str].
+  - SendMessageDTO(BaseModel): Strongly typed fields message: str, session_id: Optional[str], company: Optional[str], as_of_date: Optional[str].
 - **chat_response.py**:
-  - ChatResponseDTO(BaseModel): Returns session_id: str, eply: str, 	ool_called: Optional[str], 	ool_output: Optional[Dict], ui_widget: Optional[Dict], executed_tools: List[str].
+  - ChatResponseDTO(BaseModel): Returns session_id: str, reply: str, tool_called: Optional[str], tool_output: Optional[Dict], ui_widget: Optional[Dict], executed_tools: List[str].
 
 ---
 
 ## 2. Application Layer (lotus_fin/application)
 
-### 2.1. pplication/agent/agent_runner.py
+### 2.1. application/agent/agent_runner.py
 - **Implementation Design**:
   - Encapsulates the bounded ReAct execution loop:
-    `	ext
+    ```text
     Initialize working_context = [SystemPrompt, HistoryMessages]
     Iterate up to max_iterations = 4:
       1. response = llm_provider.generate(working_context, tools)
@@ -40,11 +40,11 @@
       -> Trigger safe fallback mechanism, returning boundary warnings alongside retrieved factual data.
     `
 
-### 2.2. pplication/agent/prompt_engine.py
+### 2.2. application/agent/prompt_engine.py
 - **Grounding Rules Formulation**:
   - Assembles prompt contracts binding the model: forbids mathematical invention, bounds reasoning strictly to verified tool execution outputs, forces standard accounting terminology, and enforces tenant company restrictions.
 
-### 2.3. pplication/service/copilot_service.py
+### 2.3. application/service/copilot_service.py
 - **Implementation Design**:
   - Implements IChatService.
   - Coordinates session retrieval/storage via ISessionRepository.
@@ -63,24 +63,24 @@
 - **Policy Contract**: Declares abstract interface IPermissionPolicy and structural configuration ModuleSecurityPolicy.
 
 ### 3.3. domain/schema/
-- 	ool_definition.py: Declares tool specifications as OpenAPI JSON Schema objects.
-- 	ool_call_request.py: Strongly typed payloads for tool invocations emitted by the model.
-- 	ool_execution_result.py: Encapsulates tool execution output, UI widget metadata, and status flags.
+- tool_definition.py: Declares tool specifications as OpenAPI JSON Schema objects.
+- tool_call_request.py: Strongly typed payloads for tool invocations emitted by the model.
+- tool_execution_result.py: Encapsulates tool execution output, UI widget metadata, and status flags.
 
 ---
 
 ## 4. Infrastructure Layer (lotus_fin/infrastructure)
 
 ### 4.1. infrastructure/llm/
-- **dapter/openai_llm_adapter.py**:
+- **adapter/openai_llm_adapter.py**:
   - Implements ILLMProvider.
   - Dispatches HTTP REST calls via urllib.request to /chat/completions.
   - Handles native function calling: parses choice.message.tool_calls into ToolCallRequest instances.
-- **dapter/gemini_llm_adapter.py**:
+- **adapter/gemini_llm_adapter.py**:
   - Implements ILLMProvider.
   - Interfaces directly with Google Gemini REST API (generateContent).
-  - Serializes ToolDefinition into unctionDeclarations.
-  - Handles TOOL execution feedback messages as ole: user with parts: [{functionResponse: ...}] in strict adherence to Gemini API specifications.
+  - Serializes ToolDefinition into functionDeclarations.
+  - Handles TOOL execution feedback messages as role: user with parts: [{functionResponse: ...}] in strict adherence to Gemini API specifications.
 - **llm_factory.py**:
   - LLMProviderFactory.create_provider(): Reads environment configuration and initializes the designated concrete adapter.
 
@@ -88,7 +88,7 @@
 - **Implementation Design**:
   - Implements IPermissionPolicy.
   - Manages MODULE_SECURITY_REGISTRY: Dict[str, ModuleSecurityPolicy] enabling extensibility for new modules without editing core codebase (OCP).
-  - Validates company, report, and DocType access through rappe.has_permission() and Report.is_permitted().
+  - Validates company, report, and DocType access through frappe.has_permission() and Report.is_permitted().
   - Enforces fail-closed security: missing permissions or unlisted resources immediately trigger FORBIDDEN exceptions.
 
 ### 4.3. infrastructure/tool/
@@ -102,10 +102,10 @@
 ## 5. Modules Layer (lotus_fin/modules)
 
 All deterministic financial calculation engines reside isolated in modules/:
-1. **001_health/**: Computes corporate financial health metrics: Revenue, COGS, Gross Margin, DSCR, Working Capital, Quick Ratio from ERPNext General Ledger.
-2. **002_cashflow/**: 30-day direct daily cash forecast based on opening cash balance and contractual receivables/payables (AR/AP).
-3. **003_risk_signal/**: Scans and pinpoints overdue receivables (AR spikes) and concentrated supplier payments (AP clusters).
-4. **004_what_if/**: Multi-factor financial simulation lab adjusting sales shocks, payment delays, expense surges, and debt injections across 9 financial KPIs.
-5. **005_financing/**: Matches working capital shortfalls with commercial credit products, scoring financing eligibility.
-6. **006_repayment/**: Loan amortization schedules (fixed principal vs. equal monthly payments) and interest rate shock simulations (+100 bps, +200 bps).
-7. **007_debt_recovery/**: Action-assisted receivables recovery, statement verification, and payment reminder dispatch.
+1. **f001_health/**: Computes corporate financial health metrics: Revenue, COGS, Gross Margin, DSCR, Working Capital, Quick Ratio from ERPNext General Ledger.
+2. **f002_cashflow/**: 30-day direct daily cash forecast based on opening cash balance and contractual receivables/payables (AR/AP).
+3. **f003_risk_signal/**: Scans and pinpoints overdue receivables (AR spikes) and concentrated supplier payments (AP clusters).
+4. **f004_what_if/**: Multi-factor financial simulation lab adjusting sales shocks, payment delays, expense surges, and debt injections across 9 financial KPIs.
+5. **f005_financing/**: Matches working capital shortfalls with commercial credit products, scoring financing eligibility.
+6. **f006_repayment/**: Loan amortization schedules (fixed principal vs. equal monthly payments) and interest rate shock simulations (+100 bps, +200 bps).
+7. **f007_debt_recovery/**: Action-assisted receivables recovery, statement verification, and payment reminder dispatch.

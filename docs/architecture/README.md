@@ -15,7 +15,7 @@ Lotus Fin structures financial intelligence using a standardized **Clean Hexagon
 
 ## 2. Architectural Directory Tree
 
-`	ext
+```text
 lotus_fin/
 ├── presentation/                      # [LAYER 1] Presentation (Web & Desk Entrypoints)
 │   ├── controller/
@@ -89,7 +89,7 @@ lotus_fin/
 │   └── f007_debt_recovery/            # Debt Statement Follow-up & Automated Dispatch
 │
 └── tests/                             # Automated Test Suites (>460 tests)
-`
+```
 
 ---
 

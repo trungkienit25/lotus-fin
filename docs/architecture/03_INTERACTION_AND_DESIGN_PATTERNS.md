@@ -6,7 +6,7 @@
 
 The sequence diagram below traces the end-to-end execution path from the moment a user submits a prompt in Frappe Desk / React UI until the platform delivers a grounded financial diagnosis paired with an interactive UI widget:
 
-`mermaid
+```mermaid
 sequenceDiagram
     autonumber
     actor User as User (Frappe Desk / React UI)
@@ -42,7 +42,7 @@ sequenceDiagram
             Ctrl-->>User: JSON Response (Message + Widget Payload)
         end
     end
-`
+```
 
 ---
 
@@ -63,7 +63,7 @@ The Lotus Fin codebase incorporates classical Gang of Four (GoF) design patterns
   - LLMProviderFactory inspects environment variables (LOTUS_AI_PROVIDER / LOTUS_LLM_PROVIDER) and instantiates the designated ILLMProvider implementation (OpenAILLMAdapter, GeminiLLMAdapter, or MockLLMAdapter).
 
 ### 2.3. Adapter Pattern (Third-Party API Normalization)
-- **Problem**: OpenAI and Google Gemini have divergent payload schemas, message roles (ssistant vs. model), and function-calling conventions.
+- **Problem**: OpenAI and Google Gemini have divergent payload schemas, message roles (assistant vs. model), and function-calling conventions.
 - **Solution**:
   - OpenAILLMAdapter and GeminiLLMAdapter translate between internal domain models (ChatMessage) and provider-specific schemas, reconciling response structures back into a unified LLMResponse.
 
